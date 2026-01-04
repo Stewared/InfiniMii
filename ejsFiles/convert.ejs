@@ -9,39 +9,39 @@
 
         // HowTo Schema data
         const howToTitle = 'How to Convert Miis Between Nintendo Systems';
-        const howToDescription = 'Step-by-step guide to convert Mii characters between Wii, 3DS, Wii U, and Switch formats using InfiniMii\\'s free online converter.';
+        const howToDescription = 'Step-by-step guide to convert Mii characters between Wii, 3DS, Wii U, and Switch formats using InfiniMii\'s free online converter.';
         const howToDuration = 'PT2M';
         const howToSupplies = [
             {"@type": "HowToSupply", "name": "Mii file (Wii .mii or 3DS .bin) or QR code image"}
         ];
         const howToTools = [
-            {"@type": "HowToTool", "name": "InfiniMii Converter", "url": "<%= baseUrl %>/convert"}
+            {"@type": "HowToTool", "name": "InfiniMii Converter", "url": `${baseUrl}/convert`}
         ];
         const howToSteps = [
             {
                 "@type": "HowToStep",
                 "name": "Upload Your Mii File",
                 "text": "Select your Mii file (.mii for Wii, .bin for 3DS, or QR code image) and upload it to the converter.",
-                "url": "<%= baseUrl %>/convert#step-1",
-                "image": "<%= baseUrl %>/guide-images/upload-step.jpg"
+                "url": "${baseUrl}/convert#step-1",
+                "image": "${baseUrl}/guide-images/upload-step.jpg"
             },
             {
                 "@type": "HowToStep",
                 "name": "Select Source Format",
                 "text": "Choose whether you're converting from Wii, 3DS, Wii U, or a QR code.",
-                "url": "<%= baseUrl %>/convert#step-2"
+                "url": "${baseUrl}/convert#step-2"
             },
             {
                 "@type": "HowToStep",
                 "name": "Choose Target Format",
                 "text": "Select the format you want to convert to: Wii Mii, 3DS/Wii U Mii, Special Wii Mii, or Special 3DS Mii.",
-                "url": "<%= baseUrl %>/convert#step-3"
+                "url": "${baseUrl}/convert#step-3"
             },
             {
                 "@type": "HowToStep",
                 "name": "Download Converted File",
                 "text": "Click Convert and download your Mii in the new format. The file will be ready to use on your target Nintendo system.",
-                "url": "<%= baseUrl %>/convert#step-4"
+                "url": "${baseUrl}/convert#step-4"
             }
         ];
         %>

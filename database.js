@@ -6,8 +6,8 @@ mongoose.set("strictQuery", true);
 const miiSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true, index: true },
     uploader: { type: String, required: true, index: true },
-    desc: { type: String, default: "" },
-    votes: { type: Number, default: 0 },
+    desc: { type: String, default: "No Description Provided" },
+    votes: { type: Number, default: 1 },
     official: { type: Boolean, default: false, index: true },
     uploadedOn: { type: Number, default: () => Date.now(), index: true },
     console: { type: String, default: "3DS" },
@@ -24,10 +24,10 @@ const miiSchema = new mongoose.Schema({
     glasses: mongoose.Schema.Types.Mixed,
     mole: mongoose.Schema.Types.Mixed,
     officialCategories: { type: [String], default: [] },
-    published: { type: Boolean, default: true, index: true },
-    private: { type: Boolean, default: false, index: true }, //TODO_DB: verify published vs private
+    published: { type: Boolean, default: false, index: true },
+    private: { type: Boolean, default: true, index: true }, //TODO_DB: verify published vs private
     blockedFromPublishing: { type: Boolean, default: false },
-    blockReason: { type: String, default: "" }
+    blockReason: { type: String, default: "No Reason Provided" }
 }, { timestamps: true, minimize: false });
 
 const userSchema = new mongoose.Schema({
@@ -51,8 +51,8 @@ const userSchema = new mongoose.Schema({
 
 const settingsSchema = new mongoose.Schema({
     _id: { type: String, required: true },
-    highlightedMii: { type: String, default: null },
-    highlightedMiiChangeDay: { type: Number, default: null },
+    highlightedMii: { type: String, default: "00000" },
+    highlightedMiiChangeDay: { type: Number, default: ()=>Date.now() },
     bannedIPs: { type: [String], default: [] },
     officialCategories: { type: mongoose.Schema.Types.Mixed, default: { categories: [] } }
 }, { _id: false, minimize: false });

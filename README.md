@@ -9,12 +9,12 @@ Transfer Miis between systems with no limitations
 Backport 3DS Miis to the Wii
 Comprehensive guide to transfer Miis directly to and from any console without ever modding it
 Generate and scan QR codes
-Build your own with the equally open source [MiiJS](https://github.com/Kestron06/MiiJS)
+Build your own with the equally open source [MiiJS](https://github.com/KestronProgramming/MiiJS)
 
 # Running Your Own
 ## Installing
 ```bash
-git clone https://github.com/Kestron06/InfiniMii
+git clone https://github.com/KestronProgramming/InfiniMii
 cd InfiniMii
 npm i
 ```
@@ -29,7 +29,7 @@ The email instructions and code are designed for use with Zoho Mail, and mileage
     "privateMiiLimit":50,
     "baseUrl":"THE URL YOUR SITE IS HOSTED FROM",
     "discordInvite":"AN INVITE TO YOUR DISCORD SUPPORT SERVER",
-    "githubLink":"https://github.com/Kestron06/InfiniMii"
+    "githubLink":"https://github.com/KestronProgramming/InfiniMii"
 }
 ```
 ## Make storage.json

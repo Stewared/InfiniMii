@@ -38,6 +38,6 @@
 
 ### Moderate For
 - Spam or keyword stuffing
-- Copyrighted character names used inappropriately
+- Character names used inappropriately
 - Duplicate content
 - Low-quality or offensive descriptions
