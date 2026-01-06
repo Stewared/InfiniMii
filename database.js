@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 mongoose.set("strictQuery", true);
 
@@ -106,8 +106,7 @@ async function clearIndexes() {
 }
 clearIndexes();
 
-
-module.exports = {
+export {
     connectionPromise,
     Mii,
     User,

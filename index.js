@@ -1,25 +1,32 @@
-const helmet = require('helmet');
-const miijs = require("miijs");
-const crypto = require('crypto');
-const fs = require("fs");
-const ejs = require('ejs');
-const express = require("express");
-const path = require("path");
-const nodemailer = require("nodemailer");
-const cookieParser = require('cookie-parser');
-const compression = require('compression');
-const { connectionPromise, Mii: Miis, User: Users, Settings } = require("./database");
-var multer = require('multer');
-var upload = multer({ dest: 'uploads/' });
-var globalSalt = process.env.salt;
-process.env=require("./env.json");
-const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
-const baseUrl=process.env.baseUrl;
-const { RegExpMatcher, englishDataset, englishRecommendedTransformers } = require('obscenity');
-const swearList = englishDataset.containers.map(c => c.metadata.originalWord).filter(Boolean);
-const { doubleMetaphone } = require('double-metaphone');
-const validator = require('validator');
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+import helmet from 'helmet';
+import miijs from "miijs";
+import crypto from 'crypto';
+import fs from "fs";
+import ejs from 'ejs';
+import express from "express";
+import path from "path";
+import nodemailer from "nodemailer";
+import cookieParser from 'cookie-parser';
+import compression from 'compression';
+import multer from 'multer';
+import FormData from 'form-data';
+import https from 'https';
+import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
+import { doubleMetaphone } from 'double-metaphone';
+import validator from 'validator';
 
+process.env = JSON.parse(fs.readFileSync("./env.json", "utf-8"));
+import { connectionPromise, Mii as Miis, User as Users, Settings } from "./database.js";
+
+const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
+const baseUrl = process.env.baseUrl;
+const swearList = englishDataset.containers.map(c => c.metadata.originalWord).filter(Boolean);
+const upload = multer({ dest: 'uploads/' });
+var globalSalt = process.env.salt;
 
 function bitStringToBuffer(bitString) {
   const byteLength = Math.ceil(bitString.length / 8);
@@ -564,7 +571,7 @@ function sendEmail(to, subj, cont) {
     });
 }
 function makeReport(content, attachments = []) {
-    const formData = new (require('form-data'))();
+    const formData = new FormData();
     
     // Add the JSON payload
     formData.append('payload_json', content);
@@ -578,7 +585,6 @@ function makeReport(content, attachments = []) {
     });
     
     // Send using form-data instead of JSON
-    const https = require('https');
     const url = new URL(process.env.hookUrl);
     
     const options = {
@@ -648,8 +654,7 @@ function populateNestedArrays(arrayObj, obj) {
     }
     return ret;
 }
-async function getCollectedLeavesAcrossMiis() {
-    const allMiis = await Miis.find({ private: false }).lean();
+async function getCollectedLeavesAcrossMiis(allMiis) {
     let acc;
     for (const mii of allMiis) {
         acc = acc ? populateNestedArrays(acc, mii) : getNestedAsArrays(mii);
@@ -752,8 +757,35 @@ function averageObjectWithPairs(node, parentKey = "") {
     }
     return out;
 }
-async function getAverageMii(){
-    const leaves = await getCollectedLeavesAcrossMiis();
+async function setAverageMii(){
+    const pipeline = [
+        {
+            $match: {
+                published: true,
+                private: false,
+                id: { $ne: "average" }
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                general: 1,
+                hair: 1,
+                face: 1,
+                eyes: 1,
+                eyebrows: 1,
+                nose: 1,
+                mouth: 1,
+                beard: 1,
+                glasses: 1,
+                mole: 1
+            }
+        }
+    ];
+    const allMiis = await Miis.aggregate(pipeline);
+
+
+    const leaves = await getCollectedLeavesAcrossMiis(allMiis);
     var avg=averageObjectWithPairs(leaves);
     delete avg._id;
     avg.id = "average";
@@ -1126,8 +1158,8 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             })
         );
         console.log(`Ensured All Miis Have QRs And Face Renders\nGenerating new average Mii...`);
-        await getAverageMii();
-        setInterval(async () => await getAverageMii(), 1800000);//30 Mins
+        await setAverageMii();
+        setInterval(async () => await setAverageMii(), 1800000);//30 Mins
 
         // TODO: it's passing it without all the fields
         const avgMii = await getMiiById("average");
