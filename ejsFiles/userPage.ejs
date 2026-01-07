@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title><%= user.name %> - InfiniMii</title>
-        <meta content="<%= user.name %>" property="og:title" />
-        <meta content="User <%= user.name %>'s Miis on InfiniMii'" property="og:description" />
-        <meta content="https://infinimii.com/user/<%= user.name %>" property="og:url" />
-        <meta content="https://infinimii.com/miiImgs/<%= user.miiPfp %>.png" property="og:image" />
+        <title><%= targetUser.name %> - InfiniMii</title>
+        <meta content="<%= targetUser.name %>" property="og:title" />
+        <meta content="User <%= targetUser.name %>'s Miis on InfiniMii'" property="og:description" />
+        <meta content="https://infinimii.com/user/<%= targetUser.name %>" property="og:url" />
+        <meta content="https://infinimii.com/miiImgs/<%= targetUser.miiPfp %>.png" property="og:image" />
         <meta content="#ff0000" data-react-helmet="true" name="theme-color" />
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/profile.css">
@@ -19,28 +19,30 @@
             <div class="profile-container">
                 <!-- Profile Header -->
                 <div class="profile-header">
-                    <img src="/miiImgs/<%= user.miiPfp %>.png" alt="<%= user.name %>" class="profile-avatar">
+                    <img src="/miiImgs/<%= targetUser.miiPfp %>.png" alt="<%= targetUser.name %>" class="profile-avatar">
                     <div class="profile-info">
                         <div class="profile-name">
-                            <h1><%= user.name %></h1>
-                            <% const ROLE_DISPLAY={ 
-                                'tempBanned': '🚫 Temp Banned',
-                                'permBanned': '⛔ Perm Banned',
-                                'basic': '' ,
-                                'supporter': '💖 Supporter',
-                                'researcher': '🔬 Researcher',
-                                'moderator': '🛡️ Moderator',
-                                'administrator': '👑 Administrator'
-                            };
-                            const roleClass={
-                                'tempBanned': 'banned-badge',
-                                'permBanned': 'banned-badge',
-                                'supporter': 'supporter-badge',
-                                'researcher': 'researcher-badge',
-                                'moderator': 'mod-badge',
-                                'administrator': 'admin-badge'
-                            };
-                            <% user.roles.forEach(role=> { %>
+                            <h1><%= targetUser.name %></h1>
+                            <%
+                                const ROLE_DISPLAY={ 
+                                    'tempBanned': '🚫 Temp Banned',
+                                    'permBanned': '⛔ Perm Banned',
+                                    'basic': '' ,
+                                    'supporter': '💖 Supporter',
+                                    'researcher': '🔬 Researcher',
+                                    'moderator': '🛡️ Moderator',
+                                    'administrator': '👑 Administrator'
+                                };
+                                const roleClass={
+                                    'tempBanned': 'banned-badge',
+                                    'permBanned': 'banned-badge',
+                                    'supporter': 'supporter-badge',
+                                    'researcher': 'researcher-badge',
+                                    'moderator': 'mod-badge',
+                                    'administrator': 'admin-badge'
+                                };
+                            %>
+                            <% targetUser.roles.forEach(role=> { %>
                                 <% if(ROLE_DISPLAY[role]) { %>
                                     <span class="<%= roleClass[role] || 'mod-badge' %>">
                                         <%= ROLE_DISPLAY[role] %>
@@ -62,12 +64,12 @@
                                     <%= displayedMiis.reduce((sum, mii)=> sum + (mii.votes || 0), 0) %>
                                 </span>
                             </div>
-                            <% if(user.joinedOn) { %>
+                            <% if(targetUser.joinedOn) { %>
                                 <div class="stat-item">
                                     <span class="stat-label">Member Since</span>
                                     <span class="stat-value">
-                                        <%= new Date(user.joinedOn).toLocaleDateString('en-US', {
-                                            year: 'numeric' , month: 'short' }) %>
+                                        <%= new Date(targetUser.joinedOn).toLocaleDateString('en-US', {
+                                            year: 'numeric' , month: 'short' })%>
                                     </span>
                                 </div>
                             <% } %>
@@ -76,7 +78,7 @@
                 </div>
 
                 <!-- Moderator Tools for Profiles -->
-                <% if(isModerator && thisUser !== user.name) { %>
+                <% if(isModerator && thisUser !== targetUser.name) { %>
                     <div class="moderator-tools">
                         <div class="mod-tools-header" onclick="toggleModTools()">
                             <h3>🛠️ Moderator Tools</h3>
@@ -90,7 +92,7 @@
                                     <div class="mod-tool-item mod-tool-roles">
                                         <label>User Roles (check multiple):</label>
                                         <div class="role-checkboxes">
-                                            <% const userRoles=user.roles || (user.role ? [user.role] : ['basic']); %>
+                                            <% const userRoles = targetUser.roles || ['basic']; %>
                                                 <label class="role-checkbox">
                                                     <input type="checkbox" value="supporter" <%= userRoles.includes('supporter') ? 'checked' : '' %>>
                                                     💖 Supporter
@@ -143,7 +145,7 @@
                                 <div class="mod-tool-item">
                                     <label>Change Username:</label>
                                     <input type="text" id="newUsername"
-                                        value="<%= user.name %>" placeholder="New Username">
+                                        value="<%= targetUser.name %>" placeholder="New Username">
                                     <button onclick="changeUsername()">✏️ Change
                                         Username</button>
                                 </div>
@@ -152,7 +154,7 @@
                                 <div class="mod-tool-item">
                                     <label>Change Profile Picture (Mii ID):</label>
                                     <input type="text" id="newPfp"
-                                        value="<%= user.miiPfp %>" placeholder="Mii ID">
+                                        value="<%= targetUser.miiPfp %>" placeholder="Mii ID">
                                     <button onclick="changeUserPfp()">🖼️ Change
                                         PFP</button>
                                 </div>
@@ -165,7 +167,7 @@
                 <!-- Profile Content -->
                 <div class="profile-content">
                     <h2 class="profile-section-title">
-                        <%= user.name %>'s Miis
+                        <%= targetUser.name %>'s Miis
                     </h2>
 
                     <% if(displayedMiis.length> 0) { %>
@@ -209,7 +211,7 @@
 
         <% if(isModerator) { %>
             <script>
-                const targetUsername = '<%= user.name %>';
+                const targetUsername = '<%= targetUser.username %>';
 
                 function toggleModTools() {
                     const content = document.getElementById('modToolsContent');
@@ -235,8 +237,9 @@
 
                     try {
                         // Remove all current non-basic roles
-                        const currentRoles = "<%= JSON.stringify(user.roles) %>";
-                        // TODO: make sure this works
+                        // <% debugger %>
+                        const currentRoles = <%- JSON.stringify(targetUser.roles) %>;
+                        // TODO: make sure this works - I think user should be the user being looked at... not the current user
 
                         // Calculate roles to remove
                         const rolesToRemove = currentRoles.filter(r => r !== 'basic' && !selectedRoles.includes(r));
@@ -249,7 +252,10 @@
                             const response = await fetch('/removeUserRole', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ username: targetUsername, role })
+                                body: JSON.stringify({ 
+                                    username: targetUsername, 
+                                    role
+                                })
                             });
                             const result = await response.json();
                             if (!result.okay) {

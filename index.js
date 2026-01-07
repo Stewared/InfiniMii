@@ -79,11 +79,11 @@ async function getMiiById(id, includePrivate = false) {
     if (!includePrivate) query.private = false;
     return await Miis.findOne(query).lean();
 }
-
-async function getUserByUsername(username) {
-    return await Users.findOne({ username }).lean();
+async function getUserByUsername(username, lean=true) {
+    let userPromise = Users.findOne({ username });
+    if (lean) userPromise = userPromise.lean();
+    return await userPromise;
 }
-
 async function getAllUsers() {
     return await Users.find({}).lean();
 }
@@ -131,7 +131,7 @@ async function getSendables(req, title, user) {
         officialCategories: settings.officialCategories,
         howToTitle: "How To",
         currentPath: currentPath + queryString,
-        thisUser: currentUser,
+        thisUser: currentUser, // *username
         user: req.user,
         isModerator: canModerate(req.user),
         isOfficial: isOfficial(req.user),
@@ -238,27 +238,24 @@ async function isBanned(user) {
     return false;
 }
 
-function addRole(user, role) {
-    if (!user.roles) {
+function ensureBasicRole(user) {
+    if (!user.roles || user.roles.length === 0) {
         user.roles = [ROLES.BASIC];
     }
+    // NOTE: this does not save
+}
+
+function addRole(user, role) {
+    ensureBasicRole(user);
     if (!user.roles.includes(role)) {
         user.roles.push(role);
     }
-    // Update legacy moderator flag
-    user.roles.includes('moderator') = canModerate(user);
 }
 
 function removeRole(user, role) {
-    if (!user.roles) {
-        user.roles = [ROLES.BASIC];
-    }
+    ensureBasicRole(user);
     user.roles = user.roles.filter(r => r !== role);
-    if (user.roles.length === 0) {
-        user.roles = [ROLES.BASIC];
-    }
-    // Update legacy moderator flag
-    user.roles.includes('moderator') = canModerate(user);
+    ensureBasicRole(user);
 }
 //#endregion
 
@@ -1061,6 +1058,7 @@ function escapeXml(unsafe) {
     });
 }
 
+import 'express-async-errors'; // Make router async errors handle the same as sync errors (dropping down to next() handler)
 const site = express();
 site.use(express.json());
 site.use(express.urlencoded({ extended: true }));
@@ -3203,23 +3201,23 @@ site.get('/mii/:id', async (req, res) => {
     });
 });
 site.get('/user/:username', async (req, res) => {
-    const username = decodeURIComponent(req.params.username);
-    const user = await getUserByUsername(username);
+    const targetUsername = decodeURIComponent(req.params.username);
+    const targetUser = await getUserByUsername(targetUsername);
     
-    if (!user) {
+    if (!targetUser) {
         return res.status(404).send('User not found');
     }
-    if (username === "Nintendo") { // TODO: misspellings, capitalizations, etc.
+    if (targetUsername === "Nintendo") { // TODO: misspellings, capitalizations, etc.
         res.redirect('/official');
         return;
     }
     let inp = await getSendables(req);
-    inp.user = user;
-    inp.user.name = username;
+    inp.targetUser = targetUser;
+    // inp.targetUser.name = targetUsername;
     inp.displayedMiis = [];
     
     // Get all user's submissions
-    const miis = await Miis.find({ id: { $in: user.submissions }, private: false }).lean();
+    const miis = await Miis.find({ id: { $in: targetUser.submissions }, private: false }).lean();
     inp.displayedMiis = miis;
     
     ejs.renderFile('./ejsFiles/userPage.ejs', inp, {}, function(err, str) {
@@ -4740,6 +4738,38 @@ site.post('/login', async (req, res) => {
     res.redirect("/");
 });
 
+site.get("/error", async(req, res) => {
+    let crash = undefined.field;
+});
+
+// Error-handling middleware at the bottom of the stack
+site.use((err, req, res, next) => {
+    console.error(err);
+    // TODO: remove try catch from all endpoints in favor of this handler
+
+    // Set default status if not set
+    const status = 500;
+
+    // Check what the client accepts
+    if (!req.accepts('html')) {
+        // If it doesn't want HTML at all, serve it json.
+        res.status(status).json({
+            error: {
+                message: err.message || 'Internal Server Error',
+                // optional: stack trace in dev
+                ...(process.env.NODE_ENV === 'development' && { stack: `DEV STACK: ` + err.stack }),
+            }
+        });
+    } else {
+        // TODO: update HTML error
+        res.status(status).send(`
+            <h1>${status} Error</h1>
+            <p>${err.message || 'Internal Server Error'}</p>
+        `);
+    }
+});
+
+
 setInterval(async () => {
     var curTime = new Date();
     const settings = await getSettings();
@@ -4748,11 +4778,15 @@ setInterval(async () => {
     }
 }, 1000 * 60 * 60);
 
-// TODO: site 500 server
-
-// TODO: reset password
+// TODO: reset password functionality which should increase token version
 
 // TODO: "Check your email to verify your account!" should be feedback on the site, not a new page
 
-// TODO: user page is broken
+// TODO: remove submissions array from user
 
+// TODO: verify pass and salt are strings of len>1
+
+
+///// Utils:
+// - Look for opening <% without closing one
+// <%(?![\s\S]*%>)

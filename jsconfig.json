@@ -4,13 +4,22 @@
     "checkJs": false,
     "allowJs": true,
     "maxNodeModuleJsDepth": 3,
-    "module": "commonjs",
-    "resolveJsonModule": true,
+    "module": "es6",
     "target": "es2022",
+    "moduleResolution": "node",
     "strict": false,
   },
   "typeAcquisition": {
     "enable": false
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "*.dat",
+    "storage.json",
+    "deprecatedStorage.json",
+    "package-lock.json",
+    "uploads/**",
+    "testFiles/**",
+    ".git/**"
+  ]
 }
