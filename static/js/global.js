@@ -15,8 +15,14 @@ function likeMii(el,id,highlightedMii,mod){
 function deleteMii(id){
 	var youSure=confirm("Are you sure you want to delete this Mii?");
 	if(youSure){
-		fetch("/deleteMii?id="+id);
-		document.getElementById(id).remove();
+		fetch("/deleteMii?id="+id).then(d=>d.json()).then(d=>{
+			if(d.error){
+				alert(d.error); // TODO: use error field, not alert.
+			}
+			else{
+				document.getElementById(id).remove();
+			}
+		});
 	}
 }
 function highlightedMiiChange(){

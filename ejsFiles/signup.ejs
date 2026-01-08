@@ -94,15 +94,15 @@
           </fieldset>
         </form>-->
         </div>
-        <form method="POST" action="/signup">
+        <form id="signupForm">
             <fieldset>
                 <legend>Sign Up</legend>
-                <input placeholder="Username" required name="username" type="text">
-                <input type="password" placeholder="Password" required name="pass">
-                <input placeholder="Email" required name="email" type="email">
-                <!-- TODO: password strength thingy -->
-                <input type="submit"><br>
+                <input placeholder="Username" required name="username" type="text" id="username">
+                <input type="password" placeholder="Password" required name="pass" id="password">
+                <input placeholder="Email" required name="email" type="email" id="email">
+                <input type="submit" value="Sign Up"><br>
                 <h6>*Note: It can take up to 10 minutes for the email to propagate, especially for gmail emails. Please be patient.</h6>
+                <div id="errorMessage" style="color: red; margin-top: 10px; display: none;"></div>
             </fieldset>
         </form>
     </div>
@@ -115,6 +115,40 @@
         </ul>
     </footer>
     <script src="/global.js"></script>
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+            const errorDiv = document.getElementById('errorMessage');
+            
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ username, pass: password, email })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    errorDiv.textContent = result.error;
+                    errorDiv.style.display = 'block';
+                } else {
+                    // Success - show message
+                    errorDiv.textContent = result.message || 'Account created successfully! Check your email to verify.';
+                    errorDiv.style.color = 'green';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                errorDiv.textContent = 'An error occurred during signup. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
 </body>
 
 </html>

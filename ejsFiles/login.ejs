@@ -84,10 +84,11 @@
           </fieldset>
         </form>-->
         </div>
-        <form method="POST" action="/login">
+        <form id="loginForm">
             <fieldset>
                 <legend>Login</legend>
-                <input placeholder="Username" required name="username" type="text"> <input type="password" placeholder="Password" required name="pass"> <input type="submit">
+                <input placeholder="Username" required name="username" type="text" id="username"> <input type="password" placeholder="Password" required name="pass" id="password"> <input type="submit" value="Login">
+                <div id="errorMessage" style="color: red; margin-top: 10px; display: none;"></div>
             </fieldset>
         </form>
     </div>
@@ -100,6 +101,37 @@
         </ul>
     </footer>
     <script src="/global.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ username, pass: password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    errorDiv.textContent = result.error;
+                    errorDiv.style.display = 'block';
+                } else {
+                    // Success - redirect to home or intended page
+                    window.location.href = result.redirect;
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.textContent = 'Login error:' + error;
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
 </body>
 
 </html>

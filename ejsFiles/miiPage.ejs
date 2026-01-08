@@ -91,14 +91,14 @@
                             <% if(mii.general.height !== undefined) { %>
                             <div class="info-item">
                                 <span class="info-label">Height</span>
-                                <span class="info-value"><%= `${height.feet}' ${height.inches}"` %></span>
+                                <span class="info-value"><%= `${height.feet}' ${height.inches}"` %>, <%= height.centimeters %>cm.</span>
                             </div>
                             <% } %>
 
                             <% if(mii.general.weight !== undefined) { %>
                             <div class="info-item">
                                 <span class="info-label">Weight [Experimental]</span>
-                                <span class="info-value"><%= Math.round(weight.pounds) %>lbs</span>
+                                <span class="info-value"><%= Math.round(weight.pounds) %>lbs, <%= weight.kilograms %>kg.</span>
                             </div>
                             <% } %>
 
@@ -978,7 +978,7 @@
                         
                         if (!result.error) {
                             alert('Mii deleted successfully');
-                            window.location.href = '/';
+                            window.location.href = result.redirect;
                         }
                         else {
                             alert('Error deleting Mii');

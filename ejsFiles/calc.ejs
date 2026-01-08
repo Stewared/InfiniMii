@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%
+        const pageTitle = 'Mii Height/Weight Calculator - InfiniMii';
+        const pageDesc = 'InfiniMii is the most comprehensive Mii character repository and toolkit. Convert, share, and download Miis for all Nintendo systems. Learn about our mission and features.';
+        const canonicalUrl = `${baseUrl}/calculator`;
+        const keywords = 'calculate, calculator, height, weight, pixels, pounds, kilograms, inches, feet, foot, convert, conversion, metric, imperial';
+        %>
+        <%- include('metaTags') %>
+        <%- include('structuredData') %>
+        
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+        <style>
+            li{
+                list-style-type:disc;
+                margin:0px;
+            }
+        </style>
+    </head>
+    <body>
+        <%- include('globalStyle') %>
+        <%- include('header') %>
+        <%- include('accountDisplay') %>
+        
+        <main class="content about-content" role="main">
+            <%- include('sidebar') %>
+            
+            <article class="about-article guide-container">
+                
+                <article>
+                    <h2>Convert from Mii Height to Feet & Inches/Centimeters</h2>
+                    <p class="lead">
+                        <input type="range">
+                        <input placeholder="Mii Height"><br>
+                        <br>
+                        <input placeholder="Feet">
+                        <input placeholder="Inches">
+                        <input placeholder="Centimeters">
+                    </p>
+                </article>
+                <article>
+                    <h2>Convert from Feet & Inches/Centimeters to Mii Height</h2>
+                    <p class="lead">
+                        <input placeholder="Feet">
+                        <input placeholder="Inches">
+                        <input placeholder="Centimeters"><br>
+                        <br>
+                        <input type="range">
+                        <input placeholder="Mii Height">
+                    </p>
+                </article>
+                <article>
+                    <h2>Convert from Mii Height/Weight to Pounds/Kilograms</h2>
+                    <p class="lead">
+                        <input placeholder="Mii Height">
+                        <input type="range">
+                        <input placeholder="Mii Weight">
+                        <input type="range"><br>
+                        <br>
+                        <input placeholder="Pounds">
+                        <input placeholder="Kilograms">
+                    </p>
+                </article>
+                <article>
+                    <h2>Convert from Pounds/Kilograms to Mii Height/Weight</h2>
+                    <p class="lead">
+                        <input placeholder="Pounds">
+                        <input placeholder="Kilograms"><br>
+                        <br>
+                        <input placeholder="Mii Height">
+                        <input type="range">
+                        <input placeholder="Mii Weight">
+                        <input type="range">
+                    </p>
+                </article>
+            </article>
+            
+            <%- include('featuredMiis') %>
+        </main>
+        
+        <%- include('footer') %>
+        <script src="/global.js" defer></script>
+    </body>
+</html>

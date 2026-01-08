@@ -60,7 +60,7 @@
             <%- include('sidebar') %>
             
             <article class="utility-container">
-                <form method="POST" enctype="multipart/form-data" action="/convertMii">
+                <form id="convertForm" method="POST" enctype="multipart/form-data" action="/convertMii">
                     <fieldset>
                         <legend>Convert Mii Character Between Formats</legend>
                         
@@ -100,6 +100,7 @@
                         </select>
                         
                         <input type="submit" value="Convert Mii">
+                        <div id="convertError" style="color: red; margin-top: 10px; display: none;"></div>
                         
                         <h6><strong>Note:</strong> 3DS/Wii U to Wii conversions may have limitations due to hardware differences. The 3DS and Wii U support more customization options than the original Wii. <a href="https://github.com/Stewared/MiiJS?tab=readme-ov-file#discrepancies-in-convertmii-function" target="_blank" rel="noopener">Learn more about conversion differences</a>.</h6>
                     </fieldset>
@@ -172,5 +173,65 @@
         
         <%- include('footer') %>
         <script src="/global.js" defer></script>
+        <script>
+            document.querySelector('form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const submitBtn = this.querySelector('input[type="submit"]');
+                const originalText = submitBtn.value;
+                
+                submitBtn.value = 'Converting...';
+                submitBtn.disabled = true;
+                
+                try {
+                    const response = await fetch('/convertMii', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        // For file downloads, the response will be handled automatically
+                        // For redirects, we need to handle it
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const result = await response.json();
+                            if (result.error) {
+                                alert(result.error);
+                            }
+                        } else {
+                            // Handle file download or redirect
+                            const contentDisposition = response.headers.get('content-disposition');
+                            if (contentDisposition && contentDisposition.includes('attachment')) {
+                                // File download
+                                const blob = await response.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                const filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
+                                a.download = filename;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                document.body.removeChild(a);
+                            } else {
+                                // Redirect
+                                window.location.href = result.redirect;
+                            }
+                        }
+                    } else {
+                        const result = await response.json();
+                        alert(result.error || 'Conversion failed');
+                    }
+                } catch (error) {
+                    console.error('Conversion error:', error);
+                    alert('An error occurred during conversion. Please try again.');
+                } finally {
+                    submitBtn.value = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        </script>
     </body>
 </html>
+<!-- TODO_RES: instead of alerting error,  -->

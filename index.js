@@ -19,6 +19,7 @@ import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'o
 import { doubleMetaphone } from 'double-metaphone';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
+import { STATUS_CODES } from 'http';
 
 process.env = JSON.parse(fs.readFileSync("./env.json", "utf-8"));
 import { connectionPromise, Mii as Miis, User as Users, Settings } from "./database.js";
@@ -1199,6 +1200,14 @@ function renderEjs(file, inp) {
     });
 }
 
+async function sendError(res, req, message, status) {
+    return res.status(status).send(await renderEjs("./ejsFiles/error.ejs", {
+        message: message,
+        status: `${status} ${STATUS_CODES[status]}`,
+        ...(await getSendables(req))
+    }));
+}
+
 //#region Static handling
 
   
@@ -1217,7 +1226,7 @@ site.use('/privateMiiImgs', async (req, res, next) => {
             if (req.accepts('html')) {
                 res.status(403).json({ error: 'Access denied' });
             } else {
-                res.status(403).send('Access denied');
+                await sendError(res, req, "Access denied. This is a private Mii.", 403);
             }
         }
     } else {
@@ -1236,7 +1245,7 @@ site.use('/privateMiiQRs', async (req, res, next) => {
         if (isOwner || isModerator) {
             next();
         } else {
-            res.status(403).send('Access denied');
+            return sendError(res, req, "Access denied. This is a private Mii.", 403);
         }
     } else {
         next();
@@ -1251,9 +1260,10 @@ site.use('/static', express.static(path.join(__dirname, 'static'), {
 
 //#endregion
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
     if (!req.user) {
-        return res.status(401).send('Authentication required');
+        // TODO_AUTH: redirect to /login with a ?next
+        return sendError(res, req, "Authentication required.", 401);
     }
     next();
 }
@@ -1262,14 +1272,15 @@ function requireRole(roles) {
     if (!Array.isArray(roles)) {
         roles = [ roles  ];
     }
-    return (req, res, next) => {
+    return async (req, res, next) => {
         if (!req.user) {
-            return res.status(401).send('Authentication required');
+            // TODO_AUTH: redirect to /login with a ?next
+            await sendError(res, req, "Authentication required.", 401);
         }
         const userRoles = getUserRoles(req.user);
         const hasRequiredRole = roles.some(role => userRoles.includes(role));
         if (!hasRequiredRole && !userRoles.includes(ROLES.ADMINISTRATOR)) {
-            return res.status(403).send('Insufficient permissions');
+            return sendError(res, req, "Insufficient permissions.", 403);
         }
         next();
     }
@@ -1678,7 +1689,8 @@ site.get('/verify', async (req, res) => {
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax'
             });
-            res.redirect("/");
+            // res.redirect("/");
+            res.json({ redirect: "/" }); 
         }
         else {
             res.json({error: "Bad request"});
@@ -1690,7 +1702,7 @@ site.get('/verify', async (req, res) => {
         console.log(e);
     }
 });
-site.get('/deleteMii', async (req, res) => {
+site.get('/deleteMii', async (req, res) => { // TODO: csrf here, make post
     try {
         if (!req.user) {
             res.json({error: "Not logged in"});
@@ -2796,7 +2808,8 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
         ]);
         
         // Redirect to private Miis page
-        res.redirect("/myPrivateMiis");
+        // res.redirect("/myPrivateMiis");
+        res.json({ redirect: "/myPrivateMiis" }); 
         
     } catch (e) {
         console.error('Error uploading extracted Amiibo Mii:', e);
@@ -2914,7 +2927,7 @@ site.post('/uploadStudioMii', requireAuth, async (req, res) => {
             }
         ]);
         
-        setTimeout(() => { res.redirect("/myPrivateMiis") }, 2000);
+        setTimeout(() => { res.json({ redirect: "/myPrivateMiis" });  }, 2000); // TODO: jank
         
     } catch (e) {
         console.error('Error uploading Studio Mii:', e);
@@ -3128,10 +3141,7 @@ site.get('/mii/:id', async (req, res) => {
     const mii = await getMiiById(miiId, true);
     
     if (!mii) {
-        return res.status(404).send(await renderEjs("./ejsFiles/error.ejs", {
-            message: "404 Mii not found",
-            ...(await getSendables(req))
-        }));
+        return sendError(res, req, "404 Mii not found", 404);
     }
     
     // Check access for private Miis
@@ -3141,8 +3151,7 @@ site.get('/mii/:id', async (req, res) => {
         const isOwner = mii.uploader === req.cookies.username;
         
         if (!isOwner && !isModerator) {
-            res.status(403).send("Access denied. This is a private Mii.");
-            return;
+            return sendError(res, req, "Access denied. This is a private Mii.", 403);
         }
         inp.isPrivate = true;
     } else {
@@ -3150,7 +3159,7 @@ site.get('/mii/:id', async (req, res) => {
     }
     
     inp.mii = mii;
-    inp.height=miijs.miiHeightToFeetInches(inp.mii.general.height);
+    inp.height=miijs.miiHeightToMeasurements(inp.mii.general.height);
     inp.weight=miijs.miiWeightToRealWeight(inp.mii.general.height,inp.mii.general.weight);
 
     // Override mii color for this page
@@ -3172,11 +3181,7 @@ site.get('/user/:username', async (req, res) => {
     const targetUser = await getUserByUsername(targetUsername);
     
     if (!targetUser) {
-        res.send(await renderEjs("./ejsFiles/error.ejs", {
-            message: "User not found",
-            ...(await getSendables(req))
-        }));
-        return;
+       return sendError(res, req, "User not found", 404);
     }
     if (targetUsername === "Nintendo") { // a s'ti mret hcraes a ton si odnetniN ,tnavelerrI :nortseK
         res.redirect('/official');
@@ -3264,7 +3269,7 @@ site.get('/login', async (req, res) => {
         res.send(str);
     });
 });
-site.get('/logout', requireAuth, async (req, res) => {
+site.get('/logout', async (req, res) => { // TODO: make this a POST request to prevent CSRF
     try {
         await res.clearCookie('username');
         await res.clearCookie('token');
@@ -3284,6 +3289,16 @@ site.get('/convert', async (req, res) => {
         res.send(str)
     });
 });
+site.get('/calculator', async (req, res) => {
+    ejs.renderFile('./ejsFiles/calc.ejs', await getSendables(req), {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
 site.get('/qr', async (req, res) => {
     ejs.renderFile('./ejsFiles/qr.ejs', await getSendables(req), {}, function(err, str) {
         if (err) {
@@ -3295,7 +3310,7 @@ site.get('/qr', async (req, res) => {
     });
 });
 site.get('/settings', async (req, res) => {
-    if (!req.cookies.username) {
+    if (!req.user) {
         res.redirect("/");
         return;
     }
@@ -3969,7 +3984,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             }
         ]);
         
-        setTimeout(() => { res.redirect("/myPrivateMiis") }, 2000);
+        setTimeout(() => { res.json({ redirect: "/myPrivateMiis" });  }, 2000); // TODO: jank
 
         // TODO: does rendering lag this? If so, 
 
@@ -4597,7 +4612,8 @@ site.post('/convertMii', upload.single('mii'), async (req, res) => {
         if (req.body.toType.includes("3DS")) {
             await miijs.write3DSQR(mii, "./static/converted/" + tempMiiPath + ".png");
             setTimeout(() => {
-                res.redirect("/converted/" + tempMiiPath + ".png");
+                res.json({ redirect: "/converted/" + tempMiiPath + ".png" }); 
+                // res.redirect("/converted/" + tempMiiPath + ".png");
             }, 5000);
             setTimeout(() => {
                 fs.unlinkSync("./static/converted/" + tempMiiPath + ".png");
@@ -4695,7 +4711,7 @@ site.post('/login', async (req, res) => {
             return;
         }
     }
-    res.redirect("/");
+    res.json({ redirect: "/" }); 
 });
 
 site.get("/error", async(req, res) => {
@@ -4703,17 +4719,14 @@ site.get("/error", async(req, res) => {
 });
 
 // Error-handling middleware at the bottom of the stack
-site.use((err, req, res, next) => {
+site.use(async (err, req, res, next) => {
     console.error(err);
     // TODO: remove try catch from all endpoints in favor of this handler
-
-    // Set default status if not set
-    const status = 500;
 
     // Check what the client accepts
     if (!req.accepts('html')) {
         // If it doesn't want HTML at all, serve it json.
-        res.status(status).json({
+        res.status(500).json({
             error: {
                 message: err.message || 'Internal Server Error',
                 // optional: stack trace in dev
@@ -4721,11 +4734,7 @@ site.use((err, req, res, next) => {
             }
         });
     } else {
-        // TODO: update HTML error
-        res.status(status).send(`
-            <h1>${status} Error</h1>
-            <p>${err.message || 'Internal Server Error'}</p>
-        `);
+        return await sendError(res, req, "Internal Server Error. Please try again later.", 500);
     }
 });
 
@@ -4741,15 +4750,11 @@ setInterval(async () => {
 
 // TODO: "Check your email to verify your account!" should be feedback on the site, not a new page
 
-
-
 // TODO: verify pass and salt are strings of len>1
 
 // TOOD: /logout should not give no auth errors
 
 // TODO: middlewhare should serve json responses...
-
-// TODO: search results page should show the search bar
 
 // TODO: username changes need to change mii's uploader field. 
 

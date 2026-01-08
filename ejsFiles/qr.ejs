@@ -133,6 +133,59 @@
                         document.querySelector(".qr").hidden = true;
                         document.querySelector(".convert").hidden = false;
                         document.querySelector(".after").hidden = true;
+                        
+                        // Add AJAX handling to the convert form
+                        document.querySelector(".convert").addEventListener('submit', async function(e) {
+                            e.preventDefault();
+                            
+                            const formData = new FormData(this);
+                            const submitBtn = this.querySelector('input[type="submit"]');
+                            const originalText = submitBtn.value;
+                            
+                            submitBtn.value = 'Converting...';
+                            submitBtn.disabled = true;
+                            
+                            try {
+                                const response = await fetch('/convertMii', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                if (response.ok) {
+                                    const contentType = response.headers.get('content-type');
+                                    if (contentType && contentType.includes('application/json')) {
+                                        const result = await response.json();
+                                        if (result.error) {
+                                            alert(result.error);
+                                        }
+                                    } else {
+                                        // Handle file download
+                                        const contentDisposition = response.headers.get('content-disposition');
+                                        if (contentDisposition && contentDisposition.includes('attachment')) {
+                                            const blob = await response.blob();
+                                            const url = window.URL.createObjectURL(blob);
+                                            const a = document.createElement('a');
+                                            a.href = url;
+                                            const filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
+                                            a.download = filename;
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            window.URL.revokeObjectURL(url);
+                                            document.body.removeChild(a);
+                                        }
+                                    }
+                                } else {
+                                    const result = await response.json();
+                                    alert(result.error || 'Conversion failed');
+                                }
+                            } catch (error) {
+                                console.error('Conversion error:', error);
+                                alert('An error occurred during conversion. Please try again.');
+                            } finally {
+                                submitBtn.value = originalText;
+                                submitBtn.disabled = false;
+                            }
+                        });
                         break;
                         
                     case 'upload':
@@ -141,6 +194,39 @@
                         document.querySelector(".qr").hidden = true;
                         document.querySelector(".upload").hidden = false;
                         document.querySelector(".after").hidden = true;
+                        
+                        // Add AJAX handling to the upload form
+                        document.querySelector(".upload").addEventListener('submit', async function(e) {
+                            e.preventDefault();
+                            
+                            const formData = new FormData(this);
+                            const submitBtn = this.querySelector('input[type="submit"]');
+                            const originalText = submitBtn.value;
+                            
+                            submitBtn.value = 'Uploading...';
+                            submitBtn.disabled = true;
+                            
+                            try {
+                                const response = await fetch('/uploadMii', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                
+                                const result = await response.json();
+                                
+                                if (result.error) {
+                                    alert(result.error);
+                                } else {
+                                    window.location.href = result.redirect;
+                                }
+                            } catch (error) {
+                                console.error('Upload error:', error);
+                                alert('An error occurred during upload. Please try again.');
+                            } finally {
+                                submitBtn.value = originalText;
+                                submitBtn.disabled = false;
+                            }
+                        });
                         break;
                 }
             }

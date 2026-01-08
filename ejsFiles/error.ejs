@@ -23,7 +23,7 @@
             <section class="utility-container" aria-labelledby="search-heading">
                 <form method="GET" action="/searchResults" role="search">
                     <fieldset>
-                        <legend id="search-heading">OOPS!</legend>
+                        <legend id="search-heading"><%= status || 'OOPS!' %></legend>
                         <p class="error-message"><%= message || 'An unexpected error occurred.' %></p>
                         <!-- TODO: style properly (ben pls don't kill us we loved your search page) -->
                         

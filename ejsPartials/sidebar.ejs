@@ -6,6 +6,8 @@
         <a href="/top"><li><span class="emoji">🥇</span> Top Miis</li></a>
         <a href="/recent"><li><span class="emoji">⏱️</span> Recent Miis</li></a>
         <a href="/official"><li><span class="emoji">🌟</span> Official Miis</li></a>
+    </ul>
+    <ul class="sidebar-list">
         <a href="<%= 
             thisUser==="Default"
                 ?'/signup'
@@ -17,17 +19,17 @@
             </li>
         </a>
         <a href="/myPrivateMiis"><li><span class="emoji">📦</span> My Private Miis</li></a>
-    </ul>
-    <br>
-    <ul class="sidebar-list">
         <a href="/upload"><li><span class="emoji">⬆️</span> Upload</li></a>
         <a href="/settings"><li><span class="emoji">⚙️</span> Settings</li></a>
         <a href="/convert"><li><span class="emoji">➡️</span> Convert</li></a>
-        <a href="/qr"><li><span class="emoji">📸</span> QR Options</li></a>
-        <a href="/transferInstructions"><li><span class="emoji">📦</span> Transfering Guide</li></a>
-        <a href="/amiibo"><li><span class="emoji">🗽</span> Amiibo Tools</li></a>
         <% if(isOfficial) { %>
             <a href="/manageCategories"><li><span class="emoji">🗂️</span> Manage Categories</li></a>
         <% } %>
+    </ul>
+    <ul class="sidebar-list">
+        <a href="/qr"><li><span class="emoji">📸</span> QR Options</li></a>
+        <a href="/amiibo"><li><span class="emoji">🗽</span> Amiibo Tools</li></a>
+        <a href="/calculator"><li><span class="emoji">🔢</span> Height/Weight Calculator</li></a>
+        <a href="/transferInstructions"><li><span class="emoji">📦</span> Transferring Guide</li></a>
     </ul>
 </div>

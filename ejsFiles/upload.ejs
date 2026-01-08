@@ -20,9 +20,9 @@
         <main class='content' role="main">
             <%- include('sidebar') %>
             <article class='upload utility-container'>
-                <form action="/uploadMii" method="post" enctype="multipart/form-data" id="uploadForm">
-                    <fieldset>
-                        <legend>Upload a Mii to InfiniMii</legend>
+                <fieldset>
+                    <legend>Upload a Mii to InfiniMii</legend>
+                    <div id="error-message" style="display: none; color: red; background: #ffe6e6; border: 1px solid #ff9999; padding: 10px; border-radius: 5px; margin-bottom: 15px;"></div>
                         <% if (fromAmiibo) { %>
                             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; color: white;">
                                 <h4 style="margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px;">
@@ -384,12 +384,92 @@
                             <a href="/qr" class="btn btn-primary">Go to QR Scanner</a>
                         </div>
                     </fieldset>
-                </form>
-            </article>
+                </article>
             <%- include('featuredMiis') %>
         </main>
         <%- include('footer') %>
         
         <script src="/upload.js"></script>
+        <script>
+            // Handle file upload form submission
+            document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const submitBtn = this.querySelector('input[type="submit"]');
+                const originalText = submitBtn.value;
+                const errorDiv = document.getElementById('error-message');
+                
+                // Clear any previous error
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+                
+                submitBtn.value = 'Uploading...';
+                submitBtn.disabled = true;
+                
+                try {
+                    const response = await fetch('/uploadMii', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.error) {
+                        errorDiv.textContent = result.error;
+                        errorDiv.style.display = 'block';
+                    } else {
+                        window.location.href = result.redirect;
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    errorDiv.textContent = 'An error occurred during upload. Please try again.';
+                    errorDiv.style.display = 'block';
+                } finally {
+                    submitBtn.value = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Handle studio form submission
+            document.getElementById('studioForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const submitBtn = this.querySelector('input[type="submit"]');
+                const originalText = submitBtn.value;
+                const errorDiv = document.getElementById('error-message');
+                
+                // Clear any previous error
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+                
+                submitBtn.value = 'Uploading...';
+                submitBtn.disabled = true;
+                
+                try {
+                    const response = await fetch('/uploadStudioMii', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.error) {
+                        errorDiv.textContent = result.error;
+                        errorDiv.style.display = 'block';
+                    } else {
+                        window.location.href = result.redirect;
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    errorDiv.textContent = 'An error occurred during upload. Please try again.';
+                    errorDiv.style.display = 'block';
+                } finally {
+                    submitBtn.value = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        </script>
     </body>
 </html>
