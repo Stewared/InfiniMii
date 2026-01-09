@@ -41,12 +41,49 @@ const upload = multer({
     }
 });
 
-const defaultRatelimiter = rateLimit({
-	windowMs: ms("10s"),
-	limit: 5,
+// TODO: consider splitting lightening ratelimits if you have an account, say an extra allotment per account in addition to normal ones.
+const ratelimitOptions = {
 	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
 	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
+    message: async function(req, res) {
+        const count = req.rateLimit.used;
+        const limitWas = req.rateLimit.limit;
+        if (count-limitWas === 1 || count % 5 === 0) {
+            // For the first while, post into discord for every ratelimit request to track abuse and make sure we don't need to lighten limits
+            await makeReport(JSON.stringify({
+                embeds: [{
+                    type: "rich",
+                    title: "Ratelimit Triggered",
+                    description: 
+                        `Triggered by IP: ${req.ip}\n` +
+                        `Endpoint: ${req.originalUrl}\n` +
+                        `Method: ${req.method}\n` +
+                        `User Agent: ${req.headers['user-agent']}\n` +
+                        `Count: ${count}`,
+                        // `Query: ${JSON.stringify(req.query)}\n`
+                    color: 0xff3c00,
+                }]
+            }));
+        }
+        return "Too many requests, try again in a few seconds."
+    }
+    
+}
+const defaultRatelimiter = rateLimit({
+	windowMs: ms("10s"),
+	limit: 5,
+    ...ratelimitOptions
+})
+const highGeneralRatelimit = rateLimit({ // General pages like root, etc
+	windowMs: ms("10s"),
+	limit: 20,
+    ...ratelimitOptions
+})
+const miiListRatelimiter = rateLimit({ // Limiter just for serach endpoints
+	windowMs: ms("10s"),
+	limit: 3, // 3 pages per every 10 seconds seems fair
+    ...ratelimitOptions
 })
 
 function bitStringToBuffer(bitString) {
@@ -1426,7 +1463,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
     });
 });
 
-site.get('/', async (req, res) => {
+site.get('/', highGeneralRatelimit, async (req, res) => {
     let toSend = await getSendables(req, "InfiniMii");
     toSend.title = "InfiniMii";
     toSend.miiCategories={
@@ -1447,7 +1484,7 @@ site.get('/', async (req, res) => {
     });
 });
 //The following up to and including /recent are all sorted before being renders in miis.ejs, meaning the file is recycled. / is currently just a clone of /trending. /official and /search is more of the same but with a slight change to make Highlighted Mii still work without the full Mii array
-site.get('/random', async (req, res) => {
+site.get('/random', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const page = parseInt(req.query.page) || 1;
     const perPage = 30;
@@ -1476,7 +1513,7 @@ site.get('/random', async (req, res) => {
         res.send(str)
     });
 });
-site.get('/trending', async (req, res) => {
+site.get('/trending', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const page = parseInt(req.query.page) || 1;
     
@@ -1499,7 +1536,7 @@ site.get('/trending', async (req, res) => {
         res.send(str)
     });
 });
-site.get('/top', async (req, res) => {
+site.get('/top', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const page = parseInt(req.query.page) || 1;
     
@@ -1522,7 +1559,7 @@ site.get('/top', async (req, res) => {
         res.send(str)
     });
 });
-site.get('/recent', async (req, res) => {
+site.get('/recent', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const page = parseInt(req.query.page) || 1;    const perRow = 5;
     
@@ -1545,7 +1582,7 @@ site.get('/recent', async (req, res) => {
         res.send(str)
     });
 });
-site.get('/official', async (req, res) => {
+site.get('/official', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     
     const page = parseInt(req.query.page) || 1;
@@ -1596,7 +1633,7 @@ site.get('/official', async (req, res) => {
         res.send(str);
     });
 });
-site.get('/searchResults', async (req, res) => {
+site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const page = parseInt(req.query.page) || 1;
     const searchQuery = req.query.q;
@@ -3164,7 +3201,7 @@ site.get('/mii/:id', async (req, res) => {
     }
     
     inp.mii = mii;
-    inp.height=miijs.miiHeightToMeasurements(inp.mii.general.height);
+    inp.height=miijs.miiHeightToFeetInches(inp.mii.general.height);
     inp.weight=miijs.miiWeightToRealWeight(inp.mii.general.height,inp.mii.general.weight);
 
     // Override mii color for this page
