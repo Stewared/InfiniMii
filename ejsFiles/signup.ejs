@@ -7,93 +7,12 @@
     <%- include('structuredData') %>
     <link href="./global.css" rel="stylesheet">
     <link href="./index.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Preload critical resources -->
-    <link rel="preload" as="image" href="/banner.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
 </head>
 
 <body>
-    <header>
-        <a href="/"><img src='banner.png'></a><br>
-        <h6><em>In Development</em></h6>
-    </header>
+    <%- include('header') %>
     <div class="content">
-        <div class="left-sidebar">
-            <!--Emojis to be replaced with images (?)
-        Polar: We can probably replace with svg/icons
-				Yeah, I just have to take the time to find/make them :wide_bobert:
-        Google icons fonts.google.com/icons
-				Cool, I'll mess with those soon
-        -->
-            <ul class="sidebar-list">
-                <a href="/search">
-                    <li>🔍 Search</li>
-                </a>
-                <a href="/trending">
-                    <li>📈 Trending Miis</li>
-                </a>
-                <a href="/Top">
-                    <li>🥇 Top Miis</li>
-                </a>
-                <a href="/recent">
-                    <li>⏱️ Recent Miis</li>
-                </a>
-                <a href="/official">
-                    <li>🌟 Official Miis</li>
-                </a>
-            </ul>
-            <br>
-            <ul class="sidebar-list">
-                <a href="/upload">
-                    <li>⬆️ Upload</li>
-                </a>
-                <!--Make it the user's profile picture, remove this option if not logged in-->
-                <a href='/signup'>
-                    <li><img src="avatars/default.png" width="18px" height="18px"> Profile</li>
-                </a>
-                <a href="/settings">
-                    <li>⚙️ Settings</li>
-                </a>
-                <a href="/convert">
-                    <li>➡️ Convert</li>
-                </a>
-                <a href="/qr">
-                    <li>📸 QR Options</li>
-                </a>
-            </ul>
-            <!-- Submit Mii: -->
-            <!--TODO: Have separate forms for 3DS uploads and Wii uploads-->
-            <!--<form action="/uploadMii?type=3ds" method="post" enctype="multipart/form-data">
-          <fieldset>
-            <legend>Submit 3DS Mii</legend>
-            <input type="file" name="mii" id="mii" accept=".jpg,.png">
-            <input type="submit" id="submit">
-          </fieldset>
-        </form>
-        <form action="/uploadMii?type=wii" method="post" enctype="multipart/form-data">
-          <fieldset>
-            <legend>Submit Wii Mii</legend>
-            <input type="file" name="mii" id="mii" accept=".mii,.bin">
-            <input type="submit" id="submit">
-          </fieldset>
-        </form>
-        <form action="/makeSpecialMii?type=3ds" method="post" enctype="multipart/form-data">
-          <fieldset>
-            <legend>Make Special 3DS Mii</legend>
-            <input type="file" name="mii" id="mii" accept=".jpg,.png">
-            <input type="submit" id="submit">
-          </fieldset>
-        </form>
-        <form action="/makeSpecialMii?type=wii" method="post" enctype="multipart/form-data">
-          <fieldset>
-            <legend>Make Special Wii Mii</legend>
-            <input type="file" name="mii" id="mii" accept=".mii,.bin">
-            <input type="submit" id="submit">
-          </fieldset>
-        </form>-->
-        </div>
+        <%- include('sidebar') %>
         <form id="signupForm">
             <fieldset>
                 <legend>Sign Up</legend>

@@ -19,3 +19,4 @@ var accountThing = `
  	</div>
 `;
 document.body.innerHTML = accountThing + header + document.body.innerHTML + footer;
+// TODO: remove this?
