@@ -171,9 +171,7 @@
             <%- include('featuredMiis') %>
         </main>
         
-        <%- include('footer') %>
-        <script src="/global.js" defer></script>
-        <script>
+        <%- include('footer') %>        <script>
             document.querySelector('form').addEventListener('submit', function(e) {
                 handleFormSubmit(e, '/convertMii', 'Converting...', 'convertError', {
                     handleFileDownload: true,

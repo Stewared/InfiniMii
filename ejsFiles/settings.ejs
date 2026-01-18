@@ -76,7 +76,6 @@
             <%- include('featuredMiis') %>
 		</div>
 		<%- include('footer') %>
-		<script src="/global.js"></script>
 		<script>
 			function showMessage(text, type = 'error') {
 				const messageDiv = document.getElementById('settings-message');
@@ -89,7 +88,7 @@
 			async function changePfp() {
 				const pfpId = document.getElementById('pfpId').value;
 				if (!pfpId) {
-					alert('Please enter a Mii ID');
+					showAlert('Please enter a Mii ID', 5000, { title: 'Error', type: 'error' });
 					return;
 				}
 
@@ -102,15 +101,15 @@
 					const result = await response.json();
 					
 					if (!result.error) {
-						alert('Profile picture changed successfully!');
-						location.reload();
+						showAlert('Profile picture changed successfully!', 2000, { title: 'Success', type: 'success' });
+						setTimeout(() => location.reload(), 2000);
 					}
                     else {
-						alert(result.error || 'Error changing profile picture');
+						showAlert(result.error || 'Error changing profile picture', 5000, { title: 'Error', type: 'error' });
 					}
 				} catch (error) {
 					console.error('Error:', error);
-					alert('Failed to change profile picture');
+					showAlert('Failed to change profile picture', 5000, { title: 'Error', type: 'error' });
 				}
 			}
 
@@ -124,10 +123,7 @@
 					return;
 				}
 
-				const confirmed = confirm(`Are you sure you want to change your username to "${newUsername}"?\nYou won't be able to change it again for 30 days.`);
-				if (!confirmed) return;
-
-				try {
+				showConfirm(`Are you sure you want to change your username to "${newUsername}"?\nYou won't be able to change it again for 30 days.`, async () => {
 					const response = await fetch('/changeSelfUsername', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
@@ -146,17 +142,13 @@
 					} else {
 						showMessage(result.error, 'error');
 					}
-				} catch (error) {
-					console.error('Error:', error);
-					showMessage('Failed to change username', 'error');
-				}
-			}
-
+				}, null, { title: 'Change Username', confirmText: 'Change' });
+			}			
 			async function changeEmail() {
 				const newEmail = document.getElementById('nEmail').value;
 
 				if (!newEmail) {
-					alert('Please fill in both old and new email');
+					showAlert('Please enter a new email address', 5000, { title: 'Error', type: 'error' });
 					return;
 				}
 
@@ -170,15 +162,15 @@
 					const result = await response.json();
 					
 					if (!result.error) {
-						alert('Email changed successfully!');
+						showAlert('Email change verification sent! Please check your email.', 4000, { title: 'Success', type: 'success' });
 						document.getElementById('nEmail').value = '';
 					}
                     else {
-						alert(result.error || 'Error changing email');
+						showAlert(result.error || 'Error changing email', 5000, { title: 'Error', type: 'error' });
 					}
 				} catch (error) {
 					console.error('Error:', error);
-					alert('Failed to change email');
+					showAlert('Failed to change email', 5000, { title: 'Error', type: 'error' });
 				}
 			}
 
@@ -187,12 +179,12 @@
 				const newPass = document.getElementById('nPass').value;
 
 				if (!oldPass || !newPass) {
-					alert('Please fill in both old and new password');
+					showAlert('Please fill in both old and new password', 5000, { title: 'Error', type: 'error' });
 					return;
 				}
 
 				if (newPass.length < 6) {
-					alert('New password must be at least 6 characters');
+					showAlert('New password must be at least 6 characters', 5000, { title: 'Error', type: 'error' });
 					return;
 				}
 
@@ -206,87 +198,89 @@
 					const result = await response.json();
 					
 					if (!result.error) {
-						alert('Password changed successfully!');
+						showAlert('Password changed successfully!', 3000, { title: 'Success', type: 'success' });
 						document.getElementById('oPass').value = '';
 						document.getElementById('nPass').value = '';
 					}
                     else {
-						alert(result.error || 'Error changing password');
+						showAlert(result.error || 'Error changing password', 5000, { title: 'Error', type: 'error' });
 					}
 				} catch (error) {
 					console.error('Error:', error);
-					alert('Failed to change password');
+					showAlert('Failed to change password', 5000, { title: 'Error', type: 'error' });
 				}
 			}
 
 			async function deleteAllMiis() {
-				const confirmed = confirm('⚠️ WARNING ⚠️\n\nAre you ABSOLUTELY SURE you want to DELETE ALL YOUR MIIS?\n\nThis action CANNOT be undone!');
-				if (!confirmed) return;
-
-				const doubleCheck = prompt('Type "DELETE ALL" to confirm:');
-				if (doubleCheck !== 'DELETE ALL') {
-					alert('Deletion cancelled.');
-					return;
-				}
-
-				try {
-					const response = await fetch('/deleteAllMyMiis', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' }
-					});
-
-					const result = await response.json();
-					
-					if (!result.error) {
-						alert(`Successfully deleted ${result.deletedCount} Miis`);
-						location.reload();
+				showConfirm('⚠️ WARNING ⚠️\n\nAre you ABSOLUTELY SURE you want to DELETE ALL YOUR MIIS?\n\nThis action CANNOT be undone!', () => {
+					const doubleCheck = prompt('Type "DELETE ALL" to confirm:');
+					if (doubleCheck !== 'DELETE ALL') {
+						showAlert('Deletion cancelled.', 3000, { title: 'Cancelled' });
+						return;
 					}
+
+					(async () => {
+						try {
+							const response = await fetch('/deleteAllMyMiis', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' }
+							});
+
+							const result = await response.json();
+							
+							if (!result.error) {
+								showAlert(`Successfully deleted ${result.deletedCount} Miis`, 2000, { title: 'Success', type: 'success' });
+								setTimeout(() => location.reload(), 2000);
+							}
                     else {
-						alert(result.error || 'Error deleting Miis');
-					}
-				} catch (error) {
-					console.error('Error:', error);
-					alert('Failed to delete Miis');
-				}
+								showAlert(result.error || 'Error deleting Miis', 5000, { title: 'Error', type: 'error' });
+							}
+						} catch (error) {
+							console.error('Error:', error);
+							showAlert('Failed to delete Miis', 5000, { title: 'Error', type: 'error' });
+						}
+					})();
+				}, null, { title: 'Delete All Miis', confirmText: 'Continue' });
 			}
 
 			async function deleteAccount() {
 				const password = document.getElementById('deleteAccountPassword').value;
 
 				if (!password) {
-					alert('Please enter your password to confirm account deletion');
+					showAlert('Please enter your password to confirm account deletion', 5000, { title: 'Error', type: 'error' });
 					return;
 				}
 
-				const confirmed = confirm('⚠️ FINAL WARNING ⚠️\n\nAre you ABSOLUTELY SURE you want to DELETE YOUR ACCOUNT?\n\nYour Miis will remain on the site but will be attributed to "[Deleted User]".\n\nThis action CANNOT be undone!');
-				if (!confirmed) return;
-
-				const tripleCheck = prompt('Type "DELETE MY ACCOUNT" to confirm:');
-				if (tripleCheck !== 'DELETE MY ACCOUNT') {
-					alert('Account deletion cancelled.');
-					return;
-				}
-
-				try {
-					const response = await fetch('/deleteAccount', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ password })
-					});
-
-					const result = await response.json();
-					
-					if (!result.error) {
-						alert('Account deleted successfully. Goodbye!');
-						window.location.href = '/';
+				showConfirm('⚠️ FINAL WARNING ⚠️\n\nAre you ABSOLUTELY SURE you want to DELETE YOUR ACCOUNT?\n\nYour Miis will remain on the site but will be attributed to "[Deleted User]".\n\nThis action CANNOT be undone!', () => {
+					const tripleCheck = prompt('Type "DELETE MY ACCOUNT" to confirm:');
+					if (tripleCheck !== 'DELETE MY ACCOUNT') {
+						showAlert('Account deletion cancelled.', 3000, { title: 'Cancelled' });
+						return;
 					}
+
+					(async () => {
+						try {
+							const response = await fetch('/deleteAccount', {
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({ password })
+							});
+
+							const result = await response.json();
+							
+							if (!result.error) {
+								showAlert('Account deleted successfully. Goodbye!', 2000, { title: 'Success', type: 'success' });
+								setTimeout(() => window.location.href = '/', 2000);
+							}
                     else {
-						alert(result.error || 'Error deleting account');
-					}
-				} catch (error) {
-					console.error('Error:', error);
-					alert('Failed to delete account');
-				}
+								showAlert(result.error || 'Error deleting account', 5000, { title: 'Error', type: 'error' });
+							}
+						} catch (error) {
+							console.error('Error:', error);
+							showAlert('Failed to delete account', 5000, { title: 'Error', type: 'error' });
+						}
+					})();
+				}, null, { title: '⚠️ DELETE ACCOUNT', confirmText: 'Continue' });
 			}
 		</script>
 	</body>

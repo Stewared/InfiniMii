@@ -52,20 +52,54 @@ function showConfirm(message, onConfirm, onCancel = null, options = {}) {
     const confirmText = options.confirmText || 'Confirm';
     const cancelText = options.cancelText || 'Cancel';
     
-    // TODO: Low importance for now but redo this without needing innerHTML
-    overlay.innerHTML = `
-        <div class="custom-modal">
-            <div class="custom-modal-header">
-                <h3>${title}</h3>
-                <button class="custom-modal-close" aria-label="Close">&times;</button>
-            </div>
-            <div class="custom-modal-body">${message}</div>
-            <div class="custom-modal-footer">
-                <button class="custom-modal-btn custom-modal-btn-secondary" data-action="cancel">${cancelText}</button>
-                <button class="custom-modal-btn custom-modal-btn-primary" data-action="confirm">${confirmText}</button>
-            </div>
-        </div>
-    `;
+    // Create modal structure using DOM methods
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+    
+    // Header
+    const header = document.createElement('div');
+    header.className = 'custom-modal-header';
+    
+    const titleEl = document.createElement('h3');
+    titleEl.textContent = title;
+    
+    const closeBtnObj = document.createElement('button');
+    closeBtnObj.className = 'custom-modal-close';
+    closeBtnObj.setAttribute('aria-label', 'Close');
+    closeBtnObj.innerHTML = '&times;';
+    
+    header.appendChild(titleEl);
+    header.appendChild(closeBtnObj);
+    
+    // Body
+    const body = document.createElement('div');
+    body.className = 'custom-modal-body';
+    body.textContent = message;
+    
+    // Footer
+    const footer = document.createElement('div');
+    footer.className = 'custom-modal-footer';
+    
+    const cancelBtnObj = document.createElement('button');
+    cancelBtnObj.className = 'custom-modal-btn custom-modal-btn-secondary';
+    cancelBtnObj.setAttribute('data-action', 'cancel');
+    cancelBtnObj.textContent = cancelText;
+    
+    const confirmBtnObj = document.createElement('button');
+    confirmBtnObj.className = 'custom-modal-btn custom-modal-btn-primary';
+    confirmBtnObj.setAttribute('data-action', 'confirm');
+    confirmBtnObj.textContent = confirmText;
+    
+    footer.appendChild(cancelBtnObj);
+    footer.appendChild(confirmBtnObj);
+    
+    // Assemble modal
+    modal.appendChild(header);
+    modal.appendChild(body);
+    modal.appendChild(footer);
+    
+    overlay.innerHTML = '';
+    overlay.appendChild(modal);
     
     const closeBtn = overlay.querySelector('.custom-modal-close');
     const confirmBtn = overlay.querySelector('[data-action="confirm"]');

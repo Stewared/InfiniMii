@@ -106,15 +106,7 @@
             </fieldset>
         </form>
     </div>
-    <footer>
-        <ul>
-            <li><a href="mailto:kestron@kestron.com">Contact</a></li>
-            <!-- <li><a href="/support">Support</a></li> -->
-            <li><a href="/donate">Donate</a></li>
-            <li><a href='https://discord.gg/k3yVkrrvez'>Discord</a></li>
-        </ul>
-    </footer>
-    <script src="/global.js"></script>
+    <%- include('footer') %>
     <script>
         document.getElementById('signupForm').addEventListener('submit', function(e) {
             handleFormSubmit(e, '/signup', 'Signing up...', 'errorMessage', {
