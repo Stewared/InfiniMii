@@ -1,138 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <%
-        const pageTitle = 'Mii Height/Weight Calculator - InfiniMii';
-        const pageDesc = 'InfiniMii is the most comprehensive Mii character repository and toolkit. Convert, share, and download Miis for all Nintendo systems. Learn about our mission and features.';
-        const canonicalUrl = `${baseUrl}/calculator`;
-        const keywords = 'calculate, calculator, height, weight, pixels, pounds, kilograms, inches, feet, foot, convert, conversion, metric, imperial';
-        %>
-        <%- include('metaTags') %>
-        <%- include('structuredData') %>
-        
-        <link rel="stylesheet" href="/global.css">
-        <link rel="stylesheet" href="/utilityPages.css">
-        <style>
-            li{
-                list-style-type:disc;
-                margin:0px;
-            }
-        </style>
-    </head>
-    <body>
-        <%- include('globalStyle') %>
-        <%- include('header') %>
-        <%- include('accountDisplay') %>
-        
-        <main class="content about-content" role="main">
-            <%- include('sidebar') %>
+<head>
+    <%
+    const pageTitle = 'Mii Height/Weight Calculator - InfiniMii';
+    const pageDesc = 'InfiniMii is the most comprehensive Mii character repository and toolkit. Convert, share, and download Miis for all Nintendo systems. Learn about our mission and features.';
+    const canonicalUrl = `${baseUrl}/calculator`;
+    const keywords = 'calculate, calculator, height, weight, pixels, pounds, kilograms, inches, feet, foot, convert, conversion, metric, imperial';
+    %>
+    <%- include('metaTags') %>
+    <%- include('structuredData') %>
+    
+    <link rel="stylesheet" href="/global.css">
+    <link rel="stylesheet" href="/utilityPages.css">
+    <link rel="stylesheet" href="/calc.css">
+</head>
+<body>
+    <%- include('globalStyle') %>
+    <%- include('header') %>
+    <%- include('accountDisplay') %>
+    
+    <div class='content'>
+        <%- include('sidebar') %>
+        <div class="calculator-container">
+            <h2>Mii Height & Weight Calculator</h2>
             
-            <article class="about-article guide-container">
+            <div class="calc-grid">
+                <!-- Mii Height/Weight Section -->
+                <div class="input-group">
+                    <h3>Mii Values</h3>
+                    
+                    <div class="input-row">
+                        <label for="miiHeight">Mii Height</label>
+                        <input type="range" min="0" max="127" value="64" id="miiHeight" name="miiHeight" onchange="updateCalcs(this)">
+                        <input type="number" value="64" id="miiHeightDisplay" min="0" max="127" onchange="updateCalcs(this)">
+                    </div>
+                    
+                    <div class="input-row">
+                        <label for="miiWeight">Mii Weight</label>
+                        <input type="range" min="0" max="127" value="64" id="miiWeight" name="miiWeight" onchange="updateCalcs(this)">
+                        <input type="number" value="64" id="miiWeightDisplay" name="miiWeightDisplay" min="0" max="127" onchange="updateCalcs(this)">
+                    </div>
+                </div>
                 
-                <article>
-                    <h2>Convert from Mii Height to Feet & Inches/Centimeters</h2>
-                    <p class="lead">
-                        <div id="convInput">
-                            <!--Mii Height/Weight-->
-                            <label for="miiHeight" class="miiHeightConvIn">Mii Height</label> <input type="range" min="0" max="127" value="64" class="miiHeight" name="miiHeight"> <input disabled value="64" class="miiHeightConvIn" style="width:2rem;"><br>
-                            <label for="miiWeight" class="miiWeightConvIn">Mii Weight</label> <input type="range" min="0" max="127" value="64" class="miiWeight" name="miiWeight"> <input disabled value="64" class="miiWeightConvIn" style="width:2rem;"><br>
-
-                            <!--Feet/Inches, Centimeters-->
-                            <label for="feetConvIn" class="lenConvIn">Feet</label> <input name="feet" type="number" min="0" max="7" class="lenConvIn" value="5" style="width:2rem;"> <label for="inchConvIn" class="lenConvIn">Inches</label> <input name="inchConvIn" type="number" min="0" max="84" class="lenConvIn" value="0" style="width:2rem;"><br>
-                            <label for="centiConvIn" class="lenConvIn">Centimeters</label> <input name="centi" type="number" min="0" max="213.36" class="lenConvIn" value="152.4" style="width:5.5rem;"><br>
-
-                            <!--Pounds, Kilograms-->
-                            <label for="poundsConvIn" class="weightConvIn">Pounds</label> <input name="weight" type="number" min="0" max="351.29" style="width:5.5rem;" value="113.37"><br>
-                            <label for="kilosConvIn" class="weightConvIn">Kilograms</label> <input name="weight" type="number" min="0" max="159" style="width:3rem;" value="51">
+                <!-- Real World Height Section -->
+                <div class="input-group">
+                    <h3>Real World Height</h3>
+                    
+                    <div class="dual-input">
+                        <div class="dual-input-item">
+                            <label for="feet">Feet</label>
+                            <input name="feet" type="number" min="0" max="7" id="feet" value="5" onchange="updateCalcs(this)">
                         </div>
-                    </p>
-                </article>
-            </article>
-            <%- include('featuredMiis') %>
-        </main>
+                        <div class="dual-input-item">
+                            <label for="inches">Inches</label>
+                            <input name="inches" type="number" min="0" max="84" id="inches" value="0" step="0.5" onchange="updateCalcs(this)">
+                        </div>
+                    </div>
+                    
+                    <div class="input-row" style="margin-top: 1rem;">
+                        <label for="centi">Centimeters</label>
+                        <input name="centi" type="number" min="0" max="213.36" id="centi" value="152.4" step="1" style="grid-column: 2 / 4;" onchange="updateCalcs(this)">
+                    </div>
+                </div>
+                
+                <!-- Real World Weight Section -->
+                <div class="input-group">
+                    <h3>Real World Weight</h3>
+                    
+                    <div class="input-row">
+                        <label for="pounds">Pounds</label>
+                        <input name="pounds" type="number" min="0" max="351.29" value="113.37" id="pounds" step="0.01" style="grid-column: 2 / 4;" onchange="updateCalcs(this)">
+                    </div>
+                    
+                    <div class="input-row">
+                        <label for="kilos">Kilograms</label>
+                        <input name="kilos" type="number" min="0" max="159" value="51" id="kilos" step="0.01" style="grid-column: 2 / 4;" onchange="updateCalcs(this)">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <%- include('featuredMiis') %>
+    </div>
+    
+    <%- include('footer') %>
+    <script src="/miijsFrontendPort.js"></script>
+    <script>
+        const inches=document.getElementById("inches");
+        const feet=document.getElementById("feet");
+        const centi=document.getElementById("centi");
+        const miiHeight=document.getElementById("miiHeight");
+        const miiWeight=document.getElementById("miiWeight");
+        const pounds=document.getElementById("pounds");
+        const kilos=document.getElementById("kilos");
+        const miiHeightDisplay=document.getElementById("miiHeightDisplay");
+        const miiWeightDisplay=document.getElementById("miiWeightDisplay");
         
-        <%- include('footer') %>
-        <script src="/miijsFrontendPort.js"></script>
-        <script>
-            const selectFrom=document.getElementById("selectFrom");
-            const selectTo=document.getElementById("selectTo");
-            var fromMappings={
-                "miiHeight":[
-                    "centi",
-                    "inches"
-                ],
-                "centi":[
-                    "miiHeight",
-                    "inches"
-                ],
-                "inches":[
-                    "miiHeight",
-                    "centi"
-                ],
-                "miiWeight":[
-                    "pounds",
-                    "kilos"
-                ],
-                "pounds":[
-                    "miiWeight",
-                    "kilos"
-                ],
-                "kilos":[
-                    "miiWeight",
-                    "kilos"
-                ]
-            };
-            function updateCalcs(el){
-                switch(el.name){
-                    case "miiHeight":
-                        let height=miiHeightToMeasurements(el.value);
-                        if(document.getElementById("inches")>12){
-                            document.getElementById("feet").value=0;
-                            document.getElementById("inches").value=height.totalInches;
-                        }
-                        else{
-                            document.getElementById("feet").value=height.feet;
-                            document.getElementById("inches").value=height.inches;
-                        }
-                        document.getElementById("centi").value=height.centimeters;
-                    break;
-                    case "miiWeight":
-                        let weight=miiWeightToRealWeight(document.getElementById("height").value,el.value);
-                        document.getElementById("pounds").value=weight.pounds;
-                        document.getElementById("kilos").value=weight.kilograms;
-                    break;
-                    case "feet":
-                        document.getElementById("miiHeight").value=inchesToMiiHeight(el.value*12+document.getElementById("inches").value);
-                        document.getElementById("centi").value=(el.value*12+document.getElementById("inches").value)*2.54;
-                    break;
-                    case "inches":
-                        if(el.value>12){
-                            document.getElementById("feet").value=0;
-                        }
-                        document.getElementById("miiHeight").value=inchesToMiiHeight(document.getElementById("feet").value*12+el.value);
-                        document.getElementById("centi").value=(document.getElementById("feet").value*12+el.value)*2.54;
+        let oldFeet;
+        let weight;
+        function updateCalcs(el){
+            switch(el.name){
+                case "miiHeight":
+                    miiHeightDisplay.value=el.value;
+                case "miiHeightDisplay":
+                    if(el.name==="miiHeightDisplay"){
+                        miiHeight.value=el.value;
+                    }
+                    let height=miiHeightToMeasurements(el.value);
+                    if(inches.value>12){
+                        feet.value=0;
+                        inches.value=Math.round(height.totalInches);
+                    }
+                    else{
+                        feet.value=height.feet;
+                        inches.value=Math.round(height.inches);
+                    }
+                    centi.value=Math.round(height.centimeters);
+                    
+                    weight=miiWeightToRealWeight(el.value,miiWeight.value);
+                    pounds.value=weight.pounds.toFixed(2);
+                    kilos.value=weight.kilograms.toFixed(2);
+                break;
+                case "miiWeight":
+                    miiWeightDisplay.value=el.value;
+                case "miiWeightDisplay":
+                    if(el.name==="miiWeightDisplay"){
+                        miiWeight.value=el.value;
+                    }
+                    weight=miiWeightToRealWeight(miiHeight.value,el.value);
+                    pounds.value=weight.pounds.toFixed(2);
+                    kilos.value=weight.kilograms.toFixed(2);
                     break;
                     case "centi":
-                        if(document.getElementById("inches").value>12){
-                            document.getElementById("feet").value=0;
-                            document.getElementById("inches").value=el.value/2.54;
+                    if(inches.value>12){
+                        feet.value=0;
+                        inches.value=el.value/2.54;
+                    }
+                    else{
+                        feet.value=Math.floor((el.value/2.54)/12);
+                        inches.value=(el.value/2.54)%12;
+                    }
+                    miiHeight.value=centimetersToMiiHeight(el.value);
+                    miiHeightDisplay.value=miiHeight.value;
+                break;
+                case "feet":
+                    if(feet.value<3){
+                        if(oldFeet<feet.value){
+                            feet.value=3;
                         }
-                        else{
-                            document.getElementById("feet").value=Math.floor((el.value/2.54)/12);
-                            document.getElementById("inches").value=(el.value/2.54)%12;
+                        else if(oldFeet>feet.value){
+                            feet.value=0;
+                            inches.value=Math.max(27,inches.value);
                         }
-                        document.getElementById("miiHeight").value=centimetersToMiiHeight(el.value);
-                    break;
-                    case "pounds":
-                        document.getElementById("miiWeight").value=imperialHeightWeightToMiiWeight(document.getElementById("feet").value*12+document.getElementById("inches").value,el.value);
-                        document.getElementById("kilos")=el.value*0.4535924;
-                    break;
-                    case "kilos":
-                        document.getElementById("miiWeight").value=metricHeightWeightToMiiWeight(document.getElementById("centi").value,el.value);
-                        document.getElementById("pounds").value=el.value/0.4535924;
-                    break;
-                }
+                    }
+                    miiHeight.value = inchesToMiiHeight(parseFloat(el.value)*12 + parseFloat(inches.value));
+                    miiHeightDisplay.value = miiHeight.value;
+                    centi.value = Math.round((parseFloat(el.value)*12 + parseFloat(inches.value))*2.54);
+                break;
+                
+                case "inches":
+                    if(inches.value<27&&feet.value<3){
+                        inches.value=27;
+                    }
+                    if(parseFloat(el.value) > 12){
+                        feet.value = 0;
+                    }
+                    miiHeight.value = inchesToMiiHeight(parseFloat(feet.value)*12 + parseFloat(el.value));
+                    miiHeightDisplay.value = miiHeight.value;
+                    centi.value = Math.round((parseFloat(feet.value)*12 + parseFloat(el.value))*2.54);
+                break;
+                
+                case "pounds":
+                    miiWeight.value = imperialHeightWeightToMiiWeight(parseFloat(feet.value)*12 + parseFloat(inches.value), parseFloat(el.value));
+                    miiWeightDisplay.value = miiWeight.value;
+                    kilos.value = (parseFloat(el.value)*0.4535924).toFixed(2);
+                break;
+                
+                case "kilos":
+                    miiWeight.value = metricHeightWeightToMiiWeight(parseFloat(centi.value), parseFloat(el.value));
+                    miiWeightDisplay.value = miiWeight.value;
+                    pounds.value = (parseFloat(el.value)/0.4535924).toFixed(2);
+                break;
             }
-        </script>
-    </body>
+            oldFeet=feet.value;
+        }
+    </script>
+</body>
 </html>
