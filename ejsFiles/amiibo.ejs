@@ -190,12 +190,12 @@
                     <form id="extractForm" enctype="multipart/form-data">
                         <div class="upload-area" id="extractDropZone">
                             <p style="margin: 0 0 1rem 0;">📁 Drag & drop your Amiibo dump here, or click to browse</p>
-                            <input type="file" name="amiibo" id="extractFile" accept=".bin" style="display: none;">
+                            <input type="file" name="amiibo" id="extractFile" accept=".bin" style="display: none;" onchange="document.getElementById('extrAction').click()">
                             <button type="button" class="btn btn-secondary" onclick="document.getElementById('extractFile').click()">
                                 Choose File
                             </button>
                         </div>
-                        <button type="submit" class="btn btn-primary">Extract Mii</button>
+                        <button type="submit" class="btn btn-primary" id="extrAction">Extract Mii</button>
                     </form>
                     
                     <div id="extractedMii" class="extracted-mii">
@@ -291,7 +291,7 @@
                 try {
                     const response = await fetch('/extractMiiFromAmiibo', {
                         method: 'POST',
-                        headers: { "Content-Type": "application/json" },
+                        //headers: { "Content-Type": "application/json" }, qk Claude
                         body: formData
                     });
                     
@@ -328,7 +328,7 @@
                 try {
                     const response = await fetch('/insertMiiIntoAmiibo', {
                         method: 'POST',
-                        headers: { "Content-Type": "application/json" },
+                        //headers: { "Content-Type": "application/json" }, qk Claude
                         body: formData
                     });
                     

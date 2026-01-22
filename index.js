@@ -1,5 +1,4 @@
 import "./setEnvs.js";
-console.log("test")
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
@@ -1452,9 +1451,9 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             })
         );
         console.log(`Ensured All Miis Have QRs And Face Renders\nGenerating new average Mii...`);
+
         await setAverageMii();
         setInterval(async () => await setAverageMii(), 1800000);//30 Mins
-
         // TODO: it's passing it without all the fields
         const avgMii = await getMiiById("average");
 
@@ -1462,7 +1461,13 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             fs.promises.writeFile(`./static/miiImgs/average.png`, await miijs.renderMii(avgMii)).catch(() => console.log);
             await miijs.write3DSQR(avgMii, `./static/miiQRs/average.png`).catch(() => console.log);
         }
-        console.log(`All setup finished.\nOnline`);
+        console.log(`Generated new average Mii`);
+
+        fs.readdirSync("./uploads").forEach(failedUploadFile=>{
+            fs.unlinkSync(`./uploads/${failedUploadFile}`);
+        });
+
+        console.log(`Cleared all failed uploads\n\nAll setup finished.\nOnline`);
     });
 });
 
@@ -2659,7 +2664,6 @@ site.get('/amiibo', async (req, res) => {
 });
 
 // Extract Mii from Amiibo
-// Extract Mii from Amiibo
 site.post('/extractMiiFromAmiibo', upload.single('amiibo'), async (req, res) => {
     try {
         if (!req.file) {
@@ -2943,7 +2947,7 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
                     },
                     {
                         "name": `Uploaded by`,
-                        "value": `[${username}](https://miis.kestron.com/user/${encodeURIComponent(username)})`,
+                        "value": `[${username}](https://infinimii.com/user/${encodeURIComponent(username)})`,
                         "inline": true
                     },
                     {
@@ -2956,7 +2960,7 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
                     "url": `attachment://${newMiiId}.png`
                 },
                 "footer": {
-                    "text": `View: https://miis.kestron.com/mii/${newMiiId} | Uploaded at ${d.getHours()}:${d.getMinutes()}, ${d.toDateString()} UTC`
+                    "text": `View: https://infinimii.com/mii/${newMiiId} | Uploaded at ${d.getHours()}:${d.getMinutes()}, ${d.toDateString()} UTC`
                 }
             }]
         }), [
@@ -3110,11 +3114,12 @@ site.get('/downloadMii', async (req, res) => {
     const format = req.query.format;
     
     const mii = await getMiiById(miiId, false);
-    if (!mii) {
+    if (!mii&&(!fs.existsSync(`./static/temp/${miiId}.bin`)&&format!==`3dsbin`)) {
         res.json({error: "Invalid Mii ID"});
         return;
     }
-    const miiName = mii.meta.name.replace(/[^a-z0-9]/gi, '_');
+    let miiName=mii?.meta?.name?.replace(/[^a-z0-9]/gi, '_');
+    if(!miiName) miiName=`tempMii`;
     
     if (format === 'qr' || format === '3dsqr') {
         // Download QR code
@@ -3126,12 +3131,17 @@ site.get('/downloadMii', async (req, res) => {
     else if (format === '3dsbin' || format === '3dsbin_decrypted') {
         // Download decrypted 3DS bin
         const qrPath = "./static/miiQRs/" + miiId + ".png";
-        const binData = await miijs.read3DSQR(qrPath, true);
+        let binData;
+        if(!fs.existsSync(qrPath)&&fs.existsSync(`./static/temp/${miiId}.bin`)){
+            binData=fs.readFileSync(`./static/temp/${miiId}.bin`);
+        }
+        else{
+            binData = await miijs.read3DSQR(qrPath, true);
+        }
         
         res.setHeader('Content-Disposition', `attachment; filename="${miiName}_decrypted.bin"`);
         res.setHeader('Content-Type', 'application/octet-stream');
         res.send(binData);
-        
     }
     else if (format === '3dsbin_encrypted') {
         // Download encrypted 3DS bin (from QR)
