@@ -560,39 +560,42 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
     
     switch(what) {
         case "random": { // TODO: this is random, but based on sort order. True random is possible but not deterministically
-
-            const seed = parseInt(filter); // filter contains the seed from the route
+                         // QK, Kestron: I think this is more random than it was, I left the old code commented, reimplement if necessary.
             const totalCount = await Miis.countDocuments(query);
-            
+            // const pipeline = [
+            //     { $match: query },
+            //     {
+            //         $addFields: {
+            //             randomSort: {
+            //                 $mod: [
+            //                     { $add: [
+            //                         { $toLong: "$uploadedOn" },
+            //                         seed
+            //                     ]},
+            //                     999999
+            //                 ]
+            //             }
+            //         }
+            //     },
+            //     { $sort: { randomSort: 1 } },
+            //     { $skip: skip },
+            //     { $limit: perPage }
+            // ];
             const pipeline = [
                 { $match: query },
-                {
-                    $addFields: {
-                        randomSort: {
-                            $mod: [
-                                { $add: [
-                                    { $toLong: "$uploadedOn" },
-                                    seed
-                                ]},
-                                999999
-                            ]
-                        }
-                    }
-                },
-                { $sort: { randomSort: 1 } },
+                { $sample: { size: Math.min(totalCount, skip + perPage) } },
                 { $skip: skip },
                 { $limit: perPage }
             ];
-            
+
             const items = await Miis.aggregate(pipeline);
-            
+
             return {
                 items,
                 total: totalCount,
                 page,
                 perPage,
-                totalPages: Math.ceil(totalCount / perPage),
-                seed
+                totalPages: Math.ceil(totalCount / perPage)
             };
         }
         
@@ -2702,7 +2705,7 @@ site.post('/extractMiiFromAmiibo', upload.single('amiibo'), async (req, res) => 
         
         res.json({ mii: mii });
     } catch (e) {
-        console.error('Error extracting Mii from Amiibo:', e);
+    //     console.error('Error extracting Mii from Amiibo:', e); Commented because this block will be hit any time they don't upload a valid Amiibo
         try { fs.unlinkSync("./uploads/" + req.file.filename); } catch (e) { }
         res.json({ error: 'Failed to extract Mii from Amiibo: ' + e.message }); // TODO: don't send message
     }
@@ -3330,7 +3333,7 @@ site.get('/mii/:id', async (req, res) => {
     }
     
     inp.mii = mii;
-    inp.height=miijs.miiHeightToFeetInches(inp.mii.general.height);
+    inp.height=miijs.miiHeightToMeasurements(inp.mii.general.height);
     inp.weight=miijs.miiWeightToRealWeight(inp.mii.general.height,inp.mii.general.weight);
 
     // Override mii color for this page

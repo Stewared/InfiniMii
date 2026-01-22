@@ -30,8 +30,8 @@
                     <% } %>
                 </div>
                 
-                <!-- Pagination Controls -->
-                <% if (pagination && pagination.totalPages > 1) { %>
+                <!-- Pagination Controls, QK, TODO: Kestron: This is a temporary removal of pagination on the Random page, should be fine TMK, change as necessary -->
+                <% if (pagination && pagination.totalPages > 1 && !title.toLowerCase().includes("random")) { %>
                     <div class="pagination">
                         <% if (pagination.currentPage > 1) { %>
                             <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %>" class="pagination-btn">← Previous</a>
