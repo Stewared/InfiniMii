@@ -187,8 +187,9 @@
     margin: 0 0 2rem 0;
 }
 
+/* TODO: make sure this is needed */
 .no-miis::before {
-    content: "📭";
+    content: "";
     display: block;
     font-size: 4rem;
     margin-bottom: 1rem;

@@ -1,0 +1,27 @@
+<!--
+    Icon partial - Renders inline SVG icons
+    Usage: include('icon', { name: 'search' })
+    Optional: { name: 'search', class: 'my-class', size: 18 }
+    
+    Icons use currentColor, so they inherit text color from parent.
+    Set color via CSS on parent element or directly on the icon.
+-->
+<%
+const sizeSet = typeof locals.size !== 'undefined';
+const size = locals.size;
+const iconClass = typeof locals.class !== 'undefined' ? locals.class : '';
+const baseClass = 'icon' + (iconClass ? ' ' + iconClass : '');
+
+const iconPath = icons[name] || icons['help-circle'];
+%>
+<svg 
+    class="<%= baseClass %>" 
+    <% if (sizeSet) { %>
+        width="<%= size %>" 
+        height="<%= size %>" style="width: <%= size %>px; height: <%= size %>px;"
+    <% } %>
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" stroke-width="2" 
+    stroke-linecap="round" stroke-linejoin="round"
+><%- iconPath %></svg>

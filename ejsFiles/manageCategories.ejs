@@ -15,13 +15,13 @@
             
             <div class='category-management'>
                 <div class="header">
-                    <h1>🗂️ Manage Official Categories</h1>
+                    <h1><%- include('icon', { name: 'folders', size: 24, class: 'icon-inline' }) %> Manage Official Categories</h1>
                     <p class="subtitle">Manage nested categories for official Miis</p>
                 </div>
 
                 <!-- Add New Root Category -->
                 <div class="management-section">
-                    <h2>➕ Add New Root Category</h2>
+                    <h2><%- include('icon', { name: 'plus', size: 20, class: 'icon-inline' }) %> Add New Root Category</h2>
                     <div class="form-group">
                         <input type="text" id="newRootName" placeholder="Category name">
                         <input type="color" id="newRootColor" value="#ff6b6b" title="Category Color">
@@ -31,7 +31,7 @@
 
                 <!-- Category Tree -->
                 <div class="management-section">
-                    <h2>📂 Category Tree</h2>
+                    <h2><%- include('icon', { name: 'folder-open', size: 20, class: 'icon-inline' }) %> Category Tree</h2>
                     <div class="tree-controls">
                         <button onclick="expandAll()" class="btn-small">Expand All</button>
                         <button onclick="collapseAll()" class="btn-small">Collapse All</button>
@@ -48,6 +48,14 @@
             let categories = [];
             let expandedNodes = new Set();
 
+            // Inline SVG icons for dynamic content
+            const icons = {
+                plus: '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>',
+                edit: '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>',
+                move: '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+                trash: '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>'
+            };
+
             async function loadCategories() {
                 try {
                     const response = await fetch('/getOfficialCategories', {
@@ -56,7 +64,7 @@
                     const data = await response.json();
                     
                     if (!data.error) {
-                        categories = data.categories;
+                        categories = data.categories?.categories || data.categories || [];
                         renderTree();
                     } else {
                         document.getElementById('categoryTree').innerHTML = 
@@ -103,16 +111,16 @@
                                 
                                 <div class="node-actions">
                                     <button onclick="addChildCategory('${node.path}')" class="btn-icon" title="Add Child">
-                                        ➕
+                                        ${icons.plus}
                                     </button>
                                     <button onclick="renameCategory('${node.path}')" class="btn-icon" title="Rename">
-                                        ✏️
+                                        ${icons.edit}
                                     </button>
                                     <button onclick="moveCategory('${node.path}')" class="btn-icon" title="Move">
-                                        📦
+                                        ${icons.move}
                                     </button>
                                     <button onclick="deleteCategory('${node.path}')" class="btn-icon btn-delete-icon" title="Delete">
-                                        🗑️
+                                        ${icons.trash}
                                     </button>
                                 </div>
                             </div>
@@ -362,7 +370,7 @@
                                 console.error('Error:', error);
                                 showAlert('Error deleting category', 5000, { title: 'Error', type: 'error' });
                             }
-                        }, null, { title: '⚠️ Final Warning', confirmText: 'Yes, Delete All' });
+                        }, null, { title: 'Final Warning', confirmText: 'Yes, Delete All' });
                     } else {
                         (async () => {
                             try {

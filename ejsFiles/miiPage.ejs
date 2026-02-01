@@ -42,7 +42,7 @@
                 <!-- Card Header -->
                 <header class="id-card-header">
                     <h2 itemprop="name">Mii ID Card</h2>
-                    <div class="card-number" role="button" tabindex="0" onclick="copyId()" aria-label="Copy Mii ID">ID: <%= mii.id %></div>
+                    <div class="card-number" role="button" tabindex="0" onclick="copyMiiId(this, '<%= mii.id %>')" aria-label="Copy Mii ID">ID: <%= mii.id %></div>
                 </header>
 
                 <!-- Main Card Body -->
@@ -122,7 +122,7 @@
                                         const data = await response.json();
                                         
                                         if (!data.error) {
-                                            officialCategories = data.categories;
+                                            officialCategories = data.categories?.categories || data.categories || [];
                                             // Auto-expand paths that contain selected categories
                                             currentCategories.forEach(path => {
                                                 const parts = path.split('/');
@@ -388,27 +388,27 @@
                     </div>
                     <% if(isPrivate) { %>
                         <div style="background: #fff3cd; border: 2px solid #ffc107; padding: 15px; margin: 15px; border-radius: 8px; text-align: center;">
-                            <strong>🔒 This is a Private Mii</strong>
+                            <strong><%- include('icon', { name: 'lock', size: 16, class: 'icon-inline' }) %> This is a Private Mii</strong>
                             <p style="margin: 10px 0;">Only you and moderators can view this Mii.</p>
                             <% if(mii.blockedFromPublishing) { %>
                                 <div style="background: #ffe6e6; padding: 10px; margin-top: 10px; border-radius: 6px;">
-                                    <strong>🚫 This Mii has been blocked from publishing</strong>
+                                    <strong><%- include('icon', { name: 'ban', size: 16, class: 'icon-inline icon-danger' }) %> This Mii has been blocked from publishing</strong>
                                     <% if(mii.blockReason) { %>
                                         <p><%= mii.blockReason %></p>
                                     <% } %>
                                 </div>
                             <% } else { %>
                                 <button onclick="publishThisMii()" style="background: #00cc00; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
-                                    📤 Publish This Mii
+                                    <%- include('icon', { name: 'upload', size: 16 }) %> Publish This Mii
                                 </button>
                             <% } %>
                         </div>
                         <% if(isModerator) { %>
                             <div style="background: #fff3cd; border: 2px solid #ff6600; padding: 15px; margin: 15px; border-radius: 8px;">
-                                <strong>🛡️ Moderator Actions</strong>
+                                <strong><%- include('icon', { name: 'shield', size: 16, class: 'icon-inline' }) %> Moderator Actions</strong>
                                 <% if(!mii.blockedFromPublishing) { %>
                                     <button onclick="blockFromPublishing()" style="background: #ff6600; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
-                                        🚫 Block from Publishing
+                                        <%- include('icon', { name: 'ban', size: 16 }) %> Block from Publishing
                                     </button>
                                 <% } else { %>
                                     <p style="margin: 10px 0;">This Mii is already blocked from publishing.</p>
@@ -421,17 +421,17 @@
                 <!-- Uploader Information -->
                 <!-- Footer Section -->
                 <div class="id-card-footer">
-                    <% if(mii.official){ %>
-                        <div class="uploader-info">
-                            <span class="official-badge">⭐ Official Nintendo Mii</span>
-                        </div>
-                    <% } else{%>
                     <div class="uploader-info">
+                        <% if(mii.official){ %>
+                            <span class="official-badge"><%- include('icon', { name: 'star-filled', size: 14, class: 'icon-gold' }) %> Official Nintendo Mii</span>
+                        <% } %>
                         <span class="label">Uploaded by</span>
                         <a href="/user/<%= encodeURIComponent(mii.uploader) %>"><%= mii.uploader %></a>
+                        <% if(mii.official && mii.contributor) { %>
+                            <small class="uploader-subtext">(Contributed by <a href="/user/<%= encodeURIComponent(mii.contributor) %>"><%= mii.contributor %></a>)</small>
+                        <% } %>
                         <time class="date" datetime="<%= new Date(mii.uploadedOn).toISOString() %>" itemprop="datePublished">on <%= new Date(mii.uploadedOn).toLocaleDateString() %></time>
                     </div>
-                    <% } %>
                 </div>
                 <!-- Description -->
                 <% if(mii.desc && mii.desc.length > 0) { %>
@@ -443,11 +443,11 @@
 
                 <!-- Actions -->
                 <div class="id-card-actions">
-                    <button class="btn-primary" onclick="copyId()">
+                    <button class="btn-primary" onclick="copyMiiId(this, '<%= mii.id %>')">
                         <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 96 960 960" width="20" fill="currentColor">
                             <path d="M360 816q-33 0-56.5-23.5T280 736V256q0-33 23.5-56.5T360 176h360q33 0 56.5 23.5T800 256v480q0 33-23.5 56.5T720 816H360Zm0-80h360V256H360v480ZM200 976q-33 0-56.5-23.5T120 896V336h80v560h440v80H200Zm160-240V256v480Z"/>
                         </svg>
-                        Copy Mii ID
+                        <span class="copy-label">Copy Mii ID</span>
                     </button>
 
                     <div class="download-dropdown">
@@ -604,7 +604,7 @@
                 <% if(isModerator){ %>
                     <div class="moderator-tools">
                         <div class="mod-tools-header" onclick="toggleModTools()">
-                            <h3>🛠️ Moderator Tools</h3>
+                            <h3><%- include('icon', { name: 'settings', size: 18, class: 'icon-inline' }) %> Moderator Tools</h3>
                             <span class="dropdown-arrow" id="modToolsArrow">▼</span>
                         </div>
                         
@@ -657,14 +657,14 @@
                                 <!-- Regenerate QR Code -->
                                 <div class="mod-tool-item">
                                     <label>Regenerate QR Code:</label>
-                                    <button onclick="regenerateQR()">🔄 Regenerate QR</button>
+                                    <button onclick="regenerateQR()"><%- include('icon', { name: 'refresh', size: 16 }) %> Regenerate QR</button>
                                     <span id="qrStatus"></span>
                                 </div>
 
                                 <!-- Delete Mii -->
                                 <div class="mod-tool-item mod-tool-danger">
                                     <label>Delete Mii:</label>
-                                    <button class="danger-btn" onclick="confirmDeleteMii()">🗑️ Delete Mii</button>
+                                    <button class="danger-btn" onclick="confirmDeleteMii()"><%- include('icon', { name: 'trash', size: 16 }) %> Delete Mii</button>
                                 </div>
                             </div>
                         </div>
@@ -678,8 +678,22 @@
 
         <!--Due to needing access to EJS variables, we unfortunately cannot move these contents to a dedicated JS file-->
         <script>
-            function copyId(){
-                navigator.clipboard.writeText("<%= mii.id %>");
+            function copyMiiId(el, id){
+                const labelEl = el?.querySelector?.('.copy-label') || el;
+                const originalText = labelEl?.textContent || '';
+
+                navigator.clipboard.writeText(id).then(() => {
+                    if (labelEl) {
+                        labelEl.textContent = '✓ Copied!';
+                        setTimeout(() => {
+                            labelEl.textContent = originalText;
+                        }, 2000);
+                    }
+                }).catch(() => {
+                    if (labelEl && typeof showAlert === 'function') {
+                        showAlert('Failed to copy Mii ID', 4000, { title: 'Error', type: 'error' });
+                    }
+                });
             }
             function report(){
                 var what=prompt("What would you like to report this Mii for?");
@@ -946,7 +960,7 @@
                         try {
                             const response = await fetch('/regenerateQR', {
                                 method: "POST",
-                                body: JSON.stringify({ id: "<%= mii.id %>" })
+                                body: JSON.stringify({ id: "<%= mii.id %>" }),
                                 headers: { "Content-Type": "application/json" },
                             });
                             const result = await response.json();
@@ -959,7 +973,7 @@
                                 }, 1000);
                             }
                             else {
-                                statusEl.textContent = `✗ Error: ${result.error}`;
+                                statusEl.textContent = `Error: ${result.error}`;
                                 statusEl.style.color = '#f44336';
                             }
                         }
@@ -1000,7 +1014,7 @@
                                 showAlert('Failed to delete Mii', 5000, { title: 'Error', type: 'error' });
                             }
                         })();
-                    }, null, { title: '⚠️ Delete Mii', confirmText: 'Continue' });
+                    }, null, { title: 'Delete Mii', confirmText: 'Continue' });
                 }
 
                 async function toggleOfficial() {

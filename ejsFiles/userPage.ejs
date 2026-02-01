@@ -24,28 +24,22 @@
                         <div class="profile-name">
                             <h1><%= targetUser.username %></h1>
                             <%
-                                const ROLE_DISPLAY={ 
-                                    'tempBanned': '🚫 Temp Banned',
-                                    'permBanned': '⛔ Perm Banned',
-                                    'basic': '' ,
-                                    'supporter': '💖 Supporter',
-                                    'researcher': '🔬 Researcher',
-                                    'moderator': '🛡️ Moderator',
-                                    'administrator': '👑 Administrator'
-                                };
-                                const roleClass={
-                                    'tempBanned': 'banned-badge',
-                                    'permBanned': 'banned-badge',
-                                    'supporter': 'supporter-badge',
-                                    'researcher': 'researcher-badge',
-                                    'moderator': 'mod-badge',
-                                    'administrator': 'admin-badge'
+                                // Role icons rendered inline
+                                const roleConfigs = {
+                                    'tempBanned': { label: 'Temp Banned', class: 'banned-badge' },
+                                    'permBanned': { label: 'Perm Banned', class: 'banned-badge' },
+                                    'basic': null,
+                                    'supporter': { label: 'Supporter', class: 'supporter-badge' },
+                                    'researcher': { label: 'Researcher', class: 'researcher-badge' },
+                                    'moderator': { label: 'Moderator', class: 'mod-badge' },
+                                    'administrator': { label: 'Administrator', class: 'admin-badge' }
                                 };
                             %>
-                            <% targetUser.roles.forEach(role=> { %>
-                                <% if(ROLE_DISPLAY[role]) { %>
-                                    <span class="<%= roleClass[role] || 'mod-badge' %>">
-                                        <%= ROLE_DISPLAY[role] %>
+                            <% targetUser.roles.forEach(role => { %>
+                                <% if(roleConfigs[role]) { %>
+                                    <span class="role-badge <%= roleConfigs[role].class %>" data-role="<%= role %>">
+                                        <%= roleConfigs[role].label %>
+                                    </span>
                                     </span>
                                 <% } %>
                             <% }); %>
@@ -81,7 +75,7 @@
                 <% if(isModerator && thisUser !== targetUser.username) { %>
                     <div class="moderator-tools">
                         <div class="mod-tools-header" onclick="toggleModTools()">
-                            <h3>🛠️ Moderator Tools</h3>
+                            <h3><%- include('icon', { name: 'settings', size: 18, class: 'icon-inline' }) %> Moderator Tools</h3>
                             <span class="dropdown-arrow" id="modToolsArrow">▼</span>
                         </div>
 
@@ -95,19 +89,19 @@
                                             <% const userRoles = targetUser.roles || ['basic']; %>
                                                 <label class="role-checkbox">
                                                     <input type="checkbox" value="supporter" <%= userRoles.includes('supporter') ? 'checked' : '' %>>
-                                                    💖 Supporter
+                                                    <%- include('icon', { name: 'heart', size: 14, class: 'icon-inline' }) %> Supporter
                                                 </label>
                                                 <label class="role-checkbox">
                                                     <input type="checkbox" value="researcher" <%= userRoles.includes('researcher') ? 'checked' : '' %>>
-                                                    🔬 Researcher
+                                                    <%- include('icon', { name: 'flask', size: 14, class: 'icon-inline' }) %> Researcher
                                                 </label>
                                                 <label class="role-checkbox">
                                                     <input type="checkbox" value="moderator" <%=userRoles.includes('moderator') ? 'checked' : '' %>>
-                                                    🛡️ Moderator
+                                                    <%- include('icon', { name: 'shield', size: 14, class: 'icon-inline' }) %> Moderator
                                                 </label>
                                                 <label class="role-checkbox">
                                                     <input type="checkbox" value="administrator" <%=userRoles.includes('administrator') ? 'checked' : '' %>>
-                                                    👑 Administrator
+                                                    <%- include('icon', { name: 'crown', size: 14, class: 'icon-inline' }) %> Administrator
                                                 </label>
                                         </div>
                                         <button onclick="updateUserRoles()">Update Roles</button>
@@ -119,7 +113,7 @@
                                     <label>Temporary Ban:</label>
                                     <input type="number" id="banHours" placeholder="Hours" min="24">
                                     <input type="text" id="tempBanReason" placeholder="Reason">
-                                    <button onclick="tempBanUser()">⏰ Temp Ban</button>
+                                    <button onclick="tempBanUser()"><%- include('icon', { name: 'timer', size: 14 }) %> Temp Ban</button>
                                 </div>
 
                                 <!-- Permanent Ban (Admin Only) -->
@@ -127,7 +121,7 @@
                                     <div class="mod-tool-item mod-tool-danger">
                                         <label>Permanent Ban (deletes account & all Miis):</label>
                                         <input type="text" id="permBanReason" placeholder="Reason">
-                                        <button class="danger-btn" onclick="permBanUser()">⛔
+                                        <button class="danger-btn" onclick="permBanUser()"><%- include('icon', { name: 'ban', size: 14 }) %>
                                             Permanent Ban</button>
                                     </div>
                                 <% } %>
@@ -136,7 +130,7 @@
                                 <div class="mod-tool-item mod-tool-danger">
                                     <label>Delete All User's Miis:</label>
                                     <button class="danger-btn"
-                                        onclick="deleteAllUserMiis()">🗑️ Delete All Miis (
+                                        onclick="deleteAllUserMiis()"><%- include('icon', { name: 'trash', size: 14 }) %> Delete All Miis (
                                         <%= displayedMiis.length %>)
                                     </button>
                                 </div>
@@ -146,7 +140,7 @@
                                     <label>Change Username:</label>
                                     <input type="text" id="newUsername"
                                         value="<%= targetUser.username %>" placeholder="New Username">
-                                    <button onclick="changeUsername()">✏️ Change
+                                    <button onclick="changeUsername()"><%- include('icon', { name: 'edit', size: 14 }) %> Change
                                         Username</button>
                                 </div>
 
@@ -155,7 +149,7 @@
                                     <label>Change Profile Picture (Mii ID):</label>
                                     <input type="text" id="newPfp"
                                         value="<%= targetUser.miiPfp %>" placeholder="Mii ID">
-                                    <button onclick="changeUserPfp()">🖼️ Change
+                                    <button onclick="changeUserPfp()"><%- include('icon', { name: 'image', size: 14 }) %> Change
                                         PFP</button>
                                 </div>
 
@@ -183,6 +177,9 @@
                                                 <%= displayedMiis[i].meta?.name || displayedMiis[i].name %>
                                             </h3>
                                             <a href="<%= '/user/'+encodeURIComponent(displayedMiis[i].uploader) %>"><%= displayedMiis[i].uploader %></a>
+                                            <% if(displayedMiis[i].official && displayedMiis[i].contributor) { %>
+                                                <small class="uploader-subtext">Contributed by <a href="/user/<%= encodeURIComponent(displayedMiis[i].contributor) %>"><%= displayedMiis[i].contributor %></a></small>
+                                            <% } %>
                                         </div>
                                     </div>
                                     <p>
@@ -317,7 +314,7 @@
                 async function permBanUser() {
                     const reason = document.getElementById('permBanReason').value;
 
-                    showConfirm(`⚠️ WARNING ⚠️\n\nAre you ABSOLUTELY SURE you want to PERMANENTLY BAN ${targetUsername}?\n\nThis will:\n- Delete their account\n- Delete ALL their Miis (${'<%= displayedMiis.length %>'})\n- Ban their IP address from creating new accounts\n\nThis action CANNOT be undone!\n\nReason: ${reason || 'No reason provided'}`, () => {
+                    showConfirm(`WARNING\n\nAre you ABSOLUTELY SURE you want to PERMANENTLY BAN ${targetUsername}?\n\nThis will:\n- Delete their account\n- Delete ALL their Miis (${'<%= displayedMiis.length %>'})\n- Ban their IP address from creating new accounts\n\nThis action CANNOT be undone!\n\nReason: ${reason || 'No reason provided'}`, () => {
                         const doubleCheck = prompt(`Type "PERMANENT BAN" to confirm:`);
                         if (doubleCheck !== 'PERMANENT BAN') {
                             showAlert('Permanent ban cancelled.', 3000, { title: 'Cancelled' });

@@ -21,7 +21,7 @@
             <%- include('sidebar') %>
             <div class='private-miis-container'>
                 <div class="private-header">
-                    <h1><span class="emoji">🔒</span> My Private Miis</h1>
+                    <h1><%- include('icon', { name: 'lock', size: 24, class: 'icon-inline' }) %> My Private Miis</h1>
                     <p class="limit-info">
                         <%= privateMiis.length %> / <%= privateLimit %> private Miis
                     </p>
@@ -48,7 +48,7 @@
                                     <% } %>
                                     <% if(privateMiis[i].blockedFromPublishing) { %>
                                         <div class="blocked-notice">
-                                            🚫 Blocked from publishing
+                                            <%- include('icon', { name: 'ban', size: 14, class: 'icon-inline icon-danger' }) %> Blocked from publishing
                                             <% if(privateMiis[i].blockReason) { %>
                                                 <small><%= privateMiis[i].blockReason %></small>
                                             <% } %>
@@ -58,11 +58,11 @@
                                 <div class="mii-actions">
                                     <% if(!privateMiis[i].blockedFromPublishing) { %>
                                         <button class="publish-btn" onclick="publishMii('<%= privateMiis[i].id %>')" aria-label="Publish <%= privateMiis[i].meta?.name || privateMiis[i].name %>">
-                                            📤 Publish
+                                            <%- include('icon', { name: 'upload', size: 14 }) %> Publish
                                         </button>
                                     <% } %>
                                     <button class="delete-btn" onclick="deleteMii('<%= privateMiis[i].id %>')" aria-label="Delete <%= privateMiis[i].meta?.name || privateMiis[i].name %>">
-                                        🗑️ Delete
+                                        <%- include('icon', { name: 'trash', size: 14 }) %> Delete
                                     </button>
                                 </div>
                             </article>
@@ -71,7 +71,7 @@
                 <% } else { %>
                     <div class="no-miis">
                         <p>You don't have any private Miis yet.</p>
-                        <a href="/upload" class="upload-button">📤 Upload Your First Mii</a>
+                        <a href="/upload" class="upload-button"><%- include('icon', { name: 'upload', size: 16 }) %> Upload Your First Mii</a>
                     </div>
                 <% } %>
             </div>

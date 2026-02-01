@@ -53,7 +53,7 @@
                     <input type="button" value="Scan Again" onclick="start()">
                 </div>
 
-                <div id="loadingMessage">🎥 Click the start button to begin scanning</div>
+                <div id="loadingMessage"><%- include('icon', { name: 'camera', size: 18, class: 'icon-inline' }) %> Click the start button to begin scanning</div>
                 <canvas id="canvas" hidden></canvas>
                 <div id="output" hidden>
                     <div id="outputMessage">No QR code detected.</div>
@@ -104,7 +104,7 @@
                     video.play();
                     requestAnimationFrame(tick);
                 }).catch(function(err) {
-                    loadingMessage.innerText = "❌ Camera access denied or not available";
+                    loadingMessage.innerText = "Camera access denied or not available";
                     console.error(err);
                 });
             }
@@ -118,7 +118,7 @@
                 stored = bin;
                 video.pause();
                 going = false;
-                outputMessage.innerText = "✅ QR Code scanned successfully!";
+                outputMessage.innerText = "QR Code scanned successfully!";
             }
             
             function after(act) {

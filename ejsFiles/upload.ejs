@@ -52,9 +52,9 @@
                         </div>
                         
                         <div class="upload-tabs">
-                            <button class="tab-button active" onclick="switchTab('file')">📁 File Upload</button>
-                            <button class="tab-button" onclick="switchTab('studio')">🎨 Mii Studio</button>
-                            <button class="tab-button" onclick="switchTab('qr')">📸 Scan QR Code</button>
+                            <button class="tab-button active" onclick="switchTab('file')"><%- include('icon', { name: 'file', size: 16 }) %> File Upload</button>
+                            <button class="tab-button" onclick="switchTab('studio')"><%- include('icon', { name: 'palette', size: 16 }) %> Mii Studio</button>
+                            <button class="tab-button" onclick="switchTab('qr')"><%- include('icon', { name: 'qr-code', size: 16 }) %> Scan QR Code</button>
                         </div>
                         
                         <!-- File Upload Tab -->
@@ -92,11 +92,18 @@
                                 
                                 <label for="mii-description">Description (Max 250 charactrs):</label>
                                 <textarea maxlength="250" rows="5" placeholder="Description..." name="desc" id="mii-description" required aria-required="true"></textarea>
+
+                                <div class="checkbox-row" style="margin-top: 12px;">
+                                    <input type="checkbox" name="makePublic" id="makePublic">
+                                    <label for="makePublic">
+                                        Make this Mii public immediately (default is private)
+                                    </label>
+                                </div>
                                 
                                 <% if(isResearcher) { %>
                                     <div class="official-section">
                                         <input type="checkbox" name="official" id="officialCheckbox" onchange="toggleOfficialFields()"> 
-                                        <label for="official">
+                                        <label for="officialCheckbox">
                                             <b>This is an exact copy of a Mii</b> that appears in a Nintendo game/promotion officially
                                         </label>
                                         
@@ -104,7 +111,7 @@
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                                 <h4 style="margin: 0;">Official Mii Categories:</h4>
                                                 <a href="/manageCategories" target="_blank" class="manage-cats-link">
-                                                    🗂️ Manage Categories
+                                                    <%- include('icon', { name: 'folders', size: 16 }) %> Manage Categories
                                                 </a>
                                             </div>
                                             
@@ -146,7 +153,7 @@
                                                 const data = await response.json();
                                                 
                                                 if (!data.error) {
-                                                    officialCategories = data.categories;
+                                                    officialCategories = data.categories?.categories || data.categories || [];
                                                     renderCategoryTree();
                                                 } else {
                                                     document.getElementById('categoriesContainer').innerHTML = 
@@ -355,7 +362,7 @@
                                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                                                 <h4 style="margin: 0;">Official Mii Categories:</h4>
                                                 <a href="/manageCategories" target="_blank" class="manage-cats-link">
-                                                    🗂️ Manage Categories
+                                                    <%- include('icon', { name: 'folders', size: 16 }) %> Manage Categories
                                                 </a>
                                             </div>
                                             

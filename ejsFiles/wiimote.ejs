@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Wii Remote Mii Tools - InfiniMii</title>
+        <link rel='stylesheet' href="global.css">
+        <link rel="stylesheet" href="utilityPages.css">
+        <style>
+            .wiimote-tools {
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            
+            .tool-section {
+                background-color: var(--layer-2-um);
+                padding: 2rem;
+                border-radius: 10px;
+            }
+            
+            .tool-section h3 {
+                color: var(--brand-color);
+                margin-top: 0;
+                margin-bottom: 1.5rem;
+                font-size: 24px;
+            }
+            
+            .status-bar {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 15px;
+                background: var(--layer-1-um);
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+            
+            .status-indicator {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: #dc3545;
+            }
+            
+            .status-indicator.connected {
+                background: #28a745;
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+            
+            .btn {
+                padding: 0.75rem 1.5rem;
+                border: none;
+                border-radius: 6px;
+                font-family: Poppins, sans-serif;
+                font-size: 16px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .btn-primary {
+                background-color: var(--brand-color);
+                color: white;
+            }
+            
+            .btn-primary:hover:not(:disabled) {
+                opacity: 0.9;
+                transform: translateY(-1px);
+            }
+            
+            .btn-primary:disabled {
+                background-color: var(--layer-3-um);
+                color: var(--text-2);
+                cursor: not-allowed;
+            }
+            
+            .btn-secondary {
+                background-color: var(--layer-3-um);
+                color: var(--text-1);
+            }
+            
+            .btn-secondary:hover {
+                background-color: var(--layer-4);
+            }
+            
+            .btn-danger {
+                background-color: #dc3545;
+                color: white;
+            }
+            
+            .btn-danger:hover {
+                opacity: 0.9;
+                transform: translateY(-1px);
+            }
+            
+            .button-group {
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+            
+            .mii-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .mii-slot {
+                background: var(--layer-1-um);
+                border: 2px solid var(--layer-3-um);
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+                transition: all 0.2s;
+                cursor: pointer;
+            }
+            
+            .mii-slot:hover {
+                border-color: var(--brand-color);
+                transform: translateY(-2px);
+            }
+            
+            .mii-slot.empty {
+                opacity: 0.5;
+            }
+            
+            .mii-slot.selected {
+                border-color: var(--brand-color);
+                background: var(--layer-2-um);
+            }
+            
+            .mii-avatar {
+                width: 96px;
+                height: 96px;
+                background: var(--layer-3-um);
+                border-radius: 8px;
+                margin: 0 auto 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+            
+            .mii-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .mii-avatar .loading {
+                font-size: 24px;
+                color: var(--text-2);
+            }
+            
+            .mii-name {
+                font-weight: 600;
+                color: var(--text-1);
+                margin-bottom: 5px;
+            }
+            
+            .mii-info {
+                font-size: 12px;
+                color: var(--text-2);
+            }
+            
+            .log-area {
+                background: #1e1e1e;
+                color: #0f0;
+                font-family: 'Consolas', 'Monaco', monospace;
+                padding: 15px;
+                border-radius: 8px;
+                height: 200px;
+                overflow-y: auto;
+                font-size: 12px;
+            }
+            
+            .log-area p {
+                margin: 3px 0;
+            }
+            
+            .log-area .error {
+                color: #ff6b6b;
+            }
+            
+            .log-area .success {
+                color: #69db7c;
+            }
+            
+            .log-area .info {
+                color: #74c0fc;
+            }
+            
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+            
+            .modal.active {
+                display: flex;
+            }
+            
+            .modal-content {
+                background: var(--layer-2-um);
+                padding: 30px;
+                border-radius: 12px;
+                max-width: 500px;
+                width: 90%;
+            }
+            
+            .modal-content h3 {
+                margin-top: 0;
+                color: var(--text-1);
+            }
+            
+            textarea {
+                width: 100%;
+                height: 150px;
+                font-family: monospace;
+                font-size: 12px;
+                padding: 10px;
+                border: 1px solid var(--layer-3-um);
+                border-radius: 8px;
+                margin: 10px 0;
+                background: var(--layer-1-um);
+                color: var(--text-1);
+                box-sizing: border-box;
+            }
+            
+            .browser-warning {
+                background: #fff3cd;
+                border: 1px solid #ffc107;
+                color: #856404;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                display: none;
+            }
+            
+            .instructions {
+                background: var(--layer-1-um);
+                border-left: 4px solid var(--brand-color);
+                padding: 15px;
+                margin-bottom: 0;
+            }
+            
+            .instructions h4 {
+                margin-top: 0;
+                color: var(--brand-color);
+            }
+            
+            .instructions ol {
+                margin-bottom: 0;
+                padding-left: 20px;
+                color: var(--text-1);
+            }
+            
+            .error-message {
+                color: #ff4444;
+                background-color: rgba(255, 68, 68, 0.1);
+                padding: 1rem;
+                border-radius: 6px;
+                margin-top: 1rem;
+                display: none;
+            }
+            
+            .error-message.active {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <%- include('header') %>
+        <%- include('accountDisplay') %>
+        <div class='content'>
+            <%- include('sidebar') %>
+            <div class='wiimote-tools'>
+                <div class="browser-warning" id="browserWarning">
+                    ⚠️ <strong>Limited API support!</strong> WebHID requires Chromium-based browsers like Chrome, Brave, Edge, or Opera GX. Firefox and Safari do not support this feature. All browsers on iPhone are Safari-based and will not work.
+                </div>
+
+                <!-- Quick Start -->
+                <div class="tool-section">
+                    <h3><%- include('icon', { name: 'info', size: 20, class: 'icon-inline' }) %> Quick Start</h3>
+                    <div class="instructions">
+                        <h4>Setup Instructions</h4>
+                        <ol>
+                            <li>Pair your Wii Remote with your computer via Bluetooth</li>
+                            <li>Press the SYNC button inside the battery compartment if not already paired</li>
+                            <li>Click "Connect to Wii Remote" below</li>
+                            <li>Select your Wii Remote (Nintendo RVL-CNT-01) from the device picker</li>
+                            <li>Click "Read All Slots" to see stored Miis</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Connection -->
+                <div class="tool-section">
+                    <h3><%- include('icon', { name: 'link', size: 20, class: 'icon-inline' }) %> Connection</h3>
+                    <div class="status-bar">
+                        <div class="status-indicator" id="statusIndicator"></div>
+                        <span id="statusText">Not connected</span>
+                        <span id="connectionType" style="margin-left: auto; font-size: 12px; color: var(--text-2);"></span>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="connectBtn" onclick="connectWiimote()"><%- include('icon', { name: 'link', size: 16, class: 'icon-inline' }) %> Connect to Wii Remote</button>
+                        <button class="btn btn-secondary" id="disconnectBtn" onclick="disconnectWiimote()" disabled><%- include('icon', { name: 'x', size: 16, class: 'icon-inline' }) %> Disconnect</button>
+                    </div>
+                </div>
+                
+                <!-- Mii Slots -->
+                <div class="tool-section">
+                    <h3><%- include('icon', { name: 'users', size: 20, class: 'icon-inline' }) %> Mii Slots</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="readAllBtn" onclick="readAllSlots()" disabled><%- include('icon', { name: 'download', size: 16, class: 'icon-inline' }) %> Read All Slots</button>
+                        <button class="btn btn-secondary" id="exportBtn" onclick="exportSelected()" disabled><%- include('icon', { name: 'upload', size: 16, class: 'icon-inline' }) %> Export Selected</button>
+                        <button class="btn btn-secondary" id="importBtn" onclick="showImportModal()" disabled><%- include('icon', { name: 'download', size: 16, class: 'icon-inline' }) %> Import to Selected</button>
+                        <button class="btn btn-danger" id="clearBtn" onclick="clearSelected()" disabled><%- include('icon', { name: 'trash', size: 16, class: 'icon-inline' }) %> Clear Selected</button>
+                    </div>
+                    
+                    <div class="mii-grid" id="miiGrid">
+                        <!-- Mii slots will be rendered here -->
+                    </div>
+                </div>
+                
+                <!-- Log -->
+                <div class="tool-section">
+                    <h3><%- include('icon', { name: 'scroll', size: 20, class: 'icon-inline' }) %> Log</h3>
+                    <div class="log-area" id="logArea">
+                        <p class="info">Ready. Click "Connect to Wii Remote" to begin.</p>
+                    </div>
+                </div>
+            </div>
+            <%- include('featuredMiis') %>
+        </div>
+        <%- include('footer') %>
+
+        <!-- Export Modal -->
+        <div class="modal" id="exportModal">
+            <div class="modal-content">
+                <h3>Export Mii Data</h3>
+                <p>Copy this data to save your Mii:</p>
+                <textarea id="exportData" readonly></textarea>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="copyExportData()">Copy to Clipboard</button>
+                    <button class="btn btn-secondary" onclick="closeModal('exportModal')">Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Import Modal -->
+        <div class="modal" id="importModal">
+            <div class="modal-content">
+                <h3>Import Mii Data</h3>
+                <p>Paste your Mii data below:</p>
+                <textarea id="importData" placeholder="Paste base64 Mii data here..."></textarea>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="importMii()">Import</button>
+                    <button class="btn btn-secondary" onclick="closeModal('importModal')">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="wiimote-manager.js"></script>
+    </body>
+</html>

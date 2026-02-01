@@ -21,10 +21,13 @@ import { doubleMetaphone } from 'double-metaphone';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import { STATUS_CODES } from 'http';
-import { rateLimit } from 'express-rate-limit'
-import ms from 'ms'
-
+import { rateLimit } from 'express-rate-limit';
+import ms from 'ms';
+import dns from "dns";
 import { connectionPromise, Miis, Users, Settings, ReservedUsername } from "./database.js";
+import { renderIcon, icons } from "./icons.js";
+
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 
 const defaultMiisPerPage = 15;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
@@ -67,6 +70,13 @@ const ratelimitOptions = {
             }));
         }
         return "Too many requests, try again in a few seconds."
+    },
+    handler: async function(req, res, next, options) {
+        const message = await ratelimitOptions.message(req, res);
+        if (req.accepts('html')) {
+            return sendError(res, req, message, 429);
+        }
+        return res.status(429).json({ error: message });
     }
     
 }
@@ -162,6 +172,7 @@ async function getSendables(req, title, user) {
     const pfp = req.user?.miiPfp || "00000";
     
     var send = {
+        icons,
         ...ejsFunctions,
         highlightedMii: settings.highlightedMii,
         bannedIPs: settings.bannedIPs,
@@ -203,13 +214,13 @@ const ROLES = {
 const OFFICIAL_ROLES = [ ROLES.RESEARCHER, ROLES.MODERATOR, ROLES.ADMINISTRATOR ];
 
 const ROLE_DISPLAY = {
-    [ROLES.TEMP_BANNED]: '🚫 Temporarily Banned',
-    [ROLES.PERM_BANNED]: '⛔ Permanently Banned',
+    [ROLES.TEMP_BANNED]: `${renderIcon('ban', { size: 14 })} Temporarily Banned`,
+    [ROLES.PERM_BANNED]: `${renderIcon('ban', { size: 14 })} Permanently Banned`,
     [ROLES.BASIC]: 'User',
-    [ROLES.SUPPORTER]: '💖 Supporter',
-    [ROLES.RESEARCHER]: '🔬 Researcher',
-    [ROLES.MODERATOR]: '🛡️ Moderator',
-    [ROLES.ADMINISTRATOR]: '👑 Administrator'
+    [ROLES.SUPPORTER]: `${renderIcon('heart-filled', { size: 14 })} Supporter`,
+    [ROLES.RESEARCHER]: `${renderIcon('flask', { size: 14 })} Researcher`,
+    [ROLES.MODERATOR]: `${renderIcon('shield', { size: 14 })} Moderator`,
+    [ROLES.ADMINISTRATOR]: `${renderIcon('crown', { size: 14 })} Administrator`
 };
 
 // Helper functions for role system
@@ -800,20 +811,27 @@ function genToken(length = 15) {
     return token;
 }
 
-function sendEmail(to, subj, cont) {
-    nodemailer.createTransport({
-        host: 'smtp.zoho.com',
-        port: 465,
-        secure: true,
-        auth: {
-            user: process.env.email,
-            pass: process.env.emailPass
-        }
-    }).sendMail({
-        from: process.env.email,
-        to: to,
-        subject: subj,
-        html: cont
+async function sendEmail(to, subj, cont) {
+    return new Promise((resolve, reject) => {
+        nodemailer.createTransport({
+            host: 'smtp.zoho.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.email,
+                pass: process.env.emailPass
+            }
+        }).sendMail({
+            from: process.env.email,
+            to: to,
+            subject: subj,
+            html: cont
+        }).catch(err => {
+            reject("Error sending email");
+            console.error('Error sending email:', err);
+        }).then(info => {
+            resolve("Email sent");
+        });
     });
 }
 function makeReport(content, attachments = []) {
@@ -1278,7 +1296,7 @@ async function sendError(res, req, message, status) {
 //#region Static handling
 
   
-// Serve private Mii images with authentication
+// Require auth on private Mii images
 site.use('/privateMiiImgs', async (req, res, next) => {
     const miiId = req.path.split('/').pop().split('.')[0];
     
@@ -1301,6 +1319,7 @@ site.use('/privateMiiImgs', async (req, res, next) => {
     }
 });
 
+// Require auth on private Mii QRs
 site.use('/privateMiiQRs', async (req, res, next) => {
     const miiId = req.path.split('/').pop().split('.')[0];
     
@@ -1316,6 +1335,90 @@ site.use('/privateMiiQRs', async (req, res, next) => {
         }
     } else {
         next();
+    }
+});
+
+// Render missing private Mii images on demand
+site.use('/privateMiiImgs', async (req, res, next) => {
+    const miiId = req.path.split('/').pop()?.split('.')?.[0];
+    if (!miiId) return next();
+
+    const imgPath = `./static/privateMiiImgs/${miiId}.png`;
+    if (fs.existsSync(imgPath)) {
+        return res.sendFile(path.join(__dirname, 'static', 'privateMiiImgs', `${miiId}.png`));
+    }
+
+    const mii = await Miis.findOne({ id: miiId, private: true }).lean();
+    if (!mii) return next();
+
+    try {
+        await fs.promises.writeFile(imgPath, await miijs.renderMii(mii));
+        return res.sendFile(path.join(__dirname, 'static', 'privateMiiImgs', `${miiId}.png`));
+    } catch (e) {
+        return next(e);
+    }
+});
+
+// Render missing private Mii QRs on demand
+site.use('/privateMiiQRs', async (req, res, next) => {
+    const miiId = req.path.split('/').pop()?.split('.')?.[0];
+    if (!miiId) return next();
+
+    const qrPath = `./static/privateMiiQRs/${miiId}.png`;
+    if (fs.existsSync(qrPath)) {
+        return res.sendFile(path.join(__dirname, 'static', 'privateMiiQRs', `${miiId}.png`));
+    }
+
+    const mii = await Miis.findOne({ id: miiId, private: true }).lean();
+    if (!mii) return next();
+
+    try {
+        await miijs.write3DSQR(mii, qrPath);
+        return res.sendFile(path.join(__dirname, 'static', 'privateMiiQRs', `${miiId}.png`));
+    } catch (e) {
+        return next(e);
+    }
+});
+
+// Render missing public Mii images on demand
+site.use('/miiImgs', async (req, res, next) => {
+    const miiId = req.path.split('/').pop()?.split('.')?.[0];
+    if (!miiId) return next();
+
+    const imgPath = `./static/miiImgs/${miiId}.png`;
+    if (fs.existsSync(imgPath)) {
+        return res.sendFile(path.join(__dirname, 'static', 'miiImgs', `${miiId}.png`));
+    }
+
+    const mii = await Miis.findOne({ id: miiId, private: false }).lean();
+    if (!mii) return next();
+
+    try {
+        await fs.promises.writeFile(imgPath, await miijs.renderMii(mii));
+        return res.sendFile(path.join(__dirname, 'static', 'miiImgs', `${miiId}.png`));
+    } catch (e) {
+        return next(e);
+    }
+});
+
+// Render missing public Mii QRs on demand
+site.use('/miiQRs', async (req, res, next) => {
+    const miiId = req.path.split('/').pop()?.split('.')?.[0];
+    if (!miiId) return next();
+
+    const qrPath = `./static/miiQRs/${miiId}.png`;
+    if (fs.existsSync(qrPath)) {
+        return res.sendFile(path.join(__dirname, 'static', 'miiQRs', `${miiId}.png`));
+    }
+
+    const mii = await Miis.findOne({ id: miiId, private: false }).lean();
+    if (!mii) return next();
+
+    try {
+        await miijs.write3DSQR(mii, qrPath);
+        return res.sendFile(path.join(__dirname, 'static', 'miiQRs', `${miiId}.png`));
+    } catch (e) {
+        return next(e);
     }
 });
 
@@ -1399,9 +1502,10 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
                         return;
                     }
 
+                    const uploadInfo = fs.readFileSync("./quickUploads/upload.ini", "utf-8");
                     mii.uploadedOn = Date.now();
-                    mii.uploader = fs.readFileSync("./quickUploads/uploader.txt", "utf-8");
-                    mii.official = mii.uploader === "Nintendo";
+                    mii.uploader = uploadInfo.split("uploader=")[1].split("\n")[0]?.trim() || "Bulk Uploader";
+                    mii.official = uploadInfo.split("official=")[1].split("\n")[0]?.trim() == "true";
                     mii.votes = 1;
                     mii.id = await genId();
                     mii.desc = "Uploaded in Bulk";
@@ -1417,44 +1521,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             console.log("Finished Checking Quick Uploads Folder");
         }
 
-        // For ensuring QRs are readable
-        const qrFiles = fs.readdirSync("./static/miiQRs");
-        await Promise.all(
-            qrFiles.map(async (file) => {
-                try {
-                    if (!fs.existsSync(`./static/miiQRs/${file}`)) return;
-                    const mii = await miijs.read3DSQR(`./static/miiQRs/${file}`);
-                    if (!mii?.meta?.name) {
-                        fs.unlinkSync(`./static/miiQRs/${file}`);
-                    }
-                }
-                catch (e) {
-                    fs.unlinkSync(`./static/miiQRs/${file}`);
-                }
-            })
-        );
-        console.log("Ensured QRs Are Readable For All Miis");
-
-        // Make sure QRs and Thumbnails exist
-        const allMiis = await Miis.find({}).lean();
-        await Promise.all(
-            allMiis.map(async (mii) => {
-                const imgPath = mii.private ? `./static/privateMiiImgs/${mii.id}.png` : `./static/miiImgs/${mii.id}.png`;
-                const qrPath = mii.private ? `./static/privateMiiQRs/${mii.id}.png` : `./static/miiQRs/${mii.id}.png`;
-
-                if (!fs.existsSync(imgPath)) {
-                    fs.writeFileSync(imgPath, await miijs.renderMii(mii));
-                    console.log(`Making image for ${mii.id}`);
-                }
-
-                if (!fs.existsSync(qrPath)) {
-                    miijs.write3DSQR(mii, qrPath);
-                    console.log(`Making QR for ${mii.id}`);
-                }
-            })
-        );
-        console.log(`Ensured All Miis Have QRs And Face Renders\nGenerating new average Mii...`);
-
+        console.log(`Generating new average Mii...`);
         await setAverageMii();
         setInterval(async () => await setAverageMii(), 1800000);//30 Mins
         // TODO: it's passing it without all the fields
@@ -1464,7 +1531,6 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             fs.promises.writeFile(`./static/miiImgs/average.png`, await miijs.renderMii(avgMii)).catch(() => console.log);
             await miijs.write3DSQR(avgMii, `./static/miiQRs/average.png`).catch(() => console.log);
         }
-        console.log(`Generated new average Mii`);
 
         fs.readdirSync("./uploads").forEach(failedUploadFile=>{
             fs.unlinkSync(`./uploads/${failedUploadFile}`);
@@ -1830,7 +1896,7 @@ site.get('/verifyEmailChange', async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '✅ Email Changed Successfully',
+                title: `${renderIcon('check', { size: 14 })} Email Changed Successfully`,
                 description: `User ${req.query.user} successfully verified and changed their email`,
                 color: 0x00FF00,
                 fields: [
@@ -1994,7 +2060,7 @@ site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (r
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `🛠️ Mii ${field} Updated`,
+                title: `${renderIcon('edit', { size: 14 })} Mii ${field} Updated`,
                 description: `Moderator ${req.cookies.username} updated ${field}`,
                 color: 0xFFA500,
                 fields: [
@@ -2047,7 +2113,7 @@ site.post('/regenerateQR', requireAuth, requireRole(ROLES.MODERATOR), async (req
     makeReport(JSON.stringify({
         embeds: [{
             type: 'rich',
-            title: '🔄 QR Code Regenerated',
+            title: `${renderIcon('refresh', { size: 14 })} QR Code Regenerated`,
             description: `Moderator ${req.cookies.username} regenerated QR code`,
             color: 0x00AFF0,
             fields: [
@@ -2085,7 +2151,7 @@ site.post('/addUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '➕ Role Added to User',
+                title: `${renderIcon('plus', { size: 14 })} Role Added to User`,
                 description: `Administrator ${req.cookies.username} added a role`,
                 color: 0x00FF00,
                 fields: [
@@ -2134,7 +2200,7 @@ site.post('/removeUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), asyn
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '➖ Role Removed from User',
+                title: `${renderIcon('minus', { size: 14 })} Role Removed from User`,
                 description: `Administrator ${req.cookies.username} removed a role`,
                 color: 0xFF9900,
                 fields: [
@@ -2196,7 +2262,7 @@ site.post('/tempBanUser', requireAuth, requireRole(ROLES.MODERATOR), async (req,
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '⏰ User Temporarily Banned',
+                title: `${renderIcon('timer', { size: 14 })} User Temporarily Banned`,
                 description: `${req.cookies.username} temporarily banned a user`,
                 color: 0xFF9900,
                 fields: [
@@ -2274,7 +2340,7 @@ site.post('/permBanUser', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '⛔ User Permanently Banned',
+                title: `${renderIcon('ban', { size: 14 })} User Permanently Banned`,
                 description: `${req.cookies.username} permanently banned a user`,
                 color: 0xFF0000,
                 fields: [
@@ -2344,7 +2410,7 @@ site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '🗑️ All User Miis Deleted',
+                title: `${renderIcon('trash', { size: 14 })} All User Miis Deleted`,
                 description: `${req.cookies.username} deleted all Miis from user ${username}`,
                 color: 0xFF6600,
                 fields: [
@@ -2429,7 +2495,7 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '✏️ Username Changed (Moderator)',
+                title: `${renderIcon('edit', { size: 14 })} Username Changed (Moderator)`,
                 description: `${req.cookies.username} changed a username`,
                 color: 0x00FF00,
                 fields: [
@@ -2480,7 +2546,7 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: official ? '⭐ Mii Marked as Official' : '❌ Mii Unmarked as Official',
+                title: official ? `${renderIcon('star-filled', { size: 14 })} Mii Marked as Official` : `${renderIcon('x', { size: 14 })} Mii Unmarked as Official`,
                 description: `Moderator ${req.cookies.username} changed official status`,
                 color: official ? 0xFFD700 : 0x808080,
                 fields: [
@@ -2607,25 +2673,23 @@ site.get('/sitemap-miis.xml', async (req, res) => {
     res.send(generateSitemapXML(urls));
 });
 
-// User profiles sitemap
-site.get('/sitemap-users.xml', async (req, res) => {
-    // TODO: I believe that this xml must be linked to by the first one
-    const urls = [];
-    
-    const allUsers = await getAllUsers();
-    allUsers.forEach(user => {
-        if (user.username !== 'default' && user.username !== 'Nintendo') {
-            urls.push({
-                loc: `${baseUrl}/user/${encodeURIComponent(user.username)}`,
-                changefreq: 'weekly',
-                priority: '0.6'
-            });
-        }
-    });
-    
-    res.header('Content-Type', 'application/xml');
-    res.send(generateSitemapXML(urls));
-});
+// // User profiles sitemap
+// site.get('/sitemap-users.xml', async (req, res) => {
+//     // TODO: I believe that this xml must be linked to by the first one
+//     const urls = [];
+//     const allUsers = await getAllUsers();
+//     allUsers.forEach(user => {
+//         if (user.username !== 'default' && user.username !== 'Nintendo') {
+//             urls.push({
+//                 loc: `${baseUrl}/user/${encodeURIComponent(user.username)}`,
+//                 changefreq: 'weekly',
+//                 priority: '0.6'
+//             });
+//         }
+//     });
+//     res.header('Content-Type', 'application/xml');
+//     res.send(generateSitemapXML(urls));
+// });
 
 // Sitemap index
 site.get('/sitemap-index.xml', async (req, res) => {
@@ -2663,6 +2727,18 @@ site.get('/amiibo', async (req, res) => {
             return;
         }
         res.send(str)
+    });
+});
+
+// Wiimote Mii extraction tools page
+site.get('/wiimote', async (req, res) => {
+    ejs.renderFile('./ejsFiles/wiimote.ejs', await getSendables(req), {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
     });
 });
 
@@ -2983,6 +3059,39 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
         res.json({error: "Server error: " + e.message});
     }
 });
+
+// Render Mii from binary data
+site.post('/api/renderMii', express.json(), async (req, res) => {
+    try {
+        const { miiData } = req.body;
+        
+        if (!miiData) {
+            res.status(400).json({ error: 'No Mii data provided' });
+            return;
+        }
+        
+        // Decode base64 to buffer
+        const miiBuffer = Buffer.from(miiData, 'base64');
+        
+        // Read Mii from buffer (Wii format from Wii Remote)
+        let mii = await miijs.readWiiBin(miiBuffer);
+        
+        // Convert to 3DS format for rendering
+        mii = miijs.convertMii(mii, '3ds');
+        
+        // Render the Mii
+        const miiImage = await miijs.renderMii(mii);
+        
+        // Send as PNG
+        res.setHeader('Content-Type', 'image/png');
+        res.send(miiImage);
+        
+    } catch (e) {
+        console.error('Error rendering Mii:', e);
+        res.status(500).json({ error: 'Failed to render Mii: ' + e.message });
+    }
+});
+
 // ========== STUDIO ENDPOINTS ==========
 
 // Upload Mii from Studio code
@@ -3031,7 +3140,7 @@ site.post('/uploadStudioMii', requireAuth, async (req, res) => {
         
         mii.id = await genId();
         mii.uploadedOn = Date.now();
-        mii.uploader = req.body.official ? "Nintendo" : uploader;
+        mii.uploader = uploader;
         mii.desc = req.body.desc || "";
         mii.votes = 1;
         mii.official = req.body.official || false;
@@ -3236,7 +3345,7 @@ site.post('/changeUserPfp', requireAuth, requireRole(ROLES.MODERATOR), async (re
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '🖼️ User PFP Changed',
+                title: `${renderIcon('image', { size: 14 })} User PFP Changed`,
                 description: `${req.cookies.username} changed profile picture for ${username}`,
                 color: 0x00CCFF,
                 fields: [
@@ -3278,29 +3387,35 @@ site.post('/voteMii', requireAuth, async (req, res) => {
             res.json({error: "You submitted this Mii"});
             return;
         }
-        if (req.user.votedFor.includes(req.query.id)) {
-            // Unlike
-            await Users.findOneAndUpdate(
-                { username: req.cookies.username },
-                { $pull: { votedFor: req.query.id } }
-            );
-            await Miis.findOneAndUpdate(
-                { id: req.query.id },
+        // Unlike (atomic)
+        const unlikeResult = await Users.updateOne(
+            { username: req.user.username, votedFor: req.query.id },
+            { $pull: { votedFor: req.query.id } }
+        );
+        if (unlikeResult.modifiedCount > 0) {
+            await Miis.updateOne(
+                { id: req.query.id, votes: { $gt: 0 } },
                 { $inc: { votes: -1 } }
             );
             res.send("Unliked");
             return;
         }
-        // Like
-        await Users.findOneAndUpdate(
-            { username: req.cookies.username },
+
+        // Like (atomic)
+        const likeResult = await Users.updateOne(
+            { username: req.user.username, votedFor: { $ne: req.query.id } },
             { $addToSet: { votedFor: req.query.id } }
         );
-        await Miis.findOneAndUpdate(
-            { id: req.query.id },
-            { $inc: { votes: 1 } }
-        );
-        res.send("Liked");
+        if (likeResult.modifiedCount > 0) {
+            await Miis.updateOne(
+                { id: req.query.id },
+                { $inc: { votes: 1 } }
+            );
+            res.send("Liked");
+            return;
+        }
+
+        res.send("NoChange");
     }
     catch (e) {
         res.json({error: e}); // TOOD: don't send error
@@ -3357,7 +3472,7 @@ site.get('/user/:username', async (req, res) => {
     if (!targetUser) {
        return sendError(res, req, "User not found", 404);
     }
-    if (targetUsername === "Nintendo") { // a s'ti mret hcraes a ton si odnetniN ,tnavelerrI :nortseK
+    if (targetUsername === "Nintendo") { // a s'ti mret hcraes a ton si odnetniN ,tnavelerrI :nortseK # comment preserved for posterity
         res.redirect('/official');
         return;
     }
@@ -3807,7 +3922,7 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '📧 Email Change Requested',
+                title: `${renderIcon('info', { size: 14 })} Email Change Requested`,
                 description: `User ${req.cookies.username} requested to change their email`,
                 color: 0x00CCFF,
                 fields: [
@@ -3870,7 +3985,7 @@ site.post('/changePassword', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '🔒 Password Changed',
+                title: `${renderIcon('lock', { size: 14 })} Password Changed`,
                 description: `User ${req.cookies.username} changed their password`,
                 color: 0x00FF00,
                 fields: [
@@ -3936,7 +4051,7 @@ site.post('/resetPassword', async (req, res) => {
     makeReport(JSON.stringify({
         embeds: [{
             type: 'rich',
-            title: '🔒 Password Reset Complete',
+            title: `${renderIcon('lock', { size: 14 })} Password Reset Complete`,
             description: `User ${username} successfully reset their password`,
             color: 0x00FF00
         }]
@@ -4086,7 +4201,7 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '✏️ Self Username Changed',
+                title: `${renderIcon('edit', { size: 14 })} Self Username Changed`,
                 description: `User changed their username`,
                 color: 0x00AAFF,
                 fields: [
@@ -4139,7 +4254,7 @@ site.post('/deleteAllMyMiis', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '🗑️ User Deleted All Their Miis',
+                title: `${renderIcon('trash', { size: 14 })} User Deleted All Their Miis`,
                 description: `${req.cookies.username} deleted all their own Miis`,
                 color: 0xFF6600,
                 fields: [
@@ -4206,7 +4321,7 @@ site.post('/deleteAccount', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '👋 Account Deleted',
+                title: `${renderIcon('info', { size: 14 })} Account Deleted`,
                 description: `User ${username} deleted their account`,
                 color: 0xFF0000,
                 fields: [
@@ -4266,13 +4381,16 @@ site.get('/getInstructions', async (req, res) => {
 site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
     try {
         let uploader = req.user.username;
+        const wantsPublic = req.body.makePublic === 'on' || req.body.makePublic === true || req.body.makePublic === 'true';
         
         // Check private Mii limit
-        const privateMiisCount = await Miis.countDocuments({ uploader: req.user.username, private: true });
-        if (privateMiisCount >= Number(PRIVATE_MII_LIMIT)) {
-            res.json({error: `You have reached the limit of ${PRIVATE_MII_LIMIT} private Miis. Please publish or delete some before uploading more.`});
-            try { fs.unlinkSync("./uploads/" + req.file.filename); } catch (e) { }
-            return;
+        if (!wantsPublic) {
+            const privateMiisCount = await Miis.countDocuments({ uploader: req.user.username, private: true });
+            if (privateMiisCount >= Number(PRIVATE_MII_LIMIT)) {
+                res.json({error: `You have reached the limit of ${PRIVATE_MII_LIMIT} private Miis. Please publish or delete some before uploading more.`});
+                try { fs.unlinkSync("./uploads/" + req.file.filename); } catch (e) { }
+                return;
+            }
         }
         
         // Check if trying to upload official Mii without permission
@@ -4362,23 +4480,29 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         
         mii.id = await genId();
         mii.uploadedOn = Date.now();
-        mii.uploader = req.body.official ? "Nintendo" : uploader;
+        mii.uploader = uploader;
+        mii.contributor = req.body.official ? uploader : undefined;
         mii.desc = req.body.desc;
         mii.votes = 1;
         mii.official = req.body.official;
-        mii.published = false;
+        mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
         
-        // Save to private folders
-        const miiImageData=await miijs.renderMii(mii);
-        fs.writeFileSync("./static/privateMiiImgs/" + mii.id + ".png", miiImageData);
-        await miijs.write3DSQR(mii, "./static/privateMiiQRs/" + mii.id + ".png");
+        // Save to correct folders
+        const miiImageData = await miijs.renderMii(mii);
+        if (wantsPublic) {
+            fs.writeFileSync("./static/miiImgs/" + mii.id + ".png", miiImageData);
+            await miijs.write3DSQR(mii, "./static/miiQRs/" + mii.id + ".png");
+        } else {
+            fs.writeFileSync("./static/privateMiiImgs/" + mii.id + ".png", miiImageData);
+            await miijs.write3DSQR(mii, "./static/privateMiiQRs/" + mii.id + ".png");
+        }
         
-        // Store in database as private Mii
+        // Store in database
         await Miis.create({
             ...mii,
             id: mii.id,
-            private: true
+            private: !wantsPublic
         });
         
         // Send to Discord for moderator review
@@ -4386,7 +4510,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 "type": "rich",
-                "title": (req.body.official ? "Official " : "") + `Private Mii Uploaded`,
+                "title": (req.body.official ? "Official " : "") + `${wantsPublic ? "Public" : "Private"} Mii Uploaded`,
                 "description": mii.desc,
                 "color": 0x00aaff,
                 "fields": [
@@ -4460,7 +4584,7 @@ site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '📂 Official Mii Categories Updated',
+                title: `${renderIcon('folders', { size: 14 })} Official Mii Categories Updated`,
                 description: `${req.cookies.username} updated categories for an official Mii`,
                 color: 0x00AAFF,
                 fields: [
@@ -4556,7 +4680,7 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '📁 New Category Created',
+                title: `${renderIcon('folder', { size: 14 })} New Category Created`,
                 description: `${req.cookies.username} created a new category`,
                 color: parseInt(color?.replace('#', '') || '999999', 16),
                 fields: [
@@ -4637,7 +4761,7 @@ site.post('/renameCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '✏️ Category Renamed',
+                title: `${renderIcon('edit', { size: 14 })} Category Renamed`,
                 description: `${req.cookies.username} renamed a category`,
                 color: parseInt(category.color?.replace('#', '') || '999999', 16),
                 fields: [
@@ -4716,7 +4840,7 @@ site.post('/deleteCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '🗑️ Category Deleted',
+                title: `${renderIcon('trash', { size: 14 })} Category Deleted`,
                 description: `${req.cookies.username} deleted a category and all its descendants`,
                 color: 0xFF0000,
                 fields: [
@@ -4826,7 +4950,7 @@ site.post('/moveCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (re
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '📦 Category Moved',
+                title: `${renderIcon('package', { size: 14 })} Category Moved`,
                 description: `${req.cookies.username} moved a category`,
                 color: 0x9C27B0,
                 fields: [
@@ -4973,7 +5097,7 @@ site.post('/blockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR), 
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: '🚫 Private Mii Blocked from Publishing',
+                title: `${renderIcon('ban', { size: 14 })} Private Mii Blocked from Publishing`,
                 description: `${req.cookies.username} blocked a private Mii from being published`,
                 color: 0xFF6600,
                 fields: [
@@ -5191,6 +5315,11 @@ site.use(async (err, req, res, next) => {
         return await sendError(res, req, "Internal Server Error. Please try again later.", 500);
     }
 });
+
+process.on('unhandledRejection', (reason, rejectedPromise) => console.log(reason));
+
+process.on('uncaughtException', (error) => console.log(error));
+
 
 setInterval(async () => {
     var curTime = new Date();

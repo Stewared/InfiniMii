@@ -20,6 +20,7 @@
 					<!-- Change Profile Picture -->
 					<div class="setting-group">
 						<label>Profile Picture (Mii ID)</label>
+						<small style="color: var(--text-2); display: block; margin-bottom: 6px;">Current: <%= user?.miiPfp || '00000' %></small>
 						<input type="text" placeholder="Mii ID for new Profile Picture" id="pfpId">
 						<button onclick="changePfp()">Change Profile Picture</button>
 					</div>
@@ -27,6 +28,7 @@
 					<!-- Change Username -->
 					<div class="setting-group">
 						<label>Username</label>
+						<small style="color: var(--text-2); display: block; margin-bottom: 6px;">Current: <%= user?.username || '' %></small>
 						<p style="color: var(--text-2); font-size: 0.9em; margin: 5px 0;">ℹ️ You can only change your username once per month.</p>
 						<input type="text" placeholder="New Username" id="nUser">
 						<input type="password" placeholder="Current Password" id="userChangePassword">
@@ -40,6 +42,7 @@
 					<!-- Change Email -->
 					<div class="setting-group">
 						<label>Email Address</label>
+						<small style="color: var(--text-2); display: block; margin-bottom: 6px;">Current: <%= user?.email || '' %></small>
 						<input type="email" placeholder="New Email" id="nEmail">
 						<button onclick="changeEmail()">Change Email</button>
 					</div>
@@ -54,13 +57,13 @@
 				</fieldset>
 
 				<fieldset class="danger-zone">
-					<legend>⚠️ Danger Zone</legend>
+					<legend><%- include('icon', { name: 'alert-triangle', size: 20, class: 'icon-warning' }) %> Danger Zone</legend>
 
 					<!-- Delete All Miis -->
 					<div class="setting-group">
 						<label>Delete All Your Miis</label>
 						<p class="warning-text">This will permanently delete ALL Miis you have uploaded. This action cannot be undone!</p>
-						<button class="danger-btn" onclick="deleteAllMiis()">🗑️ Delete All My Miis</button>
+						<button class="danger-btn" onclick="deleteAllMiis()"><%- include('icon', { name: 'trash', size: 16 }) %> Delete All My Miis</button>
 					</div>
 
 					<!-- Delete Account -->
@@ -68,7 +71,7 @@
 						<label>Delete Account</label>
 						<p class="warning-text">This will permanently delete your account. Your Miis will remain on the site but will be attributed to "[Deleted User]". This action cannot be undone!</p>
 						<input type="password" placeholder="Enter Password to Confirm" id="deleteAccountPassword">
-						<button class="danger-btn" onclick="deleteAccount()">⛔ Delete Account</button>
+						<button class="danger-btn" onclick="deleteAccount()"><%- include('icon', { name: 'ban', size: 16 }) %> Delete Account</button>
 					</div>
 				</fieldset>
 			</div>
@@ -212,7 +215,7 @@
 			}
 
 			async function deleteAllMiis() {
-				showConfirm('⚠️ WARNING ⚠️\n\nAre you ABSOLUTELY SURE you want to DELETE ALL YOUR MIIS?\n\nThis action CANNOT be undone!', () => {
+				showConfirm('WARNING\n\nAre you ABSOLUTELY SURE you want to DELETE ALL YOUR MIIS?\n\nThis action CANNOT be undone!', () => {
 					const doubleCheck = prompt('Type "DELETE ALL" to confirm:');
 					if (doubleCheck !== 'DELETE ALL') {
 						showAlert('Deletion cancelled.', 3000, { title: 'Cancelled' });
@@ -251,7 +254,7 @@
 					return;
 				}
 
-				showConfirm('⚠️ FINAL WARNING ⚠️\n\nAre you ABSOLUTELY SURE you want to DELETE YOUR ACCOUNT?\n\nYour Miis will remain on the site but will be attributed to "[Deleted User]".\n\nThis action CANNOT be undone!', () => {
+				showConfirm('FINAL WARNING\n\nAre you ABSOLUTELY SURE you want to DELETE YOUR ACCOUNT?\n\nYour Miis will remain on the site but will be attributed to "[Deleted User]".\n\nThis action CANNOT be undone!', () => {
 					const tripleCheck = prompt('Type "DELETE MY ACCOUNT" to confirm:');
 					if (tripleCheck !== 'DELETE MY ACCOUNT') {
 						showAlert('Account deletion cancelled.', 3000, { title: 'Cancelled' });

@@ -15,7 +15,7 @@
             
             <div class="official-miis-page">
                 <div class="official-header">
-                    <h1>🌟 Official Miis</h1>
+                    <h1><%- include('icon', { name: 'sparkles', size: 28, class: 'icon-inline icon-gold' }) %> Official Miis</h1>
                     <p class="subtitle">Miis that appear officially in Nintendo games and promotions</p>
                 </div>
 
@@ -43,7 +43,7 @@
                 <% if(currentFilter) { %>
                     <div class="current-filter">
                         Showing: <strong><%= currentFilter %></strong>
-                        <a href="/official" class="clear-filter">✕ Clear Filter</a>
+                        <a href="/official" class="clear-filter"><%- include('icon', { name: 'x', size: 14 }) %> Clear Filter</a>
                     </div>
                 <% } %>
 
@@ -59,7 +59,7 @@
                                 <div class="flex">
                                     <div>
                                         <h3><%= displayedMiis[i].meta?.name || displayedMiis[i].name %></h3>
-                                        <div class="official-badge">⭐ Official</div>
+                                        <div class="official-badge"><%- include('icon', { name: 'star-filled', size: 12, class: 'icon-gold' }) %> Official</div>
                                         <% if(displayedMiis[i].officialCategories && displayedMiis[i].officialCategories.length > 0) { %>
                                             <div class="mii-categories">
                                                 <% displayedMiis[i].officialCategories.slice(0, 3).forEach(cat => { %>

@@ -61,6 +61,47 @@
     height: 1lh;
 }
 
+/* SVG Icon System */
+.icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* Sidebar icons - light grey color */
+.sidebar-icon {
+    width: 25;
+    height: 25;
+    color: var(--text-2);
+    margin-right: 0.5rem;
+}
+
+/* Icon color variants */
+.icon-muted { color: var(--text-2); }
+.icon-primary { color: var(--brand-color); }
+.icon-success { color: #22c55e; }
+.icon-warning { color: #f59e0b; }
+.icon-danger { color: #ef4444; }
+.icon-white { color: #fff; }
+.icon-gold { color: #fbbf24; }
+
+/* Badge icons */
+.icon-badge {
+    color: var(--brand-color);
+}
+
+/* Button icons */
+button .icon,
+.btn .icon {
+    margin-right: 0.35rem;
+}
+
+/* Inline text icons */
+.icon-inline {
+    vertical-align: -0.125em;
+    margin-right: 0.25rem;
+}
+
 :root {
     --gutter-size: 40px;
     --layer-1: #0E0C10;
@@ -880,14 +921,14 @@ fieldset a:hover {
 
 .custom-modal {
     background: var(--layer-2);
-    border: 2px solid var(--layer-3);
-    border-radius: 12px;
+    border: 1px solid var(--layer-3);
+    border-radius: 6px;
     padding: 0;
-    max-width: 500px;
+    max-width: 420px;
     width: 90%;
     max-height: 80vh;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     transform: scale(0.9);
     transition: transform 0.2s ease;
 }
@@ -900,14 +941,15 @@ fieldset a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.2rem 1.5rem;
-    background: var(--layer-3);
-    border-bottom: 1px solid var(--layer-1);
+    padding: 0.8rem 1rem;
+    background: var(--layer-2);
+    border-bottom: 1px solid var(--layer-3);
 }
 
 .custom-modal-header h3 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
     color: var(--text-1);
 }
 
@@ -915,11 +957,11 @@ fieldset a:hover {
     background: none;
     border: none;
     color: var(--text-2);
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     cursor: pointer;
     padding: 0;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -933,28 +975,29 @@ fieldset a:hover {
 }
 
 .custom-modal-body {
-    padding: 1.5rem;
+    padding: 1rem;
+    background: var(--layer-2);
     color: var(--text-1);
-    line-height: 1.6;
+    line-height: 1.5;
     white-space: pre-wrap;
     overflow-y: auto;
-    max-height: calc(80vh - 180px);
+    max-height: calc(80vh - 140px);
 }
 
 .custom-modal-footer {
-    padding: 1rem 1.5rem;
-    background: var(--layer-3);
-    border-top: 1px solid var(--layer-1);
+    padding: 0.8rem 1rem;
+    background: var(--layer-2);
+    border-top: 1px solid var(--layer-3);
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     justify-content: flex-end;
 }
 
 .custom-modal-btn {
-    padding: 0.7rem 1.5rem;
+    padding: 0.5rem 1rem;
     border: none;
-    border-radius: 6px;
-    font-size: 0.95rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -968,7 +1011,6 @@ fieldset a:hover {
 
 .custom-modal-btn-primary:hover {
     background: color-mix(in oklab, var(--brand-color) 85%, black 15%);
-    transform: translateY(-1px);
 }
 
 .custom-modal-btn-secondary {
@@ -978,7 +1020,7 @@ fieldset a:hover {
 }
 
 .custom-modal-btn-secondary:hover {
-    background: var(--layer-2);
+    background: var(--layer-3);
 }
 
 /* Alert-specific styles */
@@ -986,7 +1028,7 @@ fieldset a:hover {
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 4px;
+    height: 3px;
     background: var(--brand-color);
     width: 100%;
     transform-origin: left;

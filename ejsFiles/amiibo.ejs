@@ -182,14 +182,14 @@
             <div class='amiibo-tools'>
                 <!-- Extract Mii from Amiibo -->
                 <div class="tool-section">
-                    <h3>📤 Extract Mii from Amiibo</h3>
+                    <h3><%- include('icon', { name: 'upload', size: 20, class: 'icon-inline' }) %> Extract Mii from Amiibo</h3>
                     <p style="color: var(--text-2); margin-bottom: 1.5rem;">
                         Upload an Amiibo dump (.bin file) to extract the Mii character stored on it.
                     </p>
                     
                     <form id="extractForm" enctype="multipart/form-data">
                         <div class="upload-area" id="extractDropZone">
-                            <p style="margin: 0 0 1rem 0;">📁 Drag & drop your Amiibo dump here, or click to browse</p>
+                            <p style="margin: 0 0 1rem 0;"><%- include('icon', { name: 'file-up', size: 16, class: 'icon-inline' }) %> Drag & drop your Amiibo dump here, or click to browse</p>
                             <input type="file" name="amiibo" id="extractFile" accept=".bin" style="display: none;" onchange="document.getElementById('extrAction').click()">
                             <button type="button" class="btn btn-secondary" onclick="document.getElementById('extractFile').click()">
                                 Choose File
@@ -219,14 +219,14 @@
                 
                 <!-- Insert Mii into Amiibo -->
                 <div class="tool-section">
-                    <h3>📥 Insert Mii into Amiibo</h3>
+                    <h3><%- include('icon', { name: 'download', size: 20, class: 'icon-inline' }) %> Insert Mii into Amiibo</h3>
                     <p style="color: var(--text-2); margin-bottom: 1.5rem;">
                         Upload an Amiibo dump and choose a Mii to insert into it.
                     </p>
                     
                     <form id="insertForm" enctype="multipart/form-data">
                         <div class="upload-area" id="insertDropZone">
-                            <p style="margin: 0 0 1rem 0;">📁 Upload Amiibo dump (.bin file)</p>
+                            <p style="margin: 0 0 1rem 0;"><%- include('icon', { name: 'file-up', size: 16, class: 'icon-inline' }) %> Upload Amiibo dump (.bin file)</p>
                             <input type="file" name="amiibo" id="insertAmiiboFile" accept=".bin" style="display: none;">
                             <button type="button" class="btn btn-secondary" onclick="document.getElementById('insertAmiiboFile').click()">
                                 Choose Amiibo File

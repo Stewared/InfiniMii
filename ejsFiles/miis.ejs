@@ -23,6 +23,9 @@
                                 <div>
                                     <h3><%= displayedMiis[i].meta.name %></h3>
                                     <a href=<%="/user/" +encodeURIComponent(displayedMiis[i].uploader) %>><%=displayedMiis[i].uploader %></a>
+                                    <% if(displayedMiis[i].official && displayedMiis[i].contributor) { %>
+                                        <small class="uploader-subtext">Contributed by <a href="/user/<%= encodeURIComponent(displayedMiis[i].contributor) %>"><%= displayedMiis[i].contributor %></a></small>
+                                    <% } %>
                                     <p><%= displayedMiis[i].desc.length>75?displayedMiis[i].desc.slice(0,73)+"...":displayedMiis[i].desc %></p>
                                 </div>
                             </div>

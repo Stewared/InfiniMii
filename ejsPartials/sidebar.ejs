@@ -1,11 +1,11 @@
 <div class="left-sidebar">
     <ul class="sidebar-list">
-        <a href="/search"><li><span class="emoji">🔍</span> Search</li></a>
-        <a href="/random"><li><span class="emoji">🎲</span> Random Miis</li></a>
-        <a href="/trending"><li><span class="emoji">📈</span> Trending Miis</li></a>
-        <a href="/top"><li><span class="emoji">🥇</span> Top Miis</li></a>
-        <a href="/recent"><li><span class="emoji">⏱️</span> Recent Miis</li></a>
-        <a href="/official"><li><span class="emoji">🌟</span> Official Miis</li></a>
+        <a href="/search"><li><%- include('icon', { name: 'search', class: 'sidebar-icon' }) %> Search</li></a>
+        <a href="/trending"><li><%- include('icon', { name: 'trending-up', class: 'sidebar-icon' }) %> Trending Miis</li></a>
+        <a href="/top"><li><%- include('icon', { name: 'trophy', class: 'sidebar-icon' }) %> Top Miis</li></a>
+        <a href="/recent"><li><%- include('icon', { name: 'clock', class: 'sidebar-icon' }) %> Recent Miis</li></a>
+        <a href="/random"><li><%- include('icon', { name: 'dice', class: 'sidebar-icon' }) %> Random Miis</li></a>
+        <a href="/official"><li><%- include('icon', { name: 'star', class: 'sidebar-icon' }) %> Official Miis</li></a>
     </ul>
     <ul class="sidebar-list">
         <a href="<%= 
@@ -14,22 +14,24 @@
                 :'/user/'+encodeURIComponent(thisUser) 
             %>">
             <li>
-                <img class="account-image-small" src="/miiImgs/<%= pfp %>.png" width="18px" height="18px">
+                <!-- <img class="account-image-small" src="/miiImgs/<%= pfp %>.png" width="18px" height="18px"> -->
+                <%- include('icon', { name: 'user', class: 'sidebar-icon' }) %>
                 Profile
             </li>
         </a>
-        <a href="/myPrivateMiis"><li><span class="emoji">📦</span> My Private Miis</li></a>
-        <a href="/upload"><li><span class="emoji">⬆️</span> Upload</li></a>
-        <a href="/settings"><li><span class="emoji">⚙️</span> Settings</li></a>
-        <a href="/convert"><li><span class="emoji">➡️</span> Convert</li></a>
+        <a href="/myPrivateMiis"><li><%- include('icon', { name: 'lock', class: 'sidebar-icon' }) %> My Private Miis</li></a>
+        <a href="/upload"><li><%- include('icon', { name: 'upload', class: 'sidebar-icon' }) %> Upload</li></a>
+        <a href="/settings"><li><%- include('icon', { name: 'settings', class: 'sidebar-icon' }) %> Settings</li></a>
+        <a href="/convert"><li><%- include('icon', { name: 'arrow-right', class: 'sidebar-icon' }) %> Convert</li></a>
         <% if(isOfficial) { %>
-            <a href="/manageCategories"><li><span class="emoji">🗂️</span> Manage Categories</li></a>
+            <a href="/manageCategories"><li><%- include('icon', { name: 'folders', class: 'sidebar-icon' }) %> Manage Categories</li></a>
         <% } %>
     </ul>
     <ul class="sidebar-list">
-        <a href="/qr"><li><span class="emoji">📸</span> QR Options</li></a>
-        <a href="/amiibo"><li><span class="emoji">🗽</span> Amiibo Tools</li></a>
-        <a href="/calculator"><li><span class="emoji">🔢</span> Height/Weight Calculator</li></a>
-        <a href="/transferInstructions"><li><span class="emoji">📦</span> Transferring Guide</li></a>
+        <a href="/qr"><li><%- include('icon', { name: 'qr-code', class: 'sidebar-icon' }) %> QR Options</li></a>
+        <a href="/amiibo"><li><%- include('icon', { name: 'statue', class: 'sidebar-icon' }) %> Amiibo Tools</li></a>
+        <a href="/wiimote"><li><%- include('icon', { name: 'gamepad', class: 'sidebar-icon' }) %> Wiimote Tools</li></a>
+        <a href="/calculator"><li><%- include('icon', { name: 'calculator', class: 'sidebar-icon' }) %> Height/Weight Calculator</li></a>
+        <a href="/transferInstructions"><li><%- include('icon', { name: 'package', class: 'sidebar-icon' }) %> Transferring Guide</li></a>
     </ul>
 </div>

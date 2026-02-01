@@ -176,7 +176,8 @@ async function deleteParentCategory(name) {
                     }
                 },
                 null,
-                { title: '⚠️ Final Warning', confirmText: 'Yes, Delete Everything' }
+                // TODO: warning icon?
+                { title: 'Final Warning', confirmText: 'Yes, Delete Everything' }
             );
         },
         null,
