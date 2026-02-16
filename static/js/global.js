@@ -637,3 +637,230 @@ window.copyExportTextFromForm = async function(form, encoding = 'hex', options =
         return null;
     }
 };
+
+function initMobileSideDrawers() {
+    if (window.__infinimiiMobileDrawersInit) return;
+
+    const leftDrawer = document.getElementById('leftSidebarDrawer');
+    const rightDrawer = document.getElementById('featuredMiisDrawer');
+    const drawerById = {};
+
+    if (leftDrawer?.id) drawerById[leftDrawer.id] = leftDrawer;
+    if (rightDrawer?.id) drawerById[rightDrawer.id] = rightDrawer;
+
+    const toggles = Array.from(document.querySelectorAll('.mobile-drawer-toggle[data-drawer-target]'))
+        .filter((btn) => {
+            const target = btn.getAttribute('data-drawer-target') || '';
+            return Boolean(drawerById[target]);
+        });
+
+    if (!Object.keys(drawerById).length || !toggles.length) {
+        return;
+    }
+
+    window.__infinimiiMobileDrawersInit = true;
+
+    const mobileQuery = window.matchMedia('(max-width: 992px)');
+    const EDGE_TRIGGER_PX = 28;
+    const SWIPE_TRIGGER_PX = 66;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'mobile-drawer-overlay';
+    document.body.appendChild(overlay);
+
+    let swipeState = null;
+
+    function getDrawerSide(drawer) {
+        if (!drawer) return null;
+        return drawer.classList.contains('mobile-drawer-right') ? 'right' : 'left';
+    }
+
+    function syncToggleState(drawerId, isOpen) {
+        toggles.forEach((btn) => {
+            if (btn.getAttribute('data-drawer-target') !== drawerId) return;
+            btn.setAttribute('aria-expanded', String(isOpen));
+            btn.classList.toggle('is-open', isOpen);
+        });
+    }
+
+    function clearBodyDrawerClasses() {
+        document.body.classList.remove(
+            'mobile-drawer-overlay-visible',
+            'mobile-drawer-lock',
+            'mobile-drawer-left-open',
+            'mobile-drawer-right-open'
+        );
+    }
+
+    function getOpenDrawer() {
+        return Object.values(drawerById).find((drawer) => drawer.classList.contains('mobile-drawer-open')) || null;
+    }
+
+    function closeAllDrawers() {
+        Object.values(drawerById).forEach((drawer) => {
+            drawer.classList.remove('mobile-drawer-open');
+            syncToggleState(drawer.id, false);
+        });
+        clearBodyDrawerClasses();
+    }
+
+    function openDrawerById(drawerId) {
+        if (!mobileQuery.matches) return;
+        const drawer = drawerById[drawerId];
+        if (!drawer) return;
+
+        closeAllDrawers();
+        drawer.classList.add('mobile-drawer-open');
+        syncToggleState(drawer.id, true);
+
+        document.body.classList.add('mobile-drawer-overlay-visible', 'mobile-drawer-lock');
+        const side = getDrawerSide(drawer);
+        if (side === 'left') {
+            document.body.classList.add('mobile-drawer-left-open');
+        } else if (side === 'right') {
+            document.body.classList.add('mobile-drawer-right-open');
+        }
+    }
+
+    function toggleDrawerById(drawerId) {
+        if (!mobileQuery.matches) return;
+        const drawer = drawerById[drawerId];
+        if (!drawer) return;
+
+        if (drawer.classList.contains('mobile-drawer-open')) {
+            closeAllDrawers();
+            return;
+        }
+
+        openDrawerById(drawerId);
+    }
+
+    function openDrawerFromSide(side) {
+        if (side === 'left' && leftDrawer?.id) {
+            openDrawerById(leftDrawer.id);
+            return;
+        }
+
+        if (side === 'right' && rightDrawer?.id) {
+            openDrawerById(rightDrawer.id);
+        }
+    }
+
+    toggles.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-drawer-target');
+            if (!target) return;
+            toggleDrawerById(target);
+        });
+    });
+
+    overlay.addEventListener('click', closeAllDrawers);
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeAllDrawers();
+        }
+    });
+
+    const onViewportChange = () => {
+        if (!mobileQuery.matches) {
+            closeAllDrawers();
+        }
+    };
+
+    if (typeof mobileQuery.addEventListener === 'function') {
+        mobileQuery.addEventListener('change', onViewportChange);
+    } else if (typeof mobileQuery.addListener === 'function') {
+        mobileQuery.addListener(onViewportChange);
+    }
+
+    function onTouchStart(event) {
+        if (!mobileQuery.matches || event.touches.length !== 1) return;
+
+        const touch = event.touches[0];
+        const x = touch.clientX;
+        const y = touch.clientY;
+        const openDrawer = getOpenDrawer();
+
+        if (openDrawer) {
+            if (openDrawer.contains(event.target)) {
+                swipeState = {
+                    mode: 'close',
+                    side: getDrawerSide(openDrawer),
+                    startX: x,
+                    startY: y
+                };
+            } else {
+                swipeState = null;
+            }
+            return;
+        }
+
+        if (leftDrawer && x <= EDGE_TRIGGER_PX) {
+            swipeState = { mode: 'open', side: 'left', startX: x, startY: y };
+            return;
+        }
+
+        if (rightDrawer && x >= (window.innerWidth - EDGE_TRIGGER_PX)) {
+            swipeState = { mode: 'open', side: 'right', startX: x, startY: y };
+            return;
+        }
+
+        swipeState = null;
+    }
+
+    function onTouchMove(event) {
+        if (!swipeState || !mobileQuery.matches || event.touches.length !== 1) return;
+
+        const touch = event.touches[0];
+        const dx = touch.clientX - swipeState.startX;
+        const dy = touch.clientY - swipeState.startY;
+
+        if (Math.abs(dy) > (Math.abs(dx) + 16)) {
+            swipeState = null;
+            return;
+        }
+
+        if (swipeState.mode === 'open') {
+            if (swipeState.side === 'left' && dx > SWIPE_TRIGGER_PX) {
+                openDrawerFromSide('left');
+                swipeState = null;
+                return;
+            }
+
+            if (swipeState.side === 'right' && dx < (-SWIPE_TRIGGER_PX)) {
+                openDrawerFromSide('right');
+                swipeState = null;
+            }
+            return;
+        }
+
+        if (swipeState.mode === 'close') {
+            if (swipeState.side === 'left' && dx < (-SWIPE_TRIGGER_PX)) {
+                closeAllDrawers();
+                swipeState = null;
+                return;
+            }
+
+            if (swipeState.side === 'right' && dx > SWIPE_TRIGGER_PX) {
+                closeAllDrawers();
+                swipeState = null;
+            }
+        }
+    }
+
+    function onTouchEnd() {
+        swipeState = null;
+    }
+
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+    document.addEventListener('touchcancel', onTouchEnd, { passive: true });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileSideDrawers);
+} else {
+    initMobileSideDrawers();
+}

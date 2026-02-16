@@ -30,7 +30,8 @@ import { renderIcon, icons } from "./icons.js";
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 
-const defaultMiisPerPage = 15;
+const defaultMiisPerPage = 16;
+const HOME_PREVIEW_COUNT = 6;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
 const baseUrl = process.env.baseUrl;
 
@@ -179,6 +180,32 @@ function normalizeInstructionConsole(input) {
     if (cleaned === "NINTENDOSWITCH2") return "SWITCH2";
 
     return "3DS";
+}
+
+function isLegacyNintendoBrowserUserAgent(userAgent) {
+    const ua = String(userAgent || "");
+    if (!ua) return false;
+
+    const lowerUa = ua.toLowerCase();
+    if (lowerUa.includes("nintendo 3ds")) return true;
+    if (lowerUa.includes("new nintendo 3ds")) return true;
+    if (lowerUa.includes("nintendo wiiu")) return true;
+    if (lowerUa.includes("nintendo wii u")) return true;
+    if (lowerUa.includes("mobile nintendobrowser/")) return true;
+
+    // New 3DS "Request Mobile Websites" mode can mimic iPhone UA closely.
+    const looksLikeNew3dsMobileMode =
+        lowerUa.includes("iphone") &&
+        lowerUa.includes("applewebkit/536.26") &&
+        lowerUa.includes("version/6.0") &&
+        lowerUa.includes("mobile/10a403") &&
+        lowerUa.includes("safari/8536.25");
+
+    return looksLikeNew3dsMobileMode;
+}
+
+function isLegacyNintendoBrowserRequest(req) {
+    return isLegacyNintendoBrowserUserAgent(req.get("user-agent"));
 }
 
 function buildMiiStringFallbackCandidates(input) {
@@ -1838,6 +1865,27 @@ site.use(compression({
     }
 }));
 
+// Redirect Nintendo 3DS / Wii U browser traffic to a legacy-compatible upload page.
+site.use((req, res, next) => {
+    if (req.method !== "GET") return next();
+    if (!req.accepts("html")) return next();
+    if (!isLegacyNintendoBrowserRequest(req)) return next();
+
+    const pathLower = String(req.path || "").toLowerCase();
+    if (!pathLower || pathLower === "/legacy-upload") return next();
+
+    // Allow static files and API/resource requests through.
+    if (pathLower.includes(".")) return next();
+    if (pathLower.startsWith("/api/")) return next();
+    if (pathLower.startsWith("/miiimgs/")) return next();
+    if (pathLower.startsWith("/miiqrs/")) return next();
+    if (pathLower.startsWith("/privatemiiimgs/")) return next();
+    if (pathLower.startsWith("/privatemiiqrs/")) return next();
+    if (pathLower.startsWith("/legacy-upload")) return next();
+
+    return res.redirect("/legacy-upload");
+});
+
 //#endregion
 
 // Patch ejs renderFile to resolve the ejsPartials at root, making includes shorter
@@ -2125,11 +2173,11 @@ site.get('/', highGeneralRatelimit, async (req, res) => {
     let toSend = await getSendables(req, "InfiniMii");
     toSend.title = "InfiniMii";
     toSend.miiCategories={
-        "Random": { miis: (await paginatedApi("random", 1, 5)).items, link: "./random" },
-        "Trending": { miis: (await paginatedApi("trending", 1, 5)).items, link: "./trending" },
-        "Top": { miis: (await paginatedApi("top", 1, 5)).items, link: "./top" },
-        "Recent": { miis: (await paginatedApi("recent", 1, 5)).items, link: "./recent" },
-        "Official": { miis: (await paginatedApi("official", 1, 5)).items, link: "./official" }
+        "Random": { miis: (await paginatedApi("random", 1, HOME_PREVIEW_COUNT)).items, link: "./random" },
+        "Trending": { miis: (await paginatedApi("trending", 1, HOME_PREVIEW_COUNT)).items, link: "./trending" },
+        "Top": { miis: (await paginatedApi("top", 1, HOME_PREVIEW_COUNT)).items, link: "./top" },
+        "Recent": { miis: (await paginatedApi("recent", 1, HOME_PREVIEW_COUNT)).items, link: "./recent" },
+        "Official": { miis: (await paginatedApi("official", 1, HOME_PREVIEW_COUNT)).items, link: "./official" }
     };
     
     ejs.renderFile(toSend.thisUser.toLowerCase() === "default" ? './ejsFiles/about.ejs' : './ejsFiles/index.ejs', toSend, {}, function (err, str) {
@@ -2349,6 +2397,230 @@ site.get('/transferInstructions', async (req, res) => {
         res.send(str)
     });
 });
+
+async function renderLegacyUploadPage(req, res, options = {}) {
+    const toSend = await getSendables(req);
+    toSend.legacyUploadError = options.error || "";
+    toSend.legacyUploadSuccess = options.success || "";
+    toSend.legacyUploadedMii = options.uploadedMii || null;
+    toSend.legacyFormValues = options.formValues || {
+        username: "",
+        desc: "",
+        visibility: "private"
+    };
+
+    ejs.renderFile('./ejsFiles/uploadLegacy.ejs', toSend, {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+}
+
+site.get('/legacy-upload', async (req, res) => {
+    if (!isLegacyNintendoBrowserRequest(req)) {
+        return res.redirect('/upload');
+    }
+
+    await renderLegacyUploadPage(req, res);
+});
+
+site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
+    const formValues = {
+        username: String(req.body.username || "").trim(),
+        desc: String(req.body.desc || "").trim(),
+        visibility: String(req.body.visibility || "private").toLowerCase() === "published" ? "published" : "private"
+    };
+
+    const cleanupUpload = () => {
+        try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+    };
+
+    try {
+        if (!isLegacyNintendoBrowserRequest(req)) {
+            cleanupUpload();
+            return res.redirect('/upload');
+        }
+
+        const password = String(req.body.password || "");
+        if (!formValues.username || !password) {
+            cleanupUpload();
+            await renderLegacyUploadPage(req, res, {
+                error: "Username and password are required.",
+                formValues
+            });
+            return;
+        }
+
+        const user = await getUserByUsername(formValues.username);
+        if (!user || !validatePassword(password, user.salt, user.pass)) {
+            cleanupUpload();
+            await renderLegacyUploadPage(req, res, {
+                error: "Invalid username or password.",
+                formValues
+            });
+            return;
+        }
+
+        if (!user.verified) {
+            cleanupUpload();
+            await renderLegacyUploadPage(req, res, {
+                error: "This account must be verified before uploading.",
+                formValues
+            });
+            return;
+        }
+
+        if (await isBanned(user)) {
+            cleanupUpload();
+            await renderLegacyUploadPage(req, res, {
+                error: "This account is currently banned and cannot upload.",
+                formValues
+            });
+            return;
+        }
+
+        if (!req.file?.path) {
+            await renderLegacyUploadPage(req, res, {
+                error: "Please choose a Mii file to upload.",
+                formValues
+            });
+            return;
+        }
+
+        if (!formValues.desc) {
+            cleanupUpload();
+            await renderLegacyUploadPage(req, res, {
+                error: "A description is required.",
+                formValues
+            });
+            return;
+        }
+
+        const wantsPublic = formValues.visibility === "published";
+
+        if (!wantsPublic) {
+            const privateMiisCount = await Miis.countDocuments({ uploader: user.username, private: true });
+            if (privateMiisCount >= Number(PRIVATE_MII_LIMIT)) {
+                cleanupUpload();
+                await renderLegacyUploadPage(req, res, {
+                    error: `You have reached the private Mii limit of ${PRIVATE_MII_LIMIT}.`,
+                    formValues
+                });
+                return;
+            }
+        }
+
+        let mii;
+        try {
+            mii = await createMiiData(req.file.path);
+        } catch (e) {
+            cleanupUpload();
+            await renderLegacyUploadPage(req, res, {
+                error: `Failed to read this file as a Mii. ${e.message || ""}`.trim(),
+                formValues
+            });
+            return;
+        }
+
+        const matchingMii = await findMatchingMii(mii);
+        if (matchingMii) {
+            cleanupUpload();
+            await renderLegacyUploadPage(req, res, {
+                error: getDuplicateMiiErrorMessage(matchingMii.id),
+                formValues
+            });
+            return;
+        }
+
+        mii.id = await genId();
+        mii.uploadedOn = Date.now();
+        mii.uploader = user.username;
+        mii.desc = formValues.desc.slice(0, 250);
+        mii.votes = 1;
+        mii.official = false;
+        mii.published = wantsPublic;
+        mii.blockedFromPublishing = false;
+
+        const miiImageData = await miijs.renderMii(mii);
+        if (wantsPublic) {
+            fs.writeFileSync(`./static/miiImgs/${mii.id}.png`, miiImageData);
+            await writeQrPng(mii, `./static/miiQRs/${mii.id}.png`);
+        } else {
+            fs.writeFileSync(`./static/privateMiiImgs/${mii.id}.png`, miiImageData);
+            await writeQrPng(mii, `./static/privateMiiQRs/${mii.id}.png`);
+        }
+
+        await Miis.create({
+            ...mii,
+            id: mii.id,
+            private: !wantsPublic
+        });
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                type: "rich",
+                title: `Legacy Browser Upload (${wantsPublic ? "Published" : "Private"})`,
+                description: mii.desc,
+                color: 0x00aaff,
+                fields: [
+                    {
+                        name: "Mii Name",
+                        value: mii.meta?.name || "Unknown",
+                        inline: true
+                    },
+                    {
+                        name: "Uploaded by",
+                        value: `[${user.username}](https://infinimii.com/user/${encodeURIComponent(user.username)})`,
+                        inline: true
+                    },
+                    {
+                        name: "Browser",
+                        value: isLegacyNintendoBrowserUserAgent(req.get("user-agent")) ? "Nintendo 3DS / Wii U" : "Unknown",
+                        inline: true
+                    }
+                ],
+                image: {
+                    url: `attachment://${mii.id}.png`
+                },
+                footer: {
+                    text: `View: https://infinimii.com/mii/${mii.id}`
+                }
+            }]
+        }), [
+            {
+                data: miiImageData,
+                filename: `${mii.id}.png`,
+                contentType: 'image/png'
+            }
+        ]);
+
+        cleanupUpload();
+        await renderLegacyUploadPage(req, res, {
+            success: `Upload complete. ${wantsPublic ? "Your Mii is now published." : "Your Mii was saved as private."}`,
+            uploadedMii: {
+                id: mii.id,
+                name: mii.meta?.name || "Unknown",
+                published: wantsPublic
+            },
+            formValues: {
+                username: formValues.username,
+                desc: "",
+                visibility: "private"
+            }
+        });
+    } catch (e) {
+        console.error("Legacy upload error:", e);
+        cleanupUpload();
+        await renderLegacyUploadPage(req, res, {
+            error: "Upload failed. Please verify your credentials and file, then try again.",
+            formValues
+        });
+    }
+});
+
 site.get('/upload', requireAuth, async (req, res) => {
     let toSend = await getSendables(req);
     toSend.fromAmiibo = null;

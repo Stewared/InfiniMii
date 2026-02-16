@@ -1,4 +1,14 @@
-<div class="browse-featured-miis">
+<button
+    type="button"
+    class="mobile-drawer-toggle mobile-drawer-toggle-right"
+    data-drawer-target="featuredMiisDrawer"
+    aria-controls="featuredMiisDrawer"
+    aria-expanded="false"
+>
+    Highlights <%- include('icon', { name: 'arrow-left', size: 14 }) %>
+</button>
+
+<aside class="browse-featured-miis mobile-drawer mobile-drawer-right" id="featuredMiisDrawer" aria-label="Highlighted Miis">
     <!--Higlighted Mii-->
     <div class="title-container">
         <h2>Highlighted Mii</h2>
@@ -42,4 +52,4 @@
         <p>The most common or average features and placements of those features across all Miis on the website</p>
         <% } %>
     </div>
-</div>
+</aside>

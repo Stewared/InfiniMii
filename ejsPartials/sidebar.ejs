@@ -1,4 +1,25 @@
-<div class="left-sidebar">
+<button
+    type="button"
+    class="mobile-drawer-toggle mobile-drawer-toggle-left"
+    data-drawer-target="leftSidebarDrawer"
+    aria-controls="leftSidebarDrawer"
+    aria-expanded="false"
+>
+    <%- include('icon', { name: 'arrow-right', size: 14 }) %> Menu
+</button>
+
+<aside class="left-sidebar mobile-drawer mobile-drawer-left" id="leftSidebarDrawer" aria-label="Site navigation">
+    <% if(thisUser==="Default"){ %>
+        <div class="mobile-auth-prompt">
+            <strong>Account</strong>
+            <div class="mobile-auth-actions">
+                <a href="/signup">Sign Up</a>
+                <span aria-hidden="true">|</span>
+                <a href="/login">Log In</a>
+            </div>
+        </div>
+    <% } %>
+
     <ul class="sidebar-list">
         <a href="/search"><li><%- include('icon', { name: 'search', class: 'sidebar-icon' }) %> Search</li></a>
         <a href="/trending"><li><%- include('icon', { name: 'trending-up', class: 'sidebar-icon' }) %> Trending Miis</li></a>
@@ -35,4 +56,4 @@
         <a href="/miiChild"><li><%- include('icon', { name: 'users', class: 'sidebar-icon' }) %> Child Generator</li></a>
         <a href="/transferInstructions"><li><%- include('icon', { name: 'package', class: 'sidebar-icon' }) %> Transferring Guide</li></a>
     </ul>
-</div>
+</aside>

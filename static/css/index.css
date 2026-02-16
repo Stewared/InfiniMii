@@ -3,8 +3,9 @@
     border-radius: 20px;
     width: 100%;
     margin: 0px;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: stretch;
     gap: 1rem;
     border-style:solid;
     border-color:#202020;
@@ -22,7 +23,7 @@
 }
 
 .miiCategory h1{
-    width: 100%;
+    grid-column: 1 / -1;
     margin: 0 0 1rem 0;
 }
 
@@ -30,7 +31,8 @@
     background-color: #252525;
     padding: 1rem;
     border-radius: 20px;
-    width: calc(20% - 1rem); /* 5 items per row with gap */
+    width: auto;
+    min-width: 0;
     text-align: center;
     box-sizing: border-box;
     display: flex;
@@ -55,35 +57,36 @@
 
 .miiThumb h3{
     margin: 0;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-    hyphens: auto;
-    min-width: 10ch; /* Guarantee space for 10 characters */
-    font-size: clamp(0.8rem, 1.5vw, 1.2rem); /* Responsive font size */
+    width: 100%;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: clamp(0.72rem, calc((100% - 0.5rem) / 10), 1.1rem);
     line-height: 1.2;
 }
 
 /* Responsive breakpoints */
 @media (max-width: 1200px) {
-    .miiThumb {
-        width: calc(25% - 1rem); /* 4 items per row */
+    .miiCategory {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 900px) {
-    .miiThumb {
-        width: calc(33.333% - 1rem); /* 3 items per row */
+    .miiCategory {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 600px) {
     .miiThumb {
-        width: calc(50% - 1rem); /* 2 items per row */
+        padding: 0.85rem;
     }
 }
 
 @media (max-width: 400px) {
-    .miiThumb {
-        width: 100%; /* 1 item per row */
+    .miiCategory {
+        grid-template-columns: 1fr;
     }
 }

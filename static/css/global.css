@@ -303,6 +303,15 @@ footer ul li a:hover {
     border-radius: 3px;
 }
 
+.mobile-drawer-toggle,
+.mobile-auth-prompt {
+    display: none;
+}
+
+.mobile-drawer-overlay {
+    display: none;
+}
+
 /* Browse Miis (center) */
 #browse-miis {
     display: flex;
@@ -381,6 +390,10 @@ footer ul li a:hover {
     gap: 10px;
 }
 
+.mii-card .flex > div {
+    min-width: 0;
+}
+
 .mii-card .flex span {
     display: flex;
     align-items: center;
@@ -408,9 +421,11 @@ footer ul li a:hover {
 }
 
 .mii-card h3 {
-    font-size: 18px;
+    font-size: clamp(0.78rem, calc((100% - 0.5rem) / 10), 18px);
     font-weight: 400;
     margin: 0;
+    display: block;
+    width: 100%;
     text-decoration: underline;
     text-decoration-color: var(--brand-color);
     text-decoration-thickness: 3px;
@@ -707,23 +722,150 @@ fieldset a:hover {
     .content {
         grid-template-columns: 1fr;
     }
-    
-    .left-sidebar,
-    .browse-featured-miis {
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    
+
     #browse-miis {
         order: 2;
     }
-    
-    .left-sidebar {
-        order: 1;
+
+    .mobile-drawer-toggle {
+        position: fixed;
+        top: 15vh;
+        z-index: 1210;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 0.35rem;
+        border: 1px solid var(--layer-3-um);
+        border-radius: 8px;
+        background: var(--layer-2-um);
+        color: var(--text-1);
+        padding: 0.45rem 0.26rem;
+        font-family: Poppins, sans-serif;
+        font-size: 0.6rem;
+        font-weight: 600;
+        line-height: 1;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+        width: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        white-space: nowrap;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: none;
     }
-    
+
+    .mobile-drawer-toggle-left {
+        left: 0;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .mobile-drawer-toggle-right {
+        right: 0;
+        border-radius: 8px 0 0 8px;
+    }
+
+    .mobile-drawer-toggle .icon {
+        display: none;
+    }
+
+    .mobile-drawer-toggle.is-open {
+        background: var(--brand-color);
+        border-color: color-mix(in oklab, var(--brand-color) 75%, black 25%);
+        color: #fff;
+    }
+
+    .mobile-drawer {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        width: min(86vw, 340px);
+        padding: calc(env(safe-area-inset-top, 0px) + 95px) 12px 18px;
+        margin: 0;
+        overflow-y: auto;
+        background: color-mix(in oklab, var(--layer-1-um) 85%, black 15%);
+        backdrop-filter: blur(6px);
+        z-index: 1190;
+        transition: transform 0.24s ease;
+        will-change: transform;
+    }
+
+    .mobile-drawer-left {
+        left: 0;
+        transform: translateX(calc(-100% - 8px));
+        border-right: 1px solid var(--layer-3-um);
+    }
+
+    .mobile-drawer-right {
+        right: 0;
+        transform: translateX(calc(100% + 8px));
+        border-left: 1px solid var(--layer-3-um);
+    }
+
+    .mobile-drawer.mobile-drawer-open {
+        transform: translateX(0);
+    }
+
+    .mobile-drawer-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 1180;
+    }
+
+    body.mobile-drawer-overlay-visible .mobile-drawer-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    body.mobile-drawer-lock {
+        overflow: hidden;
+    }
+
+    .mobile-auth-prompt {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 0 0 12px 0;
+        padding: 0.7rem 0.8rem;
+        border-radius: 10px;
+        border: 1px solid var(--layer-3-um);
+        background: var(--layer-2-um);
+    }
+
+    .mobile-auth-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.95rem;
+    }
+
+    .mobile-auth-actions a {
+        color: var(--brand-color);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .mobile-auth-actions a:hover {
+        text-decoration: underline;
+    }
+
+    .mobile-auth-actions span {
+        color: var(--text-2);
+    }
+
+    .account.account-guest {
+        display: none;
+    }
+
+    .left-sidebar,
     .browse-featured-miis {
-        order: 3;
+        max-width: none;
+        margin: 0;
     }
 }
 

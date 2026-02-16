@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Legacy Upload - InfiniMii</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background: #f2f2f2;
+                color: #222;
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 16px;
+                line-height: 1.4;
+            }
+
+            a {
+                color: #0a4ea3;
+                text-decoration: none;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+            .wrap {
+                max-width: 880px;
+                margin: 0 auto;
+                padding: 10px;
+            }
+
+            .top-banner {
+                background: #fff3cd;
+                border: 1px solid #d8be71;
+                color: #523f00;
+                padding: 10px;
+                margin: 0 0 10px;
+            }
+
+            .site-banner {
+                background: #fff;
+                border: 1px solid #ccc;
+                margin: 0 0 10px;
+                text-align: center;
+                padding: 6px;
+            }
+
+            .site-banner img {
+                width: 100%;
+                max-width: 560px;
+                height: auto;
+                border: 0;
+            }
+
+            .panel {
+                background: #fff;
+                border: 1px solid #ccc;
+                padding: 12px;
+                margin: 0 0 10px;
+            }
+
+            .panel h1,
+            .panel h2 {
+                margin: 0 0 10px;
+                font-size: 22px;
+            }
+
+            .panel h2 {
+                font-size: 20px;
+            }
+
+            .msg {
+                padding: 8px;
+                margin: 0 0 10px;
+                border: 1px solid #ccc;
+            }
+
+            .msg.error {
+                background: #ffefef;
+                border-color: #ce7d7d;
+                color: #7a1a1a;
+            }
+
+            .msg.success {
+                background: #ebf8e8;
+                border-color: #7cbf75;
+                color: #165b15;
+            }
+
+            .row {
+                margin: 0 0 10px;
+            }
+
+            .row label {
+                display: block;
+                margin: 0 0 4px;
+                font-weight: bold;
+            }
+
+            input[type="text"],
+            input[type="password"],
+            input[type="file"],
+            textarea {
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid #999;
+                padding: 7px;
+                font-size: 16px;
+                font-family: Arial, Helvetica, sans-serif;
+                background: #fff;
+                color: #000;
+            }
+
+            textarea {
+                height: 84px;
+                resize: vertical;
+            }
+
+            .radio-row {
+                margin: 6px 0;
+            }
+
+            .radio-row label {
+                display: inline;
+                margin-right: 14px;
+                font-weight: normal;
+            }
+
+            .btn {
+                display: inline-block;
+                background: #0055a5;
+                color: #fff;
+                border: 1px solid #003a72;
+                padding: 8px 14px;
+                font-size: 16px;
+                cursor: pointer;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            .btn:hover {
+                background: #004788;
+            }
+
+            .small {
+                font-size: 14px;
+                color: #555;
+            }
+
+            .legacy-cards {
+                margin-top: 8px;
+            }
+
+            .legacy-card {
+                background: #fff;
+                border: 1px solid #ccc;
+                padding: 10px;
+                margin: 0 0 10px;
+            }
+
+            .legacy-card img {
+                width: 96px;
+                height: 96px;
+                border: 1px solid #aaa;
+                display: block;
+                margin: 0 0 8px;
+                background: #f9f9f9;
+            }
+
+            .legacy-card-content {
+                display: block;
+            }
+
+            .legacy-card-content h3 {
+                margin: 0 0 6px;
+                font-size: 20px;
+            }
+
+            .legacy-card-content p {
+                margin: 0 0 6px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <div class="top-banner">
+                You are using the Nintendo 3DS/Wii U browser mode. More tools are available on modern devices.
+            </div>
+
+            <div class="site-banner">
+                <a href="/legacy-upload"><img src="/banner.png" alt="InfiniMii"></a>
+            </div>
+
+            <div class="panel">
+                <h1>Legacy Browser Upload</h1>
+                <p class="small">
+                    Use this page to upload Mii files from Nintendo 3DS and Wii U browsers.
+                    Accounts must be created on another device first.
+                </p>
+                <p class="small">
+                    You must enter your username and password each upload. This page does not create a login session.
+                </p>
+
+                <% if (legacyUploadError) { %>
+                    <div class="msg error"><%= legacyUploadError %></div>
+                <% } %>
+
+                <% if (legacyUploadSuccess) { %>
+                    <div class="msg success">
+                        <p><%= legacyUploadSuccess %></p>
+                        <% if (legacyUploadedMii) { %>
+                            <p>
+                                Uploaded Mii: <a href="/mii/<%= legacyUploadedMii.id %>"><%= legacyUploadedMii.name %></a>
+                                (<%= legacyUploadedMii.published ? "Published" : "Private" %>)
+                            </p>
+                        <% } %>
+                    </div>
+                <% } %>
+
+                <form action="/legacy-upload" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <label for="legacy-username">Username</label>
+                        <input type="text" id="legacy-username" name="username" value="<%= (legacyFormValues && legacyFormValues.username) || '' %>" required>
+                    </div>
+
+                    <div class="row">
+                        <label for="legacy-password">Password</label>
+                        <input type="password" id="legacy-password" name="password" required>
+                    </div>
+
+                    <div class="row">
+                        <label for="legacy-mii">Mii file</label>
+                        <input type="file" id="legacy-mii" name="mii" required>
+                    </div>
+
+                    <div class="row">
+                        <label for="legacy-desc">Description (max 250 characters)</label>
+                        <textarea id="legacy-desc" name="desc" maxlength="250" required><%= (legacyFormValues && legacyFormValues.desc) || '' %></textarea>
+                    </div>
+
+                    <div class="row">
+                        <label>Visibility</label>
+                        <div class="radio-row">
+                            <label>
+                                <input type="radio" name="visibility" value="private" <%= (legacyFormValues && legacyFormValues.visibility) !== 'published' ? 'checked' : '' %>>
+                                Save as Private
+                            </label>
+                            <label>
+                                <input type="radio" name="visibility" value="published" <%= (legacyFormValues && legacyFormValues.visibility) === 'published' ? 'checked' : '' %>>
+                                Publish Immediately
+                            </label>
+                        </div>
+                    </div>
+
+                    <input class="btn" type="submit" value="Upload Mii">
+                </form>
+            </div>
+
+            <div class="panel legacy-cards">
+                <h2>Featured Miis</h2>
+
+                <div class="legacy-card">
+                    <h3>Highlighted Mii</h3>
+                    <% if (highlightedMiiData) { %>
+                        <a href="/mii/<%= highlightedMii %>">
+                            <img src="/miiImgs/<%= highlightedMii %>.png" alt="<%= (highlightedMiiData.meta && highlightedMiiData.meta.name) || 'Highlighted Mii' %>">
+                        </a>
+                        <div class="legacy-card-content">
+                            <h3><a href="/mii/<%= highlightedMii %>"><%= (highlightedMiiData.meta && highlightedMiiData.meta.name) || "Unknown" %></a></h3>
+                            <p>Uploader: <%= highlightedMiiData.uploader || "Unknown" %></p>
+                            <p><%= highlightedMiiData.desc && highlightedMiiData.desc.length > 0 ? highlightedMiiData.desc : "No description." %></p>
+                        </div>
+                    <% } else { %>
+                        <p>No highlighted Mii is currently set.</p>
+                    <% } %>
+                </div>
+
+                <div class="legacy-card">
+                    <h3>Average Mii</h3>
+                    <% if (averageMiiData) { %>
+                        <a href="/mii/average">
+                            <img src="/miiImgs/average.png" alt="Average Mii">
+                        </a>
+                        <div class="legacy-card-content">
+                            <h3><a href="/mii/average">Average Mii</a></h3>
+                            <p>A summary of common features across uploaded Miis.</p>
+                        </div>
+                    <% } else { %>
+                        <p>Average Mii data is not available.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

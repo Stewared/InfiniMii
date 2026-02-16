@@ -1,4 +1,4 @@
-<div class="account">
+<div class="account <%= thisUser === 'Default' ? 'account-guest' : '' %>">
     <% if(thisUser!=="Default"){ %>
         <img class="account-image-small" src="/miiImgs/<%= pfp %>.png"> <%= thisUser %>
         <div class="accDropdown">
@@ -7,6 +7,6 @@
             <a href="/logout">Logout</a>
         </div>
     <% } else{ %>
-        <a href="/signup">Sign Up</a> | <a href="/login">Log In</a>
+        <span class="account-login-prompt"><a href="/signup">Sign Up</a> | <a href="/login">Log In</a></span>
     <% } %>
 </div>
