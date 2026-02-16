@@ -226,8 +226,22 @@
                             <form id="extractedExportForm" class="export-form" method="GET" action="/exportMii">
                                 <input type="hidden" name="id" id="extractedMiiId">
                                 <input type="text" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
+                                <label style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <input type="checkbox" name="special">
+                                    Special
+                                </label>
+                                <label style="display: inline-flex; align-items: center; gap: 6px;">
+                                    QR:
+                                    <select name="qrConsole">
+                                        <option value="3DS">3DS</option>
+                                        <option value="WIIU">Wii U</option>
+                                    </select>
+                                </label>
                                 <button type="submit" class="btn btn-secondary">Download</button>
+                                <button type="button" class="btn btn-secondary" onclick="copyExportTextFromForm(document.getElementById('extractedExportForm'), 'hex')">Copy Hex</button>
+                                <button type="button" class="btn btn-secondary" onclick="copyExportTextFromForm(document.getElementById('extractedExportForm'), 'base64')">Copy Base64</button>
                             </form>
+                            <button type="button" class="btn btn-secondary" id="extractedInstructionsBtn" onclick="openExtractedInstructions()">Recreation Instructions</button>
                         </div>
                         <datalist id="exportFormatOptions">
                             <% exportFormats.forEach(fmt => { %>
@@ -257,36 +271,33 @@
                         </div>
                         
                         <div class="insert-options">
-                            <h4>Select Mii Source</h4>
-                            <div class="radio-group">
-                                <div class="radio-option">
-                                    <input type="radio" id="sourceFile" name="miiSource" value="file" checked>
-                                    <label for="sourceFile">Upload File</label>
-                                </div>
-                                <div class="radio-option">
-                                    <input type="radio" id="sourceMiiId" name="miiSource" value="miiId">
-                                    <label for="sourceMiiId">Use Mii ID</label>
-                                </div>
-                                <div class="radio-option">
-                                    <input type="radio" id="sourceStudio" name="miiSource" value="studio">
-                                    <label for="sourceStudio">Studio Code</label>
-                                </div>
-                            </div>
-                            
+                            <h4>Mii Source (Auto-Detected)</h4>
+                            <p style="color: var(--text-2); font-size: 0.95em; margin-top: 0;">
+                                Fill any one source below. No source type selection is required.
+                            </p>
+
                             <div id="fileUploadSection">
-                                <input type="file" name="mii" id="insertMiiFile" >
+                                <label for="insertMiiFile">Upload Mii file (optional):</label>
+                                <input type="file" name="mii" id="insertMiiFile">
                             </div>
-                            
-                            <div id="miiIdSection" style="display: none;">
-                                <input type="text" name="miiId" placeholder="Enter Mii ID from InfiniMii">
+
+                            <div id="miiIdSection">
+                                <label for="insertMiiId">Use Mii ID (optional):</label>
+                                <input type="text" id="insertMiiId" name="miiId" placeholder="Enter Mii ID from InfiniMii">
                             </div>
-                            
-                            <div id="studioSection" style="display: none;">
-                                <input type="text" name="studioCode" placeholder="Enter Mii Studio hex code">
+
+                            <div id="rawDataSection">
+                                <label for="insertRawMiiData">Paste raw Mii data (base64 or hex):</label>
+                                <textarea id="insertRawMiiData" name="miiData" rows="4" placeholder="Paste base64 or hex (spaces are ignored for hex)"></textarea>
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary">Insert Mii & Download</button>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 12px;">
+                            <button type="submit" class="btn btn-primary">Insert Mii & Download</button>
+                            <button type="button" class="btn btn-secondary" onclick="copyExportTextFromForm(document.getElementById('insertForm'), 'hex', { url: '/insertMiiIntoAmiibo', method: 'POST' })">Copy Hex</button>
+                            <button type="button" class="btn btn-secondary" onclick="copyExportTextFromForm(document.getElementById('insertForm'), 'base64', { url: '/insertMiiIntoAmiibo', method: 'POST' })">Copy Base64</button>
+                            <button type="button" class="btn btn-secondary" id="insertInstructionsBtn" onclick="openInsertInstructions()">Recreation Instructions</button>
+                        </div>
                     </form>
                     
                     <div id="insertError" class="error-message"></div>
@@ -299,6 +310,56 @@
         
         <script>
             let extractedMiiData = null;
+
+            function openExtractedInstructions() {
+                const extractedId = document.getElementById('extractedMiiId')?.value?.trim() || '';
+                if (!extractedId) {
+                    document.getElementById('extractError').textContent = 'Extract a Mii first before requesting instructions.';
+                    document.getElementById('extractError').classList.add('active');
+                    return;
+                }
+
+                const extractedName = document.getElementById('extractedMiiName')?.textContent?.trim() || 'Mii';
+                showMiiInstructionsModal(async ({ consoleType }) => {
+                    const response = await fetch(`/getInstructions?id=${encodeURIComponent(extractedId)}&console=${encodeURIComponent(consoleType)}`, {
+                        headers: { "Content-Type": "application/json" }
+                    });
+                    return await response.json();
+                }, {
+                    title: 'Recreation Instructions',
+                    defaultConsole: '3DS',
+                    miiName: extractedName
+                });
+            }
+
+            function openInsertInstructions() {
+                const miiFile = document.getElementById('insertMiiFile')?.files?.[0] || null;
+                const miiId = document.getElementById('insertMiiId')?.value?.trim() || '';
+                const rawMiiData = document.getElementById('insertRawMiiData')?.value?.trim() || '';
+
+                if (!miiFile && !miiId && !rawMiiData) {
+                    document.getElementById('insertError').textContent = 'Provide a Mii source first (file, Mii ID, or raw data).';
+                    document.getElementById('insertError').classList.add('active');
+                    return;
+                }
+
+                showMiiInstructionsModal(async ({ consoleType }) => {
+                    const requestData = new FormData();
+                    if (miiFile) requestData.append('mii', miiFile);
+                    if (miiId) requestData.append('miiId', miiId);
+                    if (rawMiiData) requestData.append('miiData', rawMiiData);
+                    requestData.append('console', consoleType);
+
+                    const response = await fetch('/getInstructions', {
+                        method: 'POST',
+                        body: requestData
+                    });
+                    return await response.json();
+                }, {
+                    title: 'Recreation Instructions',
+                    defaultConsole: '3DS'
+                });
+            }
             
             // Extract form handling
             document.getElementById('extractForm').addEventListener('submit', async (e) => {
@@ -373,15 +434,6 @@
                     document.getElementById('insertError').textContent = 'Error: ' + error.message;
                     document.getElementById('insertError').classList.add('active');
                 }
-            });
-            
-            // Radio button handling
-            document.querySelectorAll('input[name="miiSource"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    document.getElementById('fileUploadSection').style.display = e.target.value === 'file' ? 'block' : 'none';
-                    document.getElementById('miiIdSection').style.display = e.target.value === 'miiId' ? 'block' : 'none';
-                    document.getElementById('studioSection').style.display = e.target.value === 'studio' ? 'block' : 'none';
-                });
             });
             
             // File name display

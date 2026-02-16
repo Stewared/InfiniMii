@@ -1,6 +1,6 @@
 import { WiimoteMiiManager, MiiSlot, constants } from './wiimote-lib.js';
 
-const WIIMOTE_MANAGER_BUILD = '2026-02-16-cache-bust-1';
+const WIIMOTE_MANAGER_BUILD = '2026-02-16-cache-bust-3';
 window.__WIIMOTE_MANAGER_BUILD = WIIMOTE_MANAGER_BUILD;
 console.info('[wiimote-manager] build', WIIMOTE_MANAGER_BUILD);
 
@@ -8,7 +8,6 @@ console.info('[wiimote-manager] build', WIIMOTE_MANAGER_BUILD);
 const manager = new WiimoteMiiManager();
 let selectedSlot = null;
 let currentSlots = [];
-let currentImportSource = 'studio';
 
 // Check API support
 const hasHID = !!navigator.hid;
@@ -52,6 +51,7 @@ function updateStatus(connected) {
     const indicator = document.getElementById('statusIndicator');
     const text = document.getElementById('statusText');
     const typeDisplay = document.getElementById('connectionType');
+    const selected = selectedSlot !== null ? currentSlots[selectedSlot] : null;
     
     if (connected) {
         indicator.classList.add('connected');
@@ -71,6 +71,10 @@ function updateStatus(connected) {
     document.getElementById('connectBtn').disabled = connected;
     document.getElementById('disconnectBtn').disabled = !connected;
     document.getElementById('readAllBtn').disabled = !connected;
+    document.getElementById('exportBtn').disabled = !connected || !selected || selected.isEmpty || selected.readError;
+    document.getElementById('copyHexBtn').disabled = !connected || !selected || selected.isEmpty || selected.readError;
+    document.getElementById('copyBase64Btn').disabled = !connected || !selected || selected.isEmpty || selected.readError;
+    document.getElementById('instructionsBtn').disabled = !connected || !selected || selected.isEmpty || selected.readError;
     document.getElementById('importBtn').disabled = !connected || selectedSlot === null;
     document.getElementById('clearBtn').disabled = !connected || selectedSlot === null;
 }
@@ -190,7 +194,10 @@ function selectSlot(index) {
     // Update button states
     const slot = currentSlots[index];
     
-    document.getElementById('exportBtn').disabled = !slot || slot.isEmpty;
+    document.getElementById('exportBtn').disabled = !slot || slot.isEmpty || !!slot.readError;
+    document.getElementById('copyHexBtn').disabled = !slot || slot.isEmpty || !!slot.readError;
+    document.getElementById('copyBase64Btn').disabled = !slot || slot.isEmpty || !!slot.readError;
+    document.getElementById('instructionsBtn').disabled = !slot || slot.isEmpty || !!slot.readError;
     document.getElementById('importBtn').disabled = !manager.hid.isConnected;
     document.getElementById('clearBtn').disabled = !manager.hid.isConnected || !slot || slot.isEmpty;
     
@@ -227,39 +234,53 @@ window.exportSelected = function() {
     log(`Downloaded ${fileName}`, 'success');
 };
 
+window.showSelectedInstructions = function() {
+    if (selectedSlot === null) {
+        log('Please select a slot first', 'error');
+        return;
+    }
+
+    const slot = currentSlots[selectedSlot];
+    if (!slot || slot.isEmpty || slot.readError) {
+        log('Cannot generate instructions for this slot', 'error');
+        return;
+    }
+
+    if (typeof window.showMiiInstructionsModal !== 'function') {
+        log('Instructions modal is unavailable on this page', 'error');
+        return;
+    }
+
+    const miiDataBase64 = slot.toBase64();
+    window.showMiiInstructionsModal(async ({ consoleType }) => {
+        const requestData = new FormData();
+        requestData.append('miiData', miiDataBase64);
+        requestData.append('console', consoleType);
+
+        const response = await fetch('/getInstructions', {
+            method: 'POST',
+            body: requestData
+        });
+        return await response.json();
+    }, {
+        title: `Recreation Instructions (Slot ${selectedSlot + 1})`,
+        defaultConsole: '3DS',
+        miiName: slot.name || `Slot ${selectedSlot + 1}`
+    });
+};
+
 window.showImportModal = function() {
     if (selectedSlot === null) {
         log('Please select a slot first', 'error');
         return;
     }
 
-    document.getElementById('importStudioCode').value = '';
     document.getElementById('importMiiId').value = '';
     document.getElementById('importRcdFile').value = '';
-
-    const defaultSource = document.querySelector('input[name="importSource"][value="studio"]');
-    if (defaultSource) {
-        defaultSource.checked = true;
-    }
-    window.setImportSource('studio');
+    const rawInput = document.getElementById('importRawMiiData');
+    if (rawInput) rawInput.value = '';
 
     document.getElementById('importModal').classList.add('active');
-};
-
-window.setImportSource = function(source) {
-    currentImportSource = source;
-
-    document.querySelectorAll('.import-source-panel').forEach(panel => {
-        panel.classList.remove('active');
-    });
-
-    if (source === 'studio') {
-        document.getElementById('importSourceStudio').classList.add('active');
-    } else if (source === 'miiId') {
-        document.getElementById('importSourceMiiId').classList.add('active');
-    } else if (source === 'rcd') {
-        document.getElementById('importSourceRcd').classList.add('active');
-    }
 };
 
 window.importMii = async function() {
@@ -269,38 +290,26 @@ window.importMii = async function() {
             return;
         }
 
-        const source = document.querySelector('input[name="importSource"]:checked')?.value || currentImportSource;
         const formData = new FormData();
-        formData.append('source', source);
+        const selectedFile = document.getElementById('importRcdFile')?.files?.[0] || null;
+        const miiId = document.getElementById('importMiiId')?.value?.trim() || '';
+        const rawMiiData = document.getElementById('importRawMiiData')?.value?.trim() || '';
 
-        if (source === 'studio') {
-            const studioCode = document.getElementById('importStudioCode').value.trim();
-            if (!studioCode) {
-                log('Please paste a Studio code first', 'error');
-                return;
-            }
-            formData.append('studioCode', studioCode);
-        } else if (source === 'miiId') {
-            const miiId = document.getElementById('importMiiId').value.trim();
-            if (!miiId) {
-                log('Please paste a Mii ID first', 'error');
-                return;
-            }
-            formData.append('miiId', miiId);
-        } else if (source === 'rcd') {
-            const fileInput = document.getElementById('importRcdFile');
-            const file = fileInput?.files?.[0];
-            if (!file) {
-                log('Please choose a .rcd file first', 'error');
-                return;
-            }
-            formData.append('miiFile', file);
-        } else {
-            log('Invalid import source selected', 'error');
+        if (selectedFile) formData.append('miiFile', selectedFile);
+        if (miiId) formData.append('miiId', miiId);
+        if (rawMiiData) formData.append('miiData', rawMiiData);
+
+        let detectedSource = '';
+        if (selectedFile) detectedSource = 'rcd file';
+        else if (miiId) detectedSource = 'Mii ID';
+        else if (rawMiiData) detectedSource = 'raw data';
+
+        if (!detectedSource) {
+            log('Provide at least one source: .rcd file, Mii ID, or raw base64/hex data', 'error');
             return;
         }
 
-        log(`Preparing import from ${source} source...`, 'info');
+        log(`Preparing import from ${detectedSource}...`, 'info');
         const response = await fetch('/api/wiimote/importData', {
             method: 'POST',
             body: formData
@@ -354,6 +363,51 @@ window.clearSelected = async function() {
 
 window.closeModal = function(modalId) {
     document.getElementById(modalId).classList.remove('active');
+};
+
+function bytesToHex(bytes) {
+    return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function bytesToBase64(bytes) {
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode(...chunk);
+    }
+    return btoa(binary);
+}
+
+async function copySelectedSlotData(encoding) {
+    if (selectedSlot === null) {
+        log('Please select a slot first', 'error');
+        return;
+    }
+
+    const slot = currentSlots[selectedSlot];
+    if (!slot || slot.isEmpty || slot.readError) {
+        log('Cannot copy data from this slot', 'error');
+        return;
+    }
+
+    const bytes = slot.toBytes();
+    const text = encoding === 'base64' ? bytesToBase64(bytes) : bytesToHex(bytes);
+
+    try {
+        await navigator.clipboard.writeText(text);
+        log(`Copied ${encoding.toUpperCase()} for slot ${selectedSlot + 1}`, 'success');
+    } catch (error) {
+        log(`Failed to copy ${encoding.toUpperCase()}: ${error.message}`, 'error');
+    }
+}
+
+window.copySelectedHex = async function() {
+    await copySelectedSlotData('hex');
+};
+
+window.copySelectedBase64 = async function() {
+    await copySelectedSlotData('base64');
 };
 
 // Close modals when clicking outside

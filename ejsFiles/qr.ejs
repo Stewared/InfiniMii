@@ -24,7 +24,21 @@
                             <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
                         <% }) %>
                     </datalist>
-                    <input type="submit" value="Export">
+                    <label style="display: inline-flex; align-items: center; gap: 8px; margin-top: 10px;">
+                        <input type="checkbox" name="special">
+                        Download as Special Mii
+                    </label>
+                    <label for="qr-export-console">QR Console:</label>
+                    <select id="qr-export-console" name="qrConsole">
+                        <option value="3DS">3DS</option>
+                        <option value="WIIU">Wii U</option>
+                    </select>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 10px;">
+                        <input type="submit" value="Export">
+                        <button type="button" id="qrCopyHexBtn">Copy Hex</button>
+                        <button type="button" id="qrCopyBase64Btn">Copy Base64</button>
+                        <button type="button" id="qrInstructionsBtn">Recreation Instructions</button>
+                    </div>
                     <h6>*Note: Down-level conversions may have limitations.</h6>
                 </fieldset>
             </form>
@@ -73,6 +87,8 @@
             var outputContainer = document.getElementById("output");
             var outputMessage = document.getElementById("outputMessage");
             let camStream;
+            let convertFormBound = false;
+            let uploadFormBound = false;
             
             function drawLine(begin, end, color) {
                 canvas.beginPath();
@@ -139,11 +155,14 @@
                         
                         // Add AJAX handling to the convert form
                         const convertForm = document.querySelector(".convert");
-                        convertForm.addEventListener('submit', function(e) {
-                            handleFormSubmit(e, '/exportMii', 'Exporting...', 'convert-error-message', {
-                                handleFileDownload: true
+                        if (!convertFormBound) {
+                            convertForm.addEventListener('submit', function(e) {
+                                handleFormSubmit(e, '/exportMii', 'Exporting...', 'convert-error-message', {
+                                    handleFileDownload: true
+                                });
                             });
-                        });
+                            convertFormBound = true;
+                        }
                         break;
                         
                     case 'upload':
@@ -155,12 +174,48 @@
                         
                         // Add AJAX handling to the upload form
                         const uploadForm = document.querySelector(".upload");
-                        uploadForm.addEventListener('submit', function(e) {
-                            handleFormSubmit(e, '/uploadMii', 'Uploading...', 'upload-error-message');
-                        });
+                        if (!uploadFormBound) {
+                            uploadForm.addEventListener('submit', function(e) {
+                                handleFormSubmit(e, '/uploadMii', 'Uploading...', 'upload-error-message');
+                            });
+                            uploadFormBound = true;
+                        }
                         break;
                 }
             }
+
+            function openQrInstructions() {
+                const convertForm = document.querySelector('.convert');
+                const miiData = convertForm?.querySelector('.convert-miidata')?.value?.trim() || '';
+                if (!miiData) {
+                    showAlert('Scan a QR code first, then open Convert Mii.', 4000, { title: 'Missing Input', type: 'error' });
+                    return;
+                }
+
+                showMiiInstructionsModal(async ({ consoleType }) => {
+                    const requestData = new FormData(convertForm);
+                    requestData.append('console', consoleType);
+
+                    const response = await fetch('/getInstructions', {
+                        method: 'POST',
+                        body: requestData
+                    });
+                    return await response.json();
+                }, {
+                    title: 'Recreation Instructions',
+                    defaultConsole: '3DS'
+                });
+            }
+
+            document.getElementById('qrInstructionsBtn')?.addEventListener('click', openQrInstructions);
+            document.getElementById('qrCopyHexBtn')?.addEventListener('click', async () => {
+                const convertForm = document.querySelector('.convert');
+                await copyExportTextFromForm(convertForm, 'hex');
+            });
+            document.getElementById('qrCopyBase64Btn')?.addEventListener('click', async () => {
+                const convertForm = document.querySelector('.convert');
+                await copyExportTextFromForm(convertForm, 'base64');
+            });
 
             function tick() {
                 if (!going) return;

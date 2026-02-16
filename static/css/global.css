@@ -1056,6 +1056,87 @@ fieldset a:hover {
     background: var(--layer-3);
 }
 
+.custom-modal-instructions .custom-modal {
+    max-width: 760px;
+}
+
+.instructions-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.instructions-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    border-radius: 6px;
+    border: 1px solid var(--layer-3);
+    background: var(--layer-1);
+}
+
+.instructions-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 180px;
+    color: var(--text-1);
+    font-size: 0.9rem;
+}
+
+.instructions-control-group span {
+    color: var(--text-2);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.instructions-console-select {
+    border: 1px solid var(--layer-3);
+    border-radius: 5px;
+    background: var(--layer-2);
+    color: var(--text-1);
+    padding: 0.45rem 0.5rem;
+}
+
+.instructions-output {
+    border: 1px solid var(--layer-3);
+    border-radius: 6px;
+    background: var(--layer-1);
+    padding: 0.8rem 0.9rem;
+    min-height: 220px;
+    max-height: 46vh;
+    overflow-y: auto;
+}
+
+.instructions-status {
+    margin: 0;
+    color: var(--text-2);
+    text-align: center;
+}
+
+.instructions-status-error {
+    color: #ff6b6b;
+}
+
+.instructions-entry {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--layer-3);
+    color: var(--text-1);
+    line-height: 1.5;
+}
+
+.instructions-entry:last-child {
+    border-bottom: none;
+}
+
+.instructions-entry-label {
+    color: var(--brand-color);
+    font-weight: 600;
+    margin-right: 0.35rem;
+}
+
 /* Alert-specific styles */
 .custom-modal-alert .custom-modal-timer {
     position: absolute;

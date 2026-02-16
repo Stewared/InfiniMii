@@ -74,8 +74,10 @@
                             type="file" 
                             id="mii-file"
                             name="mii" 
-                            required
-                            aria-required="true">
+                            aria-required="false">
+
+                        <label for="miiData">Or paste raw Mii data (base64 or hex):</label>
+                        <textarea id="miiData" name="miiData" rows="4" placeholder="Paste base64 or hex string (hex may contain spaces)"></textarea>
                         
                         <label for="output-format">Export format:</label>
                         <input type="text" id="output-format" name="format" list="exportFormatOptions" placeholder="Search formats..." required aria-required="true">
@@ -84,10 +86,28 @@
                                 <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
                             <% }) %>
                         </datalist>
+                        <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px;">
+                            <label style="display: inline-flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="special">
+                                Download as Special Mii
+                            </label>
+                            <label for="convert-qr-console" style="display: inline-flex; align-items: center; gap: 8px;">
+                                QR Console:
+                                <select id="convert-qr-console" name="qrConsole">
+                                    <option value="3DS">3DS</option>
+                                    <option value="WIIU">Wii U</option>
+                                </select>
+                            </label>
+                        </div>
                         <p class="note">Start typing to filter the full list of formats. Example: <code>charinfo</code>, <code>ffsd</code>, <code>qr</code>.</p>
                         
                         <div id="convertError" class="form-message" style="display: none;"></div>
-                        <input type="submit" value="Export Mii">
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <input type="submit" value="Export Mii">
+                            <button type="button" id="convertCopyHexBtn">Copy Hex</button>
+                            <button type="button" id="convertCopyBase64Btn">Copy Base64</button>
+                            <button type="button" id="convertInstructionsBtn">Recreation Instructions</button>
+                        </div>
                         
                         <h6><strong>Note:</strong> Down-level conversions (newer consoles to older ones) may have limitations due to hardware differences. The 3DS and Wii U support more customization options than the original Wii. <a href="https://github.com/Stewared/MiiJS?tab=readme-ov-file#discrepancies-in-convertmii-function" target="_blank" rel="noopener">Learn more about conversion differences</a>.</h6>
                     </fieldset>
@@ -159,7 +179,8 @@
         </main>
         
         <%- include('footer') %>        <script>
-            document.querySelector('form').addEventListener('submit', function(e) {
+            const convertForm = document.getElementById('convertForm');
+            convertForm.addEventListener('submit', function(e) {
                 handleFormSubmit(e, '/exportMii', 'Exporting...', 'convertError', {
                     handleFileDownload: true,
                     onSuccess: async (result, messageDiv, response) => {
@@ -188,6 +209,38 @@
                         }
                     }
                 });
+            });
+
+            document.getElementById('convertInstructionsBtn')?.addEventListener('click', function () {
+                const fileSelected = !!document.getElementById('mii-file')?.files?.[0];
+                const rawMiiData = document.getElementById('miiData')?.value?.trim() || '';
+
+                if (!fileSelected && !rawMiiData) {
+                    showAlert('Upload a Mii file or paste raw Mii data first.', 4000, { title: 'Missing Input', type: 'error' });
+                    return;
+                }
+
+                showMiiInstructionsModal(async ({ consoleType }) => {
+                    const requestData = new FormData(convertForm);
+                    requestData.append('console', consoleType);
+
+                    const response = await fetch('/getInstructions', {
+                        method: 'POST',
+                        body: requestData
+                    });
+                    return await response.json();
+                }, {
+                    title: 'Recreation Instructions',
+                    defaultConsole: '3DS'
+                });
+            });
+
+            document.getElementById('convertCopyHexBtn')?.addEventListener('click', async function () {
+                await copyExportTextFromForm(convertForm, 'hex');
+            });
+
+            document.getElementById('convertCopyBase64Btn')?.addEventListener('click', async function () {
+                await copyExportTextFromForm(convertForm, 'base64');
             });
         </script>
     </body>

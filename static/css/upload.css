@@ -38,18 +38,3 @@
     color: var(--text-2);
     font-size: 14px;
 }
-
-.studio-preview {
-    margin-top: 1rem;
-    display: none;
-}
-
-.studio-preview.active {
-    display: block;
-}
-
-.studio-preview img {
-    max-width: 200px;
-    border-radius: 8px;
-    margin-top: 0.5rem;
-}

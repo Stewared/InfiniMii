@@ -377,6 +377,9 @@
                     <div class="button-group">
                         <button class="btn btn-primary" id="readAllBtn" onclick="readAllSlots()" disabled><%- include('icon', { name: 'download', size: 16, class: 'icon-inline' }) %> Read All Slots</button>
                         <button class="btn btn-secondary" id="exportBtn" onclick="exportSelected()" disabled><%- include('icon', { name: 'upload', size: 16, class: 'icon-inline' }) %> Export Selected</button>
+                        <button class="btn btn-secondary" id="copyHexBtn" onclick="copySelectedHex()" disabled><%- include('icon', { name: 'copy', size: 16, class: 'icon-inline' }) %> Copy Hex</button>
+                        <button class="btn btn-secondary" id="copyBase64Btn" onclick="copySelectedBase64()" disabled><%- include('icon', { name: 'copy', size: 16, class: 'icon-inline' }) %> Copy Base64</button>
+                        <button class="btn btn-secondary" id="instructionsBtn" onclick="showSelectedInstructions()" disabled><%- include('icon', { name: 'list', size: 16, class: 'icon-inline' }) %> Recreation Instructions</button>
                         <button class="btn btn-secondary" id="importBtn" onclick="showImportModal()" disabled><%- include('icon', { name: 'download', size: 16, class: 'icon-inline' }) %> Import to Selected</button>
                         <button class="btn btn-danger" id="clearBtn" onclick="clearSelected()" disabled><%- include('icon', { name: 'trash', size: 16, class: 'icon-inline' }) %> Clear Selected</button>
                     </div>
@@ -402,38 +405,23 @@
         <div class="modal" id="importModal">
             <div class="modal-content">
                 <h3>Import Mii Data</h3>
-                <p>Choose a source to import into the selected Wii Remote slot:</p>
+                <p>Fill any one source below. Source type is auto-detected.</p>
 
-                <div class="import-source-picker">
-                    <label class="import-source-option">
-                        <input type="radio" name="importSource" value="studio" checked onchange="setImportSource('studio')">
-                        Studio Code
-                    </label>
-                    <label class="import-source-option">
-                        <input type="radio" name="importSource" value="miiId" onchange="setImportSource('miiId')">
-                        Mii ID
-                    </label>
-                    <label class="import-source-option">
-                        <input type="radio" name="importSource" value="rcd" onchange="setImportSource('rcd')">
-                        .rcd File
-                    </label>
+                <div class="import-source-panel active">
+                    <label for="importRcdFile">Upload a Wii .rcd file (optional):</label>
+                    <input type="file" id="importRcdFile" accept=".rcd">
+                    <div class="import-help">If set, this takes priority over other fields.</div>
                 </div>
 
-                <div id="importSourceStudio" class="import-source-panel active">
-                    <label for="importStudioCode">Studio code or Mii Studio URL:</label>
-                    <textarea id="importStudioCode" placeholder="Paste Mii Studio code or full studio.mii.nintendo.com URL"></textarea>
-                </div>
-
-                <div id="importSourceMiiId" class="import-source-panel">
-                    <label for="importMiiId">Mii ID from InfiniMii:</label>
+                <div class="import-source-panel active">
+                    <label for="importMiiId">Mii ID from InfiniMii (optional):</label>
                     <input type="text" id="importMiiId" placeholder="Enter Mii ID (for example: A1B2C)">
                     <div class="import-help">Uses a published Mii, or your own private Mii if you are logged in.</div>
                 </div>
 
-                <div id="importSourceRcd" class="import-source-panel">
-                    <label for="importRcdFile">Upload a Wii .rcd file:</label>
-                    <input type="file" id="importRcdFile" accept=".rcd">
-                    <div class="import-help">Only .rcd files are supported for Wiimote import.</div>
+                <div class="import-source-panel active">
+                    <label for="importRawMiiData">Raw Mii data (base64 or hex, optional):</label>
+                    <textarea id="importRawMiiData" placeholder="Paste base64 or hex string (spaces ignored for hex)"></textarea>
                 </div>
 
                 <div class="button-group">

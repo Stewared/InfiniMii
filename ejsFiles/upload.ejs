@@ -52,7 +52,6 @@
                         
                         <div class="upload-tabs">
                             <button class="tab-button active" onclick="switchTab('file')"><%- include('icon', { name: 'file', size: 16 }) %> File Upload</button>
-                            <button class="tab-button" onclick="switchTab('studio')"><%- include('icon', { name: 'palette', size: 16 }) %> Mii Studio</button>
                             <button class="tab-button" onclick="switchTab('qr')"><%- include('icon', { name: 'qr-code', size: 16 }) %> Scan QR Code</button>
                         </div>
                         
@@ -64,14 +63,14 @@
                                     <div class="format-hint">
                                         <strong>Supported inputs:</strong><br>
                                         &bull; Any Mii file format supported by MiiJS (Wii/DS/3DS/Wii U/Switch/etc.)<br>
-                                        &bull; QR code images (.png, .jpg)<br>
-                                        &bull; Use the Studio tab for Mii Studio codes
+                                        &bull; QR code images (.png, .jpg)
                                     </div>
                                     
                                     <label for="mii-upload" hidden>Upload Mii File:</label>
-                                    <input type="file" name="mii" required id="mii-upload">
+                                    <input type="file" name="mii" id="mii-upload">
+                                    <label for="upload-miiData">Or paste raw Mii data (base64 or hex):</label>
+                                    <textarea id="upload-miiData" name="miiData" rows="4" placeholder="Paste base64 or hex string (hex may contain spaces)"></textarea>
                                 <% } else { %>
-                                    <input type="hidden" name="type" value="3dsbin_amiibo">
                                     <input type="hidden" name="fromAmiibo" value="<%= fromAmiibo.id %>">
                                 <% } %>
                                 
@@ -317,60 +316,6 @@
                                 <input type="submit" value="Upload">
                             </form>
                         </div>
-
-                        <!-- Studio Tab -->
-                        <div id="studioTab" class="tab-content">
-                            <form action="/uploadStudioMii" method="post" id="studioForm">
-                                <div id="studio-error-message" class="form-message" style="display: none;"></div>
-                                <p style="color: var(--text-2); margin-bottom: 1rem;">
-                                    Paste your Mii Studio code
-                                </p>
-                                
-                                <label for="studioCode">Studio Code:</label>
-                                <input type="text" name="studioCode" id="studioCode" placeholder="Enter Mii Studio code" required>
-                                
-                                <p style="color: var(--text-3); font-size: 0.9em; margin-top: 0.5rem;">
-                                    ℹ️ The Mii will be rendered locally after upload - no preview available before uploading.
-                                </p>
-                                
-                                <label for="studio-description">Description (Max 250 characters):</label>
-                                <textarea maxlength="250" rows="5" placeholder="Description..." name="desc" id="studio-description" required></textarea>
-                                
-                                <% if(isResearcher) { %>
-                                    <div class="official-section">
-                                        <input type="checkbox" name="official" id="officialCheckboxStudio" onchange="toggleOfficialFieldsStudio()"> 
-                                        <label for="officialCheckboxStudio">
-                                            <b>This is an exact copy of a Mii</b> that appears in a Nintendo game/promotion officially
-                                        </label>
-                                        
-                                        <div id="officialFieldsStudio" style="display: none; margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 8px; border: 2px solid #bbdefb;">
-                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                                <h4 style="margin: 0;">Official Mii Categories:</h4>
-                                                <a href="/manageCategories" target="_blank" class="manage-cats-link">
-                                                    <%- include('icon', { name: 'folders', size: 16 }) %> Manage Categories
-                                                </a>
-                                            </div>
-                                            
-                                            <p style="color: #666; margin-bottom: 15px; font-size: 0.95em;">
-                                                Select all categories that apply. Only leaf categories (those without children) can be selected.
-                                            </p>
-                                            
-                                            <div id="categoriesContainerStudio">
-                                                <p style="text-align: center; color: #666;">Loading categories...</p>
-                                            </div>
-                                            
-                                            <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
-                                                <strong>Note:</strong> Please mention specific details in the description above.
-                                                Incorrectly marking a Mii as official may result in it being removed.
-                                            </p>
-                                        </div>
-                                    </div>
-                                <% } %>
-                                
-                                <input type="submit" value="Upload from Studio">
-                            </form>
-                        </div>
-                        
                         <!-- QR Scan Tab -->
                         <div id="qrTab" class="tab-content">
                             <p style="color: var(--text-2); margin-bottom: 1rem;">
@@ -389,11 +334,7 @@
             document.getElementById('uploadForm').addEventListener('submit', function(e) {
                 handleFormSubmit(e, '/uploadMii', 'Uploading...', 'error-message');
             });
-
-            // Handle studio form submission
-            document.getElementById('studioForm').addEventListener('submit', function(e) {
-                handleFormSubmit(e, '/uploadStudioMii', 'Uploading...', 'studio-error-message');
-            });
         </script>
     </body>
 </html>
+

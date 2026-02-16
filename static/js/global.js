@@ -352,3 +352,288 @@ async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
         submitBtn.disabled = false;
     }
 }
+
+const INSTRUCTION_CONSOLE_OPTIONS = [
+    { value: 'DS', label: 'Nintendo DS' },
+    { value: 'WII', label: 'Wii' },
+    { value: '3DS', label: 'Nintendo 3DS' },
+    { value: 'WIIU', label: 'Wii U' },
+    { value: 'SWITCH', label: 'Nintendo Switch' },
+    { value: 'SWITCH2', label: 'Nintendo Switch 2' }
+];
+
+function flattenInstructionEntries(instructions, prefix = '') {
+    if (!instructions || typeof instructions !== 'object') return [];
+
+    const entries = [];
+    for (const [key, value] of Object.entries(instructions)) {
+        const nextPrefix = prefix ? `${prefix}.${key}` : key;
+        if (!value) continue;
+
+        if (typeof value === 'string') {
+            entries.push({
+                key: nextPrefix,
+                label: nextPrefix
+                    .split('.')
+                    .map(part => part.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()))
+                    .join(' > ')
+                    .trim(),
+                text: value
+            });
+            continue;
+        }
+
+        if (typeof value === 'object') {
+            entries.push(...flattenInstructionEntries(value, nextPrefix));
+        }
+    }
+
+    return entries;
+}
+
+window.showMiiInstructionsModal = function(loader, options = {}) {
+    if (typeof loader !== 'function') {
+        throw new Error('showMiiInstructionsModal requires a loader callback');
+    }
+
+    const overlay = createModalOverlay();
+    overlay.className = 'custom-modal-overlay custom-modal-instructions';
+
+    const defaultConsole = String(options.defaultConsole || '3DS').toUpperCase();
+    const title = options.title || 'Recreation Instructions';
+
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+
+    const header = document.createElement('div');
+    header.className = 'custom-modal-header';
+    header.innerHTML = `
+        <h3>${title}</h3>
+        <button class="custom-modal-close" aria-label="Close">&times;</button>
+    `;
+
+    const body = document.createElement('div');
+    body.className = 'custom-modal-body instructions-modal-body';
+
+    const controls = document.createElement('div');
+    controls.className = 'instructions-controls';
+
+    const consoleGroup = document.createElement('label');
+    consoleGroup.className = 'instructions-control-group';
+    consoleGroup.innerHTML = `
+        <span>Console</span>
+        <select class="instructions-console-select">
+            ${INSTRUCTION_CONSOLE_OPTIONS.map(opt => `<option value="${opt.value}"${opt.value === defaultConsole ? ' selected' : ''}>${opt.label}</option>`).join('')}
+        </select>
+    `;
+
+    controls.appendChild(consoleGroup);
+
+    const output = document.createElement('div');
+    output.className = 'instructions-output';
+    output.innerHTML = '<p class="instructions-status">Loading instructions...</p>';
+
+    body.appendChild(controls);
+    body.appendChild(output);
+
+    const footer = document.createElement('div');
+    footer.className = 'custom-modal-footer';
+    footer.innerHTML = `
+        <button class="custom-modal-btn custom-modal-btn-secondary" data-action="copy">Copy to Clipboard</button>
+        <button class="custom-modal-btn custom-modal-btn-primary" data-action="close">Close</button>
+    `;
+
+    modal.appendChild(header);
+    modal.appendChild(body);
+    modal.appendChild(footer);
+    overlay.innerHTML = '';
+    overlay.appendChild(modal);
+
+    const closeBtn = modal.querySelector('.custom-modal-close');
+    const closeFooterBtn = modal.querySelector('[data-action="close"]');
+    const copyBtn = modal.querySelector('[data-action="copy"]');
+    const consoleSelect = modal.querySelector('.instructions-console-select');
+
+    let latestPayload = null;
+    let latestEntries = [];
+
+    const handleClose = () => {
+        closeModal();
+        overlay.className = 'custom-modal-overlay';
+        document.removeEventListener('keydown', handleEscape);
+    };
+
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            handleClose();
+        }
+    };
+
+    const renderEntries = (entries) => {
+        latestEntries = entries;
+        if (!entries.length) {
+            output.innerHTML = '<p class="instructions-status">All settings are at default values.</p>';
+            return;
+        }
+
+        output.innerHTML = '';
+        for (const entry of entries) {
+            const row = document.createElement('div');
+            row.className = 'instructions-entry';
+
+            const label = document.createElement('span');
+            label.className = 'instructions-entry-label';
+            label.textContent = `${entry.label}:`;
+
+            row.appendChild(label);
+            row.appendChild(document.createTextNode(entry.text));
+            output.appendChild(row);
+        }
+    };
+
+    const loadInstructions = async () => {
+        const selectedConsole = consoleSelect.value;
+        output.innerHTML = '<p class="instructions-status">Loading instructions...</p>';
+
+        try {
+            const payload = await loader({
+                consoleType: selectedConsole
+            });
+
+            if (!payload || payload.error) {
+                throw new Error(payload?.error || 'Failed to load instructions');
+            }
+
+            latestPayload = payload;
+            const entries = flattenInstructionEntries(payload.instructions);
+            renderEntries(entries);
+        } catch (error) {
+            console.error('Error loading instructions:', error);
+            output.innerHTML = '';
+            const errorLine = document.createElement('p');
+            errorLine.className = 'instructions-status instructions-status-error';
+            errorLine.textContent = error.message || 'Failed to load instructions';
+            output.appendChild(errorLine);
+            latestPayload = null;
+            latestEntries = [];
+        }
+    };
+
+    closeBtn.addEventListener('click', handleClose);
+    closeFooterBtn.addEventListener('click', handleClose);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            handleClose();
+        }
+    });
+    document.addEventListener('keydown', handleEscape);
+
+    consoleSelect.addEventListener('change', loadInstructions);
+
+    copyBtn.addEventListener('click', async () => {
+        if (!latestEntries.length) {
+            if (typeof showAlert === 'function') {
+                showAlert('No instructions to copy yet.', 3000, { title: 'Notice', type: 'info' });
+            }
+            return;
+        }
+
+        const miiName = latestPayload?.miiName || options.miiName || 'Mii';
+        const selectedConsole = latestPayload?.console || consoleSelect.value;
+        const lines = latestEntries.map(entry => `${entry.label}: ${entry.text}`);
+        const text = `Recreation Instructions for ${miiName} (${selectedConsole})\n\n${lines.join('\n')}`;
+
+        try {
+            await navigator.clipboard.writeText(text);
+            if (typeof showAlert === 'function') {
+                showAlert('Instructions copied to clipboard.', 3000, { title: 'Success', type: 'success' });
+            }
+        } catch (error) {
+            console.error('Error copying instructions:', error);
+            if (typeof showAlert === 'function') {
+                showAlert('Failed to copy instructions.', 4000, { title: 'Error', type: 'error' });
+            }
+        }
+    });
+
+    setTimeout(() => overlay.classList.add('active'), 10);
+    loadInstructions();
+};
+
+function bytesToHexString(bytes) {
+    return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function bytesToBase64String(bytes) {
+    let binary = '';
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, i + chunkSize);
+        binary += String.fromCharCode(...chunk);
+    }
+    return btoa(binary);
+}
+
+async function readErrorMessageFromResponse(response) {
+    try {
+        const result = await response.json();
+        if (result?.error) return result.error;
+    } catch (e) { }
+    return `Request failed (${response.status})`;
+}
+
+window.copyExportTextFromForm = async function(form, encoding = 'hex', options = {}) {
+    try {
+        if (!form || !(form instanceof HTMLFormElement)) {
+            throw new Error('Copy source form is invalid.');
+        }
+
+        const method = String(options.method || form.method || 'GET').toUpperCase();
+        let endpoint = options.url || form.action || '/exportMii';
+        const formData = new FormData(form);
+        const fetchOptions = { method };
+
+        if (method === 'GET') {
+            const params = new URLSearchParams();
+            for (const [key, value] of formData.entries()) {
+                if (typeof value === 'string') {
+                    params.append(key, value);
+                }
+            }
+            const query = params.toString();
+            if (query) {
+                endpoint += (endpoint.includes('?') ? '&' : '?') + query;
+            }
+        } else {
+            fetchOptions.body = formData;
+        }
+
+        const response = await fetch(endpoint, fetchOptions);
+        const contentDisposition = response.headers.get('content-disposition') || '';
+        const isFileResponse = contentDisposition.includes('attachment');
+
+        if (!response.ok || !isFileResponse) {
+            const errorMessage = await readErrorMessageFromResponse(response);
+            throw new Error(errorMessage);
+        }
+
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        const normalizedEncoding = String(encoding).toLowerCase();
+        const text = normalizedEncoding === 'base64'
+            ? bytesToBase64String(bytes)
+            : bytesToHexString(bytes);
+
+        await navigator.clipboard.writeText(text);
+        if (typeof showAlert === 'function') {
+            const label = normalizedEncoding === 'base64' ? 'Base64' : 'Hex';
+            showAlert(`${label} copied to clipboard.`, 2500, { title: 'Success', type: 'success' });
+        }
+
+        return text;
+    } catch (error) {
+        if (typeof showAlert === 'function') {
+            showAlert(error.message || 'Failed to copy export data.', 5000, { title: 'Error', type: 'error' });
+        }
+        return null;
+    }
+};

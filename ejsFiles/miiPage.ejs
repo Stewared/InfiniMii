@@ -65,9 +65,26 @@
                                     height="200"
                                     loading="lazy">
                             </a>
-                            <a href="/<%= qrPath %>/<%= mii.id %>.png" target="_blank" rel="noopener">
-                                <span>Download for 3DS</span>
-                            </a>
+                            <form id="miiQrExportForm" method="GET" action="/exportMii" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center;">
+                                <input type="hidden" name="id" value="<%= mii.id %>">
+                                <input type="hidden" name="format" value="qr">
+                                <label for="qr-preview-console-<%= mii.id %>" style="display: inline-flex; align-items: center; gap: 6px;">
+                                    QR:
+                                    <select id="qr-preview-console-<%= mii.id %>" name="qrConsole">
+                                        <option value="3DS">3DS</option>
+                                        <option value="WIIU">Wii U</option>
+                                    </select>
+                                </label>
+                                <label style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <input type="checkbox" name="special">
+                                    Special
+                                </label>
+                                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center;">
+                                    <button type="submit" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;">Download QR</button>
+                                    <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyMiiExportText('miiQrExportForm', 'hex')">Copy Hex</button>
+                                    <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyMiiExportText('miiQrExportForm', 'base64')">Copy Base64</button>
+                                </div>
+                            </form>
                         </figcaption>
                     </figure>
 
@@ -461,12 +478,27 @@
                         <span class="copy-label">Copy Mii ID</span>
                     </button>
 
-                    <form class="export-form" method="GET" action="/exportMii">
+                    <form id="miiExportForm" class="export-form" method="GET" action="/exportMii">
                         <input type="hidden" name="id" value="<%= mii.id %>">
                         <label for="export-format-<%= mii.id %>">Download format</label>
                         <div class="export-row">
                             <input type="text" id="export-format-<%= mii.id %>" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
                             <button type="submit" class="btn-primary">Download</button>
+                            <button type="button" class="btn-secondary" onclick="copyMiiExportText('miiExportForm', 'hex')">Copy Hex</button>
+                            <button type="button" class="btn-secondary" onclick="copyMiiExportText('miiExportForm', 'base64')">Copy Base64</button>
+                        </div>
+                        <div class="export-row" style="margin-top: 10px;">
+                            <label style="display: inline-flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="special">
+                                Download as Special Mii
+                            </label>
+                            <label for="qr-console-<%= mii.id %>" style="display: inline-flex; align-items: center; gap: 8px;">
+                                QR Console:
+                                <select id="qr-console-<%= mii.id %>" name="qrConsole">
+                                    <option value="3DS">3DS</option>
+                                    <option value="WIIU">Wii U</option>
+                                </select>
+                            </label>
                         </div>
                         <p class="note">Search any supported format (except NTAG). Try <code>qr</code>, <code>charinfo</code>, or <code>ffsd</code>.</p>
                     </form>
@@ -477,38 +509,7 @@
                     </datalist>
 
                     <div class="export-secondary">
-                        <button class="btn-secondary" onclick="copyStudioCode(event)">Copy Studio Code</button>
-                        <button class="btn-secondary" onclick="showInstructions(event, '3ds')">Recreation Instructions (3DS/Wii U)</button>
-                        <button class="btn-secondary" onclick="showInstructions(event, 'wii')">Recreation Instructions (Wii)</button>
-                    </div>
-
-                    <!-- Instructions Modal -->
-                    <div id="instructionsModal" class="instructions-modal">
-                        <div class="instructions-modal-content">
-                            <div class="instructions-modal-header">
-                                <h2 id="instructionsTitle">Recreation Instructions</h2>
-                                <button class="close-modal" onclick="closeInstructionsModal()">&times;</button>
-                            </div>
-                            <div class="instructions-modal-body">
-                                <div class="instructions-options">
-                                    <label>
-                                        <input type="radio" name="instructionType" value="minimal" checked onchange="updateInstructions()">
-                                        Minimal (Only Changed Values)
-                                    </label>
-                                    <label>
-                                        <input type="radio" name="instructionType" value="full" onchange="updateInstructions()">
-                                        Complete (All Steps)
-                                    </label>
-                                </div>
-                                <div id="instructionsContent" class="instructions-list">
-                                    <p style="text-align: center; color: var(--text-2);">Loading instructions...</p>
-                                </div>
-                            </div>
-                            <div class="instructions-modal-footer">
-                                <button class="btn-secondary" onclick="copyInstructions()">Copy to Clipboard</button>
-                                <button class="btn-primary" onclick="closeInstructionsModal()">Close</button>
-                            </div>
-                        </div>
+                        <button class="btn-secondary" onclick="openMiiInstructions(event)">Recreation Instructions</button>
                     </div>
 
 
@@ -605,6 +606,13 @@
                                 <!-- Regenerate QR Code -->
                                 <div class="mod-tool-item">
                                     <label>Regenerate QR Code:</label>
+                                    <label for="regenQrConsole" style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                        QR Console:
+                                        <select id="regenQrConsole">
+                                            <option value="3DS">3DS</option>
+                                            <option value="WIIU">Wii U</option>
+                                        </select>
+                                    </label>
                                     <button onclick="regenerateQR()"><%- include('icon', { name: 'refresh', size: 16 }) %> Regenerate QR</button>
                                     <span id="qrStatus"></span>
                                 </div>
@@ -654,135 +662,32 @@
                     headers: { "Content-Type": "application/json" },
                 });
             }
-            let currentInstructionsFormat = '3ds';
-            let currentInstructionsData = null;
-
-            async function copyStudioCode(event) {
+            async function openMiiInstructions(event) {
                 event.preventDefault();
-
-                try {
-                    const response = await fetch('/getStudioCode?id=<%= mii.id %>', {
-                        headers: { "Content-Type": "application/json" },
-                    });
-                    const result = await response.json();
-
-                    if (!result.error) {
-                        await navigator.clipboard.writeText(result.code);
-                        if (typeof showAlert === 'function') {
-                            showAlert('Studio code copied to clipboard!', 3000, { title: 'Success', type: 'success' });
-                        }
-                    } else {
-                        if (typeof showAlert === 'function') {
-                            showAlert('Failed to copy Studio code', 4000, { title: 'Error', type: 'error' });
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error copying Studio code:', error);
+                if (typeof showMiiInstructionsModal !== 'function') {
                     if (typeof showAlert === 'function') {
-                        showAlert('Failed to copy Studio code', 4000, { title: 'Error', type: 'error' });
+                        showAlert('Instructions modal is unavailable on this page.', 4000, { title: 'Error', type: 'error' });
                     }
-                }
-            }
-
-            async function showInstructions(event, format) {
-                event.preventDefault();
-                currentInstructionsFormat = format;
-                
-
-                // Show modal
-                const modal = document.getElementById('instructionsModal');
-                modal.classList.add('active');
-                
-                // Update title
-                const titleEl = document.getElementById('instructionsTitle');
-                titleEl.textContent = `Recreation Instructions (${format === 'wii' ? 'Wii' : '3DS/Wii U'})`;
-                
-                // Load instructions
-                await updateInstructions();
-            }
-
-            async function updateInstructions() {
-                const full = document.querySelector('input[name="instructionType"]:checked').value === 'full';
-                const contentEl = document.getElementById('instructionsContent');
-                
-                contentEl.innerHTML = '<p style="text-align: center; color: var(--text-2);">Loading...</p>';
-                
-                try {
-                    const response = await fetch(`/getInstructions?id=<%= mii.id %>&format=${currentInstructionsFormat}&full=${full}`, {
-                        headers: { "Content-Type": "application/json" },
-                    });
-                    const result = await response.json();
-                    
-                    if (!result.error) {
-                        currentInstructionsData = result.instructions;
-                        displayInstructions(result.instructions);
-                    }
-                    else {
-                        contentEl.innerHTML = `<p style="color: #ff4444;">Error: ${result.error}</p>`;
-                    }
-                } catch (error) {
-                    console.error('Error fetching instructions:', error);
-                    contentEl.innerHTML = '<p style="color: #ff4444;">Failed to load instructions</p>';
-                }
-            }
-
-            function displayInstructions(instructions) {
-                const contentEl = document.getElementById('instructionsContent');
-                
-                if (!instructions || Object.keys(instructions).length === 0) {
-                    contentEl.innerHTML = '<p style="text-align: center; color: var(--text-2);">All settings are at default values!</p>';
                     return;
                 }
-                
-                let html = '';
-                for (const [key, instruction] of Object.entries(instructions)) {
-                    if (instruction) {
-                        html += `<div class="instruction-item"><span class="instruction-label">${formatLabel(key)}:</span>${instruction}</div>`;
-                    }
-                }
-                
-                contentEl.innerHTML = html || '<p style="text-align: center; color: var(--text-2);">No instructions available</p>';
+
+                showMiiInstructionsModal(async ({ consoleType }) => {
+                    const response = await fetch(`/getInstructions?id=<%= mii.id %>&console=${encodeURIComponent(consoleType)}`, {
+                        headers: { "Content-Type": "application/json" },
+                    });
+                    return await response.json();
+                }, {
+                    title: "Recreation Instructions",
+                    defaultConsole: "3DS",
+                    miiName: <%- JSON.stringify(mii.meta.name || "Mii") %>
+                });
             }
 
-            function formatLabel(key) {
-                // Convert camelCase to Title Case
-                return key
-                    .replace(/([A-Z])/g, ' $1')
-                    .replace(/^./, str => str.toUpperCase())
-                    .trim();
+            async function copyMiiExportText(formId, encoding) {
+                const form = document.getElementById(formId);
+                if (!form) return;
+                await copyExportTextFromForm(form, encoding);
             }
-
-            function closeInstructionsModal() {
-                const modal = document.getElementById('instructionsModal');
-                modal.classList.remove('active');
-            }
-
-            async function copyInstructions() {
-                if (!currentInstructionsData) return;
-                
-                let text = `Recreation Instructions for <%= mii.meta.name %> (${currentInstructionsFormat === 'wii' ? 'Wii' : '3DS/Wii U'})\n\n`;
-                
-                for (const [key, instruction] of Object.entries(currentInstructionsData)) {
-                    if (instruction) {
-                        text += `${formatLabel(key)}: ${instruction}\n`;
-                    }
-                }
-                
-                try {
-                    await navigator.clipboard.writeText(text);
-                    showAlert('Instructions copied to clipboard!', 3000, { title: 'Success', type: 'success' });
-                } catch (error) {
-                    console.error('Error copying instructions:', error);
-                    showAlert('Failed to copy instructions', 5000, { title: 'Error', type: 'error' });
-                }
-            }
-
-            // Close modal when clicking outside
-            document.getElementById('instructionsModal')?.addEventListener('click', function(event) {
-                if (event.target === this) {
-                    closeInstructionsModal();
-                }
-            });
         </script>
 
         <!--Moderator Tools Functions - Because EJS runs server side, and the client only sees the result of the compilation, this prevents unnecessary JS from loading that doesn't need to be sent-->
@@ -881,13 +786,14 @@
                 async function regenerateQR() {
                     showConfirm('Are you sure you want to regenerate the QR code?', async () => {
                         const statusEl = document.getElementById('qrStatus');
+                        const qrConsole = document.getElementById('regenQrConsole')?.value || '3DS';
                         statusEl.textContent = 'Regenerating...';
                         statusEl.style.color = '#FFA500';
 
                         try {
                             const response = await fetch('/regenerateQR', {
                                 method: "POST",
-                                body: JSON.stringify({ id: "<%= mii.id %>" }),
+                                body: JSON.stringify({ id: "<%= mii.id %>", qrConsole }),
                                 headers: { "Content-Type": "application/json" },
                             });
                             const result = await response.json();

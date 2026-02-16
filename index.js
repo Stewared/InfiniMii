@@ -54,7 +54,7 @@ const EXPORT_FORMAT_LABELS = {
     nfcd: "Switch NFCD (.nfcd)",
     nfsd: "Switch NFSD (.nfsd)",
     charinfo: "Switch CHARINFO (.charinfo)",
-    mnms: "Mii Studio MNMS (.mnms)"
+    mnms: "MNMS (.mnms)"
 };
 
 const EXPORT_FORMAT_ORDER = [
@@ -119,6 +119,7 @@ const MII_CHILD_STAGE_LABELS = [
     "Young Adult",
     "Adult"
 ];
+const INSTRUCTION_CONSOLE_VALUES = new Set(["DS", "WII", "3DS", "WIIU", "SWITCH", "SWITCH2"]);
 
 function normalizeExportFormat(input) {
     if (!input) return null;
@@ -128,9 +129,6 @@ function normalizeExportFormat(input) {
 
     if (["qr", "qrcode", "png", "jpg", "jpeg", "3dsqr"].includes(cleaned)) {
         return "qr";
-    }
-    if (["studio", "studiocode"].includes(cleaned)) {
-        return "studio";
     }
     if (["wii", "wiibin", "mii"].includes(cleaned)) {
         return "rsd";
@@ -153,6 +151,78 @@ function normalizeExportFormat(input) {
     }
 
     return null;
+}
+
+function parseBooleanLike(value) {
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value === 1;
+    if (typeof value !== "string") return false;
+
+    const cleaned = value.trim().toLowerCase();
+    return cleaned === "true" || cleaned === "1" || cleaned === "yes" || cleaned === "on";
+}
+
+function normalizeQrConsole(input) {
+    const cleaned = String(input || "").trim().toUpperCase().replace(/[\s_-]+/g, "");
+    if (cleaned === "WIIU") return "WIIU";
+    return "3DS";
+}
+
+function normalizeInstructionConsole(input) {
+    const cleaned = String(input || "").trim().toUpperCase().replace(/[\s_-]+/g, "");
+    if (INSTRUCTION_CONSOLE_VALUES.has(cleaned)) return cleaned;
+
+    if (cleaned === "THREEDS" || cleaned === "NINTENDO3DS") return "3DS";
+    if (cleaned === "NDS" || cleaned === "NINTENDODS") return "DS";
+    if (cleaned === "NINTENDOWIIU") return "WIIU";
+    if (cleaned === "NINTENDOSWITCH") return "SWITCH";
+    if (cleaned === "NINTENDOSWITCH2") return "SWITCH2";
+
+    return "3DS";
+}
+
+function buildMiiStringFallbackCandidates(input) {
+    if (typeof input !== "string") return [];
+
+    const trimmed = input.trim();
+    if (!trimmed) return [];
+
+    const candidates = [];
+    const compact = trimmed.replace(/\s+/g, "");
+
+    if (compact && compact !== trimmed) {
+        candidates.push(compact);
+    }
+
+    let hexCandidate = compact;
+    if (/^0x/i.test(hexCandidate)) {
+        hexCandidate = hexCandidate.slice(2);
+    }
+
+    if (/^[0-9a-fA-F]+$/.test(hexCandidate) && hexCandidate.length % 2 === 0) {
+        try {
+            candidates.push(Buffer.from(hexCandidate, "hex"));
+        } catch (e) { }
+    }
+
+    if (/^[A-Za-z0-9+/]+={0,2}$/.test(compact) && compact.length >= 8) {
+        try {
+            const decoded = Buffer.from(compact, "base64");
+            if (decoded.length > 0) {
+                candidates.push(decoded);
+            }
+        } catch (e) { }
+    }
+
+    return candidates;
+}
+
+function getExportOptionsFromRequest(req) {
+    const source = req.method === "GET" ? req.query : req.body;
+    return {
+        special: parseBooleanLike(source?.special),
+        qrConsole: normalizeQrConsole(source?.qrConsole)
+    };
 }
 
 function safeMiiFilename(name, fallback = "mii") {
@@ -221,8 +291,19 @@ async function decodeQrImageInput(input) {
 
 async function createMiiData(input, debug) {
     const parsedInput = isQrImageInput(input) ? await decodeQrImageInput(input) : input;
-    const mii = await miijs.Mii.create(parsedInput, debug);
-    return mii.fields;
+    try {
+        const mii = await miijs.Mii.create(parsedInput, debug);
+        return mii.fields;
+    } catch (originalError) {
+        const fallbacks = buildMiiStringFallbackCandidates(parsedInput);
+        for (const fallbackInput of fallbacks) {
+            try {
+                const mii = await miijs.Mii.create(fallbackInput, debug);
+                return mii.fields;
+            } catch (e) { }
+        }
+        throw originalError;
+    }
 }
 
 const MII_COMPARISON_IGNORED_TOP_LEVEL_FIELDS = new Set([
@@ -353,23 +434,25 @@ function getQuickUploadMetadata(dirPath = "./quickUploads") {
 }
 
 async function exportMiiToBuffer(miiInput, format, options = {}) {
-    const miiInstance = await miijs.Mii.create(miiInput);
+    const sourceInstance = await miijs.Mii.create(miiInput);
+    let miiInstance = sourceInstance;
+
+    if (options.special) {
+        const specialFields = structuredClone(sourceInstance.fields || {});
+        if (!specialFields.meta || typeof specialFields.meta !== "object") {
+            specialFields.meta = {};
+        }
+        specialFields.meta.type = "Special";
+        miiInstance = await miijs.Mii.create(specialFields);
+    }
 
     if (format === "qr") {
-        const qrBuffer = await miiInstance.toQR(options.device || "3DS", options.qrOptions || {});
+        const qrConsole = normalizeQrConsole(options.qrConsole || options.device);
+        const qrBuffer = await miiInstance.toQR(qrConsole, options.qrOptions || {});
         return {
             buffer: qrBuffer,
             contentType: "image/png",
             extension: "png"
-        };
-    }
-
-    if (format === "studio") {
-        const studioCode = miiInstance.toString(miijs.MiiFormats.MNMS);
-        return {
-            buffer: Buffer.from(studioCode, "utf8"),
-            contentType: "text/plain",
-            extension: "txt"
         };
     }
 
@@ -381,26 +464,24 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
     };
 }
 
-async function writeQrPng(miiInput, outputPath, device = "3DS") {
-    const { buffer } = await exportMiiToBuffer(miiInput, "qr", { device });
+async function writeQrPng(miiInput, outputPath, qrConsole = "3DS") {
+    const { buffer } = await exportMiiToBuffer(miiInput, "qr", { qrConsole });
     await fs.promises.writeFile(outputPath, buffer);
 }
 
-async function sendExportResponse(res, miiInput, format, nameHint) {
+async function sendExportResponse(res, miiInput, format, nameHint, options = {}) {
     const normalized = normalizeExportFormat(format);
     if (!normalized) {
         res.json({ error: "Invalid format specified" });
         return false;
     }
 
-    const { buffer, contentType, extension } = await exportMiiToBuffer(miiInput, normalized);
+    const { buffer, contentType, extension } = await exportMiiToBuffer(miiInput, normalized, options);
     const safeName = safeMiiFilename(nameHint, "mii");
 
     let filename;
     if (normalized === "qr") {
         filename = `${safeName}_QR.${extension}`;
-    } else if (normalized === "studio") {
-        filename = `${safeName}_studio.${extension}`;
     } else {
         filename = `${safeName}.${extension}`;
     }
@@ -443,7 +524,7 @@ async function exportMiiById(req, res) {
     try {
         const miiInstance = await miijs.Mii.create(miiInput);
         const miiName = miiInstance?.fields?.meta?.name || mii?.meta?.name || "mii";
-        await sendExportResponse(res, miiInstance.fields, req.query.format, miiName);
+        await sendExportResponse(res, miiInstance.fields, req.query.format, miiName, getExportOptionsFromRequest(req));
     } catch (e) {
         console.error("Error exporting Mii:", e);
         res.json({ error: "Failed to export Mii: " + e.message });
@@ -580,6 +661,38 @@ async function resolveMiiIdForImport(id, req) {
     }
 
     return { mii: privateMii };
+}
+
+async function resolveMiiInputForInstructions(req, { allowFile = false } = {}) {
+    const source = req.method === "GET" ? req.query : req.body;
+
+    if (allowFile && req.file?.path) {
+        return req.file.path;
+    }
+
+    const rawMiiData = typeof source?.miiData === "string" ? source.miiData.trim() : "";
+    if (rawMiiData) {
+        return rawMiiData;
+    }
+
+    const miiId = typeof source?.id === "string"
+        ? source.id.trim()
+        : (typeof source?.miiId === "string" ? source.miiId.trim() : "");
+    if (miiId) {
+        const resolved = await resolveMiiIdForImport(miiId, req);
+        if (!resolved.error) {
+            return resolved.mii;
+        }
+
+        const tempPath = `./static/temp/${miiId}.bin`;
+        if (fs.existsSync(tempPath)) {
+            return tempPath;
+        }
+
+        throw new Error(resolved.error || "Invalid Mii ID");
+    }
+
+    return null;
 }
 
 async function getUserByUsername(username, lean=true) {
@@ -2582,6 +2695,7 @@ site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (r
 // Regenerate QR Code (Moderator only)
 site.post('/regenerateQR', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     const { id } = req.body;
+    const qrConsole = normalizeQrConsole(req.body?.qrConsole);
     const mii = await getMiiById(id);
 
     if (!mii) {
@@ -2589,7 +2703,7 @@ site.post('/regenerateQR', requireAuth, requireRole(ROLES.MODERATOR), async (req
     }
 
     // Regenerate the QR code
-    await writeQrPng(mii, `./static/miiQRs/${id}.png`);
+    await writeQrPng(mii, `./static/miiQRs/${id}.png`, qrConsole);
 
     // Log to Discord
     makeReport(JSON.stringify({
@@ -3226,30 +3340,16 @@ site.get('/wiimote', async (req, res) => {
 
 site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) => {
     try {
-        const source = String(req.body.source || "").trim();
+        let source = String(req.body.source || "").trim();
+        if (!source) {
+            if (req.file) source = "rcd";
+            else if (typeof req.body.miiId === "string" && req.body.miiId.trim()) source = "miiId";
+            else if (typeof req.body.miiData === "string" && req.body.miiData.trim()) source = "raw";
+        }
+
         let miiInput;
 
-        if (source === "studio") {
-            let studioCode = String(req.body.studioCode || "").trim();
-            if (!studioCode) {
-                res.status(400).json({ error: "No Studio code provided" });
-                return;
-            }
-
-            if (studioCode.includes("studio.mii.nintendo.com")) {
-                const match = studioCode.match(/data=([0-9a-fA-F]+)/);
-                if (match) {
-                    studioCode = match[1];
-                }
-            }
-
-            if (!/^[0-9a-fA-F]+$/.test(studioCode)) {
-                res.status(400).json({ error: "Invalid Studio code format. Please enter a valid hex code from Mii Studio." });
-                return;
-            }
-
-            miiInput = await createMiiData(studioCode);
-        } else if (source === "miiId") {
+        if (source === "miiId") {
             const resolved = await resolveMiiIdForImport(req.body.miiId, req);
             if (resolved.error) {
                 res.status(400).json({ error: resolved.error });
@@ -3270,6 +3370,14 @@ site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) 
             }
 
             miiInput = req.file.path;
+        } else if (source === "raw") {
+            const rawMiiData = String(req.body.miiData || "").trim();
+            if (!rawMiiData) {
+                res.status(400).json({ error: "No Mii data provided" });
+                return;
+            }
+
+            miiInput = await createMiiData(rawMiiData);
         } else {
             res.status(400).json({ error: "Invalid import source" });
             return;
@@ -3358,86 +3466,40 @@ site.post('/insertMiiIntoAmiibo', upload.fields([
         const amiiboDump = fs.readFileSync(req.files.amiibo[0].path);
         
         let miiData;
-        const source = req.body.miiSource;
+        const miiFile = req.files.mii?.[0];
+        const miiId = typeof req.body.miiId === "string" ? req.body.miiId.trim() : "";
+        const rawMiiData = typeof req.body.miiData === "string" ? req.body.miiData.trim() : "";
 
-        // Get Mii data based on source
-        if (source === 'file') {
-            if (!req.files.mii || !req.files.mii[0]) {
-                res.json({ error: 'No Mii file uploaded' });
-                try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e) { }
-                return;
-            }
-
+        // Auto-detect Mii source by provided input so users do not need to specify a source type.
+        if (miiFile?.path) {
             try {
-                miiData = await createMiiData(req.files.mii[0].path);
+                miiData = await createMiiData(miiFile.path);
             } catch (e) {
                 res.json({ error: 'Failed to read Mii file: ' + e.message });
                 try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e2) { }
-                try { fs.unlinkSync(req.files.mii[0].path); } catch (e2) { }
+                try { fs.unlinkSync(miiFile.path); } catch (e2) { }
                 return;
             } finally {
-                try { fs.unlinkSync(req.files.mii[0].path); } catch (e) { }
+                try { fs.unlinkSync(miiFile.path); } catch (e) { }
             }
-        }
-        else if (source === 'miiId') {
-            const miiId = req.body.miiId;
-            
-            if (!miiId || !miiId.trim()) {
-                res.json({ error: 'No Mii ID provided' });
+        } else if (miiId) {
+            const resolved = await resolveMiiIdForImport(miiId, req);
+            if (resolved.error) {
+                res.json({ error: resolved.error });
                 try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e) { }
                 return;
             }
-            
-            let mii = null;
-            
-            // Check published Miis first
-            mii = await getMiiById(miiId, false);
-            
-            // Check private Miis
-            if (!mii) {
-                const privateMii = await Miis.findOne({ id: miiId, private: true });
-                if (privateMii) {
-                    const user = await getUserByUsername(req.cookies.username);
-                    const isModerator = user && canModerate(user);
-                    const isOwner = privateMii.uploader === req.cookies.username;
-                
-                    if (!isOwner && !isModerator) {
-                        res.json({ error: 'You do not have permission to use this private Mii' });
-                        try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e) { }
-                        return;
-                    }
-                    
-                    mii = privateMii;
-                }
-            }
-            
-            if (!mii) {
-                res.json({ error: 'Invalid Mii ID - Mii not found' });
-                try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e) { }
-                return;
-            }
-
-            miiData = mii;
-        }
-        else if (source === 'studio') {
-            let studioCode = req.body.studioCode.trim();
-            
-            // Extract code from URL if provided
-            if (studioCode.includes('studio.mii.nintendo.com')) {
-                const match = studioCode.match(/data=([0-9a-fA-F]+)/);
-                if (match) studioCode = match[1];
-            }
-
+            miiData = resolved.mii;
+        } else if (rawMiiData) {
             try {
-                miiData = await createMiiData(studioCode);
+                miiData = await createMiiData(rawMiiData);
             } catch (e) {
-                res.json({ error: 'Failed to convert Studio code: ' + e.message });
+                res.json({ error: 'Failed to parse pasted Mii data: ' + e.message });
                 try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e2) { }
                 return;
             }
-        }
-        else {
-            res.json({ error: 'Invalid Mii source' });
+        } else {
+            res.json({ error: 'No Mii source provided. Upload a file, enter a Mii ID, or paste raw Mii data.' });
             try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e) { }
             return;
         }
@@ -3635,138 +3697,6 @@ site.post('/api/renderMii', async (req, res) => {
     await renderMiiEndpoint(req, res);
 });
 
-// ========== STUDIO ENDPOINTS ==========
-
-// Upload Mii from Studio code
-site.post('/uploadStudioMii', requireAuth, async (req, res) => {
-    try {
-        let uploader = req.user.username;
-        
-        // Check private Mii limit
-        const privateMiisCount = await Miis.countDocuments({ uploader: req.user.username, private: true });
-        if (privateMiisCount >= Number(PRIVATE_MII_LIMIT)) {
-            res.json({error: `You have reached the limit of ${PRIVATE_MII_LIMIT} private Miis. Please publish or delete some before uploading more.`});
-            return;
-        }
-        
-        // Check if trying to upload official Mii without permission
-        if (req.body.official && !canUploadOfficial(req.user)) {
-            res.json({error: 'Only Researchers and Administrators can upload official Miis'});
-            return;
-        }
-        
-        let studioCode = req.body.studioCode.trim();
-        
-        // Extract code from URL if provided
-        if (studioCode.includes('studio.mii.nintendo.com')) {
-            const match = studioCode.match(/data=([0-9a-fA-F]+)/);
-            if (match) {
-                studioCode = match[1];
-            }
-        }
-        
-        // Validate hex format
-        if (!/^[0-9a-fA-F]+$/.test(studioCode)) {
-            res.json({error: "Invalid Studio code format. Please enter a valid hex code from Mii Studio."});
-            return;
-        }
-        
-        // Convert Studio to 3DS Mii
-        let mii;
-        try {
-            mii = await createMiiData(studioCode);
-        } catch (e) {
-            console.error('Error converting Studio code:', e);
-            res.json({error: `Failed to convert Studio code. Please verify your code is correct and try again. ${e.message || ''}`});
-            return;
-        }
-
-        const matchingMii = await findMatchingMii(mii);
-        if (matchingMii) {
-            res.json({ error: getDuplicateMiiErrorMessage(matchingMii.id) });
-            return;
-        }
-        
-        mii.id = await genId();
-        mii.uploadedOn = Date.now();
-        mii.uploader = uploader;
-        mii.desc = req.body.desc || "";
-        mii.votes = 1;
-        mii.official = req.body.official || false;
-        mii.published = false;
-        mii.blockedFromPublishing = false;
-        
-        // Add official Mii categorization
-        if (req.body.official) {
-            mii.officialCategories = [];
-            
-            // Parse categories (now stores paths instead of names)
-            if (req.body.categories) {
-                const categories = Array.isArray(req.body.categories) ? req.body.categories : [req.body.categories];
-                mii.officialCategories = [...new Set(categories.filter(c => c && c.trim()))];
-            }
-        }
-        
-        // Render images using LOCAL FFL, not Studio
-        const miiImageData = await miijs.renderMii(mii);
-        fs.writeFileSync("./static/privateMiiImgs/" + mii.id + ".png", miiImageData);
-        await writeQrPng(mii, "./static/privateMiiQRs/" + mii.id + ".png");
-        
-        // Store in database as private Mii
-        await Miis.create({
-            ...mii,
-            id: mii.id,
-            private: true
-        });
-        
-        // Send to Discord for moderator review
-        var d = new Date();
-        makeReport(JSON.stringify({
-            embeds: [{
-                "type": "rich",
-                "title": (req.body.official ? "Official " : "") + `Private Mii Uploaded from Studio`,
-                "description": mii.desc,
-                "color": 0x00aaff,
-                "fields": [
-                    {
-                        "name": `Mii Name`,
-                        "value": mii.meta?.name || "Unknown",
-                        "inline": true
-                    },
-                    {
-                        "name": `Uploaded by`,
-                        "value": `[${uploader}](https://infinimii.com/user/${encodeURIComponent(uploader)})`,
-                        "inline": true
-                    },
-                    {
-                        "name": `Mii Creator Name`,
-                        "value": mii.meta?.creatorName || "Unknown",
-                        "inline": true
-                    }
-                ],
-                "image": {
-                    "url": `attachment://${mii.id}.png`
-                },
-                "footer": {
-                    "text": `View: https://infinimii.com/mii/${mii.id} | Uploaded at ${d.getHours()}:${d.getMinutes()}, ${d.toDateString()} UTC`
-                }
-            }]
-        }), [
-            {
-                data: miiImageData,
-                filename: `${mii.id}.png`,
-                contentType: 'image/png'
-            }
-        ]);
-        
-        setTimeout(() => { res.json({ redirect: "/myPrivateMiis" });  }, 2000); // TODO: jank
-        
-    } catch (e) {
-        console.error('Error uploading Studio Mii:', e);
-        res.json({error: "Failed to upload Mii from Studio: " + e.message}); // TODO: remove e.message
-    }
-});
-
 // ========== DOWNLOAD / EXPORT ENDPOINTS ==========
 
 // Unified export endpoint (by Mii ID)
@@ -3791,12 +3721,12 @@ site.post('/exportMii', upload.single('mii'), async (req, res) => {
             return;
         }
 
-        const miiInstance = await miijs.Mii.create(miiInput);
-        const miiName = miiInstance?.fields?.meta?.name || "mii";
+        const miiData = await createMiiData(miiInput);
+        const miiName = miiData?.meta?.name || "mii";
 
         try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
 
-        await sendExportResponse(res, miiInstance.fields, normalized, miiName);
+        await sendExportResponse(res, miiData, normalized, miiName, getExportOptionsFromRequest(req));
     } catch (e) {
         console.error("Error exporting Mii:", e);
         try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
@@ -3807,29 +3737,6 @@ site.post('/exportMii', upload.single('mii'), async (req, res) => {
 // Backwards-compatible endpoint
 site.get('/downloadMii', async (req, res) => {
     await exportMiiById(req, res);
-});
-
-// Get Studio code for a Mii (for copying)
-site.get('/getStudioCode', async (req, res) => {
-    try {
-        const miiId = req.query.id;
-        
-        const mii = await getMiiById(miiId, false);
-        if (!mii) {
-            res.json({ error: 'Invalid Mii ID' });
-            return;
-        }
-        const studioCode = (await miijs.Mii.create(mii)).toString(miijs.MiiFormats.MNMS);
-        
-        res.json({ 
-            code: studioCode,
-            url: `https://studio.mii.nintendo.com/miis/image.png?data=${studioCode}`
-        });
-        
-    } catch (e) {
-        console.error('Error getting Studio code:', e);
-        res.json({ error: 'Failed to get Studio code: ' + e.message }); // TODO: remove sending error from here
-    }
 });
 
 // Change User PFP (Moderator+)
@@ -4379,7 +4286,15 @@ site.post('/reportMii', async (req,res)=>{
 });
 site.get('/miiWii',async (req,res)=>{
     const fetchedMii = await getMiiById(req.query.id, false);
-    const miiInstance = await miijs.Mii.create(fetchedMii);
+    let miiInstance = await miijs.Mii.create(fetchedMii);
+    if (parseBooleanLike(req.query.special)) {
+        const specialFields = structuredClone(miiInstance.fields || {});
+        if (!specialFields.meta || typeof specialFields.meta !== "object") {
+            specialFields.meta = {};
+        }
+        specialFields.meta.type = "Special";
+        miiInstance = await miijs.Mii.create(specialFields);
+    }
     console.log(miiInstance.fields.meta.name);
     const miiBuffer = miiInstance.encode(miijs.MiiFormats.RSD);
     console.log(miiBuffer);
@@ -4868,31 +4783,42 @@ site.post('/deleteAccount', requireAuth, async (req, res) => {
     }
 });
 
-site.get('/getInstructions', async (req, res) => {
+async function handleGetInstructionsRequest(req, res, { allowFile = false } = {}) {
     try {
-        const miiId = req.query.id;
-        const format = req.query.format || '3ds'; // '3ds' or 'wii'
-        
-        let mii = await getMiiById(miiId, false);
-        if (!mii) {
-            res.json({ error: 'Invalid Mii ID' });
+        const source = req.method === "GET" ? req.query : req.body;
+        const instructionConsole = normalizeInstructionConsole(source?.console || source?.format);
+
+        const miiInput = await resolveMiiInputForInstructions(req, { allowFile });
+        if (!miiInput) {
+            res.json({ error: "No Mii data provided" });
             return;
         }
-        
-        const device = format === 'wii' ? miijs.ConsoleFormats.WII : miijs.ConsoleFormats["3DS"];
-        // Generate instructions (full currently mirrors minimal in MiiJS)
-        const instructions = miijs.makeInstructions(mii, device);
-        
-        res.json({ 
-            instructions: instructions,
-            miiName: mii.meta.name,
-            format: format
+
+        const mii = await createMiiData(miiInput);
+        const consoleType = miijs.ConsoleFormats?.[instructionConsole] || instructionConsole;
+        const instructions = miijs.makeInstructions(mii, consoleType);
+
+        res.json({
+            instructions,
+            miiName: mii?.meta?.name || "Unknown",
+            console: instructionConsole
         });
-        
     } catch (e) {
         console.error('Error generating instructions:', e);
         res.json({ error: 'Failed to generate instructions: ' + e.message });
+    } finally {
+        if (allowFile && req.file?.path) {
+            try { fs.unlinkSync(req.file.path); } catch (cleanupError) { }
+        }
     }
+}
+
+site.get('/getInstructions', async (req, res) => {
+    await handleGetInstructionsRequest(req, res);
+});
+
+site.post('/getInstructions', upload.single('mii'), async (req, res) => {
+    await handleGetInstructionsRequest(req, res, { allowFile: true });
 });
 
 site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
@@ -4905,7 +4831,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             const privateMiisCount = await Miis.countDocuments({ uploader: req.user.username, private: true });
             if (privateMiisCount >= Number(PRIVATE_MII_LIMIT)) {
                 res.json({error: `You have reached the limit of ${PRIVATE_MII_LIMIT} private Miis. Please publish or delete some before uploading more.`});
-                try { fs.unlinkSync("./uploads/" + req.file.filename); } catch (e) { }
+                try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
                 return;
             }
         }
@@ -4913,7 +4839,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         // Check if trying to upload official Mii without permission
         if (req.body.official && !canUploadOfficial(req.user)) {
             res.json({'error': 'Only Researchers and Administrators can upload official Miis'});
-            try { fs.unlinkSync("./uploads/" + req.file.filename); } catch (e) { }
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
             return;
         }
         
@@ -4921,9 +4847,11 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
 
         let mii;
         try {
-            if (req.body.type === "3dsbin_amiibo") {
+            const fromAmiiboId = typeof req.body.fromAmiibo === "string" ? req.body.fromAmiibo.trim() : "";
+
+            if (fromAmiiboId && !req.file && !req.body.miiData) {
                 // Uploading from Amiibo extraction
-                const tempMiiId = req.body.fromAmiibo;
+                const tempMiiId = fromAmiiboId;
                 const tempBinPath = `./static/temp/${tempMiiId}.bin`;
 
                 if (!fs.existsSync(tempBinPath)) {
@@ -5629,8 +5557,9 @@ site.post('/blockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR), 
 });
 site.post('/convertMii', upload.single('mii'), async (req, res) => {
     try {
-        if (!req.file) {
-            res.json({ error: "No file uploaded" });
+        const miiInput = req.file?.path || req.body.miiData;
+        if (!miiInput) {
+            res.json({ error: "No Mii data provided" });
             return;
         }
 
@@ -5642,17 +5571,17 @@ site.post('/convertMii', upload.single('mii'), async (req, res) => {
 
         const normalized = normalizeExportFormat(desiredFormat);
         if (!normalized) {
-            try { fs.unlinkSync(req.file.path); } catch (e) { }
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
             res.json({ error: "Invalid format specified" });
             return;
         }
 
-        const miiInstance = await miijs.Mii.create(req.file.path);
-        const miiName = miiInstance?.fields?.meta?.name || "mii";
+        const miiData = await createMiiData(miiInput);
+        const miiName = miiData?.meta?.name || "mii";
 
-        try { fs.unlinkSync(req.file.path); } catch (e) { }
+        try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
 
-        await sendExportResponse(res, miiInstance.fields, normalized, miiName);
+        await sendExportResponse(res, miiData, normalized, miiName, getExportOptionsFromRequest(req));
     } catch (e) {
         console.error("Error converting Mii:", e);
         try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
