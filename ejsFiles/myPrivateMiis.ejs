@@ -58,11 +58,11 @@
                                 <div class="mii-actions">
                                     <% if(!privateMiis[i].blockedFromPublishing) { %>
                                         <button class="publish-btn" onclick="publishMii('<%= privateMiis[i].id %>')" aria-label="Publish <%= privateMiis[i].meta?.name || privateMiis[i].name %>">
-                                            <%- include('icon', { name: 'upload', size: 14 }) %> Publish
+                                            <%- include('icon', { name: 'upload', size: 12 }) %> Publish
                                         </button>
                                     <% } %>
                                     <button class="delete-btn" onclick="deleteMii('<%= privateMiis[i].id %>')" aria-label="Delete <%= privateMiis[i].meta?.name || privateMiis[i].name %>">
-                                        <%- include('icon', { name: 'trash', size: 14 }) %> Delete
+                                        <%- include('icon', { name: 'trash', size: 12 }) %> Delete
                                     </button>
                                 </div>
                             </article>

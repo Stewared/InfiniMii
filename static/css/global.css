@@ -320,6 +320,18 @@ footer ul li a:hover {
     gap: 30px;
 }
 
+#browse-miis.browse-miis-balanced {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    justify-items: stretch;
+}
+
+#browse-miis.browse-miis-balanced .mii-card {
+    width: 100%;
+    min-width: 0;
+}
+
 .mii-card {
     display: flex;
     flex-flow: column;
@@ -482,7 +494,17 @@ footer ul li a:hover {
     font-size: 0.95rem;
 }
 
+@media (max-width: 1300px) {
+    #browse-miis.browse-miis-balanced {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 600px) {
+    #browse-miis.browse-miis-balanced {
+        grid-template-columns: 1fr;
+    }
+
     .search-results-search form {
         flex-direction: column;
         align-items: stretch;

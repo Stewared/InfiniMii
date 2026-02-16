@@ -49,7 +49,7 @@
 
                 <!-- Miis Grid -->
                 <% if(displayedMiis.length > 0) { %>
-                    <div id="browse-miis">
+                    <div id="browse-miis" class="browse-miis-balanced">
                         <% for(var i=0; i<displayedMiis.length; i++){ %>
                             <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                 <a href="<%= '/mii/'+displayedMiis[i].id %>">

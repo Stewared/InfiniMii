@@ -1868,20 +1868,32 @@ site.use(compression({
 // Redirect Nintendo 3DS / Wii U browser traffic to a legacy-compatible upload page.
 site.use((req, res, next) => {
     if (req.method !== "GET") return next();
-    if (!req.accepts("html")) return next();
     if (!isLegacyNintendoBrowserRequest(req)) return next();
 
     const pathLower = String(req.path || "").toLowerCase();
-    if (!pathLower || pathLower === "/legacy-upload") return next();
+    if (!pathLower) return next();
 
-    // Allow static files and API/resource requests through.
-    if (pathLower.includes(".")) return next();
+    // Never redirect upload/static/image routes or resource requests.
+    if (pathLower === "/legacy-upload" || pathLower.startsWith("/legacy-upload/")) return next();
+    if (pathLower.startsWith("/uploadmii")) return next();
     if (pathLower.startsWith("/api/")) return next();
-    if (pathLower.startsWith("/miiimgs/")) return next();
-    if (pathLower.startsWith("/miiqrs/")) return next();
-    if (pathLower.startsWith("/privatemiiimgs/")) return next();
-    if (pathLower.startsWith("/privatemiiqrs/")) return next();
-    if (pathLower.startsWith("/legacy-upload")) return next();
+    if (pathLower.startsWith("/render")) return next();
+    if (pathLower.startsWith("/miiimgs")) return next();
+    if (pathLower.startsWith("/miiqrs")) return next();
+    if (pathLower.startsWith("/privatemiiimgs")) return next();
+    if (pathLower.startsWith("/privatemiiqrs")) return next();
+    if (pathLower.includes(".")) return next();
+
+    // Only redirect full document navigations, not images/assets/upload requests.
+    const acceptHeader = String(req.get("accept") || "").toLowerCase();
+    if (acceptHeader.includes("image/")) return next();
+    const wantsHtmlDocument =
+        acceptHeader.includes("text/html") ||
+        acceptHeader.includes("application/xhtml+xml");
+    if (!wantsHtmlDocument) return next();
+
+    const fetchDest = String(req.get("sec-fetch-dest") || "").toLowerCase();
+    if (fetchDest && fetchDest !== "document") return next();
 
     return res.redirect("/legacy-upload");
 });
@@ -2193,7 +2205,7 @@ site.get('/', highGeneralRatelimit, async (req, res) => {
 site.get('/random', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const page = parseInt(req.query.page) || 1;
-    const perPage = 30;
+    const perPage = 32;
     
     // Get or generate seed: use query param if provided, otherwise generate random seed
     // On page 1 without seed, generate new random seed. On subsequent pages, seed must be passed.
@@ -2398,16 +2410,109 @@ site.get('/transferInstructions', async (req, res) => {
     });
 });
 
+const LEGACY_PREVIEW_FALLBACK_PNG = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Z6wAAAABJRU5ErkJggg==",
+    "base64"
+);
+
+function detectImageMime(buf) {
+    if (!buf || buf.length < 4) return null;
+
+    // PNG
+    if (
+        buf.length >= 8 &&
+        buf[0] === 0x89 &&
+        buf[1] === 0x50 &&
+        buf[2] === 0x4e &&
+        buf[3] === 0x47 &&
+        buf[4] === 0x0d &&
+        buf[5] === 0x0a &&
+        buf[6] === 0x1a &&
+        buf[7] === 0x0a
+    ) {
+        return "image/png";
+    }
+
+    // BMP
+    if (buf[0] === 0x42 && buf[1] === 0x4d) {
+        return "image/bmp";
+    }
+
+    // JPEG
+    if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
+        return "image/jpeg";
+    }
+
+    return null;
+}
+
+function sendLegacyImageBuffer(res, data, mime) {
+    res.setHeader("Content-Type", mime || "application/octet-stream");
+    return res.send(data);
+}
+
+async function readLegacyImageFromFile(filePath) {
+    if (!filePath || !fs.existsSync(filePath)) return null;
+    try {
+        const data = await fs.promises.readFile(filePath);
+        const mime = detectImageMime(data);
+        if (!mime) return null;
+        return { data, mime };
+    } catch (e) {
+        return null;
+    }
+}
+
+async function renderLegacyPreviewImage(miiData) {
+    if (!miiData) return null;
+    try {
+        // Keep legacy previews very small for 3DS/Wii U browsers.
+        const rendered = await miijs.renderMii(miiData, { size: 128 });
+        const mime = detectImageMime(rendered);
+        if (!mime) return null;
+        return { data: rendered, mime };
+    } catch (e) {
+        return null;
+    }
+}
+
+function applyLegacyResponseCompatibilityHeaders(res) {
+    // Some legacy browsers behave better with permissive/simple response headers.
+    res.removeHeader("Content-Security-Policy");
+    res.removeHeader("X-Content-Security-Policy");
+    res.removeHeader("X-WebKit-CSP");
+    res.removeHeader("X-Frame-Options");
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+}
+
 async function renderLegacyUploadPage(req, res, options = {}) {
-    const toSend = await getSendables(req);
-    toSend.legacyUploadError = options.error || "";
-    toSend.legacyUploadSuccess = options.success || "";
-    toSend.legacyUploadedMii = options.uploadedMii || null;
-    toSend.legacyFormValues = options.formValues || {
-        username: "",
-        desc: "",
-        visibility: "private"
+    const settings = await getSettings();
+    const highlightedMii = settings?.highlightedMii || null;
+
+    const [highlightedMiiData, averageMiiData] = await Promise.all([
+        highlightedMii ? getMiiById(highlightedMii, false) : Promise.resolve(null),
+        getMiiById("average", false)
+    ]);
+
+    const toSend = {
+        title: "Legacy Upload - InfiniMii",
+        highlightedMiiData,
+        averageMiiData,
+        legacyCacheBuster: Date.now().toString(36),
+        legacyUploadError: options.error || "",
+        legacyUploadSuccess: options.success || "",
+        legacyUploadedMii: options.uploadedMii || null,
+        legacyFormValues: options.formValues || {
+            username: "",
+            desc: "",
+            visibility: "private"
+        }
     };
+
+    applyLegacyResponseCompatibilityHeaders(res);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
 
     ejs.renderFile('./ejsFiles/uploadLegacy.ejs', toSend, {}, function(err, str) {
         if (err) {
@@ -2418,6 +2523,66 @@ async function renderLegacyUploadPage(req, res, options = {}) {
         res.send(str);
     });
 }
+
+async function sendLegacyPreviewFallback(res) {
+    applyLegacyResponseCompatibilityHeaders(res);
+    return sendLegacyImageBuffer(res, LEGACY_PREVIEW_FALLBACK_PNG, "image/png");
+}
+
+async function sendLegacyHighlightedPreview(req, res) {
+    applyLegacyResponseCompatibilityHeaders(res);
+    const settings = await getSettings();
+    const highlightedId = settings?.highlightedMii;
+    const highlightedMii = highlightedId ? await getMiiById(highlightedId, true) : null;
+
+    const rendered = await renderLegacyPreviewImage(highlightedMii);
+    if (rendered) {
+        return sendLegacyImageBuffer(res, rendered.data, rendered.mime);
+    }
+
+    if (highlightedId) {
+        const publicPath = path.join(__dirname, "static", "miiImgs", `${highlightedId}.png`);
+        const publicImage = await readLegacyImageFromFile(publicPath);
+        if (publicImage) {
+            return sendLegacyImageBuffer(res, publicImage.data, publicImage.mime);
+        }
+
+        const privatePath = path.join(__dirname, "static", "privateMiiImgs", `${highlightedId}.png`);
+        const privateImage = await readLegacyImageFromFile(privatePath);
+        if (privateImage) {
+            return sendLegacyImageBuffer(res, privateImage.data, privateImage.mime);
+        }
+    }
+
+    return sendLegacyPreviewFallback(res);
+}
+
+async function sendLegacyAveragePreview(req, res) {
+    applyLegacyResponseCompatibilityHeaders(res);
+    const averageMii = await getMiiById("average", true);
+
+    const rendered = await renderLegacyPreviewImage(averageMii);
+    if (rendered) {
+        return sendLegacyImageBuffer(res, rendered.data, rendered.mime);
+    }
+
+    const averagePath = path.join(__dirname, "static", "miiImgs", "average.png");
+    const averageImage = await readLegacyImageFromFile(averagePath);
+    if (averageImage) {
+        return sendLegacyImageBuffer(res, averageImage.data, averageImage.mime);
+    }
+
+    return sendLegacyPreviewFallback(res);
+}
+
+site.get('/legacy-upload/highlighted.png', sendLegacyHighlightedPreview);
+site.get('/legacy-upload/average.png', sendLegacyAveragePreview);
+site.get('/legacy-upload/highlighted.bmp', sendLegacyHighlightedPreview);
+site.get('/legacy-upload/average.bmp', sendLegacyAveragePreview);
+site.get('/highlighted.png', sendLegacyHighlightedPreview);
+site.get('/average.png', sendLegacyAveragePreview);
+site.get('/highlighted.bmp', sendLegacyHighlightedPreview);
+site.get('/average.bmp', sendLegacyAveragePreview);
 
 site.get('/legacy-upload', async (req, res) => {
     if (!isLegacyNintendoBrowserRequest(req)) {
@@ -2439,11 +2604,6 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
     };
 
     try {
-        if (!isLegacyNintendoBrowserRequest(req)) {
-            cleanupUpload();
-            return res.redirect('/upload');
-        }
-
         const password = String(req.body.password || "");
         if (!formValues.username || !password) {
             cleanupUpload();

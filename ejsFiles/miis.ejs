@@ -39,7 +39,7 @@
                     </section>
                 <% } %>
 
-                <div id="browse-miis">
+                <div id="browse-miis" class="browse-miis-balanced">
                     <% for(var i=0;i<displayedMiis.length;i++){ %>
                         <div class="mii-card" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;" id="<%= displayedMiis[i].id %>">
                             <a href=<%='/mii/' +displayedMiis[i].id %>><img src="miiImgs/<%= displayedMiis[i].id %>.png"></a>
