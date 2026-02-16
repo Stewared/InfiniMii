@@ -1,0 +1,167 @@
+<%
+    const safeAvailableTags = Array.isArray(availableTags) ? availableTags : [];
+    const safeSelectedTags = Array.isArray(selectedTags) ? selectedTags : [];
+    const selectedTagSet = new Set(safeSelectedTags);
+    const panelPrefix = (typeof tagUiIdPrefix === 'string' && tagUiIdPrefix.trim())
+        ? tagUiIdPrefix.trim()
+        : 'search-tags';
+    const showTagFilters = (typeof renderTagFilters === 'boolean') ? renderTagFilters : true;
+    const showTagManagement = (typeof renderTagManagement === 'boolean') ? renderTagManagement : true;
+%>
+<% if (showTagFilters) { %>
+    <section class="search-tags-panel" aria-label="Filter by tags">
+        <h3 class="search-tags-title">Filter by Tags</h3>
+        <% if (safeAvailableTags.length > 0) { %>
+            <div class="tag-filter-options">
+                <% safeAvailableTags.forEach(tag => { %>
+                    <label class="tag-filter-option">
+                        <input
+                            type="checkbox"
+                            name="tags"
+                            value="<%= tag %>"
+                            <%= selectedTagSet.has(tag) ? 'checked' : '' %>
+                        >
+                        <span><%= tag %></span>
+                    </label>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p class="tag-filter-empty">No tags are available yet.</p>
+        <% } %>
+    </section>
+<% } %>
+
+<% if (showTagManagement && isModerator) { %>
+    <section class="tag-management-panel" id="<%= panelPrefix %>-tag-management" aria-label="Manage tags">
+        <h3 class="tag-management-title">Tag Management</h3>
+        <p class="tag-management-help">Create or remove global tags. Removing a tag also removes it from all Miis.</p>
+
+        <div class="tag-management-actions">
+            <label class="sr-only" for="<%= panelPrefix %>-new-tag">New tag name</label>
+            <input
+                type="text"
+                id="<%= panelPrefix %>-new-tag"
+                data-tag-new-input
+                placeholder="New tag name"
+                maxlength="40"
+            >
+            <button type="button" data-tag-add>Add Tag</button>
+        </div>
+
+        <% if (safeAvailableTags.length > 0) { %>
+            <div class="tag-admin-list">
+                <% safeAvailableTags.forEach(tag => { %>
+                    <div class="tag-admin-item">
+                        <span class="tag-admin-name"><%= tag %></span>
+                        <button type="button" class="tag-admin-delete" data-tag-delete="<%= tag %>">Delete</button>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <p class="tag-filter-empty">No tags created yet.</p>
+        <% } %>
+    </section>
+
+    <script>
+        (() => {
+            const root = document.getElementById('<%= panelPrefix %>-tag-management');
+            if (!root) return;
+
+            const input = root.querySelector('[data-tag-new-input]');
+            const addButton = root.querySelector('[data-tag-add]');
+
+            const showMessage = (message, type = 'info') => {
+                if (typeof showAlert === 'function') {
+                    const title = type === 'error' ? 'Error' : (type === 'success' ? 'Success' : 'Notice');
+                    showAlert(message, 3500, { title, type });
+                    return;
+                }
+                alert(message);
+            };
+
+            const addTag = async () => {
+                const tag = (input?.value || '').trim();
+                if (!tag) {
+                    showMessage('Please enter a tag name.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/addMiiTag', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tag })
+                    });
+                    const result = await response.json();
+
+                    if (result.error) {
+                        showMessage(result.error, 'error');
+                        return;
+                    }
+
+                    showMessage('Tag created.', 'success');
+                    setTimeout(() => location.reload(), 650);
+                } catch (error) {
+                    console.error('Error adding tag:', error);
+                    showMessage('Failed to create tag.', 'error');
+                }
+            };
+
+            const deleteTag = async (tag) => {
+                if (!tag) return;
+
+                const runDelete = async () => {
+                    try {
+                        const response = await fetch('/deleteMiiTag', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tag })
+                        });
+                        const result = await response.json();
+
+                        if (result.error) {
+                            showMessage(result.error, 'error');
+                            return;
+                        }
+
+                        showMessage('Tag deleted.', 'success');
+                        setTimeout(() => location.reload(), 650);
+                    } catch (error) {
+                        console.error('Error deleting tag:', error);
+                        showMessage('Failed to delete tag.', 'error');
+                    }
+                };
+
+                if (typeof showConfirm === 'function') {
+                    showConfirm(
+                        `Delete tag "${tag}" from the catalog and every Mii that uses it?`,
+                        runDelete,
+                        null,
+                        { title: 'Delete Tag', confirmText: 'Delete' }
+                    );
+                    return;
+                }
+
+                if (window.confirm(`Delete tag "${tag}" from the catalog and every Mii that uses it?`)) {
+                    await runDelete();
+                }
+            };
+
+            addButton?.addEventListener('click', addTag);
+            input?.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    addTag();
+                }
+            });
+
+            root.addEventListener('click', async (event) => {
+                const deleteButton = event.target.closest('[data-tag-delete]');
+                if (!deleteButton) return;
+
+                const tag = deleteButton.getAttribute('data-tag-delete') || '';
+                await deleteTag(tag);
+            });
+        })();
+    </script>
+<% } %>

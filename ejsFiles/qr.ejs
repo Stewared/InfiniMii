@@ -210,11 +210,11 @@
             document.getElementById('qrInstructionsBtn')?.addEventListener('click', openQrInstructions);
             document.getElementById('qrCopyHexBtn')?.addEventListener('click', async () => {
                 const convertForm = document.querySelector('.convert');
-                await copyExportTextFromForm(convertForm, 'hex');
+                await copyExportHexFromForm(convertForm);
             });
             document.getElementById('qrCopyBase64Btn')?.addEventListener('click', async () => {
                 const convertForm = document.querySelector('.convert');
-                await copyExportTextFromForm(convertForm, 'base64');
+                await copyExportBase64FromForm(convertForm);
             });
 
             function tick() {

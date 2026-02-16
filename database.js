@@ -36,6 +36,7 @@ const miiSchema = new mongoose.Schema({
     glasses: mongoose.Schema.Types.Mixed,
     mole: mongoose.Schema.Types.Mixed,
     officialCategories: { type: [String], default: [] },
+    tags: { type: [String], default: [], index: true },
     published: { type: Boolean, default: false, index: true },
     private: { type: Boolean, default: true, index: true }, //TODO_DB: verify published vs private
     blockedFromPublishing: { type: Boolean, default: false },
@@ -70,7 +71,8 @@ const settingsSchema = new mongoose.Schema({
     highlightedMii: { type: String, default: "00000" },
     highlightedMiiChangeDay: { type: Number, default: ()=>Date.now() },
     bannedIPs: { type: [String], default: [] },
-    officialCategories: { type: mongoose.Schema.Types.Mixed, default: { categories: [] } }
+    officialCategories: { type: mongoose.Schema.Types.Mixed, default: { categories: [] } },
+    miiTags: { type: [String], default: [] }
 }, { _id: false, minimize: false });
 
 // Reserved usernames schema to prevent impersonating a user right after they change their username

@@ -1,7 +1,9 @@
 .upload-tabs {
     display: flex;
+    flex-wrap: nowrap;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    overflow-x: auto;
 }
 
 .tab-button {
@@ -14,6 +16,7 @@
     font-family: Poppins, sans-serif;
     font-size: 16px;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .tab-button.active {
@@ -30,6 +33,10 @@
     display: block;
 }
 
+.upload-form-panel.hidden {
+    display: none;
+}
+
 .format-hint {
     background-color: var(--layer-1-um);
     padding: 1rem;
@@ -37,4 +44,198 @@
     margin: 1rem 0;
     color: var(--text-2);
     font-size: 14px;
+}
+
+.code-length-hint {
+    display: block;
+    margin-top: 0.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-2);
+    font-size: 0.9rem;
+}
+
+.studio-name-field {
+    margin-top: 0.25rem;
+}
+
+.official-fields-card {
+    margin-top: 0.95rem;
+    padding: 0.95rem;
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 55%, #7a7a7a 45%);
+    background: linear-gradient(
+        155deg,
+        color-mix(in oklab, var(--layer-2-um) 82%, var(--layer-3-um) 18%),
+        color-mix(in oklab, var(--layer-1-um) 80%, var(--layer-2-um) 20%)
+    );
+}
+
+.official-fields-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    margin-bottom: 0.7rem;
+}
+
+.official-fields-title {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 1.02rem;
+    font-weight: 600;
+}
+
+.official-fields-help,
+.official-fields-note {
+    margin: 0.65rem 0;
+    color: var(--text-2);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.official-fields-note {
+    margin-top: 0.85rem;
+}
+
+.manage-cats-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 9px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #7b7b7b 40%);
+    background: color-mix(in oklab, var(--layer-3-um) 72%, var(--layer-2-um) 28%);
+    color: var(--text-1);
+    padding: 0.38rem 0.68rem;
+    text-decoration: none;
+    font-size: 0.84rem;
+    font-weight: 600;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.manage-cats-link:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 60%, #8a8a8a 40%);
+    background: color-mix(in oklab, var(--brand-color) 30%, var(--layer-3-um) 70%);
+}
+
+.upload-category-state {
+    margin: 0;
+    padding: 0.6rem 0.2rem;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--text-2);
+}
+
+.upload-category-state-error {
+    color: #ff96a6;
+}
+
+.upload-category-state-empty a {
+    color: var(--brand-color);
+    font-weight: 600;
+}
+
+.upload-category-state-empty a:hover {
+    text-decoration: underline;
+}
+
+.category-tree-upload {
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #777 42%);
+    background: color-mix(in oklab, var(--layer-1-um) 84%, var(--layer-2-um) 16%);
+    padding: 0.7rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.category-tree-upload .tree-node-upload {
+    margin-left: var(--tree-indent, 0px);
+    margin-bottom: 0.32rem;
+}
+
+.category-tree-upload .node-line {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 56%, #777 44%);
+    border-left: 3px solid var(--node-color, #999999);
+    background: color-mix(in oklab, var(--layer-2-um) 78%, var(--layer-1-um) 22%);
+    padding: 0.45rem 0.55rem;
+}
+
+.category-tree-upload .node-line:hover {
+    border-color: color-mix(in oklab, var(--brand-color) 52%, #878787 48%);
+}
+
+.category-tree-upload .toggle-upload,
+.category-tree-upload .leaf-marker {
+    width: 18px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.category-tree-upload .toggle-upload {
+    user-select: none;
+    cursor: pointer;
+    color: var(--text-2);
+    font-size: 0.78rem;
+}
+
+.category-tree-upload .toggle-upload:hover {
+    color: var(--text-1);
+}
+
+.category-tree-upload .leaf-marker {
+    color: color-mix(in oklab, var(--text-2) 72%, #888 28%);
+    font-size: 0.63rem;
+}
+
+.category-tree-upload .category-label-upload {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    flex: 1;
+    color: var(--text-1);
+}
+
+.category-tree-upload .category-label-upload:hover {
+    opacity: 0.9;
+}
+
+.category-tree-upload .category-label-upload input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.category-tree-upload .category-label-upload-name,
+.category-tree-upload .parent-name {
+    color: var(--node-color, var(--text-1));
+}
+
+.category-tree-upload .category-label-upload-name {
+    font-weight: 500;
+}
+
+.category-tree-upload .parent-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.category-tree-upload .children-upload {
+    margin-top: 0.28rem;
+}
+
+@media (max-width: 700px) {
+    .official-fields-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .category-tree-upload .tree-node-upload {
+        margin-left: 0;
+    }
 }

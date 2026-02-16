@@ -866,3 +866,350 @@
         width: 100%;
     }
 }
+
+/* Tag styling */
+.mii-tags-section {
+    margin-top: 1rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #797979 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 84%, var(--layer-1-um) 16%);
+}
+
+.mii-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.35rem;
+}
+
+.mii-tag-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 42%, #838383 58%);
+    background: color-mix(in oklab, var(--brand-color) 20%, var(--layer-2-um) 80%);
+    color: color-mix(in oklab, #ffffff 86%, var(--brand-color) 14%);
+    text-decoration: none;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.mii-tag-badge:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 66%, #8a8a8a 34%);
+    background: color-mix(in oklab, var(--brand-color) 30%, var(--layer-2-um) 70%);
+}
+
+.no-tags {
+    display: inline-block;
+    margin-top: 0.35rem;
+    color: var(--text-2);
+    font-style: italic;
+    font-size: 0.88rem;
+}
+
+.mod-tag-selector {
+    grid-column: span 2;
+}
+
+.mod-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding: 0.55rem;
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #757575 40%);
+    background: color-mix(in oklab, var(--layer-1-um) 84%, var(--layer-2-um) 16%);
+    min-height: 52px;
+}
+
+.mod-tag-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #818181 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 74%, var(--layer-3-um) 26%);
+    color: var(--text-1);
+    padding: 0.2rem 0.55rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.mod-tag-option input[type="checkbox"] {
+    margin: 0;
+}
+
+.mod-tag-hint {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+.mod-tag-empty {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.85rem;
+}
+
+.mod-tag-empty a {
+    color: var(--brand-color);
+    text-decoration: none;
+}
+
+.mod-tag-empty a:hover {
+    text-decoration: underline;
+}
+
+/* Category styling (official categories + editor modal) */
+.official-categories-section {
+    grid-column: 1 / -1;
+    margin-top: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #797979 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 86%, var(--layer-1-um) 14%);
+}
+
+.categories-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.42rem;
+    margin: 0.55rem 0;
+}
+
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 45%, #828282 55%);
+    background: color-mix(in oklab, var(--brand-color) 20%, var(--layer-2-um) 80%);
+    color: color-mix(in oklab, #ffffff 88%, var(--brand-color) 12%);
+    padding: 0.24rem 0.58rem;
+    font-size: 0.8rem;
+    line-height: 1.25;
+}
+
+.no-categories {
+    color: var(--text-2);
+    font-style: italic;
+}
+
+.edit-categories-btn,
+.manage-cats-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.45rem;
+    margin-right: 0.45rem;
+    border-radius: 9px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #7d7d7d 40%);
+    background: color-mix(in oklab, var(--layer-3-um) 78%, var(--layer-2-um) 22%);
+    color: var(--text-1);
+    padding: 0.4rem 0.75rem;
+    font-weight: 600;
+    font-size: 0.83rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.edit-categories-btn:hover,
+.manage-cats-btn:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 60%, #8b8b8b 40%);
+    background: color-mix(in oklab, var(--brand-color) 30%, var(--layer-3-um) 70%);
+}
+
+.category-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    padding: 1rem;
+}
+
+.category-modal-panel {
+    width: min(900px, 96vw);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.2rem;
+    border-radius: 16px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #767676 40%);
+    background: linear-gradient(
+        165deg,
+        color-mix(in oklab, var(--layer-2-um) 82%, var(--layer-3-um) 18%),
+        color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%)
+    );
+    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.4);
+}
+
+.category-modal-title {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.category-modal-help {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.92rem;
+}
+
+.category-modal-tree-wrap {
+    flex: 1;
+    min-height: 200px;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 56%, #7d7d7d 44%);
+    background: color-mix(in oklab, var(--layer-1-um) 84%, var(--layer-2-um) 16%);
+    padding: 0.75rem;
+    overflow-y: auto;
+}
+
+.category-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+
+.category-modal-btn {
+    border-radius: 9px;
+    padding: 0.46rem 0.82rem;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.category-modal-btn-cancel {
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 62%, #7b7b7b 38%);
+    background: color-mix(in oklab, var(--layer-3-um) 65%, var(--layer-2-um) 35%);
+    color: var(--text-1);
+}
+
+.category-modal-btn-save {
+    border: 1px solid color-mix(in oklab, var(--brand-color) 70%, #8e8e8e 30%);
+    background: color-mix(in oklab, var(--brand-color) 70%, var(--layer-2-um) 30%);
+    color: #fff;
+}
+
+.category-modal-btn:hover {
+    transform: translateY(-1px);
+}
+
+.modal-category-node {
+    margin-left: var(--tree-indent, 0px);
+    margin-bottom: 0.35rem;
+}
+
+.modal-category-line {
+    display: flex;
+    align-items: center;
+    gap: 0.46rem;
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #777 42%);
+    border-left: 3px solid var(--node-color, #999999);
+    background: color-mix(in oklab, var(--layer-2-um) 78%, var(--layer-1-um) 22%);
+    padding: 0.45rem 0.55rem;
+}
+
+.modal-category-toggle,
+.modal-category-leaf-marker {
+    width: 18px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.modal-category-toggle {
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-2);
+    font-size: 0.78rem;
+}
+
+.modal-category-toggle:hover {
+    color: var(--text-1);
+}
+
+.modal-category-leaf-marker {
+    color: color-mix(in oklab, var(--text-2) 70%, #848484 30%);
+    font-size: 0.63rem;
+}
+
+.modal-category-label {
+    display: flex;
+    align-items: center;
+    gap: 0.48rem;
+    flex: 1;
+    cursor: pointer;
+}
+
+.modal-category-label .category-selector {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.modal-category-label-name,
+.modal-category-parent-name {
+    color: var(--node-color, var(--text-1));
+}
+
+.modal-category-label-name {
+    font-weight: 500;
+}
+
+.modal-category-parent-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.modal-category-path {
+    margin-left: auto;
+    color: var(--text-2);
+    font-size: 0.76rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.modal-category-children {
+    margin-top: 0.3rem;
+}
+
+@media (max-width: 760px) {
+    .mod-tag-selector {
+        grid-column: span 1;
+    }
+
+    .category-modal-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .category-modal-btn {
+        width: 100%;
+    }
+
+    .modal-category-path {
+        display: none;
+    }
+
+    .modal-category-node {
+        margin-left: 0;
+    }
+}

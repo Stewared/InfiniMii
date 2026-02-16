@@ -1,118 +1,149 @@
 .category-management {
-    max-width: 1400px;
+    width: min(100%, 1050px);
     margin: 0 auto;
-    padding: 20px;
+    padding: clamp(1.25rem, 2vw, 2rem);
+    background: var(--layer-2-um);
+    border: 2px solid #202020;
+    border-radius: 25px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
 }
 
-.header {
+.category-management .header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 1.75rem;
 }
 
-.header h1 {
-    color: #ff0000;
-    margin-bottom: 10px;
+.category-management .header h1 {
+    margin: 0;
+    color: var(--brand-color);
+    font-size: clamp(1.5rem, 2.3vw, 2.1rem);
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
-.subtitle {
-    color: #666;
-    font-size: 1.1em;
+.category-management .subtitle {
+    margin: 0.45rem 0 0;
+    color: var(--text-2);
+    font-size: 0.96rem;
 }
 
 .management-section {
-    background: white;
-    border: 2px solid #ddd;
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 30px;
+    background: linear-gradient(
+        160deg,
+        color-mix(in oklab, var(--layer-2-um) 85%, var(--layer-3-um) 15%),
+        color-mix(in oklab, var(--layer-1-um) 78%, var(--layer-2-um) 22%)
+    );
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 55%, #7f7f7f 45%);
+    border-radius: 16px;
+    padding: clamp(1rem, 1.8vw, 1.5rem);
+    margin-bottom: 1.25rem;
 }
 
 .management-section h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #333;
+    margin: 0 0 1rem;
+    color: var(--text-1);
+    font-size: 1.05rem;
+    font-weight: 600;
 }
 
 .form-group {
     display: flex;
-    gap: 10px;
+    gap: 0.75rem;
     flex-wrap: wrap;
     align-items: center;
 }
 
 .form-group input[type="text"] {
     flex: 1;
-    min-width: 200px;
-    padding: 12px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 1em;
+    min-width: 220px;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #666 40%);
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--layer-1-um) 80%, var(--layer-2-um) 20%);
+    color: var(--text-1);
+    font: inherit;
+}
+
+.form-group input[type="text"]::placeholder {
+    color: color-mix(in oklab, var(--text-2) 80%, #9f9f9f 20%);
+}
+
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: color-mix(in oklab, var(--brand-color) 75%, #ffffff 25%);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-color) 22%, transparent 78%);
 }
 
 .form-group input[type="color"] {
-    width: 60px;
-    height: 46px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
+    width: 52px;
+    height: 44px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #666 40%);
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--layer-1-um) 86%, var(--layer-2-um) 14%);
     cursor: pointer;
 }
 
-.btn-primary {
-    background: #ff0000;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s;
+.form-group input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 4px;
 }
 
-.btn-primary:hover {
-    background: #cc0000;
-}
-
-.btn-small {
-    background: #4CAF50;
-    color: white;
+.form-group input[type="color"]::-webkit-color-swatch {
     border: none;
-    padding: 8px 16px;
     border-radius: 6px;
-    font-size: 0.9em;
-    font-weight: bold;
+}
+
+.category-management .btn-primary,
+.category-management .btn-small,
+.category-management .btn-icon {
+    font: inherit;
     cursor: pointer;
-    transition: background 0.3s;
-    margin-right: 8px;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.btn-small:hover {
-    background: #45a049;
+.category-management .btn-primary {
+    border: none;
+    border-radius: 10px;
+    padding: 0.7rem 1.15rem;
+    background: var(--brand-color);
+    color: #fff;
+    font-weight: 600;
 }
 
-.btn-icon {
-    background: white;
-    border: 1px solid #ddd;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: all 0.3s;
-    margin-left: 4px;
-}
-
-.btn-icon:hover {
-    background: #f5f5f5;
-    border-color: #bbb;
-    transform: scale(1.1);
-}
-
-.btn-delete-icon:hover {
-    background: #ffe6e6;
-    border-color: #ff4444;
+.category-management .btn-primary:hover {
+    background: color-mix(in oklab, var(--brand-color) 85%, #ff8ea7 15%);
+    transform: translateY(-1px);
 }
 
 .tree-controls {
-    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-bottom: 0.95rem;
+}
+
+.category-management .btn-small {
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #777 40%);
+    border-radius: 9px;
+    padding: 0.45rem 0.8rem;
+    background: color-mix(in oklab, var(--layer-3-um) 80%, var(--layer-2-um) 20%);
+    color: var(--text-1);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.category-management .btn-small:hover {
+    background: color-mix(in oklab, var(--layer-3-um) 55%, var(--brand-color) 45%);
+    border-color: color-mix(in oklab, var(--brand-color) 70%, #999 30%);
+    transform: translateY(-1px);
+}
+
+#categoryTree {
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 55%, #777 45%);
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--layer-1-um) 83%, var(--layer-2-um) 17%);
+    padding: 0.8rem;
+    max-height: 66vh;
+    overflow-y: auto;
 }
 
 .tree-list {
@@ -122,106 +153,149 @@
 }
 
 .tree-node {
-    margin-bottom: 8px;
+    margin-left: var(--tree-indent, 0px);
+    margin-bottom: 0.35rem;
 }
 
 .node-content {
     display: flex;
     align-items: center;
-    padding: 12px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    border-left-width: 4px;
-    transition: all 0.3s;
+    gap: 0.45rem;
+    padding: 0.6rem 0.65rem;
+    background: color-mix(in oklab, var(--layer-2-um) 80%, var(--layer-1-um) 20%);
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 55%, #777 45%);
+    border-left: 4px solid var(--node-color, #999999);
+    border-radius: 10px;
 }
 
 .node-content:hover {
-    background: #f0f0f0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: color-mix(in oklab, var(--layer-2-um) 65%, var(--layer-3-um) 35%);
+    border-color: color-mix(in oklab, var(--brand-color) 60%, #888 40%);
+}
+
+.toggle-btn,
+.no-toggle {
+    width: 20px;
+    text-align: center;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .toggle-btn {
     cursor: pointer;
     user-select: none;
-    font-size: 0.9em;
-    margin-right: 8px;
-    width: 20px;
-    text-align: center;
-    color: #666;
-    transition: transform 0.2s;
+    color: var(--text-2);
+    font-size: 0.82rem;
 }
 
 .toggle-btn:hover {
-    transform: scale(1.3);
+    color: var(--text-1);
 }
 
 .no-toggle {
-    display: inline-block;
-    width: 20px;
-    text-align: center;
-    margin-right: 8px;
-    color: #ccc;
-    font-size: 0.8em;
+    color: color-mix(in oklab, var(--text-2) 70%, #808080 30%);
+    font-size: 0.65rem;
 }
 
 .node-name {
-    flex: 1;
+    color: var(--node-color, var(--text-1));
     font-weight: 600;
-    font-size: 1.05em;
+    font-size: 0.95rem;
+    line-height: 1.2;
 }
 
 .child-count {
-    font-size: 0.85em;
-    color: #666;
-    margin-left: 8px;
+    color: var(--text-2);
+    font-size: 0.76rem;
 }
 
 .node-actions {
-    display: flex;
-    gap: 4px;
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.category-management .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #777 40%);
+    background: color-mix(in oklab, var(--layer-2-um) 75%, var(--layer-1-um) 25%);
+    color: var(--text-1);
+    padding: 0;
+}
+
+.category-management .btn-icon .icon {
+    margin-right: 0;
+}
+
+.category-management .btn-icon:hover {
+    background: color-mix(in oklab, var(--layer-3-um) 62%, var(--layer-2-um) 38%);
+    transform: translateY(-1px);
+}
+
+.category-management .btn-delete-icon:hover {
+    background: color-mix(in oklab, #8f2532 55%, var(--layer-2-um) 45%);
+    border-color: color-mix(in oklab, #c74456 65%, #888 35%);
 }
 
 .children-container {
-    margin-top: 8px;
-    padding-left: 0;
+    margin-top: 0.35rem;
 }
 
 .loading,
 .error,
 .no-data {
+    margin: 0;
     text-align: center;
-    padding: 40px;
-    color: #999;
-    font-style: italic;
+    padding: 1rem;
+    color: var(--text-2);
+    font-size: 0.9rem;
 }
 
 .error {
-    color: #ff4444;
+    color: #ff9da9;
 }
 
-@media (max-width: 768px) {
+.no-data {
+    font-style: italic;
+}
+
+@media (max-width: 900px) {
+    .category-management {
+        border-radius: 18px;
+        padding: 1rem;
+    }
+
+    .node-content {
+        flex-wrap: wrap;
+    }
+
+    .node-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 640px) {
     .form-group {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .form-group input[type="text"],
-    .form-group input[type="color"] {
+    .form-group input[type="color"],
+    .category-management .btn-primary {
         width: 100%;
     }
-    
-    .node-content {
-        flex-wrap: wrap;
-    }
-    
-    .node-actions {
-        width: 100%;
-        justify-content: flex-end;
-        margin-top: 8px;
-    }
-    
+
     .tree-node {
-        margin-left: 0 !important;
+        margin-left: 0;
     }
 }

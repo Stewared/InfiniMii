@@ -28,22 +28,41 @@ function likeMii(el,id,highlightedMii,mod){
 let modalOverlay = null;
 
 function createModalOverlay() {
-    if (!modalOverlay) {
-        modalOverlay = document.createElement('div');
-        modalOverlay.className = 'custom-modal-overlay';
-        document.body.appendChild(modalOverlay);
+    // Always create a fresh overlay so stale timers/listeners cannot
+    // interfere with newly opened modals.
+    if (modalOverlay && modalOverlay.parentNode) {
+        modalOverlay.parentNode.removeChild(modalOverlay);
     }
+
+    modalOverlay = document.createElement('div');
+    modalOverlay.className = 'custom-modal-overlay';
+    document.body.appendChild(modalOverlay);
+
     return modalOverlay;
 }
 
-function closeModal() {
-    const overlay = document.querySelector('.custom-modal-overlay');
-    if (overlay) {
-        overlay.classList.remove('active');
-        setTimeout(() => {
-            overlay.innerHTML = '';
-        }, 200);
-    }
+function closeModal(overlay = null) {
+    const targetOverlay = overlay && overlay.classList
+        ? overlay
+        : document.querySelector('.custom-modal-overlay');
+    if (!targetOverlay) return;
+
+    targetOverlay.classList.remove('active');
+    const cleanupId = (targetOverlay.__cleanupId || 0) + 1;
+    targetOverlay.__cleanupId = cleanupId;
+
+    setTimeout(() => {
+        if (targetOverlay.__cleanupId !== cleanupId) return;
+        if (targetOverlay.classList.contains('active')) return;
+
+        if (targetOverlay.parentNode) {
+            targetOverlay.parentNode.removeChild(targetOverlay);
+        }
+
+        if (modalOverlay === targetOverlay) {
+            modalOverlay = null;
+        }
+    }, 200);
 }
 
 /**
@@ -117,12 +136,12 @@ function showConfirm(message, onConfirm, onCancel = null, options = {}) {
     const cancelBtn = overlay.querySelector('[data-action="cancel"]');
     
     const handleClose = () => {
-        closeModal();
+        closeModal(overlay);
         if (onCancel) onCancel();
     };
     
     const handleConfirm = () => {
-        closeModal();
+        closeModal(overlay);
         if (onConfirm) onConfirm();
     };
     
@@ -178,7 +197,7 @@ function showAlert(message, duration = 5000, options = {}) {
     const closeBtn = overlay.querySelector('.custom-modal-close');
     
     const handleClose = () => {
-        closeModal();
+        closeModal(overlay);
         if (autoCloseTimeout) clearTimeout(autoCloseTimeout);
     };
     
@@ -209,7 +228,11 @@ function showAlert(message, duration = 5000, options = {}) {
 
 function deleteMii(id){
 	showConfirm("Are you sure you want to delete this Mii?", () => {
-		fetch("/deleteMii?id="+id).then(d=>d.json()).then(d=>{
+		fetch("/deleteMii", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id })
+        }).then(d=>d.json()).then(d=>{
 			if(d.error){
 				const errorDiv = document.getElementById('delete-error-message');
 				if (errorDiv) {
@@ -222,9 +245,16 @@ function deleteMii(id){
 				}
 			}
 			else{
-				document.getElementById(id).remove();
+				const miiEl = document.getElementById(id);
+				if (miiEl) {
+                    miiEl.remove();
+                } else if (d.redirect) {
+                    window.location.href = d.redirect;
+                }
 			}
-		});
+		}).catch(() => {
+            showAlert('Failed to delete Mii', 5000, { title: 'Error', type: 'error' });
+        });
 	});
 }
 function highlightedMiiChange(){
@@ -458,8 +488,7 @@ window.showMiiInstructionsModal = function(loader, options = {}) {
     let latestEntries = [];
 
     const handleClose = () => {
-        closeModal();
-        overlay.className = 'custom-modal-overlay';
+        closeModal(overlay);
         document.removeEventListener('keydown', handleEscape);
     };
 
@@ -574,6 +603,82 @@ function bytesToBase64String(bytes) {
     return btoa(binary);
 }
 
+async function waitForDocumentFocus(timeoutMs = 350) {
+    if (typeof document === 'undefined') return false;
+    if (document.hasFocus()) return true;
+
+    try {
+        if (typeof window !== 'undefined' && typeof window.focus === 'function') {
+            window.focus();
+        }
+    } catch (e) { }
+
+    const startedAt = Date.now();
+    while ((Date.now() - startedAt) < timeoutMs) {
+        await new Promise((resolve) => setTimeout(resolve, 25));
+        if (document.hasFocus()) return true;
+    }
+
+    return document.hasFocus();
+}
+
+function fallbackCopyTextToClipboard(text) {
+    if (typeof document === 'undefined') return false;
+    if (!document.body) return false;
+
+    const textarea = document.createElement('textarea');
+    textarea.value = String(text ?? '');
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    textarea.style.left = '-9999px';
+    textarea.style.opacity = '0';
+    textarea.style.pointerEvents = 'none';
+
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+
+    let copied = false;
+    try {
+        copied = document.execCommand('copy');
+    } catch (e) {
+        copied = false;
+    } finally {
+        textarea.remove();
+    }
+
+    return copied;
+}
+
+async function copyTextToClipboard(text) {
+    const normalized = String(text ?? '');
+    const hasClipboardApi =
+        typeof navigator !== 'undefined' &&
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === 'function';
+
+    if (hasClipboardApi) {
+        try {
+            await waitForDocumentFocus();
+            await navigator.clipboard.writeText(normalized);
+            return true;
+        } catch (error) {
+            if (fallbackCopyTextToClipboard(normalized)) {
+                return true;
+            }
+            throw error;
+        }
+    }
+
+    if (fallbackCopyTextToClipboard(normalized)) {
+        return true;
+    }
+
+    throw new Error('Clipboard API unavailable and fallback copy failed.');
+}
+
 async function readErrorMessageFromResponse(response) {
     try {
         const result = await response.json();
@@ -588,8 +693,22 @@ window.copyExportTextFromForm = async function(form, encoding = 'hex', options =
             throw new Error('Copy source form is invalid.');
         }
 
-        const method = String(options.method || form.method || 'GET').toUpperCase();
-        let endpoint = options.url || form.action || '/exportMii';
+        let resolvedEncoding = encoding;
+        let resolvedOptions = options;
+
+        // Backward/defensive support: allow passing options as second arg.
+        if (resolvedEncoding && typeof resolvedEncoding === 'object' && !Array.isArray(resolvedEncoding)) {
+            resolvedOptions = resolvedEncoding;
+            resolvedEncoding = resolvedOptions.encoding || 'hex';
+        }
+
+        const normalizedEncoding = String(resolvedEncoding || '').trim().toLowerCase();
+        if (normalizedEncoding !== 'hex' && normalizedEncoding !== 'base64') {
+            throw new Error(`Invalid copy encoding: ${resolvedEncoding}`);
+        }
+
+        const method = String(resolvedOptions.method || form.method || 'GET').toUpperCase();
+        let endpoint = resolvedOptions.url || form.action || '/exportMii';
         const formData = new FormData(form);
         const fetchOptions = { method };
 
@@ -618,12 +737,11 @@ window.copyExportTextFromForm = async function(form, encoding = 'hex', options =
         }
 
         const bytes = new Uint8Array(await response.arrayBuffer());
-        const normalizedEncoding = String(encoding).toLowerCase();
         const text = normalizedEncoding === 'base64'
             ? bytesToBase64String(bytes)
             : bytesToHexString(bytes);
 
-        await navigator.clipboard.writeText(text);
+        await copyTextToClipboard(text);
         if (typeof showAlert === 'function') {
             const label = normalizedEncoding === 'base64' ? 'Base64' : 'Hex';
             showAlert(`${label} copied to clipboard.`, 2500, { title: 'Success', type: 'success' });
@@ -636,6 +754,14 @@ window.copyExportTextFromForm = async function(form, encoding = 'hex', options =
         }
         return null;
     }
+};
+
+window.copyExportHexFromForm = async function(form, options = {}) {
+    return window.copyExportTextFromForm(form, 'hex', options);
+};
+
+window.copyExportBase64FromForm = async function(form, options = {}) {
+    return window.copyExportTextFromForm(form, 'base64', options);
 };
 
 function initMobileSideDrawers() {

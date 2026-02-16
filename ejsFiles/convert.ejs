@@ -236,11 +236,11 @@
             });
 
             document.getElementById('convertCopyHexBtn')?.addEventListener('click', async function () {
-                await copyExportTextFromForm(convertForm, 'hex');
+                await copyExportHexFromForm(convertForm);
             });
 
             document.getElementById('convertCopyBase64Btn')?.addEventListener('click', async function () {
-                await copyExportTextFromForm(convertForm, 'base64');
+                await copyExportBase64FromForm(convertForm);
             });
         </script>
     </body>

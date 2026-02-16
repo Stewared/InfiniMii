@@ -468,30 +468,189 @@ footer ul li a:hover {
     font-size: 14px;
 }
 
+.mii-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.55rem;
+}
+
+.mii-card-tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 40%, #8a8a8a 60%);
+    background: color-mix(in oklab, var(--brand-color) 18%, var(--layer-2-um) 82%);
+    color: color-mix(in oklab, #ffffff 88%, var(--brand-color) 12%);
+    font-size: 0.72rem;
+    line-height: 1.2;
+    text-decoration: none;
+    padding: 0.18rem 0.52rem;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.mii-card-tag:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 60%, #8a8a8a 40%);
+    background: color-mix(in oklab, var(--brand-color) 28%, var(--layer-2-um) 72%);
+}
+
+.mii-card-tag-more {
+    border-color: color-mix(in oklab, var(--layer-3-um) 60%, #838383 40%);
+    background: color-mix(in oklab, var(--layer-3-um) 45%, var(--layer-2-um) 55%);
+    color: var(--text-2);
+}
+
 .search-results-search {
     margin-bottom: 1rem;
 }
 
 .search-results-search form {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
 }
 
 .search-results-search form input[type="search"] {
-    flex: 1;
     margin: 0;
 }
 
 .search-results-search form input[type="submit"] {
     margin: 0;
     white-space: nowrap;
+    align-self: flex-start;
 }
 
 .search-results-summary {
     margin: 0.5rem 0 0;
     color: var(--text-2);
     font-size: 0.95rem;
+}
+
+.search-results-tag-summary {
+    margin-left: 0.35rem;
+}
+
+.search-tags-panel {
+    margin-top: 0.4rem;
+    padding: 0.75rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7b7b7b 42%);
+    background: color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%);
+}
+
+.search-tags-title {
+    margin: 0 0 0.5rem;
+    color: var(--text-1);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.tag-filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.tag-filter-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.22rem 0.58rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #7f7f7f 40%);
+    background: color-mix(in oklab, var(--layer-2-um) 74%, var(--layer-3-um) 26%);
+    color: var(--text-1);
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.tag-filter-option input[type="checkbox"] {
+    margin: 0;
+}
+
+.tag-filter-empty {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.9rem;
+}
+
+.tag-management-panel {
+    margin-top: 0.75rem;
+    padding: 0.75rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #797979 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 84%, var(--layer-1-um) 16%);
+}
+
+.tag-management-title {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.tag-management-help {
+    margin: 0.4rem 0 0.6rem;
+    color: var(--text-2);
+    font-size: 0.84rem;
+}
+
+.tag-management-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.tag-management-actions input[type="text"] {
+    margin: 0;
+}
+
+.tag-management-actions button {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.tag-admin-list {
+    margin-top: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.tag-admin-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7b7b7b 42%);
+    background: color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%);
+    padding: 0.35rem 0.5rem;
+}
+
+.tag-admin-name {
+    color: var(--text-1);
+    font-size: 0.86rem;
+    font-weight: 500;
+}
+
+.tag-admin-delete {
+    margin: 0;
+    padding: 0.3rem 0.6rem;
+    border-radius: 7px;
+    border: 1px solid color-mix(in oklab, #bd5466 62%, #808080 38%);
+    background: color-mix(in oklab, #8a2a3f 58%, var(--layer-2-um) 42%);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.tag-admin-delete:hover {
+    background: color-mix(in oklab, #a1324a 62%, var(--layer-2-um) 38%);
 }
 
 @media (max-width: 1300px) {
@@ -505,9 +664,13 @@ footer ul li a:hover {
         grid-template-columns: 1fr;
     }
 
-    .search-results-search form {
+    .tag-management-actions {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .tag-management-actions button {
+        width: 100%;
     }
 }
 

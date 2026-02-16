@@ -25,7 +25,8 @@
                     <fieldset>
                         <legend id="search-heading">Search Mii Characters</legend>
                         <label for="search-query" class="sr-only">Enter character name or keywords</label>
-                        <input name="q" autocomplete="off" required aria-required="true" placeholder="Search by character name, creator, or description..." type="search" id="search-query">
+                        <input name="q" autocomplete="off" placeholder="Search by character name, creator, or description..." type="search" id="search-query" value="<%= query.q || '' %>">
+                        <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: 'search-page', renderTagFilters: true, renderTagManagement: false }) %>
                         <input type="submit" value="Search">
 
                         <!-- This is here for SEO/LLM-O -->
@@ -40,6 +41,7 @@
                     </div>
                     </fieldset>
                 </form>
+                <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: 'search-page', renderTagFilters: false, renderTagManagement: true }) %>
             </section>
             <%- include('featuredMiis') %>
         </main>

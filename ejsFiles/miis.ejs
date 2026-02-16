@@ -16,6 +16,11 @@
         <div class="content">
             <%- include('sidebar') %>
             <div class="main-content">
+                <%
+                    const selectedTagParams = Array.isArray(selectedTags) ? selectedTags : [];
+                    const encodedTagQuery = selectedTagParams.map(tag => '&tags=' + encodeURIComponent(tag)).join('');
+                %>
+
                 <% if (currentPath.startsWith('/searchResults')) { %>
                     <section class="search-results-search" aria-label="Search">
                         <form method="GET" action="/searchResults" role="search">
@@ -27,50 +32,65 @@
                                 autocomplete="off"
                                 placeholder="Search by character name, creator, or description..."
                                 value="<%= query.q || '' %>"
-                                required
                             >
+                            <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: 'search-results', renderTagFilters: true, renderTagManagement: false }) %>
                             <input type="submit" value="Search">
                         </form>
-                        <% if (query.q) { %>
+                        <% if (query.q || (Array.isArray(selectedTags) && selectedTags.length > 0)) { %>
                             <p class="search-results-summary">
-                                <%= pagination?.total ?? displayedMiis.length %> result<%= (pagination?.total ?? displayedMiis.length) === 1 ? '' : 's' %> for "<%= query.q %>"
+                                <%= pagination?.total ?? displayedMiis.length %> result<%= (pagination?.total ?? displayedMiis.length) === 1 ? '' : 's' %>
+                                <% if (query.q) { %>
+                                    for "<%= query.q %>"
+                                <% } %>
+                                <% if (Array.isArray(selectedTags) && selectedTags.length > 0) { %>
+                                    <span class="search-results-tag-summary">with tag<%= selectedTags.length === 1 ? '' : 's' %>: <%= selectedTags.join(', ') %></span>
+                                <% } %>
                             </p>
                         <% } %>
                     </section>
                 <% } %>
 
                 <div id="browse-miis" class="browse-miis-balanced">
-                    <% for(var i=0;i<displayedMiis.length;i++){ %>
+                    <% for (var i = 0; i < displayedMiis.length; i++) { %>
                         <div class="mii-card" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;" id="<%= displayedMiis[i].id %>">
-                            <a href=<%='/mii/' +displayedMiis[i].id %>><img src="miiImgs/<%= displayedMiis[i].id %>.png"></a>
+                            <a href="<%= '/mii/' + displayedMiis[i].id %>"><img src="miiImgs/<%= displayedMiis[i].id %>.png"></a>
                             <div class="flex">
                                 <div>
                                     <h3><%= displayedMiis[i].meta.name %></h3>
-                                    <a href=<%="/user/" +encodeURIComponent(displayedMiis[i].uploader) %>><%=displayedMiis[i].uploader %></a>
-                                    <% if(displayedMiis[i].official && displayedMiis[i].contributor) { %>
+                                    <a href="<%= '/user/' + encodeURIComponent(displayedMiis[i].uploader) %>"><%= displayedMiis[i].uploader %></a>
+                                    <% if (displayedMiis[i].official && displayedMiis[i].contributor) { %>
                                         <small class="uploader-subtext">Contributed by <a href="/user/<%= encodeURIComponent(displayedMiis[i].contributor) %>"><%= displayedMiis[i].contributor %></a></small>
                                     <% } %>
-                                    <p><%= displayedMiis[i].desc.length>75?displayedMiis[i].desc.slice(0,73)+"...":displayedMiis[i].desc %></p>
+                                    <p><%= displayedMiis[i].desc.length > 75 ? displayedMiis[i].desc.slice(0, 73) + "..." : displayedMiis[i].desc %></p>
+                                    <% if (displayedMiis[i].tags && displayedMiis[i].tags.length > 0) { %>
+                                        <div class="mii-card-tags">
+                                            <% displayedMiis[i].tags.slice(0, 3).forEach(tag => { %>
+                                                <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                                            <% }) %>
+                                            <% if (displayedMiis[i].tags.length > 3) { %>
+                                                <span class="mii-card-tag mii-card-tag-more">+<%= displayedMiis[i].tags.length - 3 %></span>
+                                            <% } %>
+                                        </div>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>
                     <% } %>
                 </div>
-                
-                <!-- Pagination Controls, QK, TODO: Kestron: This is a temporary removal of pagination on the Random page, should be fine TMK, change as necessary -->
+
                 <% if (pagination && pagination.totalPages > 1 && !title.toLowerCase().includes("random")) { %>
                     <div class="pagination">
                         <% if (pagination.currentPage > 1) { %>
-                            <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %>" class="pagination-btn">← Previous</a>
+                            <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %>" class="pagination-btn">&larr; Previous</a>
                         <% } %>
-                        
+
                         <span class="pagination-info">
-                            Page <%= pagination.currentPage %> of <%= pagination.totalPages %> 
+                            Page <%= pagination.currentPage %> of <%= pagination.totalPages %>
                             (<%= pagination.total %> Miis)
                         </span>
-                        
+
                         <% if (pagination.currentPage < pagination.totalPages) { %>
-                            <a href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %>" class="pagination-btn">Next →</a>
+                            <a href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %>" class="pagination-btn">Next &rarr;</a>
                         <% } %>
                     </div>
                 <% } %>

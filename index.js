@@ -121,6 +121,7 @@ const MII_CHILD_STAGE_LABELS = [
     "Adult"
 ];
 const INSTRUCTION_CONSOLE_VALUES = new Set(["DS", "WII", "3DS", "WIIU", "SWITCH", "SWITCH2"]);
+const MAX_MII_TAG_LENGTH = 40;
 
 function normalizeExportFormat(input) {
     if (!input) return null;
@@ -643,7 +644,8 @@ async function getSettings() {
             highlightedMii: null,
             highlightedMiiChangeDay: null,
             bannedIPs: [],
-            officialCategories: { categories: [] }
+            officialCategories: { categories: [] },
+            miiTags: []
         });
     }
     return settings;
@@ -744,6 +746,8 @@ async function getSendables(req, title, user) {
         : '';
     const settings = await getSettings();
     const allUsers = await getAllUsers();
+    const availableTags = getMiiTags(settings);
+    const selectedTags = mapRequestedTagsToCatalog(req.query?.tags, availableTags);
 
     // Build information related to the current user
     let userPfpMiiColor = null;
@@ -763,6 +767,8 @@ async function getSendables(req, title, user) {
         highlightedMii: settings.highlightedMii,
         bannedIPs: settings.bannedIPs,
         officialCategories: settings.officialCategories,
+        availableTags,
+        selectedTags,
         howToTitle: "How To",
         currentPath: currentPath + queryString,
         thisUser: currentUser, // *username
@@ -907,20 +913,28 @@ function createToken(user) {
     });
 }
 
-// Find a category node by path
-function findCategoryByPath(path, tree) {
-    if (!path || !tree) return null;
-    
-    const parts = path.split('/');
-    let current = tree;
-    
-    for (const part of parts) {
-        const found = current.find(node => node.name === part);
-        if (!found) return null;
-        if (parts.indexOf(part) === parts.length - 1) return found;
-        current = found.children;
+function getOfficialCategoryTree(settings) {
+    if (!settings.officialCategories || typeof settings.officialCategories !== "object") {
+        settings.officialCategories = { categories: [] };
     }
-    
+    if (!Array.isArray(settings.officialCategories.categories)) {
+        settings.officialCategories.categories = [];
+    }
+    return settings.officialCategories.categories;
+}
+
+// Find a category node by exact path
+function findCategoryByPath(path, tree) {
+    if (!path || !Array.isArray(tree)) return null;
+
+    for (const node of tree) {
+        if (node.path === path) return node;
+        if (node.children && node.children.length > 0) {
+            const found = findCategoryByPath(path, node.children);
+            if (found) return found;
+        }
+    }
+
     return null;
 }
 
@@ -936,6 +950,86 @@ function getAllLeafCategories(tree, result = []) {
         }
     });
     return result;
+}
+
+function getLeafCategoryPathSet(tree) {
+    return new Set(getAllLeafCategories(tree, []).map(node => node.path).filter(Boolean));
+}
+
+function normalizeCategoryPaths(rawCategories) {
+    const source = Array.isArray(rawCategories) ? rawCategories : [rawCategories];
+    return [...new Set(source
+        .map(category => typeof category === "string" ? category.trim() : "")
+        .filter(Boolean))];
+}
+
+function normalizeCategoryColor(color, fallback = "#999999") {
+    if (typeof color !== "string") return fallback;
+    const trimmed = color.trim();
+    return /^#[0-9A-Fa-f]{6}$/.test(trimmed) ? trimmed : fallback;
+}
+
+function normalizeTagValue(tag) {
+    if (typeof tag !== "string") return "";
+    return tag
+        .replace(/\s+/g, " ")
+        .replace(/[<>]/g, "")
+        .trim();
+}
+
+function normalizeTagList(rawTags) {
+    const source = Array.isArray(rawTags) ? rawTags : [rawTags];
+    const flattened = source.flatMap(tag => {
+        if (typeof tag !== "string") return [];
+        return tag.split(",");
+    });
+
+    const normalized = [];
+    const seen = new Set();
+
+    for (const rawTag of flattened) {
+        const tag = normalizeTagValue(rawTag);
+        if (!tag) continue;
+        if (tag.length > MAX_MII_TAG_LENGTH) continue;
+
+        const lower = tag.toLowerCase();
+        if (seen.has(lower)) continue;
+
+        seen.add(lower);
+        normalized.push(tag);
+    }
+
+    return normalized;
+}
+
+function getMiiTags(settings) {
+    if (!Array.isArray(settings.miiTags)) {
+        settings.miiTags = [];
+    }
+    settings.miiTags = normalizeTagList(settings.miiTags);
+    return settings.miiTags;
+}
+
+function mapRequestedTagsToCatalog(requestedTags, catalogTags) {
+    const requested = normalizeTagList(requestedTags);
+    if (!requested.length) return [];
+
+    const catalog = Array.isArray(catalogTags) ? catalogTags : [];
+    const byLower = new Map(catalog.map(tag => [String(tag).toLowerCase(), tag]));
+    const mapped = [];
+
+    for (const requestedTag of requested) {
+        const canonical = byLower.get(requestedTag.toLowerCase());
+        if (canonical && !mapped.includes(canonical)) {
+            mapped.push(canonical);
+        }
+    }
+
+    return mapped;
+}
+
+function escapeRegex(input) {
+    return String(input).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 // Get all categories (including parents) as flat array with paths
@@ -960,20 +1054,20 @@ function updateCategoryPaths(node, parentPath = '') {
     }
 }
 
-// Find parent of a category by path
-function findParentByChildPath(path, tree, parent = null) {
-    if (!path || !tree) return null;
-    
+// Find parent of a category by child path
+function findParentByChildPath(path, tree) {
+    if (!path || !Array.isArray(tree)) return null;
+
     for (const node of tree) {
-        if (node.path === path) {
-            return parent;
+        if (Array.isArray(node.children) && node.children.some(child => child.path === path)) {
+            return node;
         }
         if (node.children && node.children.length > 0) {
-            const found = findParentByChildPath(path, node.children, node);
+            const found = findParentByChildPath(path, node.children);
             if (found) return found;
         }
     }
-    
+
     return null;
 }
 
@@ -1037,6 +1131,13 @@ function getAllDescendantPaths(node, result = []) {
 
 function sha256(str) {
     return crypto.createHash('sha256').update(`${str}${globalSalt}`).digest('hex');
+}
+
+function deleteMiiAssets(miiId, isPrivate) {
+    const imgPath = isPrivate ? `./static/privateMiiImgs/${miiId}.png` : `./static/miiImgs/${miiId}.png`;
+    const qrPath = isPrivate ? `./static/privateMiiQRs/${miiId}.png` : `./static/miiQRs/${miiId}.png`;
+    try { fs.unlinkSync(imgPath); } catch (e) {}
+    try { fs.unlinkSync(qrPath); } catch (e) {}
 }
 
 function isVPN(ip) {
@@ -1263,36 +1364,33 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
             sort = { votes: -1 };
             break;
         
-        case "search":
-            if (filter) {
-                // Use MongoDB regex for database-level filtering
-                const searchRegex = new RegExp(filter, 'i'); // Case-insensitive regex
-                const searchQuery = {
-                    ...query,
-                    $or: [
-                        { 'meta.name': searchRegex },
-                        { 'desc': searchRegex },
-                        { 'uploader': searchRegex }
-                    ]
-                };
-                
-                const searchTotal = await Miis.countDocuments(searchQuery);
-                const searchItems = await Miis.find(searchQuery)
-                    .sort({ votes: -1 })
-                    .skip(skip)
-                    .limit(perPage)
-                    .lean();
-                
-                return {
-                    items: searchItems,
-                    total: searchTotal,
-                    page,
-                    perPage,
-                    totalPages: Math.ceil(searchTotal / perPage)
-                };
+        case "search": {
+            const filterObject =
+                filter && typeof filter === "object" && !Array.isArray(filter)
+                    ? filter
+                    : { query: filter };
+
+            const searchText = typeof filterObject.query === "string"
+                ? filterObject.query.trim()
+                : "";
+            const selectedTags = mapRequestedTagsToCatalog(filterObject.tags, getMiiTags(settings));
+
+            if (selectedTags.length > 0) {
+                query.tags = { $all: selectedTags };
             }
+
+            if (searchText) {
+                const searchRegex = new RegExp(escapeRegex(searchText), "i");
+                query.$or = [
+                    { "meta.name": searchRegex },
+                    { "desc": searchRegex },
+                    { "uploader": searchRegex }
+                ];
+            }
+
             sort = { votes: -1 };
             break;
+        }
         
         default:
             return { items: [], total: 0, page: 1, perPage, totalPages: 0 };
@@ -1830,7 +1928,7 @@ site.use(async (req, res, next) => {
                     return next();
                 }
                 
-                if (req.user.role === ROLES.TEMP_BANNED && req.user.banExpires) {
+                if (hasRole(req.user, ROLES.TEMP_BANNED) && req.user.banExpires) {
                     const timeLeft = Math.ceil((req.user.banExpires - Date.now()) / (1000 * 60 * 60));
                     const message = `You are temporarily banned. Time remaining: ${timeLeft} hours. Reason: ${req.user.banReason || 'No reason provided'}`;
                     if (req.accepts('html')) {
@@ -2308,7 +2406,7 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
     
     // Get settings for categories
     const settings = await getSettings();
-    const categories = settings.officialCategories?.categories || [];
+    const categories = getOfficialCategoryTree(settings);
     
     // Get all unique leaf categories (only categories that can be assigned to Miis)
     const leafCategories = getAllLeafCategories(categories);
@@ -2355,8 +2453,12 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const page = parseInt(req.query.page) || 1;
     const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    const selectedTags = Array.isArray(toSend.selectedTags) ? toSend.selectedTags : [];
     
-    const paginatedData = await paginatedApi("search", page, defaultMiisPerPage, searchQuery);
+    const paginatedData = await paginatedApi("search", page, defaultMiisPerPage, {
+        query: searchQuery,
+        tags: selectedTags
+    });
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = {
         currentPage: paginatedData.page,
@@ -2366,7 +2468,16 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     };
     
     toSend.searchQuery = searchQuery;
-    toSend.title = searchQuery ? `Search '${searchQuery}' - InfiniMii` : "Search - InfiniMii";
+    if (searchQuery && selectedTags.length) {
+        toSend.title = `Search '${searchQuery}' + Tags - InfiniMii`;
+    } else if (searchQuery) {
+        toSend.title = `Search '${searchQuery}' - InfiniMii`;
+    } else if (selectedTags.length) {
+        toSend.title = `Tagged Miis - InfiniMii`;
+    } else {
+        toSend.title = "Search - InfiniMii";
+    }
+
     ejs.renderFile('./ejsFiles/miis.ejs', toSend, {}, function(err, str) {
         if (err) {
             res.send(err);
@@ -2947,92 +3058,102 @@ site.get('/verifyEmailChange', async (req, res) => {
 });
 
 site.post('/deleteMii', async (req, res) => { // TODO: csrf here, make post
-    if (!req.user) {
-        res.json({error: "Not logged in"});
-        return;
-    }
-    
-    const isModerator = canModerate(req.user);
-    const miiId = req.body.id;
-    
-    // Try to find the Mii (could be public or private)
-    const mii = await getMiiById(miiId, true);
-    const uploader = await getUserByUsername(mii.uploader);
-    
-    if (!mii) {
-        res.json({error: "Mii not found"});
-        return;
-    }
-    
-    // Check permissions
-    const canDelete = mii.uploader === req.user.username || isModerator;
-    
-    if (!canDelete) {
-        res.json({error: "Permission denied"});
-        return;
-    }
-    
-    var d = new Date();
-    const imgPath = mii.private ? `./static/privateMiiImgs/${mii.id}.png` : `./static/miiImgs/${mii.id}.png`;
-    const qrPath = mii.private ? `./static/privateMiiQRs/${mii.id}.png` : `./static/miiQRs/${mii.id}.png`;
-    
-    let miiImageData;
     try {
-        miiImageData = fs.readFileSync(imgPath);
-    } catch(e) {
-        miiImageData = null;
-    }
+        if (!req.user) {
+            return res.json({ error: "Not logged in" });
+        }
 
-    const attachments = miiImageData ? [{
-        data: miiImageData,
-        filename: `${mii.id}.png`,
-        contentType: 'image/png'
-    }] : [];
+        const actorUsername = req.user.username;
+        const isModerator = canModerate(req.user);
+        const miiId = String(req.body?.id || req.body?.miiId || req.query?.id || "").trim();
 
-    makeReport(JSON.stringify({
-        embeds: [{
-            "type": "rich",
-            "title": (mii.official ? "Official " : "") + (mii.private ? "Private " : "Published ") + `Mii Deleted by ` + req.cookies.username,
-            "description": mii.desc,
-            "color": mii.private ? 0xff6600 : 0xff0000,
-            "fields": [
-                {
-                    "name": `Mii Name`,
-                    "value": mii.meta?.name,
-                    "inline": true
-                },
-                {
-                    "name": `${mii.official ? "Uploaded" : "Made"} by`,
-                    "value": `[${mii.uploader}](https://infinimii.com/user/${encodeURIComponent(mii.uploader)})`,
-                    "inline": true
-                },
-                {
-                    "name": `Mii Creator Name (embedded in Mii file)`,
-                    "value": mii.meta.creatorName,
-                    "inline": true
+        if (!miiId) {
+            return res.json({ error: "Mii ID required" });
+        }
+
+        // Try to find the Mii (could be public or private)
+        const mii = await getMiiById(miiId, true);
+        if (!mii) {
+            return res.json({ error: "Mii not found" });
+        }
+
+        // Check permissions
+        const isOwner = mii.uploader === actorUsername;
+        if (!isOwner && !isModerator) {
+            return res.json({ error: "Permission denied" });
+        }
+
+        const d = new Date();
+        const imgPath = mii.private ? `./static/privateMiiImgs/${mii.id}.png` : `./static/miiImgs/${mii.id}.png`;
+
+        let miiImageData;
+        try {
+            miiImageData = fs.readFileSync(imgPath);
+        } catch (e) {
+            miiImageData = null;
+        }
+
+        const attachments = miiImageData ? [{
+            data: miiImageData,
+            filename: `${mii.id}.png`,
+            contentType: 'image/png'
+        }] : [];
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                "type": "rich",
+                "title": (mii.official ? "Official " : "") + (mii.private ? "Private " : "Published ") + `Mii Deleted by ` + actorUsername,
+                "description": mii.desc,
+                "color": mii.private ? 0xff6600 : 0xff0000,
+                "fields": [
+                    {
+                        "name": `Mii Name`,
+                        "value": mii.meta?.name || "Unknown",
+                        "inline": true
+                    },
+                    {
+                        "name": `${mii.official ? "Uploaded" : "Made"} by`,
+                        "value": `[${mii.uploader}](https://infinimii.com/user/${encodeURIComponent(mii.uploader)})`,
+                        "inline": true
+                    },
+                    {
+                        "name": `Mii Creator Name (embedded in Mii file)`,
+                        "value": mii.meta?.creatorName || "Unknown",
+                        "inline": true
+                    }
+                ],
+                ...(miiImageData ? {
+                    "image": {
+                        "url": `attachment://${mii.id}.png`
+                    }
+                } : {}),
+                "footer": {
+                    "text": `Deleted at ${d.getHours()}:${d.getMinutes()}, ${d.toDateString()} UTC`
                 }
-            ],
-            ...(miiImageData ? {
-                "image": {
-                    "url": `attachment://${mii.id}.png`
-                }
-            } : {}),
-            "footer": {
-                "text": `Deleted at ${d.getHours()}:${d.getMinutes()}, ${d.toDateString()} UTC`
+            }]
+        }), attachments);
+
+        // Delete from database and filesystem
+        await Miis.findOneAndDelete({ id: miiId });
+        deleteMiiAssets(mii.id, mii.private);
+
+        const redirect = mii.private ? "/myPrivateMiis" : `/user/${encodeURIComponent(mii.uploader)}`;
+        res.json({ okay: true, redirect });
+
+        if (isModerator && !isOwner) {
+            const uploader = await getUserByUsername(mii.uploader);
+            if (uploader?.email) {
+                sendEmail(
+                    uploader.email,
+                    `Mii Deleted - InfiniMii`,
+                    `Hi ${mii.uploader}, one of your Miis "${mii.meta?.name || "Unknown"}" has been deleted by a Moderator. You can reply to this email to receive support.`
+                );
             }
-        }]
-    }), attachments);
-    
-    // Delete from database
-    await Miis.findOneAndDelete({ id: miiId });
-    
-    // Delete files
-    try { fs.unlinkSync(imgPath); } catch(e) {}
-    try { fs.unlinkSync(qrPath); } catch(e) {}
-    
-    res.json({ okay: true });
-    
-    if(mii.uploader!==uploader.username) sendEmail(uploader.email,`Mii Deleted - InfiniMii`,`Hi ${mii.uploader}, one of your Miis "${mii.meta.name}" has been deleted by a Moderator. You can reply to this email to receive support.`);
+        }
+    } catch (e) {
+        console.error('Error deleting Mii:', e);
+        res.json({ error: 'Server error' });
+    }
 });
 // Update Mii Field (Moderator only)
 site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
@@ -3043,7 +3164,7 @@ site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (r
             return res.json({ error: 'Missing parameters' });
         }
 
-        const mii = await getMiiById(id);
+        const mii = await getMiiById(id, true);
         if (!mii) {
             return res.json({ error: 'Mii not found' });
         }
@@ -3128,14 +3249,15 @@ site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (r
 site.post('/regenerateQR', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     const { id } = req.body;
     const qrConsole = normalizeQrConsole(req.body?.qrConsole);
-    const mii = await getMiiById(id);
+    const mii = await getMiiById(id, true);
 
     if (!mii) {
         return res.json({ error: 'Mii not found' });
     }
 
     // Regenerate the QR code
-    await writeQrPng(mii, `./static/miiQRs/${id}.png`, qrConsole);
+    const qrPath = mii.private ? `./static/privateMiiQRs/${id}.png` : `./static/miiQRs/${id}.png`;
+    await writeQrPng(mii, qrPath, qrConsole);
 
     // Log to Discord
     makeReport(JSON.stringify({
@@ -3221,6 +3343,9 @@ site.post('/removeUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), asyn
         if (!targetUser) {
             return res.json({ error: 'User not found' });
         }
+        if (!Object.values(ROLES).includes(role)) {
+            return res.json({ error: 'Invalid role' });
+        }
 
         removeRole(targetUser, role);
         await Users.findOneAndUpdate({ username }, { roles: targetUser.roles });
@@ -3263,9 +3388,13 @@ site.post('/tempBanUser', requireAuth, requireRole(ROLES.MODERATOR), async (req,
     try {
         const { username, hours, reason } = req.body;
         const targetUser = await getUserByUsername(username);
+        const normalizedHours = Number(hours);
 
         if (!targetUser) {
             return res.json({ error: 'User not found' });
+        }
+        if (!Number.isInteger(normalizedHours) || normalizedHours < 1 || normalizedHours > 24 * 365) {
+            return res.json({ error: 'Hours must be an integer between 1 and 8760' });
         }
 
         // Moderators can't ban admins or other moderators
@@ -3274,7 +3403,7 @@ site.post('/tempBanUser', requireAuth, requireRole(ROLES.MODERATOR), async (req,
         }
 
         addRole(targetUser, ROLES.TEMP_BANNED);
-        const banExpires = Date.now() + (hours * 60 * 60 * 1000);
+        const banExpires = Date.now() + (normalizedHours * 60 * 60 * 1000);
         
         await Users.findOneAndUpdate(
             { username },
@@ -3301,7 +3430,7 @@ site.post('/tempBanUser', requireAuth, requireRole(ROLES.MODERATOR), async (req,
                     },
                     {
                         name: 'Duration',
-                        value: `${hours} hours`,
+                        value: `${normalizedHours} hours`,
                         inline: true
                     },
                     {
@@ -3312,7 +3441,7 @@ site.post('/tempBanUser', requireAuth, requireRole(ROLES.MODERATOR), async (req,
                 ]
             }]
         }));
-        sendEmail(targetUser.email,`Ban - InfiniMii`,`Hi ${username}, you were banned on InfiniMii for the next ${hours}. ${reason?`Reason: ${reason}`:`No reason was specified at this time.`} Understand that repeated violations may result in a permanent ban and account deletion. You may reply to this email for support.`);
+        sendEmail(targetUser.email,`Ban - InfiniMii`,`Hi ${username}, you were banned on InfiniMii for the next ${normalizedHours} hours. ${reason?`Reason: ${reason}`:`No reason was specified at this time.`} Understand that repeated violations may result in a permanent ban and account deletion. You may reply to this email for support.`);
 
         res.json({ okay: true });
     } catch (e) {
@@ -3331,36 +3460,26 @@ site.post('/permBanUser', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
             return res.json({ error: 'User not found' });
         }
 
-        // TODO: uuuh. This is banning the IP of the admin. Not the user. Check the other endpoint too.
-        const clientIP = [req.headers['x-forwarded-for'], req.socket.remoteAddress];
-        
-        // Ban IP if not VPN - TODO: this should definitely still ban VPN IPs...
-        if (!isVPN(clientIP[0]) && !isVPN(clientIP[1])) {
-            const ipHash = sha256(clientIP);
-            const settings = await getSettings();
-            if (!settings.bannedIPs.includes(ipHash)) {
-                await updateSettings({ $addToSet: { bannedIPs: ipHash } });
-            }
+        // If user records contain stored IP hashes, add them to the global deny list.
+        const storedIpHashes = Array.isArray(targetUser.ipHashes)
+            ? targetUser.ipHashes
+                .filter(ip => typeof ip === "string" && ip.trim())
+                .map(ip => ip.trim())
+            : [];
+        if (storedIpHashes.length > 0) {
+            await updateSettings({ $addToSet: { bannedIPs: { $each: storedIpHashes } } });
         }
 
-        // Delete all user's Miis
-        const userMiis = await Miis.find({ uploader: targetUser.username }).select('id').lean();
-        const miiIds = userMiis.map(m => m.id);
-        for (const miiId of miiIds) {
+        // Delete all user's Miis (public + private)
+        const userMiis = await Miis.find({ uploader: targetUser.username }).select('id private').lean();
+        for (const mii of userMiis) {
             try {
-                const mii = await getMiiById(miiId);
-                if (mii) {
-                    // Delete files
-                    try { fs.unlinkSync(`./static/miiImgs/${miiId}.png`); } catch(e) {}
-                    try { fs.unlinkSync(`./static/miiQRs/${miiId}.png`); } catch(e) {}
-                    
-                    // Delete Mii from DB
-                    await Miis.findOneAndDelete({ id: miiId });
-                }
-            } catch(e) {
-                console.error(`Error deleting Mii ${miiId}:`, e);
+                deleteMiiAssets(mii.id, Boolean(mii.private));
+            } catch (e) {
+                console.error(`Error deleting Mii ${mii.id}:`, e);
             }
         }
+        await Miis.deleteMany({ uploader: targetUser.username });
 
         // Delete user account
         await Users.findOneAndDelete({ username });
@@ -3379,12 +3498,12 @@ site.post('/permBanUser', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
                     },
                     {
                         name: 'Miis Deleted',
-                        value: miiIds.length.toString(),
+                        value: userMiis.length.toString(),
                         inline: true
                     },
                     {
                         name: 'IP Banned',
-                        value: !isVPN(clientIP) ? 'Yes' : 'No (VPN detected)',
+                        value: storedIpHashes.length > 0 ? `Yes (${storedIpHashes.length} stored hash${storedIpHashes.length === 1 ? '' : 'es'})` : 'No stored IP data',
                         inline: true
                     },
                     {
@@ -3414,26 +3533,18 @@ site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async
             return res.json({ error: 'User not found' });
         }
 
-        const userMiis = await Miis.find({ uploader: targetUser.username }).select('id').lean();
-        const miiIds = userMiis.map(m => m.id);
+        const userMiis = await Miis.find({ uploader: targetUser.username }).select('id private').lean();
         let deletedCount = 0;
 
-        for (const miiId of miiIds) {
+        for (const mii of userMiis) {
             try {
-                const mii = await getMiiById(miiId);
-                if (mii) {
-                    // Delete files
-                    try { fs.unlinkSync(`./static/miiImgs/${miiId}.png`); } catch(e) {}
-                    try { fs.unlinkSync(`./static/miiQRs/${miiId}.png`); } catch(e) {}
-                    
-                    // Delete Mii from DB
-                    await Miis.findOneAndDelete({ id: miiId });
-                    deletedCount++;
-                }
-            } catch(e) {
-                console.error(`Error deleting Mii ${miiId}:`, e);
+                deleteMiiAssets(mii.id, Boolean(mii.private));
+                deletedCount++;
+            } catch (e) {
+                console.error(`Error deleting Mii ${mii.id}:`, e);
             }
         }
+        await Miis.deleteMany({ uploader: targetUser.username });
 
         makeReport(JSON.stringify({
             embeds: [{
@@ -3553,12 +3664,22 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
 site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
         const { id, official } = req.body;
+        const officialInput = typeof official === "string" ? official.trim().toLowerCase() : official;
+        const validOfficialInput =
+            typeof officialInput === "boolean" ||
+            officialInput === 0 ||
+            officialInput === 1 ||
+            ["true", "false", "1", "0", "yes", "no", "on", "off"].includes(officialInput);
 
         if (!id || official === undefined) {
             return res.json({ error: 'Missing parameters' });
         }
+        if (!validOfficialInput) {
+            return res.json({ error: 'Invalid official value' });
+        }
+        const normalizedOfficial = parseBooleanLike(official);
 
-        const mii = await getMiiById(id, false);
+        const mii = await getMiiById(id, true);
         if (!mii) {
             return res.json({ error: 'Mii not found' });
         }
@@ -3567,16 +3688,16 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
         
         await Miis.findOneAndUpdate(
             { id },
-            { official }
+            { $set: { official: normalizedOfficial } }
         );
 
         // Log to Discord
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: official ? `${renderIcon('star-filled', { size: 14 })} Mii Marked as Official` : `${renderIcon('x', { size: 14 })} Mii Unmarked as Official`,
+                title: normalizedOfficial ? `${renderIcon('star-filled', { size: 14 })} Mii Marked as Official` : `${renderIcon('x', { size: 14 })} Mii Unmarked as Official`,
                 description: `Moderator ${req.cookies.username} changed official status`,
-                color: official ? 0xFFD700 : 0x808080,
+                color: normalizedOfficial ? 0xFFD700 : 0x808080,
                 fields: [
                     {
                         name: 'Mii',
@@ -3590,7 +3711,7 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
                     },
                     {
                         name: 'New Status',
-                        value: official ? 'Official' : 'Not Official',
+                        value: normalizedOfficial ? 'Official' : 'Not Official',
                         inline: true
                     }
                 ],
@@ -5257,6 +5378,10 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
     try {
         let uploader = req.user.username;
         const wantsPublic = req.body.makePublic === 'on' || req.body.makePublic === true || req.body.makePublic === 'true';
+        const rawMiiDataInput = typeof req.body.miiData === "string" ? req.body.miiData : "";
+        const normalizedRawMiiData = rawMiiDataInput.replace(/\s+/g, "");
+        const providedMiiName = typeof req.body.miiName === "string" ? req.body.miiName.trim() : "";
+        const isNinetyTwoCharCode = normalizedRawMiiData.length === 92;
         
         // Check private Mii limit
         if (!wantsPublic) {
@@ -5271,6 +5396,12 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         // Check if trying to upload official Mii without permission
         if (req.body.official && !canUploadOfficial(req.user)) {
             res.json({'error': 'Only Researchers and Administrators can upload official Miis'});
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+            return;
+        }
+
+        if (isNinetyTwoCharCode && !providedMiiName) {
+            res.json({ error: "Please enter a name for 92-character Mii Studio codes." });
             try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
             return;
         }
@@ -5323,6 +5454,13 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
         }
 
+        if (isNinetyTwoCharCode && providedMiiName) {
+            if (!mii.meta || typeof mii.meta !== "object") {
+                mii.meta = {};
+            }
+            mii.meta.name = providedMiiName;
+        }
+
         const matchingMii = await findMatchingMii(mii);
         if (matchingMii) {
             res.json({ error: getDuplicateMiiErrorMessage(matchingMii.id) });
@@ -5333,11 +5471,10 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         if (req.body.official) {
             mii.officialCategories = [];
             
-            // Parse categories (now stores paths instead of names)
-            if (req.body.categories) {
-                const categories = Array.isArray(req.body.categories) ? req.body.categories : [req.body.categories];
-                mii.officialCategories = [...new Set(categories.filter(c => c && c.trim()))];
-            }
+            const settings = await getSettings();
+            const validLeafPaths = getLeafCategoryPathSet(getOfficialCategoryTree(settings));
+            mii.officialCategories = normalizeCategoryPaths(req.body.categories)
+                .filter(path => validLeafPaths.has(path));
         }
         
         mii.id = await genId();
@@ -5436,11 +5573,19 @@ site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER
         }
 
         const oldCategories = mii.officialCategories || [];
-        const newCategories = [...new Set(categories.filter(c => c && c.trim()))];
+        const requestedCategories = normalizeCategoryPaths(categories);
+        const settings = await getSettings();
+        const categoryTree = getOfficialCategoryTree(settings);
+        const validLeafPaths = getLeafCategoryPathSet(categoryTree);
+        const newCategories = requestedCategories.filter(path => validLeafPaths.has(path));
+
+        if (newCategories.length !== requestedCategories.length) {
+            return res.json({ error: 'One or more categories are invalid. Only existing leaf categories can be assigned.' });
+        }
         
         await Miis.findOneAndUpdate(
             { id: miiId },
-            { officialCategories: newCategories }
+            { $set: { officialCategories: newCategories } }
         );
 
         makeReport(JSON.stringify({
@@ -5452,7 +5597,7 @@ site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER
                 fields: [
                     {
                         name: 'Mii',
-                        value: `[${mii.meta?.name || mii.meta.name}](https://infinimii.com/mii/${miiId})`,
+                        value: `[${mii.meta?.name || "Unknown"}](https://infinimii.com/mii/${miiId})`,
                         inline: true
                     },
                     {
@@ -5476,11 +5621,194 @@ site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER
     }
 });
 
+// Get global Mii tags
+site.get('/getMiiTags', async (req, res) => {
+    try {
+        const settings = await getSettings();
+        res.json({ tags: getMiiTags(settings) });
+    } catch (e) {
+        console.error('Error getting Mii tags:', e);
+        res.json({ error: 'Server error' });
+    }
+});
+
+// Add a new global Mii tag (Moderator+)
+site.post('/addMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
+    try {
+        const rawTag = typeof req.body?.tag === "string" ? req.body.tag : "";
+        const tag = normalizeTagValue(rawTag);
+
+        if (!tag) {
+            return res.json({ error: 'Tag name required' });
+        }
+        if (tag.includes(',')) {
+            return res.json({ error: 'Tag names cannot include commas' });
+        }
+        if (tag.length > MAX_MII_TAG_LENGTH) {
+            return res.json({ error: `Tag names must be ${MAX_MII_TAG_LENGTH} characters or fewer` });
+        }
+
+        const settings = await getSettings();
+        const tags = getMiiTags(settings);
+        const exists = tags.some(existing => existing.toLowerCase() === tag.toLowerCase());
+
+        if (exists) {
+            return res.json({ error: 'Tag already exists' });
+        }
+
+        tags.push(tag);
+        tags.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+        await updateSettings({ miiTags: tags });
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                type: 'rich',
+                title: `Mii Tag Created`,
+                description: `${req.cookies.username} created a new Mii tag`,
+                color: 0x00AAFF,
+                fields: [
+                    {
+                        name: 'Tag',
+                        value: tag,
+                        inline: true
+                    }
+                ]
+            }]
+        }));
+
+        res.json({ okay: true, tags });
+    } catch (e) {
+        console.error('Error adding Mii tag:', e);
+        res.json({ error: 'Server error' });
+    }
+});
+
+// Delete a global Mii tag and remove it from all Miis (Moderator+)
+site.post('/deleteMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
+    try {
+        const rawTag = typeof req.body?.tag === "string" ? req.body.tag : "";
+        const requestedTag = normalizeTagValue(rawTag);
+
+        if (!requestedTag) {
+            return res.json({ error: 'Tag name required' });
+        }
+
+        const settings = await getSettings();
+        const tags = getMiiTags(settings);
+        const tagToDelete = tags.find(tag => tag.toLowerCase() === requestedTag.toLowerCase());
+
+        if (!tagToDelete) {
+            return res.json({ error: 'Tag not found' });
+        }
+
+        const nextTags = tags.filter(tag => tag.toLowerCase() !== requestedTag.toLowerCase());
+        await updateSettings({ miiTags: nextTags });
+
+        const updateResult = await Miis.updateMany(
+            { tags: tagToDelete },
+            { $pull: { tags: tagToDelete } }
+        );
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                type: 'rich',
+                title: `${renderIcon('trash', { size: 14 })} Mii Tag Deleted`,
+                description: `${req.cookies.username} deleted a Mii tag`,
+                color: 0xFF9900,
+                fields: [
+                    {
+                        name: 'Tag',
+                        value: tagToDelete,
+                        inline: true
+                    },
+                    {
+                        name: 'Miis Updated',
+                        value: String(updateResult?.modifiedCount || 0),
+                        inline: true
+                    }
+                ]
+            }]
+        }));
+
+        res.json({ okay: true, tags: nextTags, updatedMiis: updateResult?.modifiedCount || 0 });
+    } catch (e) {
+        console.error('Error deleting Mii tag:', e);
+        res.json({ error: 'Server error' });
+    }
+});
+
+// Update tag assignments for a Mii (Moderator+)
+site.post('/updateMiiTags', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
+    try {
+        const miiId = typeof req.body?.miiId === "string" ? req.body.miiId.trim() : "";
+        const rawTags = req.body?.tags;
+
+        if (!miiId) {
+            return res.json({ error: 'Missing Mii ID' });
+        }
+        if (!Array.isArray(rawTags)) {
+            return res.json({ error: 'Tags must be an array' });
+        }
+
+        const mii = await getMiiById(miiId, true);
+        if (!mii) {
+            return res.json({ error: 'Mii not found' });
+        }
+
+        const settings = await getSettings();
+        const availableTags = getMiiTags(settings);
+        const requestedTags = normalizeTagList(rawTags);
+        const normalizedTags = mapRequestedTagsToCatalog(requestedTags, availableTags);
+
+        if (normalizedTags.length !== requestedTags.length) {
+            return res.json({ error: 'One or more tags are invalid. Please use only existing tags.' });
+        }
+
+        const oldTags = normalizeTagList(mii.tags || []);
+
+        await Miis.findOneAndUpdate(
+            { id: miiId },
+            { $set: { tags: normalizedTags } }
+        );
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                type: 'rich',
+                title: `${renderIcon('edit', { size: 14 })} Mii Tags Updated`,
+                description: `${req.cookies.username} updated tags for a Mii`,
+                color: 0x00AAFF,
+                fields: [
+                    {
+                        name: 'Mii',
+                        value: `[${mii.meta?.name || "Unknown"}](https://infinimii.com/mii/${miiId})`,
+                        inline: true
+                    },
+                    {
+                        name: 'Old Tags',
+                        value: oldTags.length ? oldTags.join(', ') : 'None',
+                        inline: false
+                    },
+                    {
+                        name: 'New Tags',
+                        value: normalizedTags.length ? normalizedTags.join(', ') : 'None',
+                        inline: false
+                    }
+                ]
+            }]
+        }));
+
+        res.json({ okay: true, tags: normalizedTags });
+    } catch (e) {
+        console.error('Error updating Mii tags:', e);
+        res.json({ error: 'Server error' });
+    }
+});
+
 // Get all official categories (nested structure)
 site.get('/getOfficialCategories', async (req, res) => {
     try {
         const settings = await getSettings();
-        res.json({ categories: settings.officialCategories });
+        res.json({ categories: { categories: getOfficialCategoryTree(settings) } });
     } catch (e) {
         console.error('Error getting categories:', e);
         res.json({ error: 'Server error' });
@@ -5493,19 +5821,25 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
         const { name, color, parentPath } = req.body;
 
         if (!name || !name.trim()) {
-            return res.json({ rror: 'Category name required' });
+            return res.json({ error: 'Category name required' });
         }
 
         const categoryName = name.trim();
+        if (categoryName.includes('/')) {
+            return res.json({ error: 'Category names cannot include "/"' });
+        }
+        const categoryColor = normalizeCategoryColor(color);
+        const normalizedParentPath = typeof parentPath === "string" && parentPath.trim() ? parentPath.trim() : null;
         
         const settings = await getSettings();
+        const categoryTree = getOfficialCategoryTree(settings);
         // Determine where to add the category
         let targetArray;
         let newPath;
         
-        if (!parentPath) {
+        if (!normalizedParentPath) {
             // Add as root category
-            targetArray = settings.officialCategories.categories;
+            targetArray = categoryTree;
             newPath = categoryName;
             
             // Check if already exists at root
@@ -5514,13 +5848,16 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
             }
         } else {
             // Add as child of parent
-            const parent = findCategoryByPath(parentPath);
+            const parent = findCategoryByPath(normalizedParentPath, categoryTree);
             if (!parent) {
                 return res.json({ error: 'Parent category not found' });
             }
+            if (!Array.isArray(parent.children)) {
+                parent.children = [];
+            }
             
             targetArray = parent.children;
-            newPath = `${parentPath}/${categoryName}`;
+            newPath = `${normalizedParentPath}/${categoryName}`;
             
             // Check if already exists under this parent
             if (targetArray.find(c => c.name === categoryName)) {
@@ -5530,7 +5867,7 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
 
         const newCategory = {
             name: categoryName,
-            color: color || "#999999",
+            color: categoryColor,
             path: newPath,
             children: []
         };
@@ -5544,7 +5881,7 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
                 type: 'rich',
                 title: `${renderIcon('folder', { size: 14 })} New Category Created`,
                 description: `${req.cookies.username} created a new category`,
-                color: parseInt(color?.replace('#', '') || '999999', 16),
+                color: parseInt(categoryColor.replace('#', ''), 16),
                 fields: [
                     {
                         name: 'Category Name',
@@ -5558,14 +5895,14 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
                     },
                     {
                         name: 'Parent',
-                        value: parentPath || 'Root',
+                        value: normalizedParentPath || 'Root',
                         inline: true
                     }
                 ]
             }]
         }));
 
-        res.json({ categories: settings.officialCategories.categories });
+        res.json({ categories: categoryTree });
     } catch (e) {
         console.error('Error adding category:', e);
         res.json({ error: 'Server error' });
@@ -5576,25 +5913,30 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
 site.post('/renameCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req, res) => {
     try {
         const { path, newName } = req.body;
+        const normalizedPath = typeof path === "string" ? path.trim() : "";
+        const newNameTrimmed = typeof newName === "string" ? newName.trim() : "";
 
-        if (!path || !newName || !newName.trim()) {
+        if (!normalizedPath || !newNameTrimmed) {
             return res.json({ error: 'Path and new name required' });
         }
+        if (newNameTrimmed.includes('/')) {
+            return res.json({ error: 'Category names cannot include "/"' });
+        }
 
-        const category = findCategoryByPath(path);
+        const settings = await getSettings();
+        const categoryTree = getOfficialCategoryTree(settings);
+        const category = findCategoryByPath(normalizedPath, categoryTree);
         if (!category) {
             return res.json({ error: 'Category not found' });
         }
 
-        const newNameTrimmed = newName.trim();
         const oldName = category.name;
         const oldPath = category.path;
 
         // Check if sibling with same name exists
-        const settings = await getSettings();
-        const parent = findParentByChildPath(path);
-        const siblings = parent ? parent.children : settings.officialCategories.categories;
-        if (siblings.find(c => c.name === newNameTrimmed && c.path !== path)) {
+        const parent = findParentByChildPath(normalizedPath, categoryTree);
+        const siblings = parent ? parent.children : categoryTree;
+        if (siblings.find(c => c.name === newNameTrimmed && c.path !== normalizedPath)) {
             return res.json({ error: 'A category with this name already exists at this level' });
         }
 
@@ -5605,7 +5947,7 @@ site.post('/renameCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
         category.name = newNameTrimmed;
         
         // Rebuild paths for this category and all descendants
-        const parentPath = path.substring(0, path.lastIndexOf('/'));
+        const parentPath = parent?.path || "";
         updateCategoryPaths(category, parentPath);
         
         // Get new paths after update
@@ -5656,7 +5998,7 @@ site.post('/renameCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
             }]
         }));
 
-        res.json({ categories: settings.officialCategories.categories, updatedMiis: totalUpdated });
+        res.json({ categories: categoryTree, updatedMiis: totalUpdated });
     } catch (e) {
         console.error('Error renaming category:', e);
         res.json({ error: 'Server error' });
@@ -5667,12 +6009,15 @@ site.post('/renameCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
 site.post('/deleteCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req, res) => {
     try {
         const { path } = req.body;
+        const normalizedPath = typeof path === "string" ? path.trim() : "";
 
-        if (!path) {
+        if (!normalizedPath) {
             return res.json({ error: 'Category path required' });
         }
 
-        const category = findCategoryByPath(path);
+        const settings = await getSettings();
+        const categoryTree = getOfficialCategoryTree(settings);
+        const category = findCategoryByPath(normalizedPath, categoryTree);
         if (!category) {
             return res.json({ error: 'Category not found' });
         }
@@ -5681,13 +6026,13 @@ site.post('/deleteCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
         const pathsToRemove = getAllDescendantPaths(category);
         
         // Remove from parent's children array
-        const settings = await getSettings();
-        const parent = findParentByChildPath(path);
+        const parent = findParentByChildPath(normalizedPath, categoryTree);
         if (parent) {
-            parent.children = parent.children.filter(c => c.path !== path);
+            parent.children = parent.children.filter(c => c.path !== normalizedPath);
         } else {
             // Remove from root
-            settings.officialCategories.categories = settings.officialCategories.categories.filter(c => c.path !== path);
+            const rootIndex = categoryTree.findIndex(c => c.path === normalizedPath);
+            if (rootIndex > -1) categoryTree.splice(rootIndex, 1);
         }
         
         // Remove all paths from all Miis
@@ -5713,7 +6058,7 @@ site.post('/deleteCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
                     },
                     {
                         name: 'Path',
-                        value: path,
+                        value: normalizedPath,
                         inline: true
                     },
                     {
@@ -5730,7 +6075,7 @@ site.post('/deleteCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
             }]
         }));
 
-        res.json({ categories: settings.officialCategories.categories, updatedMiis: totalUpdated });
+        res.json({ categories: getOfficialCategoryTree(settings), updatedMiis: totalUpdated });
     } catch (e) {
         console.error('Error deleting category:', e);
         res.json({ error: 'Server error' });
@@ -5741,61 +6086,75 @@ site.post('/deleteCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
 site.post('/moveCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req, res) => {
     try {
         const { categoryPath, newParentPath } = req.body;
+        const normalizedCategoryPath = typeof categoryPath === "string" ? categoryPath.trim() : "";
+        const normalizedNewParentPath = typeof newParentPath === "string" && newParentPath.trim()
+            ? newParentPath.trim()
+            : null;
 
-        if (!categoryPath) {
+        if (!normalizedCategoryPath) {
             return res.json({ error: 'Category path required' });
         }
 
-        const category = findCategoryByPath(categoryPath);
+        const settings = await getSettings();
+        const categoryTree = getOfficialCategoryTree(settings);
+        const category = findCategoryByPath(normalizedCategoryPath, categoryTree);
         if (!category) {
             return res.json({ error: 'Category not found' });
         }
 
         // Prevent moving to self or descendant
-        if (newParentPath && newParentPath.startsWith(categoryPath + '/')) {
+        if (normalizedNewParentPath && normalizedNewParentPath.startsWith(normalizedCategoryPath + '/')) {
             return res.json({ error: 'Cannot move category to its own descendant' });
         }
 
-        if (newParentPath === categoryPath) {
+        if (normalizedNewParentPath === normalizedCategoryPath) {
             return res.json({ error: 'Cannot move category to itself' });
         }
 
         // Get all paths before move
         const oldPaths = getAllDescendantPaths(category);
 
-        // Remove from current parent
-        const settings = await getSettings();
-        const oldParent = findParentByChildPath(categoryPath);
-        if (oldParent) {
-            oldParent.children = oldParent.children.filter(c => c.path !== categoryPath);
-        } else {
-            settings.officialCategories.categories = settings.officialCategories.categories.filter(c => c.path !== categoryPath);
+        const oldParent = findParentByChildPath(normalizedCategoryPath, categoryTree);
+        const oldParentPath = oldParent?.path || null;
+        if (normalizedNewParentPath === oldParentPath) {
+            return res.json({ error: 'Category is already under that parent' });
         }
 
         // Add to new parent
         let newParentNode;
         let newSiblings;
-        if (!newParentPath) {
+        if (!normalizedNewParentPath) {
             // Move to root
-            newSiblings = settings.officialCategories.categories;
+            newSiblings = categoryTree;
             newParentNode = null;
         } else {
-            newParentNode = findCategoryByPath(newParentPath);
+            newParentNode = findCategoryByPath(normalizedNewParentPath, categoryTree);
             if (!newParentNode) {
                 return res.json({ error: 'New parent category not found' });
+            }
+            if (!Array.isArray(newParentNode.children)) {
+                newParentNode.children = [];
             }
             newSiblings = newParentNode.children;
         }
 
         // Check for name conflict
-        if (newSiblings.find(c => c.name === category.name)) {
+        if (newSiblings.find(c => c.name === category.name && c.path !== normalizedCategoryPath)) {
             return res.json({ error: 'A category with this name already exists at the destination' });
+        }
+
+        // Remove from current parent
+        if (oldParent) {
+            oldParent.children = oldParent.children.filter(c => c.path !== normalizedCategoryPath);
+        } else {
+            const rootIndex = categoryTree.findIndex(c => c.path === normalizedCategoryPath);
+            if (rootIndex > -1) categoryTree.splice(rootIndex, 1);
         }
 
         newSiblings.push(category);
 
         // Update paths
-        updateCategoryPaths(category, newParentPath || '');
+        updateCategoryPaths(category, normalizedNewParentPath || '');
 
         // Get new paths after move
         const newPaths = getAllDescendantPaths(category);
@@ -5840,7 +6199,7 @@ site.post('/moveCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (re
             }]
         }));
 
-        res.json({ categories: settings.officialCategories.categories, updatedMiis: totalUpdated });
+        res.json({ categories: getOfficialCategoryTree(settings), updatedMiis: totalUpdated });
     } catch (e) {
         console.error('Error moving category:', e);
         res.json({ error: 'Server error' });
@@ -5849,15 +6208,14 @@ site.post('/moveCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (re
 // Publish a private Mii
 site.post('/publishMii', requireAuth,  async (req, res) => {
     try {
-        const { miiId } = req.body;
-        
-        if (mii.uploader !== req.cookies.username) {
-            return res.json({ error: 'Mii not found in your private collection' });
+        const miiId = String(req.body?.miiId || "").trim();
+        if (!miiId) {
+            return res.json({ error: 'Mii ID required' });
         }
 
         const mii = await Miis.findOne({ id: miiId, private: true }).lean();
-        if (!mii) {
-            return res.json({ error: 'Mii data not found' });
+        if (!mii || mii.uploader !== req.user.username) {
+            return res.json({ error: 'Mii not found in your private collection' });
         }
 
         // Check if blocked from publishing
@@ -5865,28 +6223,24 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
             return res.json({ error: 'This Mii has been blocked from publishing by a moderator. Please contact support if you believe this is an error.' });
         }
 
-        // Move files from private to public folders
-        try {
-            if (fs.existsSync(`./static/privateMiiImgs/${miiId}.png`)) {
-                fs.unlink(`./static/privateMiiImgs/${miiId}.png`,()=>{});
-            }
-            
-            if (fs.existsSync(`./static/privateMiiQRs/${miiId}.png`)) {
-                fs.unlink(`./static/privateMiiQRs/${miiId}.png`,()=>{});
-            }
-        } catch (e) {
-            console.error('Error moving Mii files:', e);
-            return res.json({ error: 'Error moving Mii files' });
-        }
+        const publicImgPath = `./static/miiImgs/${mii.id}.png`;
+        const publicQrPath = `./static/miiQRs/${mii.id}.png`;
+        let miiImageData = null;
 
-        //Because of security for private images, we can't just move the folders, we have to make new renders.
-        var miiImageData;
-        if (!fs.existsSync(`./static/miiImgs/${mii.id}.png`)) {
-            miiImageData=await miijs.renderMii(mii);
-            fs.writeFileSync(`./static/miiImgs/${mii.id}.png`, miiImageData);
+        // Because private assets are protected, we regenerate in public folders.
+        if (fs.existsSync(publicImgPath)) {
+            try {
+                miiImageData = fs.readFileSync(publicImgPath);
+            } catch (e) {
+                miiImageData = null;
+            }
         }
-        if (!fs.existsSync(`./static/miiQRs/${mii.id}.png`)) {
-            await writeQrPng(mii, `./static/miiQRs/${mii.id}.png`);
+        if (!miiImageData) {
+            miiImageData = await miijs.renderMii(mii);
+            fs.writeFileSync(publicImgPath, miiImageData);
+        }
+        if (!fs.existsSync(publicQrPath)) {
+            await writeQrPng(mii, publicQrPath);
         }
 
         // Update Mii status to published and public
@@ -5895,8 +6249,17 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
             { $set: { private: false, published: true } }
         );
 
+        // Remove private files after successful publish
+        deleteMiiAssets(miiId, true);
+
         // Notify Discord
-        var d = new Date();
+        const d = new Date();
+        const attachments = miiImageData ? [{
+            data: miiImageData,
+            filename: `${miiId}.png`,
+            contentType: 'image/png'
+        }] : [];
+
         makeReport(JSON.stringify({
             embeds: [{
                 "type": "rich",
@@ -5906,29 +6269,25 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
                 "fields": [
                     {
                         "name": `Mii Name`,
-                        "value": mii.meta.name,
+                        "value": mii.meta?.name || "Unknown",
                         "inline": true
                     },
                     {
                         "name": `Published by`,
-                        "value": `[${req.cookies.username}](https://infinimii.com/user/${encodeURIComponent(req.cookies.username)})`,
+                        "value": `[${req.user.username}](https://infinimii.com/user/${encodeURIComponent(req.user.username)})`,
                         "inline": true
                     }
                 ],
-                "image": {
-                    "url": `attachment://${miiId}.png`
-                },
+                ...(miiImageData ? {
+                    "image": {
+                        "url": `attachment://${miiId}.png`
+                    }
+                } : {}),
                 "footer": {
                     "text": `View: https://infinimii.com/mii/${miiId} | Published at ${d.getHours()}:${d.getMinutes()}, ${d.toDateString()} UTC`
                 }
             }]
-        }), [
-            {
-                data: miiImageData,
-                filename: `${miiId}.png`,
-                contentType: 'image/png'
-            }
-        ]);
+        }), attachments);
 
         res.json({ okay: true });
     } catch (e) {
@@ -5939,9 +6298,13 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
 // Block a private Mii from being published (Moderator only)
 site.post('/blockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
-        const { miiId, reason } = req.body;
+        const miiId = String(req.body?.miiId || "").trim();
+        const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
+        if (!miiId) {
+            return res.json({ error: 'Mii ID required' });
+        }
 
-        const mii = await Miis.findOne({ id: miiId, published: false }).lean();
+        const mii = await Miis.findOne({ id: miiId, private: true, published: false }).lean();
         if (!mii) {
             return res.json({ error: 'Unpublished Mii not found' });
         }
@@ -5984,6 +6347,55 @@ site.post('/blockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR), 
         res.json({ okay: true });
     } catch (e) {
         console.error('Error blocking Mii:', e);
+        res.json({ error: 'Server error' });
+    }
+});
+
+// Unblock a private Mii from being published (Moderator only)
+site.post('/unblockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
+    try {
+        const miiId = String(req.body?.miiId || "").trim();
+        if (!miiId) {
+            return res.json({ error: 'Mii ID required' });
+        }
+
+        const mii = await Miis.findOne({ id: miiId, private: true }).lean();
+        if (!mii) {
+            return res.json({ error: 'Private Mii not found' });
+        }
+
+        await Miis.findOneAndUpdate(
+            { id: miiId },
+            {
+                $set: { blockedFromPublishing: false },
+                $unset: { blockReason: 1 }
+            }
+        );
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                type: 'rich',
+                title: `${renderIcon('check', { size: 14 })} Private Mii Unblocked`,
+                description: `${req.cookies.username} unblocked a private Mii for publishing`,
+                color: 0x00AA00,
+                fields: [
+                    {
+                        name: 'Mii Name',
+                        value: mii.meta?.name || 'Unknown',
+                        inline: true
+                    },
+                    {
+                        name: 'Uploader',
+                        value: mii.uploader,
+                        inline: true
+                    }
+                ]
+            }]
+        }));
+
+        res.json({ okay: true });
+    } catch (e) {
+        console.error('Error unblocking Mii:', e);
         res.json({ error: 'Server error' });
     }
 });

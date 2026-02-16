@@ -30,7 +30,7 @@
                         <% availableCategories.forEach(category => { %>
                             <a href="/official?category=<%= encodeURIComponent(category.path) %>" 
                             class="filter-btn <%= currentFilter === category.path ? 'active' : '' %>"
-                            style="border-left: 3px solid '<%= category.color %>'">
+                            style="--category-color: <%= category.color || '#999999' %>;">
                                 <%= category.name %>
                                 <% if(category.fullPath) { %>
                                     <span class="category-path"><%= category.fullPath %></span>

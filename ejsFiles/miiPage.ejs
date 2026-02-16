@@ -126,7 +126,10 @@
                             </div>
                             <% } %>
                                 <script>
-                                const currentCategories = '<%- JSON.stringify(mii.officialCategories || []) %>';
+                                const currentCategories = <%- JSON.stringify(mii.officialCategories || []) %>;
+                                const currentMiiTags = <%- JSON.stringify(mii.tags || []) %>;
+                                const availableMiiTags = <%- JSON.stringify(availableTags || []) %>;
+                                let selectedMiiTags = new Set(currentMiiTags);
                                 let officialCategories = [];
                                 let selectedPaths = new Set(currentCategories);
                                 let expandedNodes = new Set();
@@ -169,44 +172,23 @@
                                     }
                                     
                                     const modal = document.createElement('div');
-                                    modal.style.cssText = `
-                                        position: fixed;
-                                        top: 0;
-                                        left: 0;
-                                        width: 100%;
-                                        height: 100%;
-                                        background: rgba(0,0,0,0.5);
-                                        display: flex;
-                                        justify-content: center;
-                                        align-items: center;
-                                        z-index: 10000;
-                                    `;
+                                    modal.className = 'category-modal-overlay';
+                                    modal.id = 'categoryModal';
                                     
                                     const modalContent = document.createElement('div');
-                                    modalContent.style.cssText = `
-                                        background: white;
-                                        padding: 30px;
-                                        border-radius: 12px;
-                                        max-width: 800px;
-                                        width: 90%;
-                                        max-height: 90vh;
-                                        display: flex;
-                                        flex-direction: column;
-                                    `;
+                                    modalContent.className = 'category-modal-panel';
                                     
                                     modalContent.innerHTML = `
-                                        <h3 style="margin-top: 0;">Select Categories</h3>
-                                        <p style="color: #666; margin-bottom: 20px;">Check all categories that apply. Only leaf categories (without children) can be selected.</p>
-                                        <div style="flex: 1; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 15px; background: #f9f9f9;">
+                                        <h3 class="category-modal-title">Select Categories</h3>
+                                        <p class="category-modal-help">Check all categories that apply. Only leaf categories (without children) can be selected.</p>
+                                        <div class="category-modal-tree-wrap">
                                             <div id="modalCategoryTree"></div>
                                         </div>
-                                        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                                            <button onclick="closeCategoryModal()" 
-                                                    style="padding: 10px 20px; border: 2px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                                        <div class="category-modal-actions">
+                                            <button onclick="closeCategoryModal()" class="category-modal-btn category-modal-btn-cancel">
                                                 Cancel
                                             </button>
-                                            <button onclick="saveCategoriesFromModal()" 
-                                                    style="padding: 10px 20px; border: none; background: #4CAF50; color: white; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                                            <button onclick="saveCategoriesFromModal()" class="category-modal-btn category-modal-btn-save">
                                                 Save Categories
                                             </button>
                                         </div>
@@ -214,7 +196,6 @@
                                     
                                     modal.appendChild(modalContent);
                                     document.body.appendChild(modal);
-                                    modal.id = 'categoryModal';
                                     
                                     renderModalTree();
                                     
@@ -241,33 +222,34 @@
                                         const isLeaf = !hasChildren;
                                         const isSelected = selectedPaths.has(node.path);
                                         const indent = level * 20;
+                                        const nodeColor = node.color || '#999999';
                                         
                                         html += `
-                                            <div style="margin-left: ${indent}px; margin-bottom: 6px;">
-                                                <div style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border-left: 3px solid ${node.color};">
+                                            <div class="modal-category-node" style="--tree-indent: ${indent}px; --node-color: ${nodeColor};">
+                                                <div class="modal-category-line">
                                                     ${hasChildren ? `
-                                                        <span style="cursor: pointer; margin-right: 8px; user-select: none; color: #666;" onclick="toggleModalNode('${node.path}')">
+                                                        <span class="modal-category-toggle" onclick="toggleModalNode('${node.path}')">
                                                             ${isExpanded ? '▼' : '▶'}
                                                         </span>
-                                                    ` : '<span style="width: 18px; display: inline-block; text-align: center; margin-right: 8px; color: #ccc;">•</span>'}
+                                                    ` : '<span class="modal-category-leaf-marker">•</span>'}
                                                     
                                                     ${isLeaf ? `
-                                                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;">
+                                                        <label class="modal-category-label">
                                                             <input type="checkbox" 
                                                                 class="category-selector"
                                                                 value="${node.path}"
                                                                 ${isSelected ? 'checked' : ''}
                                                                 onchange="updateModalSelection('${node.path}', this.checked)">
-                                                            <span style="color: ${node.color}; font-weight: 500;">${node.name}</span>
-                                                            <span style="color: #999; font-size: 0.85em; margin-left: auto;">${node.path}</span>
+                                                            <span class="modal-category-label-name">${node.name}</span>
+                                                            <span class="modal-category-path">${node.path}</span>
                                                         </label>
                                                     ` : `
-                                                        <span style="color: ${node.color}; font-weight: 600; font-size: 1.05em;">${node.name}</span>
+                                                        <span class="modal-category-parent-name">${node.name}</span>
                                                     `}
                                                 </div>
                                                 
                                                 ${hasChildren && isExpanded ? `
-                                                    <div style="margin-top: 6px;">
+                                                    <div class="modal-category-children">
                                                         ${renderModalNodes(node.children, level + 1)}
                                                     </div>
                                                 ` : ''}
@@ -331,76 +313,18 @@
                                     }
                                 }
                                 </script>
-
-                                <style>
-                                    .official-categories-section {
-                                        grid-column: 1 / -1;
-                                        padding: 15px;
-                                        background: #f0f8ff;
-                                        border-radius: 8px;
-                                        border: 2px solid #bbdefb;
-                                    }
-
-                                    .categories-display {
-                                        display: flex;
-                                        flex-wrap: wrap;
-                                        gap: 8px;
-                                        margin: 10px 0;
-                                    }
-
-                                    .category-badge {
-                                        display: inline-block;
-                                        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-                                        color: #0066cc;
-                                        padding: 6px 12px;
-                                        border-radius: 12px;
-                                        font-size: 0.9em;
-                                        font-weight: 500;
-                                        border: 1px solid #90caf9;
-                                    }
-
-                                    .no-categories {
-                                        color: #999;
-                                        font-style: italic;
-                                    }
-
-                                    .edit-categories-btn,
-                                    .manage-cats-btn {
-                                        background: #0066cc;
-                                        color: white;
-                                        border: none;
-                                        padding: 8px 16px;
-                                        border-radius: 6px;
-                                        cursor: pointer;
-                                        font-weight: bold;
-                                        margin-top: 10px;
-                                        margin-right: 10px;
-                                        transition: background 0.3s;
-                                        text-decoration: none;
-                                        display: inline-block;
-                                    }
-
-                                    .edit-categories-btn:hover,
-                                    .manage-cats-btn:hover {
-                                        background: #0052a3;
-                                    }
-
-                                    .manage-cats-btn {
-                                        background: #2196F3;
-                                    }
-
-                                    .manage-cats-btn:hover {
-                                        background: #0b7dda;
-                                    }
-
-                                    #categoryModal .category-selector {
-                                        cursor: pointer;
-                                        width: 18px;
-                                        height: 18px;
-                                    }
-                                    </style>
-                            <% if(isOfficial) { %>
-                                    <% } %>
+                            <div class="mii-tags-section">
+                                <span class="info-label">Tags</span>
+                                <% if(Array.isArray(mii.tags) && mii.tags.length > 0) { %>
+                                    <div class="mii-tags-list">
+                                        <% mii.tags.forEach(tag => { %>
+                                            <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                                        <% }); %>
+                                    </div>
+                                <% } else { %>
+                                    <span class="no-tags">No tags assigned.</span>
+                                <% } %>
+                            </div>
                         </div>
                     </div>
                     <% if(isPrivate) { %>
@@ -424,11 +348,14 @@
                             <div style="background: #fff3cd; border: 2px solid #ff6600; padding: 15px; margin: 15px; border-radius: 8px;">
                                 <strong><%- include('icon', { name: 'shield', size: 16, class: 'icon-inline' }) %> Moderator Actions</strong>
                                 <% if(!mii.blockedFromPublishing) { %>
-                                    <button onclick="blockFromPublishing()" style="background: #ff6600; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+                                    <button onclick="blockMiiFromPublishing()" style="background: #ff6600; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
                                         <%- include('icon', { name: 'ban', size: 16 }) %> Block from Publishing
                                     </button>
                                 <% } else { %>
                                     <p style="margin: 10px 0;">This Mii is already blocked from publishing.</p>
+                                    <button onclick="unblockMiiFromPublishing()" style="background: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
+                                        <%- include('icon', { name: 'check', size: 16 }) %> Unblock Publishing
+                                    </button>
                                 <% } %>
                             </div>
                         <% } %>
@@ -587,6 +514,14 @@
                                     <button onclick="updateMiiField('uploader', document.getElementById('editUploader').value)">Change Uploader</button>
                                 </div>
 
+                                <!-- Edit Tags -->
+                                <div class="mod-tool-item mod-tag-selector">
+                                    <label>Mii Tags:</label>
+                                    <div id="modMiiTagList" class="mod-tag-list"></div>
+                                    <p class="mod-tag-hint">Only existing tags can be assigned. Create or delete tags from the Search page.</p>
+                                    <button onclick="saveMiiTags()">Update Tags</button>
+                                </div>
+
                                 <!-- Toggle Official Status -->
                                 <div class="mod-tool-item">
                                     <label>Official Mii Status:</label>
@@ -662,6 +597,28 @@
                     headers: { "Content-Type": "application/json" },
                 });
             }
+            async function publishThisMii() {
+                showConfirm('Are you sure you want to publish this Mii? It will become visible to everyone.', async () => {
+                    try {
+                        const response = await fetch('/publishMii', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ miiId: '<%= mii.id %>' })
+                        });
+                        const result = await response.json();
+
+                        if (!result.error) {
+                            showAlert('Mii published successfully!', 3000, { title: 'Success', type: 'success' });
+                            setTimeout(() => location.reload(), 3000);
+                        } else {
+                            showAlert(`Error: ${result.error || 'Failed to publish Mii'}`, 5000, { title: 'Error', type: 'error' });
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        showAlert('Error publishing Mii', 5000, { title: 'Error', type: 'error' });
+                    }
+                }, null, { title: 'Publish Mii', confirmText: 'Publish' });
+            }
             async function openMiiInstructions(event) {
                 event.preventDefault();
                 if (typeof showMiiInstructionsModal !== 'function') {
@@ -686,7 +643,12 @@
             async function copyMiiExportText(formId, encoding) {
                 const form = document.getElementById(formId);
                 if (!form) return;
-                await copyExportTextFromForm(form, encoding);
+                const normalizedEncoding = String(encoding || '').trim().toLowerCase();
+                if (normalizedEncoding === 'base64') {
+                    await copyExportBase64FromForm(form);
+                    return;
+                }
+                await copyExportHexFromForm(form);
             }
         </script>
 
@@ -746,6 +708,84 @@
                     
                     content.classList.toggle('expanded');
                     arrow.classList.toggle('rotated');
+                }
+
+                function renderModMiiTagList() {
+                    const container = document.getElementById('modMiiTagList');
+                    if (!container) return;
+
+                    container.innerHTML = '';
+
+                    if (!Array.isArray(availableMiiTags) || availableMiiTags.length === 0) {
+                        const emptyState = document.createElement('p');
+                        emptyState.className = 'mod-tag-empty';
+                        emptyState.innerHTML = 'No tags created yet. <a href="/search">Create tags on the Search page</a>.';
+                        container.appendChild(emptyState);
+                        return;
+                    }
+
+                    availableMiiTags.forEach((tag) => {
+                        const label = document.createElement('label');
+                        label.className = 'mod-tag-option';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = tag;
+                        checkbox.checked = selectedMiiTags.has(tag);
+                        checkbox.addEventListener('change', (event) => {
+                            if (event.target.checked) {
+                                selectedMiiTags.add(tag);
+                            } else {
+                                selectedMiiTags.delete(tag);
+                            }
+                        });
+
+                        const text = document.createElement('span');
+                        text.textContent = tag;
+
+                        label.appendChild(checkbox);
+                        label.appendChild(text);
+                        container.appendChild(label);
+                    });
+                }
+
+                async function saveMiiTags() {
+                    if (!Array.isArray(availableMiiTags) || availableMiiTags.length === 0) {
+                        showAlert('Create at least one tag on the Search page first.', 5000, { title: 'Error', type: 'error' });
+                        return;
+                    }
+
+                    const tags = Array.from(selectedMiiTags);
+
+                    showConfirm('Update tags for this Mii?', async () => {
+                        try {
+                            const response = await fetch('/updateMiiTags', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    miiId: '<%= mii.id %>',
+                                    tags
+                                })
+                            });
+
+                            const result = await response.json();
+                            if (!result.error) {
+                                showAlert('Tags updated successfully!', 3000, { title: 'Success', type: 'success' });
+                                setTimeout(() => location.reload(), 3000);
+                            } else {
+                                showAlert(`Error: ${result.error || 'Failed to update tags'}`, 5000, { title: 'Error', type: 'error' });
+                            }
+                        } catch (error) {
+                            console.error('Error updating tags:', error);
+                            showAlert('Failed to update tags', 5000, { title: 'Error', type: 'error' });
+                        }
+                    }, null, { title: 'Update Mii Tags', confirmText: 'Update' });
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', renderModMiiTagList);
+                } else {
+                    renderModMiiTagList();
                 }
 
                 async function updateMiiField(field, value) {
@@ -829,14 +869,16 @@
 
                         (async () => {
                             try {
-                                const response = await fetch('/deleteMii?id=<%= mii.id %>', {
+                                const response = await fetch('/deleteMii', {
+                                    method: 'POST',
                                     headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ id: '<%= mii.id %>' })
                                 });
                                 const result = await response.json();
                                 
                                 if (!result.error) {
                                     showAlert('Mii deleted successfully', 2000, { title: 'Success', type: 'success' });
-                                    setTimeout(() => window.location.href = result.redirect, 2000);
+                                    setTimeout(() => window.location.href = result.redirect || '/', 2000);
                                 }
                                 else {
                                     showAlert('Error deleting Mii', 5000, { title: 'Error', type: 'error' });

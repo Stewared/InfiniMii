@@ -95,17 +95,18 @@
                     const hasChildren = node.children && node.children.length > 0;
                     const isExpanded = expandedNodes.has(node.path);
                     const indent = level * 20;
+                    const nodeColor = node.color || '#999999';
                     
                     html += `
-                        <li class="tree-node" style="margin-left: ${indent}px;" data-path="${node.path}">
-                            <div class="node-content" style="border-left: 4px solid ${node.color}">
+                        <li class="tree-node" style="--tree-indent: ${indent}px; --node-color: ${nodeColor};" data-path="${node.path}">
+                            <div class="node-content">
                                 ${hasChildren ? `
                                     <span class="toggle-btn" onclick="toggleNode('${node.path}')">
                                         ${isExpanded ? '▼' : '▶'}
                                     </span>
                                 ` : '<span class="no-toggle">•</span>'}
                                 
-                                <span class="node-name" style="color: ${node.color}">${node.name}</span>
+                                <span class="node-name">${node.name}</span>
                                 
                                 ${hasChildren ? `<span class="child-count">(${node.children.length})</span>` : ''}
                                 

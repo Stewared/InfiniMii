@@ -238,8 +238,8 @@
                                     </select>
                                 </label>
                                 <button type="submit" class="btn btn-secondary">Download</button>
-                                <button type="button" class="btn btn-secondary" onclick="copyExportTextFromForm(document.getElementById('extractedExportForm'), 'hex')">Copy Hex</button>
-                                <button type="button" class="btn btn-secondary" onclick="copyExportTextFromForm(document.getElementById('extractedExportForm'), 'base64')">Copy Base64</button>
+                                <button type="button" class="btn btn-secondary" onclick="copyExportHexFromForm(document.getElementById('extractedExportForm'))">Copy Hex</button>
+                                <button type="button" class="btn btn-secondary" onclick="copyExportBase64FromForm(document.getElementById('extractedExportForm'))">Copy Base64</button>
                             </form>
                             <button type="button" class="btn btn-secondary" id="extractedInstructionsBtn" onclick="openExtractedInstructions()">Recreation Instructions</button>
                         </div>
@@ -294,8 +294,8 @@
                         
                         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 12px;">
                             <button type="submit" class="btn btn-primary">Insert Mii & Download</button>
-                            <button type="button" class="btn btn-secondary" onclick="copyExportTextFromForm(document.getElementById('insertForm'), 'hex', { url: '/insertMiiIntoAmiibo', method: 'POST' })">Copy Hex</button>
-                            <button type="button" class="btn btn-secondary" onclick="copyExportTextFromForm(document.getElementById('insertForm'), 'base64', { url: '/insertMiiIntoAmiibo', method: 'POST' })">Copy Base64</button>
+                            <button type="button" class="btn btn-secondary" onclick="copyExportHexFromForm(document.getElementById('insertForm'), { url: '/insertMiiIntoAmiibo', method: 'POST' })">Copy Hex</button>
+                            <button type="button" class="btn btn-secondary" onclick="copyExportBase64FromForm(document.getElementById('insertForm'), { url: '/insertMiiIntoAmiibo', method: 'POST' })">Copy Base64</button>
                             <button type="button" class="btn btn-secondary" id="insertInstructionsBtn" onclick="openInsertInstructions()">Recreation Instructions</button>
                         </div>
                     </form>
