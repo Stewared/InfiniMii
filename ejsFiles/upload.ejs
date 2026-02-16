@@ -38,7 +38,6 @@
                                         </p>
                                     </div>
                                 </div>
-                                <input type="hidden" name="fromAmiibo" value="<%= fromAmiibo.id %>">
                             </div>
                         <% } %>
                         <div class="upload-instructions">
@@ -73,6 +72,7 @@
                                     <input type="file" name="mii" required id="mii-upload">
                                 <% } else { %>
                                     <input type="hidden" name="type" value="3dsbin_amiibo">
+                                    <input type="hidden" name="fromAmiibo" value="<%= fromAmiibo.id %>">
                                 <% } %>
                                 
                                 <label for="mii-description">Description (Max 250 charactrs):</label>

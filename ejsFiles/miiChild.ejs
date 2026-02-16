@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%
+        const pageTitle = 'Mii Child Generator - InfiniMii';
+        const pageDesc = 'Upload two Miis and generate a Tomodachi-style child progression with optional name, gender, and favorite color overrides.';
+        const canonicalUrl = `${baseUrl}/miiChild`;
+        const keywords = 'mii child generator, make mii child, tomodachi life child, mii baby, mii tool';
+        %>
+        <%- include('metaTags') %>
+        <%- include('structuredData') %>
+
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+        <link rel="stylesheet" href="/miiChild.css">
+    </head>
+    <body>
+        <%- include('globalStyle') %>
+        <%- include('header') %>
+        <%- include('accountDisplay') %>
+
+        <main class="content" role="main">
+            <%- include('sidebar') %>
+
+            <section class="utility-container child-maker-container">
+                <form id="miiChildForm" method="POST" enctype="multipart/form-data" action="/makeMiiChild">
+                    <fieldset>
+                        <legend>Generate Mii Child</legend>
+
+                        <p class="note">
+                            Upload two parent Miis. The server will generate all six life stages using MiiJS <code>makeMiiChild</code>.
+                        </p>
+
+                        <div class="child-maker-file-grid">
+                            <div>
+                                <label for="parentA">Parent A Mii file</label>
+                                <input type="file" id="parentA" name="parentA" required aria-required="true">
+                            </div>
+                            <div>
+                                <label for="parentB">Parent B Mii file</label>
+                                <input type="file" id="parentB" name="parentB" required aria-required="true">
+                            </div>
+                        </div>
+
+                        <details class="child-options">
+                            <summary>Optional Child Overrides</summary>
+                            <div class="child-options-grid">
+                                <div>
+                                    <label for="childName">Child Name</label>
+                                    <input type="text" id="childName" name="childName" placeholder="Leave blank for random name">
+                                </div>
+                                <div>
+                                    <label for="childGender">Child Gender</label>
+                                    <select id="childGender" name="childGender">
+                                        <option value="">Random (default)</option>
+                                        <option value="0">Male</option>
+                                        <option value="1">Female</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="childFavoriteColor">Favorite Color</label>
+                                    <select id="childFavoriteColor" name="childFavoriteColor">
+                                        <option value="">Random (default)</option>
+                                        <% favoriteColors.forEach((color, index) => { %>
+                                            <option value="<%= index %>"><%= color %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                        </details>
+
+                        <div id="childMakerMessage" class="form-message" style="display: none;"></div>
+                        <input type="submit" value="Generate Child Stages">
+                    </fieldset>
+                </form>
+
+                <section id="childResults" class="child-results" hidden>
+                    <h3>Generated Child Stages</h3>
+                    <p class="note">Each result includes raw Mii values and real-world measurement conversions.</p>
+                    <div id="childResultsGrid" class="child-results-grid"></div>
+                </section>
+            </section>
+
+            <%- include('featuredMiis') %>
+        </main>
+
+        <%- include('footer') %>
+
+        <script>
+            const childForm = document.getElementById('miiChildForm');
+            const childResults = document.getElementById('childResults');
+            const childResultsGrid = document.getElementById('childResultsGrid');
+
+            function asFiniteNumber(value, fallback = 0) {
+                const parsed = Number(value);
+                return Number.isFinite(parsed) ? parsed : fallback;
+            }
+
+            function formatHeight(heightMeasurements) {
+                const feet = asFiniteNumber(heightMeasurements?.feet);
+                const inches = asFiniteNumber(heightMeasurements?.inches);
+                const centimeters = asFiniteNumber(heightMeasurements?.centimeters);
+                return `${feet}' ${inches.toFixed(0)}" (${centimeters.toFixed(1)} cm)`;
+            }
+
+            function formatWeight(weightMeasurements) {
+                const pounds = asFiniteNumber(weightMeasurements?.pounds);
+                const kilograms = asFiniteNumber(weightMeasurements?.kilograms);
+                return `${pounds.toFixed(1)} lbs (${kilograms.toFixed(1)} kg)`;
+            }
+
+            function buildStatRow(label, value) {
+                const row = document.createElement('p');
+                row.className = 'child-stage-stat';
+
+                const labelEl = document.createElement('span');
+                labelEl.className = 'child-stage-stat-label';
+                labelEl.textContent = `${label}:`;
+
+                const valueEl = document.createElement('span');
+                valueEl.className = 'child-stage-stat-value';
+                valueEl.textContent = value;
+
+                row.appendChild(labelEl);
+                row.appendChild(valueEl);
+                return row;
+            }
+
+            function renderChildStages(children) {
+                childResultsGrid.innerHTML = '';
+
+                children.forEach((stage, index) => {
+                    const stageCard = document.createElement('article');
+                    stageCard.className = 'child-stage-card';
+
+                    const stageHeader = document.createElement('h4');
+                    stageHeader.textContent = stage.stageLabel || `Stage ${index + 1}`;
+
+                    const stageImage = document.createElement('img');
+                    stageImage.src = stage.renderDataUri;
+                    stageImage.alt = `${stage?.meta?.name || 'Child Mii'} - ${stageHeader.textContent}`;
+                    stageImage.loading = 'lazy';
+
+                    const statsWrap = document.createElement('div');
+                    statsWrap.className = 'child-stage-stats';
+
+                    const name = stage?.meta?.name || 'Unknown';
+                    const miiHeight = asFiniteNumber(stage?.general?.height);
+                    const miiWeight = asFiniteNumber(stage?.general?.weight);
+
+                    statsWrap.appendChild(buildStatRow('Name', name));
+                    statsWrap.appendChild(buildStatRow('Mii Height', `${miiHeight}`));
+                    statsWrap.appendChild(buildStatRow('Mii Weight', `${miiWeight}`));
+                    statsWrap.appendChild(buildStatRow('Height (Real)', formatHeight(stage.heightMeasurements)));
+                    statsWrap.appendChild(buildStatRow('Weight (Real)', formatWeight(stage.weightMeasurements)));
+
+                    stageCard.appendChild(stageHeader);
+                    stageCard.appendChild(stageImage);
+                    stageCard.appendChild(statsWrap);
+                    childResultsGrid.appendChild(stageCard);
+                });
+
+                childResults.hidden = false;
+            }
+
+            childForm.addEventListener('submit', function(e) {
+                handleFormSubmit(e, '/makeMiiChild', 'Generating...', 'childMakerMessage', {
+                    onSuccess: (result, messageDiv) => {
+                        const children = Array.isArray(result?.children) ? result.children : [];
+
+                        if (children.length === 0) {
+                            messageDiv.textContent = 'No child stages were returned.';
+                            messageDiv.className = 'form-message error';
+                            messageDiv.style.display = 'block';
+                            childResults.hidden = true;
+                            childResultsGrid.innerHTML = '';
+                            return;
+                        }
+
+                        messageDiv.textContent = `Generated ${children.length} child stage${children.length === 1 ? '' : 's'}.`;
+                        messageDiv.className = 'form-message success';
+                        messageDiv.style.display = 'block';
+                        renderChildStages(children);
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>

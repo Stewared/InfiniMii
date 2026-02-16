@@ -1,9 +1,14 @@
-import { WiimoteMiiManager, MiiSlot } from './wiimote-lib.js';
+import { WiimoteMiiManager, MiiSlot, constants } from './wiimote-lib.js';
+
+const WIIMOTE_MANAGER_BUILD = '2026-02-16-cache-bust-1';
+window.__WIIMOTE_MANAGER_BUILD = WIIMOTE_MANAGER_BUILD;
+console.info('[wiimote-manager] build', WIIMOTE_MANAGER_BUILD);
 
 // Initialize manager
 const manager = new WiimoteMiiManager();
 let selectedSlot = null;
 let currentSlots = [];
+let currentImportSource = 'studio';
 
 // Check API support
 const hasHID = !!navigator.hid;
@@ -102,6 +107,10 @@ window.readAllSlots = async function() {
         const slots = await manager.readAllSlots();
         currentSlots = slots;
         await renderSlots(slots);
+        const failedReads = slots.filter(s => s.readError);
+        if (failedReads.length > 0) {
+            log(`Read completed with ${failedReads.length} slot error(s). Failed slots were left empty.`, 'error');
+        }
         log(`Read ${slots.filter(s => !s.isEmpty).length} Miis`, 'success');
     } catch (error) {
         log(`Read error: ${error.message}`, 'error');
@@ -111,67 +120,60 @@ window.readAllSlots = async function() {
 async function renderSlots(slots) {
     const grid = document.getElementById('miiGrid');
     grid.innerHTML = '';
-    
+
     for (let index = 0; index < slots.length; index++) {
         const slot = slots[index];
         const div = document.createElement('div');
         div.className = `mii-slot ${slot.isEmpty ? 'empty' : ''} ${selectedSlot === index ? 'selected' : ''}`;
-        
-        if (slot.isEmpty) {
+
+        if (slot.readError) {
             div.innerHTML = `
                 <div class="mii-avatar">
-                    <div class="loading">❓</div>
+                    <div class="loading">!</div>
+                </div>
+                <div class="mii-name">Slot ${index + 1}</div>
+                <div class="mii-info">Read failed</div>
+            `;
+        } else if (slot.isEmpty) {
+            div.innerHTML = `
+                <div class="mii-avatar">
+                    <div class="loading">?</div>
                 </div>
                 <div class="mii-name">Slot ${index + 1}</div>
                 <div class="mii-info">Empty</div>
             `;
         } else {
-            // Show loading state initially
             div.innerHTML = `
                 <div class="mii-avatar">
-                    <div class="loading">⏳</div>
+                    <div class="loading">...</div>
                 </div>
                 <div class="mii-name">${slot.name || 'Loading...'}</div>
                 <div class="mii-info">Rendering...</div>
             `;
-            
-            // Render Mii image via server endpoint
-            try {
-                const miiData = slot.toBase64();
-                const response = await fetch('/api/renderMii', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ miiData })
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const imageUrl = URL.createObjectURL(blob);
-                    
-                    div.innerHTML = `
-                        <div class="mii-avatar">
-                            <img src="${imageUrl}" alt="${slot.name || 'Mii'}">
-                        </div>
-                        <div class="mii-name">${slot.name || 'Unknown'}</div>
-                        <div class="mii-info">ID: ${slot.miiId?.toString(16)?.toUpperCase() || 'N/A'}</div>
-                    `;
-                } else {
-                    throw new Error('Failed to render Mii');
-                }
-            } catch (error) {
-                log(`Failed to render Mii in slot ${index + 1}: ${error.message}`, 'error');
-                div.innerHTML = `
-                    <div class="mii-avatar">
-                        <div class="loading">😊</div>
-                    </div>
-                    <div class="mii-name">${slot.name || 'Unknown'}</div>
-                    <div class="mii-info">Render failed</div>
-                `;
-            }
+
+            const avatarEl = div.querySelector('.mii-avatar');
+            const nameEl = div.querySelector('.mii-name');
+            const infoEl = div.querySelector('.mii-info');
+            const imageUrl = `/render?miiData=${encodeURIComponent(slot.toBase64())}`;
+
+            const img = document.createElement('img');
+            img.alt = slot.name || 'Mii';
+            img.onload = () => {
+                nameEl.textContent = slot.name || 'Unknown';
+                infoEl.textContent = `ID: ${slot.miiId?.toUpperCase() || 'N/A'}`;
+            };
+            img.onerror = () => {
+                log(`Failed to render Mii in slot ${index + 1}`, 'error');
+                avatarEl.innerHTML = '<div class="loading">:)</div>';
+                nameEl.textContent = slot.name || 'Unknown';
+                infoEl.textContent = 'Render failed';
+            };
+            img.src = imageUrl;
+
+            avatarEl.innerHTML = '';
+            avatarEl.appendChild(img);
         }
-        
+
         div.onclick = () => selectSlot(index);
         grid.appendChild(div);
     }
@@ -199,27 +201,30 @@ window.exportSelected = function() {
     if (selectedSlot === null) return;
     
     const slot = currentSlots[selectedSlot];
-    if (!slot || slot.isEmpty) {
+    if (!slot || slot.isEmpty || slot.readError) {
         log('Cannot export empty slot', 'error');
         return;
     }
-    
-    const data = {
-        name: slot.name,
-        slot: selectedSlot,
-        data: slot.toBase64()
-    };
-    
-    document.getElementById('exportData').value = JSON.stringify(data, null, 2);
-    document.getElementById('exportModal').classList.add('active');
-    log(`Exported Mii "${slot.name}"`, 'success');
-};
 
-window.copyExportData = function() {
-    const textarea = document.getElementById('exportData');
-    textarea.select();
-    document.execCommand('copy');
-    log('Copied to clipboard!', 'success');
+    const fallbackName = `wiimote_slot_${selectedSlot + 1}`;
+    const safeBaseName = (slot.name || fallbackName)
+        .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+        .trim()
+        .replace(/\s+/g, '_')
+        .slice(0, 64) || fallbackName;
+    const fileName = `${safeBaseName}.rcd`;
+
+    const blob = new Blob([slot.toBytes()], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    log(`Downloaded ${fileName}`, 'success');
 };
 
 window.showImportModal = function() {
@@ -227,32 +232,97 @@ window.showImportModal = function() {
         log('Please select a slot first', 'error');
         return;
     }
-    document.getElementById('importData').value = '';
+
+    document.getElementById('importStudioCode').value = '';
+    document.getElementById('importMiiId').value = '';
+    document.getElementById('importRcdFile').value = '';
+
+    const defaultSource = document.querySelector('input[name="importSource"][value="studio"]');
+    if (defaultSource) {
+        defaultSource.checked = true;
+    }
+    window.setImportSource('studio');
+
     document.getElementById('importModal').classList.add('active');
+};
+
+window.setImportSource = function(source) {
+    currentImportSource = source;
+
+    document.querySelectorAll('.import-source-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+
+    if (source === 'studio') {
+        document.getElementById('importSourceStudio').classList.add('active');
+    } else if (source === 'miiId') {
+        document.getElementById('importSourceMiiId').classList.add('active');
+    } else if (source === 'rcd') {
+        document.getElementById('importSourceRcd').classList.add('active');
+    }
 };
 
 window.importMii = async function() {
     try {
-        const dataStr = document.getElementById('importData').value.trim();
-        let miiData;
-        
-        try {
-            // Try parsing as JSON
-            const json = JSON.parse(dataStr);
-            miiData = json.data || json;
-        } catch {
-            // Assume it's raw base64
-            miiData = dataStr;
+        if (selectedSlot === null) {
+            log('Please select a slot first', 'error');
+            return;
         }
-        
-        const miiSlot = MiiSlot.fromBase64(selectedSlot, miiData);
+
+        const source = document.querySelector('input[name="importSource"]:checked')?.value || currentImportSource;
+        const formData = new FormData();
+        formData.append('source', source);
+
+        if (source === 'studio') {
+            const studioCode = document.getElementById('importStudioCode').value.trim();
+            if (!studioCode) {
+                log('Please paste a Studio code first', 'error');
+                return;
+            }
+            formData.append('studioCode', studioCode);
+        } else if (source === 'miiId') {
+            const miiId = document.getElementById('importMiiId').value.trim();
+            if (!miiId) {
+                log('Please paste a Mii ID first', 'error');
+                return;
+            }
+            formData.append('miiId', miiId);
+        } else if (source === 'rcd') {
+            const fileInput = document.getElementById('importRcdFile');
+            const file = fileInput?.files?.[0];
+            if (!file) {
+                log('Please choose a .rcd file first', 'error');
+                return;
+            }
+            formData.append('miiFile', file);
+        } else {
+            log('Invalid import source selected', 'error');
+            return;
+        }
+
+        log(`Preparing import from ${source} source...`, 'info');
+        const response = await fetch('/api/wiimote/importData', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+        if (!response.ok || result.error) {
+            throw new Error(result.error || `Import source failed (${response.status})`);
+        }
+
+        const miiSlot = MiiSlot.fromBase64(selectedSlot, result.miiData);
+        if (miiSlot.data.length !== constants.WIIMOTE_MII_DATA_BYTES_PER_SLOT) {
+            throw new Error(`Invalid Wii slot data size: ${miiSlot.data.length}`);
+        }
+
         await manager.writeSlot(selectedSlot, miiSlot);
         
-        log(`Imported Mii to slot ${selectedSlot + 1}`, 'success');
-        closeModal('importModal');
+        log(`Imported "${result.name || miiSlot.name || 'Mii'}" to slot ${selectedSlot + 1}`, 'success');
+        window.closeModal('importModal');
         
         // Refresh slots
-        await readAllSlots();
+        await window.readAllSlots();
     } catch (error) {
         log(`Import error: ${error.message}`, 'error');
     }
@@ -276,7 +346,7 @@ window.clearSelected = async function() {
         log(`Cleared slot ${selectedSlot + 1}`, 'success');
         
         // Refresh slots
-        await readAllSlots();
+        await window.readAllSlots();
     } catch (error) {
         log(`Clear error: ${error.message}`, 'error');
     }
@@ -294,3 +364,4 @@ document.querySelectorAll('.modal').forEach(modal => {
         }
     });
 });
+

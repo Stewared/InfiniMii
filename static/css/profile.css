@@ -6,17 +6,15 @@
     border-radius: 25px;
     padding: 2rem;
     max-width: 1200px;
-    width: 100%;
+    width: min(100%, 1200px);
+    margin: 0 auto;
+    justify-self: center;
     min-width: 0;
 }
 
-/* Profile pages need more room than the default 3-column shell provides */
+/* Keep profile pages in the standard 3-column shell so Featured Miis stays visible */
 .content {
-    grid-template-columns: 280px minmax(0, 1fr);
-}
-
-.content > .browse-featured-miis {
-    display: none;
+    grid-template-columns: 280px minmax(0, 1fr) 280px;
 }
 
 /* Profile Header */
@@ -27,6 +25,13 @@
     padding-bottom: 2rem;
     border-bottom: 2px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 2rem;
+}
+
+.profile-avatar-link {
+    display: inline-block;
+    line-height: 0;
+    border-radius: 50%;
+    text-decoration: none;
 }
 
 .profile-avatar {

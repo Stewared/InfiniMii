@@ -426,7 +426,18 @@
                             <span class="official-badge"><%- include('icon', { name: 'star-filled', size: 14, class: 'icon-gold' }) %> Official Nintendo Mii</span>
                         <% } %>
                         <span class="label">Uploaded by</span>
-                        <a href="/user/<%= encodeURIComponent(mii.uploader) %>"><%= mii.uploader %></a>
+                        <a class="uploader-with-pfp" href="/user/<%= encodeURIComponent(mii.uploader) %>">
+                            <img
+                                class="uploader-pfp"
+                                src="/miiImgs/<%= uploaderPfp %>.png"
+                                alt="<%= mii.uploader %>'s profile Mii"
+                                onerror="this.src='/miiImgs/00000.png'"
+                                loading="lazy"
+                                width="28"
+                                height="28"
+                            >
+                            <span><%= mii.uploader %></span>
+                        </a>
                         <% if(mii.official && mii.contributor) { %>
                             <small class="uploader-subtext">(Contributed by <a href="/user/<%= encodeURIComponent(mii.contributor) %>"><%= mii.contributor %></a>)</small>
                         <% } %>

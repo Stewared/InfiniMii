@@ -182,6 +182,22 @@
     font-size: 14px;
 }
 
+.uploader-with-pfp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uploader-with-pfp .uploader-pfp {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--brand-color);
+    object-fit: cover;
+    background: var(--layer-1-um);
+    flex-shrink: 0;
+}
+
 .official-badge {
     background: linear-gradient(90deg, gold 0%, #ffd700 100%);
     color: #000;

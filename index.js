@@ -111,6 +111,14 @@ function buildExportFormats() {
 
 const EXPORT_FORMATS = buildExportFormats();
 const EXPORT_FORMAT_SET = new Set(EXPORT_FORMATS.map(fmt => fmt.value));
+const MII_CHILD_STAGE_LABELS = [
+    "Newborn",
+    "Infant",
+    "Child",
+    "Teen",
+    "Young Adult",
+    "Adult"
+];
 
 function normalizeExportFormat(input) {
     if (!input) return null;
@@ -238,7 +246,7 @@ const MII_COMPARISON_IGNORED_TOP_LEVEL_FIELDS = new Set([
 ]);
 
 const MII_COMPARISON_IGNORED_ROOT_SUBTREES = new Set(["perms", "meta", "tl", "mt"]);
-const MII_COMPARISON_IGNORED_GENERAL_FIELDS = new Set(["name", "creatorname"]);
+const MII_COMPARISON_IGNORED_GENERAL_FIELDS = new Set(["name", "creatorname", "height", "weight"]);
 
 function getComparableMiiSource(mii) {
     if (!mii || typeof mii !== "object") return mii;
@@ -547,6 +555,33 @@ async function getMiiById(id, includePrivate = false) {
     if (!includePrivate) query.private = false;
     return await Miis.findOne(query).lean();
 }
+
+async function resolveMiiIdForImport(id, req) {
+    const trimmedId = typeof id === "string" ? id.trim() : "";
+    if (!trimmedId) {
+        return { error: "No Mii ID provided" };
+    }
+
+    const publishedMii = await getMiiById(trimmedId, false);
+    if (publishedMii) {
+        return { mii: publishedMii };
+    }
+
+    const privateMii = await Miis.findOne({ id: trimmedId, private: true }).lean();
+    if (!privateMii) {
+        return { error: "Invalid Mii ID - Mii not found" };
+    }
+
+    const isOwner = req.user && privateMii.uploader === req.user.username;
+    const isModerator = req.user && canModerate(req.user);
+
+    if (!isOwner && !isModerator) {
+        return { error: "You do not have permission to use this private Mii" };
+    }
+
+    return { mii: privateMii };
+}
+
 async function getUserByUsername(username, lean=true) {
     let userPromise = Users.findOne({ username });
     if (lean) userPromise = userPromise.lean();
@@ -603,6 +638,7 @@ async function getSendables(req, title, user) {
         baseUrl: baseUrl,
         title: title,
         exportFormats: EXPORT_FORMATS,
+        favoriteColors: Array.isArray(miijs.FavoriteColors) ? miijs.FavoriteColors : [],
         userPfpMiiColor: userPfpMiiColor ?? "#111111",
         highlightedMiiData: await getMiiById(settings.highlightedMii, false),
         averageMiiData: await getMiiById("average", false),
@@ -1246,41 +1282,66 @@ async function sendEmail(to, subj, cont) {
         });
     });
 }
+function normalizeReportAttachmentData(data) {
+    if (Buffer.isBuffer(data)) return data;
+    if (data instanceof Uint8Array) return Buffer.from(data);
+    if (data instanceof ArrayBuffer) return Buffer.from(new Uint8Array(data));
+    return data;
+}
+
 function makeReport(content, attachments = []) {
-    const formData = new FormData();
-    
-    // Add the JSON payload
-    formData.append('payload_json', content);
-    
-    // Add any file attachments
-    attachments.forEach((attachment, index) => {
-        formData.append(`files[${index}]`, attachment.data, {
-            filename: attachment.filename,
-            contentType: attachment.contentType || 'image/png'
+    try {
+        const formData = new FormData();
+        
+        // Add the JSON payload
+        formData.append('payload_json', content);
+        
+        // Add any file attachments
+        attachments.forEach((attachment, index) => {
+            try {
+                const normalizedData = normalizeReportAttachmentData(attachment?.data);
+                const isReadableStream = normalizedData && typeof normalizedData.pipe === 'function' && typeof normalizedData.on === 'function';
+                const isAcceptableData = Buffer.isBuffer(normalizedData) || typeof normalizedData === 'string' || isReadableStream;
+
+                if (!isAcceptableData) {
+                    console.warn(`Skipping Discord attachment at index ${index}: unsupported data type`);
+                    return;
+                }
+
+                formData.append(`files[${index}]`, normalizedData, {
+                    filename: attachment?.filename || `attachment-${index}.bin`,
+                    contentType: attachment?.contentType || 'application/octet-stream'
+                });
+            } catch (attachmentError) {
+                console.error(`Error adding Discord attachment at index ${index}:`, attachmentError);
+            }
         });
-    });
-    
-    // Send using form-data instead of JSON
-    const url = new URL(process.env.hookUrl);
-    
-    const options = {
-        hostname: url.hostname,
-        path: url.pathname + url.search,
-        method: 'POST',
-        headers: formData.getHeaders()
-    };
-    
-    const req = https.request(options, (res) => {
-        if (res.statusCode !== 200 && res.statusCode !== 204) {
-            console.error(`Discord webhook returned status ${res.statusCode}`);
-        }
-    });
-    
-    req.on('error', (error) => {
-        console.error('Error sending to Discord:', error);
-    });
-    
-    formData.pipe(req);
+        
+        // Send using form-data instead of JSON
+        const url = new URL(process.env.hookUrl);
+        
+        const options = {
+            hostname: url.hostname,
+            path: url.pathname + url.search,
+            method: 'POST',
+            headers: formData.getHeaders()
+        };
+        
+        const req = https.request(options, (res) => {
+            if (res.statusCode !== 200 && res.statusCode !== 204) {
+                console.error(`Discord webhook returned status ${res.statusCode}`);
+            }
+        });
+        
+        req.on('error', (error) => {
+            console.error('Error sending to Discord:', error);
+        });
+        
+        formData.pipe(req);
+    } catch (error) {
+        // Reports should never block user actions (uploads, moderation actions, etc.).
+        console.error('Error preparing Discord report:', error);
+    }
 }
 
 
@@ -1559,7 +1620,7 @@ site.use((req, res, next) => {
         "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; " +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
         "font-src 'self' https://fonts.gstatic.com; " +
-        "img-src 'self' data: https:; " +
+        "img-src 'self' data: blob: https:; " +
         "connect-src 'self' https://www.google-analytics.com;"
     );
     
@@ -2177,7 +2238,7 @@ site.get('/transferInstructions', async (req, res) => {
 });
 site.get('/upload', requireAuth, async (req, res) => {
     let toSend = await getSendables(req);
-    toSend.fromAmiibo=req.query?.fromAmiibo;
+    toSend.fromAmiibo = null;
     // Check if coming from Amiibo extraction
     if (req.query.fromAmiibo) {
         const tempMiiId = req.query.fromAmiibo;
@@ -3163,6 +3224,79 @@ site.get('/wiimote', async (req, res) => {
     });
 });
 
+site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) => {
+    try {
+        const source = String(req.body.source || "").trim();
+        let miiInput;
+
+        if (source === "studio") {
+            let studioCode = String(req.body.studioCode || "").trim();
+            if (!studioCode) {
+                res.status(400).json({ error: "No Studio code provided" });
+                return;
+            }
+
+            if (studioCode.includes("studio.mii.nintendo.com")) {
+                const match = studioCode.match(/data=([0-9a-fA-F]+)/);
+                if (match) {
+                    studioCode = match[1];
+                }
+            }
+
+            if (!/^[0-9a-fA-F]+$/.test(studioCode)) {
+                res.status(400).json({ error: "Invalid Studio code format. Please enter a valid hex code from Mii Studio." });
+                return;
+            }
+
+            miiInput = await createMiiData(studioCode);
+        } else if (source === "miiId") {
+            const resolved = await resolveMiiIdForImport(req.body.miiId, req);
+            if (resolved.error) {
+                res.status(400).json({ error: resolved.error });
+                return;
+            }
+
+            miiInput = resolved.mii;
+        } else if (source === "rcd") {
+            if (!req.file) {
+                res.status(400).json({ error: "No .rcd file uploaded" });
+                return;
+            }
+
+            const originalExt = path.extname(req.file.originalname || "").toLowerCase();
+            if (originalExt !== ".rcd") {
+                res.status(400).json({ error: "Only .rcd files are supported for Wiimote import" });
+                return;
+            }
+
+            miiInput = req.file.path;
+        } else {
+            res.status(400).json({ error: "Invalid import source" });
+            return;
+        }
+
+        const miiInstance = await miijs.Mii.create(miiInput);
+        const wiimoteData = miiInstance.encode("rcd");
+
+        if (!wiimoteData || wiimoteData.length !== 74) {
+            res.status(400).json({ error: "Converted Mii data is not valid for Wii Remote slots" });
+            return;
+        }
+
+        res.json({
+            miiData: Buffer.from(wiimoteData).toString("base64"),
+            name: miiInstance?.fields?.meta?.name || "Unknown"
+        });
+    } catch (e) {
+        console.error("Error preparing Wiimote import data:", e);
+        res.status(500).json({ error: "Failed to prepare Mii for Wiimote import: " + e.message });
+    } finally {
+        if (req.file?.path) {
+            try { fs.unlinkSync(req.file.path); } catch (cleanupError) { }
+        }
+    }
+});
+
 // Extract Mii from Amiibo
 site.post('/extractMiiFromAmiibo', upload.single('amiibo'), async (req, res) => {
     try {
@@ -3438,10 +3572,9 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
     }
 });
 
-// Render Mii from binary data
-site.post('/api/renderMii', express.json(), async (req, res) => {
+async function renderMiiEndpoint(req, res) {
     try {
-        const { miiData } = req.body;
+        const miiData = req.body?.miiData || req.query?.miiData;
         
         if (!miiData) {
             res.status(400).json({ error: 'No Mii data provided' });
@@ -3458,15 +3591,48 @@ site.post('/api/renderMii', express.json(), async (req, res) => {
 
         // Render the Mii
         const miiImage = await miijs.renderMii(mii);
+        const pngBuffer = Buffer.isBuffer(miiImage) ? miiImage : Buffer.from(miiImage);
+
+        // miijs render output can vary by backend (BMP or PNG), so set MIME by magic bytes.
+        let contentType = 'application/octet-stream';
+        if (pngBuffer.length >= 2 && pngBuffer[0] === 0x42 && pngBuffer[1] === 0x4D) {
+            contentType = 'image/bmp';
+        } else if (
+            pngBuffer.length >= 8 &&
+            pngBuffer[0] === 0x89 &&
+            pngBuffer[1] === 0x50 &&
+            pngBuffer[2] === 0x4E &&
+            pngBuffer[3] === 0x47
+        ) {
+            contentType = 'image/png';
+        } else if (
+            pngBuffer.length >= 3 &&
+            pngBuffer[0] === 0xFF &&
+            pngBuffer[1] === 0xD8 &&
+            pngBuffer[2] === 0xFF
+        ) {
+            contentType = 'image/jpeg';
+        }
         
-        // Send as PNG
-        res.setHeader('Content-Type', 'image/png');
-        res.send(miiImage);
+        // Send rendered image bytes with correct MIME.
+        res.setHeader('Content-Type', contentType);
+        res.send(pngBuffer);
         
     } catch (e) {
         console.error('Error rendering Mii:', e);
         res.status(500).json({ error: 'Failed to render Mii: ' + e.message });
     }
+}
+
+// Render Mii from binary data
+site.get('/render', async (req, res) => {
+    await renderMiiEndpoint(req, res);
+});
+site.post('/render', async (req, res) => {
+    await renderMiiEndpoint(req, res);
+});
+site.post('/api/renderMii', async (req, res) => {
+    await renderMiiEndpoint(req, res);
 });
 
 // ========== STUDIO ENDPOINTS ==========
@@ -3794,6 +3960,8 @@ site.get('/mii/:id', async (req, res) => {
     inp.mii = mii;
     inp.height=miijs.miiHeightToMeasurements(inp.mii.general.height);
     inp.weight=miijs.miiWeightToMeasurements(inp.mii.general.height,inp.mii.general.weight);
+    const uploaderUser = await getUserByUsername(mii.uploader);
+    inp.uploaderPfp = uploaderUser?.miiPfp || "00000";
 
     // Override mii color for this page
     inp.userPfpMiiColor = mii.general.favoriteColor;
@@ -3959,6 +4127,16 @@ site.get('/convert', async (req, res) => {
 });
 site.get('/calculator', async (req, res) => {
     ejs.renderFile('./ejsFiles/calc.ejs', await getSendables(req), {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
+site.get('/miiChild', async (req, res) => {
+    ejs.renderFile('./ejsFiles/miiChild.ejs', await getSendables(req), {}, function(err, str) {
         if (err) {
             res.send(err);
             console.log(err);
@@ -5479,6 +5657,102 @@ site.post('/convertMii', upload.single('mii'), async (req, res) => {
         console.error("Error converting Mii:", e);
         try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
         res.json({error: "Conversion failed. Please verify you selected the right format and uploaded the right file."});
+    }
+});
+site.post('/makeMiiChild', defaultRatelimiter, upload.fields([
+    { name: 'parentA', maxCount: 1 },
+    { name: 'parentB', maxCount: 1 }
+]), async (req, res) => {
+    const uploadedPaths = [];
+    try {
+        const parentAFile = req.files?.parentA?.[0];
+        const parentBFile = req.files?.parentB?.[0];
+
+        if (parentAFile?.path) uploadedPaths.push(parentAFile.path);
+        if (parentBFile?.path) uploadedPaths.push(parentBFile.path);
+
+        if (!parentAFile || !parentBFile) {
+            res.json({ error: "Please upload both parent Mii files." });
+            return;
+        }
+
+        const parentAData = await createMiiData(parentAFile.path);
+        const parentBData = await createMiiData(parentBFile.path);
+        const parentA = await miijs.Mii.create(parentAData);
+        const parentB = await miijs.Mii.create(parentBData);
+
+        const options = {};
+
+        const childName = typeof req.body.childName === "string" ? req.body.childName.trim() : "";
+        if (childName) {
+            options.name = childName;
+        }
+
+        if (typeof req.body.childGender === "string" && req.body.childGender !== "") {
+            const parsedGender = Number.parseInt(req.body.childGender, 10);
+            if (![0, 1].includes(parsedGender)) {
+                res.json({ error: "Child gender must be Male (0) or Female (1)." });
+                return;
+            }
+            options.gender = parsedGender;
+        }
+
+        if (typeof req.body.childFavoriteColor === "string" && req.body.childFavoriteColor !== "") {
+            const parsedFavoriteColor = Number.parseInt(req.body.childFavoriteColor, 10);
+            const maxFavoriteColor = Array.isArray(miijs.FavoriteColors) ? (miijs.FavoriteColors.length - 1) : 11;
+            if (!Number.isInteger(parsedFavoriteColor) || parsedFavoriteColor < 0 || parsedFavoriteColor > maxFavoriteColor) {
+                res.json({ error: "Invalid favorite color selected." });
+                return;
+            }
+            // `makeMiiChild` checks truthiness for favoriteColor, so preserve explicit red (0) as a truthy value.
+            options.favoriteColor = parsedFavoriteColor === 0 ? "0" : parsedFavoriteColor;
+        }
+
+        const childStages = await miijs.makeMiiChild(
+            parentA,
+            parentB,
+            Object.keys(options).length > 0 ? options : undefined
+        );
+
+        if (!Array.isArray(childStages) || childStages.length === 0) {
+            res.json({ error: "Child generation failed. Please try different parent files." });
+            return;
+        }
+
+        const enrichedChildren = await Promise.all(childStages.map(async (childStage, index) => {
+            const stage = structuredClone(childStage);
+
+            if (typeof stage?.general?.favoriteColor === "string") {
+                const parsedColor = Number(stage.general.favoriteColor);
+                if (!Number.isNaN(parsedColor)) {
+                    stage.general.favoriteColor = parsedColor;
+                }
+            }
+
+            const miiImageData = await miijs.renderMii(stage);
+            const renderDataUri = `data:image/png;base64,${Buffer.from(miiImageData).toString('base64')}`;
+
+            const miiHeight = Number(stage?.general?.height ?? 0);
+            const miiWeight = Number(stage?.general?.weight ?? 0);
+
+            return {
+                ...stage,
+                stageIndex: index,
+                stageLabel: MII_CHILD_STAGE_LABELS[index] || `Stage ${index + 1}`,
+                renderDataUri,
+                heightMeasurements: miijs.miiHeightToMeasurements(miiHeight),
+                weightMeasurements: miijs.miiWeightToMeasurements(miiHeight, miiWeight)
+            };
+        }));
+
+        res.json({ children: enrichedChildren });
+    } catch (e) {
+        console.error("Error generating Mii child:", e);
+        res.json({ error: `Failed to generate child Miis: ${e.message}` });
+    } finally {
+        for (const filePath of uploadedPaths) {
+            try { fs.unlinkSync(filePath); } catch (e) { }
+        }
     }
 });
 site.post('/signup', async (req, res) => {

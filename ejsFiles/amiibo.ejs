@@ -94,6 +94,7 @@
             }
             
             .btn {
+                display: inline-block;
                 padding: 0.75rem 1.5rem;
                 border: none;
                 border-radius: 6px;
@@ -102,6 +103,7 @@
                 font-weight: 500;
                 cursor: pointer;
                 transition: all 0.3s ease;
+                text-decoration: none;
             }
             
             .btn-primary {
@@ -207,7 +209,7 @@
                                 Choose File
                             </button>
                         </div>
-                        <button type="submit" class="btn btn-primary" id="extrAction" hidden>Extract Mii</button>
+                        <button type="submit" class="btn btn-primary" id="extrAction" hidden="true">Extract Mii</button>
                     </form>
                     
                     <div id="extractedMii" class="extracted-mii">
@@ -220,7 +222,7 @@
                             </div>
                         </div>
                         <div class="action-buttons">
-                            <button class="btn btn-primary" onclick="uploadExtractedMii()">Upload to InfiniMii</button>
+                            <a class="btn btn-primary" href="/upload">Upload to InfiniMii</a>
                             <form id="extractedExportForm" class="export-form" method="GET" action="/exportMii">
                                 <input type="hidden" name="id" id="extractedMiiId">
                                 <input type="text" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
@@ -422,15 +424,6 @@
                 }
             });
             
-            async function uploadExtractedMii() {
-                if (!extractedMiiData) return;
-                
-                // Store the temp Mii ID in sessionStorage
-                sessionStorage.setItem('amiiboMiiId', extractedMiiData.id);
-                
-                // Redirect to upload page
-                window.location.href = '/upload?fromAmiibo=' + extractedMiiData.id;
-            }
         </script>
     </body>
 </html>

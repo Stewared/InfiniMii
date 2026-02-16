@@ -281,6 +281,54 @@
             .error-message.active {
                 display: block;
             }
+
+            .import-source-picker {
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
+                margin: 10px 0 15px;
+            }
+
+            .import-source-option {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                color: var(--text-1);
+                font-size: 14px;
+            }
+
+            .import-source-panel {
+                display: none;
+            }
+
+            .import-source-panel.active {
+                display: block;
+            }
+
+            .import-source-panel textarea {
+                height: 110px;
+                margin-top: 8px;
+            }
+
+            .import-source-panel input[type="text"],
+            .import-source-panel input[type="file"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid var(--layer-3-um);
+                border-radius: 8px;
+                margin-top: 8px;
+                background: var(--layer-1-um);
+                color: var(--text-1);
+                box-sizing: border-box;
+                font-family: Poppins, sans-serif;
+                font-size: 14px;
+            }
+
+            .import-help {
+                margin-top: 8px;
+                color: var(--text-2);
+                font-size: 12px;
+            }
         </style>
     </head>
     <body>
@@ -350,25 +398,44 @@
         </div>
         <%- include('footer') %>
 
-        <!-- Export Modal -->
-        <div class="modal" id="exportModal">
-            <div class="modal-content">
-                <h3>Export Mii Data</h3>
-                <p>Copy this data to save your Mii:</p>
-                <textarea id="exportData" readonly></textarea>
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="copyExportData()">Copy to Clipboard</button>
-                    <button class="btn btn-secondary" onclick="closeModal('exportModal')">Close</button>
-                </div>
-            </div>
-        </div>
-        
         <!-- Import Modal -->
         <div class="modal" id="importModal">
             <div class="modal-content">
                 <h3>Import Mii Data</h3>
-                <p>Paste your Mii data below:</p>
-                <textarea id="importData" placeholder="Paste base64 Mii data here..."></textarea>
+                <p>Choose a source to import into the selected Wii Remote slot:</p>
+
+                <div class="import-source-picker">
+                    <label class="import-source-option">
+                        <input type="radio" name="importSource" value="studio" checked onchange="setImportSource('studio')">
+                        Studio Code
+                    </label>
+                    <label class="import-source-option">
+                        <input type="radio" name="importSource" value="miiId" onchange="setImportSource('miiId')">
+                        Mii ID
+                    </label>
+                    <label class="import-source-option">
+                        <input type="radio" name="importSource" value="rcd" onchange="setImportSource('rcd')">
+                        .rcd File
+                    </label>
+                </div>
+
+                <div id="importSourceStudio" class="import-source-panel active">
+                    <label for="importStudioCode">Studio code or Mii Studio URL:</label>
+                    <textarea id="importStudioCode" placeholder="Paste Mii Studio code or full studio.mii.nintendo.com URL"></textarea>
+                </div>
+
+                <div id="importSourceMiiId" class="import-source-panel">
+                    <label for="importMiiId">Mii ID from InfiniMii:</label>
+                    <input type="text" id="importMiiId" placeholder="Enter Mii ID (for example: A1B2C)">
+                    <div class="import-help">Uses a published Mii, or your own private Mii if you are logged in.</div>
+                </div>
+
+                <div id="importSourceRcd" class="import-source-panel">
+                    <label for="importRcdFile">Upload a Wii .rcd file:</label>
+                    <input type="file" id="importRcdFile" accept=".rcd">
+                    <div class="import-help">Only .rcd files are supported for Wiimote import.</div>
+                </div>
+
                 <div class="button-group">
                     <button class="btn btn-primary" onclick="importMii()">Import</button>
                     <button class="btn btn-secondary" onclick="closeModal('importModal')">Cancel</button>
@@ -376,6 +443,6 @@
             </div>
         </div>
 
-        <script type="module" src="wiimote-manager.js"></script>
+        <script type="module" src="wiimote-manager.js?v=<%= Date.now() %>"></script>
     </body>
 </html>

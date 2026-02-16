@@ -9,8 +9,8 @@
  * @license MIT
  */
 
-import * as constants from '../lib/constants.js';
-import { calculateCRC16, verifyCRC16 } from '../lib/crc16.js';
+import * as constants from './constants.js';
+import { calculateCRC16, verifyCRC16 } from './crc16.js';
 
 // Wii Remote variant identifiers
 const WIIMOTE_VARIANTS = {
@@ -102,7 +102,6 @@ export class WiimoteHID {
         const variant = Object.values(WIIMOTE_VARIANTS).find(v => 
             v.vendorId === this.device.vendorId && v.productId === this.device.productId
         );
-        console.log("connectWebHid error");
         console.log('Connected to:', variant ? variant.name : `Unknown Wii Remote (PID: ${this.device.productId?.toString(16)})`);
         
         if (!this.device.opened) {
@@ -288,16 +287,40 @@ export class WiimoteHID {
         const error = (errorAndSize & 0x0F);
         const size = ((errorAndSize >> 4) & 0x0F) + 1;
         const offset = (data[3] << 8) | data[4];
-        const readData = data.slice(5, 5 + size);
+        const readData = data.slice(5, 5 + Math.min(size, Math.max(0, data.length - 5)));
 
         // Find matching pending read
         for (const [key, pending] of this._pendingReads) {
-            if (offset >= pending.offset && offset < pending.offset + pending.size) {
-                const localOffset = offset - pending.offset;
-                pending.buffer.set(readData, localOffset);
-                pending.received += size;
+            if (pending.isWrite || typeof pending.offset !== 'number' || typeof pending.size !== 'number') {
+                continue;
+            }
 
-                if (pending.received >= pending.size) {
+            if (offset >= pending.offset && offset < pending.offset + pending.size) {
+                if (error !== 0) {
+                    pending.reject(new Error(`Read error 0x${error.toString(16)} at offset 0x${offset.toString(16)}`));
+                    this._pendingReads.delete(key);
+                    break;
+                }
+
+                const localOffset = offset - pending.offset;
+                if (localOffset < 0 || localOffset >= pending.size) {
+                    break;
+                }
+
+                for (let i = 0; i < readData.length; i++) {
+                    const destIndex = localOffset + i;
+                    if (destIndex >= pending.size) {
+                        break;
+                    }
+
+                    pending.buffer[destIndex] = readData[i];
+                    if (pending.receivedMap[destIndex] === 0) {
+                        pending.receivedMap[destIndex] = 1;
+                        pending.receivedCount++;
+                    }
+                }
+
+                if (pending.receivedCount >= pending.size) {
                     pending.resolve(pending.buffer);
                     this._pendingReads.delete(key);
                 }
@@ -333,7 +356,7 @@ export class WiimoteHID {
             throw new Error('Not connected to Wii Remote');
         }
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const requestId = `${offset}-${size}-${Date.now()}`;
             const timeout = setTimeout(() => {
                 this._pendingReads.delete(requestId);
@@ -344,23 +367,34 @@ export class WiimoteHID {
                 offset,
                 size,
                 buffer: new Uint8Array(size),
-                received: 0,
+                receivedCount: 0,
+                receivedMap: new Uint8Array(size),
                 resolve: (data) => {
                     clearTimeout(timeout);
                     resolve(data);
                 },
-                reject
+                reject: (error) => {
+                    clearTimeout(timeout);
+                    reject(error);
+                }
             });
 
-            // Send read requests in chunks (max 16 bytes per request)
-            const chunkSize = 16;
-            for (let i = 0; i < size; i += chunkSize) {
-                const chunkOffset = offset + i;
-                const bytesToRead = Math.min(chunkSize, size - i);
-                await this._sendReadRequest(chunkOffset, bytesToRead);
-                // Small delay between requests
-                await this._delay(50);
-            }
+            (async () => {
+                try {
+                    // Send read requests in chunks (max 16 bytes per request)
+                    const chunkSize = 16;
+                    for (let i = 0; i < size; i += chunkSize) {
+                        const chunkOffset = offset + i;
+                        const bytesToRead = Math.min(chunkSize, size - i);
+                        await this._sendReadRequest(chunkOffset, bytesToRead);
+                        await this._delay(50);
+                    }
+                } catch (sendError) {
+                    clearTimeout(timeout);
+                    this._pendingReads.delete(requestId);
+                    reject(sendError);
+                }
+            })();
         });
     }
 
@@ -378,7 +412,16 @@ export class WiimoteHID {
         reportData[4] = (bytes >> 8) & 0xFF;
         reportData[5] = bytes & 0xFF;
 
-        await this.device.sendReport(constants.WIIMOTE_HID_CONTROL_READ, reportData);
+        if (this.connectionType === 'hid') {
+            await this.device.sendReport(constants.WIIMOTE_HID_CONTROL_READ, reportData);
+        } else if (this.connectionType === 'bluetooth' && this.bluetoothCharacteristic) {
+            const btData = new Uint8Array(reportData.length + 1);
+            btData[0] = constants.WIIMOTE_HID_CONTROL_READ;
+            btData.set(reportData, 1);
+            await this.bluetoothCharacteristic.writeValue(btData);
+        } else {
+            throw new Error('No active connection available for read request');
+        }
     }
 
     /**
@@ -489,7 +532,6 @@ export class WiimoteHID {
             const variant = Object.values(WIIMOTE_VARIANTS).find(v => 
                 v.vendorId === this.device.vendorId && v.productId === this.device.productId
             );
-            console.log("getConnectionInfo error");
             return {
                 connected: true,
                 type: 'WebHID',
@@ -528,7 +570,7 @@ export class MiiSlot {
     }
 
     get miiId(){
-        return Array.from(this.data.slice(0x18, 0x1B))
+        return Array.from(this.data.slice(0x18, 0x1C))
             .map(b => b.toString(16).padStart(2, '0'))
             .join('');
     }
@@ -648,10 +690,22 @@ export class WiimoteMiiManager {
      */
     async readAllSlots() {
         this.slots = [];
+        const failures = [];
 
         for (let i = 0; i < constants.WIIMOTE_MII_SLOT_NUM; i++) {
-            const slot = await this.readSlot(i);
+            let slot;
+            try {
+                slot = await this.readSlot(i);
+            } catch (error) {
+                slot = new MiiSlot(i, new Uint8Array(constants.WIIMOTE_MII_DATA_BYTES_PER_SLOT));
+                slot.readError = error.message;
+                failures.push({ slot: i + 1, error: error.message });
+            }
             this.slots.push(slot);
+        }
+
+        if (failures.length > 0) {
+            console.warn('Wiimote slot read failures:', failures);
         }
 
         return this.slots;
@@ -669,10 +723,21 @@ export class WiimoteMiiManager {
 
         const offset = constants.WIIMOTE_MII_DATA_BEGIN_1 + 
                        (slotNumber * constants.WIIMOTE_MII_DATA_BYTES_PER_SLOT);
-        
-        const data = await this.hid.readFromWiimote(offset, constants.WIIMOTE_MII_DATA_BYTES_PER_SLOT);
-        
-        return new MiiSlot(slotNumber, data);
+
+        let lastError = null;
+        for (let attempt = 1; attempt <= constants.HID_MAX_RETRIES; attempt++) {
+            try {
+                const data = await this.hid.readFromWiimote(offset, constants.WIIMOTE_MII_DATA_BYTES_PER_SLOT);
+                return new MiiSlot(slotNumber, data);
+            } catch (error) {
+                lastError = error;
+                if (attempt < constants.HID_MAX_RETRIES) {
+                    await this.hid._delay(constants.HID_RETRY_DELAY * attempt);
+                }
+            }
+        }
+
+        throw new Error(`Failed to read slot ${slotNumber + 1}: ${lastError?.message || 'Unknown read error'}`);
     }
 
     /**

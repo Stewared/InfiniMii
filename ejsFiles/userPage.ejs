@@ -3,9 +3,9 @@
     <head>
         <title><%= targetUser.username %> - InfiniMii</title>
         <meta content="<%= targetUser.username %>" property="og:title" />
-        <meta content="User <%= targetUser.username %>'s Miis on InfiniMii'" property="og:description" />
+        <meta content="User <%= targetUser.username %>'s Miis on InfiniMii" property="og:description" />
         <meta content="https://infinimii.com/user/<%= encodeURIComponent(targetUser.username) %>" property="og:url" />
-        <meta content="https://infinimii.com/miiImgs/<%= targetUser.miiPfp %>.png" property="og:image" />
+        <meta content="https://infinimii.com/miiImgs/<%= targetUser.miiPfp || '00000' %>.png" property="og:image" />
         <meta content="#ff0000" data-react-helmet="true" name="theme-color" />
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/profile.css">
@@ -19,7 +19,9 @@
             <div class="profile-container">
                 <!-- Profile Header -->
                 <div class="profile-header">
-                    <img src="/miiImgs/<%= targetUser.miiPfp %>.png" alt="<%= targetUser.username %>" class="profile-avatar">
+                    <a class="profile-avatar-link" href="/mii/<%= targetUser.miiPfp || '00000' %>" title="View <%= targetUser.username %>'s profile Mii">
+                        <img src="/miiImgs/<%= targetUser.miiPfp || '00000' %>.png" alt="<%= targetUser.username %>" class="profile-avatar" onerror="this.src='/miiImgs/00000.png'">
+                    </a>
                     <div class="profile-info">
                         <div class="profile-name">
                             <h1><%= targetUser.username %></h1>
@@ -35,11 +37,10 @@
                                     'administrator': { label: 'Administrator', class: 'admin-badge' }
                                 };
                             %>
-                            <% targetUser.roles.forEach(role => { %>
+                            <% (targetUser.roles || ['basic']).forEach(role => { %>
                                 <% if(roleConfigs[role]) { %>
                                     <span class="role-badge <%= roleConfigs[role].class %>" data-role="<%= role %>">
                                         <%= roleConfigs[role].label %>
-                                    </span>
                                     </span>
                                 <% } %>
                             <% }); %>
@@ -204,6 +205,7 @@
         <%- include('footer') %>
 
         <% if(isModerator) { %>
+            <script id="target-user-roles" type="application/json"><%- JSON.stringify(targetUser.roles || ['basic']) %></script>
             <script>
                 const targetUsername = '<%= targetUser.username %>';
 
@@ -218,7 +220,7 @@
                 async function updateUserRoles() {
                     const checkboxes = document.querySelectorAll('.role-checkboxes input[type="checkbox"]');
                     const selectedRoles = Array.from(checkboxes)
-                        .filter(cb => cb.checked)a
+                        .filter(cb => cb.checked)
                         .map(cb => cb.value);
 
                     // Always include basic role if no roles selected
@@ -229,8 +231,7 @@
                     showConfirm(`Update ${targetUsername}'s roles to:\n${selectedRoles.join(', ')}\n\nAre you sure?`, async () => {
                         try {
                             // Remove all current non-basic roles
-                            // <% debugger %>
-                            const currentRoles = <%- JSON.stringify(targetUser.roles) %>;
+                            const currentRoles = JSON.parse(document.getElementById('target-user-roles').textContent || '[]');
                             // TODO: make sure this works - I think user should be the user being looked at... not the current user
 
                             // Calculate roles to remove
@@ -276,6 +277,7 @@
                         console.error('Error:', error);
                         showAlert('Failed to update roles', 5000, { title: 'Error', type: 'error' });
                     }
+                    }, null, { title: 'Update Roles', confirmText: 'Update' });
                 }
 
                 async function tempBanUser() {
