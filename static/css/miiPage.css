@@ -229,6 +229,43 @@
     border-radius:0px 0px 15px 15px;
 }
 
+.export-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1 1 320px;
+    min-width: 260px;
+}
+
+.export-form label {
+    font-weight: 600;
+}
+
+.export-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.export-row input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    width: auto;
+}
+
+.export-form .note {
+    margin: 0;
+    color: var(--text-2);
+    font-size: 0.85rem;
+}
+
+.export-secondary {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
 .btn-primary,
 .btn-secondary {
     padding: 12px 24px;

@@ -12,20 +12,20 @@
         <%- include('accountDisplay') %>
         <div class="content">
             <%- include('sidebar') %>
-            <form method="POST" enctype="multipart/form-data" action="/convertMii" class="convert" hidden>
+            <form method="POST" enctype="multipart/form-data" action="/exportMii" class="convert" hidden>
                 <fieldset>
                     <legend>Convert</legend>
                     <div id="convert-error-message" class="form-message" style="display: none;"></div>
-                    <input type="hidden" name="3dsbin" class="convert-bindata">
-                    <input type="hidden" name="fromType" value="3DS Bin">
-                    I want to convert 3DS Bin to a <select name="toType">
-                        <option>Wii Mii</option>
-                        <option>Special Wii Mii</option>
-                        <option>Special 3DS Mii</option>
-                    </select><br>
-                    <input type="submit" value="Convert"><br>
-                    <h6>*Note: 3DS to Wii conversions are not guaranteed to be perfect, the 3DS has more options
-                        than the Wii does</h6>
+                    <input type="hidden" name="miiData" class="convert-miidata">
+                    <label for="qr-output-format">Export format:</label>
+                    <input type="text" id="qr-output-format" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
+                    <datalist id="exportFormatOptions">
+                        <% exportFormats.forEach(fmt => { %>
+                            <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
+                        <% }) %>
+                    </datalist>
+                    <input type="submit" value="Export">
+                    <h6>*Note: Down-level conversions may have limitations.</h6>
                 </fieldset>
             </form>
             
@@ -33,8 +33,7 @@
                 <fieldset>
                     <legend>Upload a Mii to the Website</legend>
                     <div id="upload-error-message" class="form-message" style="display: none;"></div>
-                    <input type="hidden" name="type" value="3dsbin">
-                    <input type="hidden" name="3dsbin" class="upload-bindata">
+                    <input type="hidden" name="miiData" class="upload-miidata">
                     <input size="50" placeholder="Description..." name="desc" type="text"><br>
                     <input type="checkbox" name="official"> 
                     <label for="official">This is a Mii that appears in a game by default officially (Please mention which in description). 
@@ -122,15 +121,18 @@
             }
             
             function after(act) {
-                // Convert binary data to bit string as expected by server
-                var bitString = "";
+                // Convert binary data to base64 for server processing
+                var binary = "";
                 stored.forEach(byte => {
-                    bitString += byte.toString(2).padStart(8, "0");
+                    binary += String.fromCharCode(byte);
                 });
+                var base64Data = btoa(binary);
                 
                 switch (act) {
                     case 'convert':
-                        document.querySelector(".convert-bindata").value = bitString;
+                        document.querySelector(".convert-miidata").value = base64Data;
+                        const formatInput = document.getElementById('qr-output-format');
+                        if (formatInput && !formatInput.value) formatInput.value = 'qr';
                         document.querySelector(".qr").hidden = true;
                         document.querySelector(".convert").hidden = false;
                         document.querySelector(".after").hidden = true;
@@ -138,7 +140,7 @@
                         // Add AJAX handling to the convert form
                         const convertForm = document.querySelector(".convert");
                         convertForm.addEventListener('submit', function(e) {
-                            handleFormSubmit(e, '/convertMii', 'Converting...', 'convert-error-message', {
+                            handleFormSubmit(e, '/exportMii', 'Exporting...', 'convert-error-message', {
                                 handleFileDownload: true
                             });
                         });
@@ -146,7 +148,7 @@
                         
                     case 'upload':
                         console.log("Uploading Mii");
-                        document.querySelector(".upload-bindata").value = bitString;
+                        document.querySelector(".upload-miidata").value = base64Data;
                         document.querySelector(".qr").hidden = true;
                         document.querySelector(".upload").hidden = false;
                         document.querySelector(".after").hidden = true;

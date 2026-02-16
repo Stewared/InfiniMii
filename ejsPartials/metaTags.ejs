@@ -7,6 +7,7 @@ const pageImage = typeof ogImage !== 'undefined' ? ogImage : baseUrl + '/og-imag
 const pageType = typeof ogType !== 'undefined' ? ogType : 'website';
 const siteName = 'InfiniMii';
 const pageKeywords = typeof keywords !== 'undefined' ? keywords : 'mii, mii characters, nintendo';
+const openSearchUrl = (typeof baseUrl !== 'undefined' ? baseUrl : '').replace(/\/+$/, '') + '/opensearch.xml';
 %>
 
 <!-- Primary Meta Tags -->
@@ -20,6 +21,7 @@ const pageKeywords = typeof keywords !== 'undefined' ? keywords : 'mii, mii char
 
 <!-- Canonical URL -->
 <link rel="canonical" href="<%= pageUrl %>">
+<link rel="search" type="application/opensearchdescription+xml" title="InfiniMii Search" href="<%= openSearchUrl %>">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="<%= pageType %>">

@@ -6,6 +6,17 @@
     border-radius: 25px;
     padding: 2rem;
     max-width: 1200px;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Profile pages need more room than the default 3-column shell provides */
+.content {
+    grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.content > .browse-featured-miis {
+    display: none;
 }
 
 /* Profile Header */
@@ -116,19 +127,29 @@
 /* User's Miis Grid */
 #browse-miis {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 30px;
     margin-top: 2rem;
+    align-items: stretch;
 }
 
 #browse-miis .mii-card {
     border: 2px solid #202020;
     border-radius: 25px;
-    padding: 1.5rem;
+    padding: 1rem;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
-    border:var(--brand-color) 2px solid;
+    border: var(--brand-color) 2px solid;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+#browse-miis .mii-card > a {
+    display: block;
+    overflow: hidden;
+    border-radius: 20px;
 }
 
 #browse-miis .mii-card:hover {
@@ -140,16 +161,22 @@
     width: 100%;
     height: auto;
     aspect-ratio: 1;
-    border-radius: 30px;
-    margin-bottom: 1rem;
+    border-radius: 20px;
+    margin-bottom: 0.75rem;
     transition: transform 1s;
 }
 
 #browse-miis .mii-card img:hover {
     cursor: pointer;
     transition: 750ms cubic-bezier(.46, .22, .14, 1.34);
-    transform: scale(1.25);
+    transform: scale(1.08);
     transform-origin: bottom;
+}
+
+/* Undo broad global mii-card spacing so profile cards are not cramped */
+#browse-miis .mii-card .flex,
+#browse-miis .mii-card > p {
+    padding: 0;
 }
 
 #browse-miis .mii-card .flex {
@@ -260,6 +287,10 @@
 
 /* Responsive Design */
 @media (max-width: 992px) {
+    .content {
+        grid-template-columns: 1fr;
+    }
+
     #browse-miis {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 20px;

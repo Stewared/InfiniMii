@@ -450,88 +450,25 @@
                         <span class="copy-label">Copy Mii ID</span>
                     </button>
 
-                    <div class="download-dropdown">
-                        <button class="btn-primary dropdown-toggle" onclick="toggleDownloadMenu(event)">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 96 960 960" width="20" fill="currentColor">
-                                <path d="M480 896 280 696l56-56 104 104V416h80v328l104-104 56 56-200 200Zm-240-80q-33 0-56.5-23.5T160 736V616h80v120h480V616h80v120q0 33-23.5 56.5T720 816H240Z"/>
-                            </svg>
-                            Download Options
-                            <svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 96 960 960" width="16" fill="currentColor" style="margin-left: 8px;">
-                                <path d="M480 696 280 496l56-56 144 144 144-144 56 56-200 200Z"/>
-                            </svg>
-                        </button>
-                        
-                        <div class="download-menu" id="downloadMenu">
-                            <a href="/downloadMii?id=<%= mii.id %>&format=qr" download class="download-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 96 960 960" width="20" fill="currentColor">
-                                    <path d="M120 856V296q0-33 23.5-56.5T200 216h160q33 0 56.5 23.5T440 296v560H200q-33 0-56.5-23.5T120 776Zm80-80h160V296H200v480Zm320 80V296q0-33 23.5-56.5T600 216h160q33 0 56.5 23.5T840 296v560H600q-33 0-56.5-23.5T520 776Zm80-80h160V296H600v480ZM200 776h160-160Zm400 0h160-160Z"/>
-                                </svg>
-                                <div>
-                                    <strong>3DS/Wii U QR Code</strong>
-                                    <small>Scan with Mii Maker</small>
-                                </div>
-                            </a>
-                            
-                            <a href="/downloadMii?id=<%= mii.id %>&format=3dsbin" download class="download-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 96 960 960" width="20" fill="currentColor">
-                                    <path d="M319 806q-72-44-115.5-116.5T160 536q0-134 93-227t227-93q134 0 227 93t93 227q0 81-43.5 153.5T641 806l-56-56q59-38 94-99.5T719 536q0-107-76-183.5T459 276q-108 0-184 76.5T199 536q0 53 20 99.5t58 81.5l-58 89Zm161 90V456h80v440h-80Z"/>
-                                </svg>
-                                <div>
-                                    <strong>3DS Bin (Decrypted)</strong>
-                                    <small>For tools & modding</small>
-                                </div>
-                            </a>
-                            
-                            <a href="/downloadMii?id=<%= mii.id %>&format=wii" download class="download-item">
-                                <img src="/wii.png" width="20" height="20" style="opacity: 0.9;">
-                                <div>
-                                    <strong>Wii Format (.mii)</strong>
-                                    <small>For Wii console</small>
-                                </div>
-                            </a>
-                            
-                            <div class="download-divider"></div>
-                            
-                            <a href="#" onclick="copyStudioCode(event)" class="download-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 96 960 960" width="20" fill="currentColor">
-                                    <path d="M360 816q-33 0-56.5-23.5T280 736V256q0-33 23.5-56.5T360 176h360q33 0 56.5 23.5T800 256v480q0 33-23.5 56.5T720 816H360Zm0-80h360V256H360v480ZM200 976q-33 0-56.5-23.5T120 896V336h80v560h440v80H200Zm160-240V256v480Z"/>
-                                </svg>
-                                <div>
-                                    <strong>Copy Studio Code</strong>
-                                    <small id="studioCodeStatus">Click to copy hex code</small>
-                                </div>
-                            </a>
-                            
-                            <a href="/downloadMii?id=<%= mii.id %>&format=studio" download class="download-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 96 960 960" width="20" fill="currentColor">
-                                    <path d="M480 896 280 696l56-56 104 104V416h80v328l104-104 56 56-200 200ZM240 416q-33 0-56.5-23.5T160 336V256q0-33 23.5-56.5T240 176h480q33 0 56.5 23.5T800 256v80q0 33-23.5 56.5T720 416h-60v-80h60v-80H240v80h60v80h-60Z"/>
-                                </svg>
-                                <div>
-                                    <strong>Download Studio Code</strong>
-                                    <small>Save as text file</small>
-                                </div>
-                            </a>
-                            
-                            <div class="download-divider"></div>
-                            
-                            <a href="#" onclick="showInstructions(event, '3ds')" class="download-item">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 96 960 960" width="20" fill="currentColor">
-                                    <path d="M320 896q-33 0-56.5-23.5T240 816V336q0-33 23.5-56.5T320 256h480q33 0 56.5 23.5T880 336v480q0 33-23.5 56.5T800 896H320Zm0-80h480V336H320v480Zm-160 80q-33 0-56.5-23.5T80 816V296h80v520h520v80H160Zm160-640v480-480Z"/>
-                                </svg>
-                                <div>
-                                    <strong>Recreation Instructions (3DS/Wii U)</strong>
-                                    <small>Step-by-step guide</small>
-                                </div>
-                            </a>
-                            
-                            <a href="#" onclick="showInstructions(event, 'wii')" class="download-item">
-                                <img src="/wii.png" width="20" height="20" style="opacity: 0.9;">
-                                <div>
-                                    <strong>Recreation Instructions (Wii)</strong>
-                                    <small>Step-by-step guide</small>
-                                </div>
-                            </a>
+                    <form class="export-form" method="GET" action="/exportMii">
+                        <input type="hidden" name="id" value="<%= mii.id %>">
+                        <label for="export-format-<%= mii.id %>">Download format</label>
+                        <div class="export-row">
+                            <input type="text" id="export-format-<%= mii.id %>" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
+                            <button type="submit" class="btn-primary">Download</button>
                         </div>
+                        <p class="note">Search any supported format (except NTAG). Try <code>qr</code>, <code>charinfo</code>, or <code>ffsd</code>.</p>
+                    </form>
+                    <datalist id="exportFormatOptions">
+                        <% exportFormats.forEach(fmt => { %>
+                            <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
+                        <% }) %>
+                    </datalist>
+
+                    <div class="export-secondary">
+                        <button class="btn-secondary" onclick="copyStudioCode(event)">Copy Studio Code</button>
+                        <button class="btn-secondary" onclick="showInstructions(event, '3ds')">Recreation Instructions (3DS/Wii U)</button>
+                        <button class="btn-secondary" onclick="showInstructions(event, 'wii')">Recreation Instructions (Wii)</button>
                     </div>
 
                     <!-- Instructions Modal -->
@@ -709,49 +646,30 @@
             let currentInstructionsFormat = '3ds';
             let currentInstructionsData = null;
 
-            function toggleDownloadMenu(event) {
-                event.stopPropagation();
-                const menu = document.getElementById('downloadMenu');
-                menu.classList.toggle('active');
-            }
-
-            // Close menu when clicking outside
-            document.addEventListener('click', function(event) {
-                const dropdown = document.querySelector('.download-dropdown');
-                if (dropdown && !dropdown.contains(event.target)) {
-                    document.getElementById('downloadMenu').classList.remove('active');
-                }
-            });
-
             async function copyStudioCode(event) {
                 event.preventDefault();
-                const statusEl = document.getElementById('studioCodeStatus');
-                const originalText = statusEl.textContent;
-                
+
                 try {
                     const response = await fetch('/getStudioCode?id=<%= mii.id %>', {
                         headers: { "Content-Type": "application/json" },
                     });
                     const result = await response.json();
-                    
+
                     if (!result.error) {
                         await navigator.clipboard.writeText(result.code);
-                        statusEl.textContent = '✓ Copied!';
-                        statusEl.style.color = 'var(--brand-color)';
-                        
-                        setTimeout(() => {
-                            statusEl.textContent = originalText;
-                            statusEl.style.color = '';
-                        }, 2000);
-                    }
-                    else {
-                        statusEl.textContent = '✗ Error';
-                        statusEl.style.color = '#ff4444';
+                        if (typeof showAlert === 'function') {
+                            showAlert('Studio code copied to clipboard!', 3000, { title: 'Success', type: 'success' });
+                        }
+                    } else {
+                        if (typeof showAlert === 'function') {
+                            showAlert('Failed to copy Studio code', 4000, { title: 'Error', type: 'error' });
+                        }
                     }
                 } catch (error) {
                     console.error('Error copying Studio code:', error);
-                    statusEl.textContent = '✗ Failed';
-                    statusEl.style.color = '#ff4444';
+                    if (typeof showAlert === 'function') {
+                        showAlert('Failed to copy Studio code', 4000, { title: 'Error', type: 'error' });
+                    }
                 }
             }
 
@@ -759,9 +677,7 @@
                 event.preventDefault();
                 currentInstructionsFormat = format;
                 
-                // Close download menu
-                document.getElementById('downloadMenu').classList.remove('active');
-                
+
                 // Show modal
                 const modal = document.getElementById('instructionsModal');
                 modal.classList.add('active');

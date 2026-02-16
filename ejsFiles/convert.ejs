@@ -12,7 +12,7 @@
         const howToDescription = 'Step-by-step guide to convert Mii characters between Wii, 3DS, Wii U, and Switch formats using InfiniMii\'s free online converter.';
         const howToDuration = 'PT2M';
         const howToSupplies = [
-            {"@type": "HowToSupply", "name": "Mii file (Wii .mii or 3DS .bin) or QR code image"}
+            {"@type": "HowToSupply", "name": "Mii file or QR code image (any supported format)"}
         ];
         const howToTools = [
             {"@type": "HowToTool", "name": "InfiniMii Converter", "url": `${baseUrl}/convert`}
@@ -21,27 +21,21 @@
             {
                 "@type": "HowToStep",
                 "name": "Upload Your Mii File",
-                "text": "Select your Mii file (.mii for Wii, .bin for 3DS, or QR code image) and upload it to the converter.",
+                "text": "Select any Mii file or QR code image and upload it to the converter.",
                 "url": "${baseUrl}/convert#step-1",
                 "image": "${baseUrl}/guide-images/upload-step.jpg"
             },
             {
                 "@type": "HowToStep",
-                "name": "Select Source Format",
-                "text": "Choose whether you're converting from Wii, 3DS, Wii U, or a QR code.",
+                "name": "Pick Output Format",
+                "text": "Choose the output format you want from the full list of supported formats (except NTAG).",
                 "url": "${baseUrl}/convert#step-2"
             },
             {
                 "@type": "HowToStep",
-                "name": "Choose Target Format",
-                "text": "Select the format you want to convert to: Wii Mii, 3DS/Wii U Mii, Special Wii Mii, or Special 3DS Mii.",
-                "url": "${baseUrl}/convert#step-3"
-            },
-            {
-                "@type": "HowToStep",
                 "name": "Download Converted File",
-                "text": "Click Convert and download your Mii in the new format. The file will be ready to use on your target Nintendo system.",
-                "url": "${baseUrl}/convert#step-4"
+                "text": "Click Convert and download your Mii in the selected format.",
+                "url": "${baseUrl}/convert#step-3"
             }
         ];
         %>
@@ -60,17 +54,16 @@
             <%- include('sidebar') %>
             
             <article class="utility-container">
-                <form id="convertForm" method="POST" enctype="multipart/form-data" action="/convertMii">
+                <form id="convertForm" method="POST" enctype="multipart/form-data" action="/exportMii">
                     <fieldset>
                         <legend>Convert Mii Character Between Formats</legend>
                         
                         <div class="conversion-info">
-                            <h3>Supported Conversions:</h3>
+                            <h3>How It Works:</h3>
                             <ul>
-                                <li><strong>3DS/Wii U to Wii</strong> - Backport newer Miis to classic Wii</li>
-                                <li><strong>Wii to 3DS/Wii U</strong> - Upgrade classic Miis with new features</li>
-                                <li><strong>QR Code Scanning</strong> - Import from QR images</li>
-                                <li><strong>Special Miis</strong> - Special variants for 3DS and Wii</li>
+                                <li><strong>Any input</strong> - Upload any Mii file or QR image</li>
+                                <li><strong>Any output</strong> - Export to any supported MiiJS format (except NTAG)</li>
+                                <li><strong>Auto-detect</strong> - No need to choose a source type</li>
                             </ul>
                         </div>
                         
@@ -81,28 +74,22 @@
                             type="file" 
                             id="mii-file"
                             name="mii" 
-                            accept=".jpg,.png,.mii,.bin"
                             required
                             aria-required="true">
                         
-                        <label for="from-type">Convert from:</label>
-                        <select id="from-type" name="fromType" required aria-required="true">
-                            <option value="3DS/Wii U">3DS/Wii U</option>
-                            <option value="Wii">Wii</option>
-                        </select>
-                        
-                        <label for="to-type">Convert to:</label>
-                        <select id="to-type" name="toType" required aria-required="true">
-                            <option value="Wii Mii">Wii Mii</option>
-                            <option value="3DS/Wii U Mii">3DS/Wii U Mii</option>
-                            <option value="Special Wii Mii">Special Wii Mii</option>
-                            <option value="Special 3DS Mii">Special 3DS Mii</option>
-                        </select>
+                        <label for="output-format">Export format:</label>
+                        <input type="text" id="output-format" name="format" list="exportFormatOptions" placeholder="Search formats..." required aria-required="true">
+                        <datalist id="exportFormatOptions">
+                            <% exportFormats.forEach(fmt => { %>
+                                <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
+                            <% }) %>
+                        </datalist>
+                        <p class="note">Start typing to filter the full list of formats. Example: <code>charinfo</code>, <code>ffsd</code>, <code>qr</code>.</p>
                         
                         <div id="convertError" class="form-message" style="display: none;"></div>
-                        <input type="submit" value="Convert Mii">
+                        <input type="submit" value="Export Mii">
                         
-                        <h6><strong>Note:</strong> 3DS/Wii U to Wii conversions may have limitations due to hardware differences. The 3DS and Wii U support more customization options than the original Wii. <a href="https://github.com/Stewared/MiiJS?tab=readme-ov-file#discrepancies-in-convertmii-function" target="_blank" rel="noopener">Learn more about conversion differences</a>.</h6>
+                        <h6><strong>Note:</strong> Down-level conversions (newer consoles to older ones) may have limitations due to hardware differences. The 3DS and Wii U support more customization options than the original Wii. <a href="https://github.com/Stewared/MiiJS?tab=readme-ov-file#discrepancies-in-convertmii-function" target="_blank" rel="noopener">Learn more about conversion differences</a>.</h6>
                     </fieldset>
                 </form>
 
@@ -173,7 +160,7 @@
         
         <%- include('footer') %>        <script>
             document.querySelector('form').addEventListener('submit', function(e) {
-                handleFormSubmit(e, '/convertMii', 'Converting...', 'convertError', {
+                handleFormSubmit(e, '/exportMii', 'Exporting...', 'convertError', {
                     handleFileDownload: true,
                     onSuccess: async (result, messageDiv, response) => {
                         // For file downloads, the response will be handled automatically

@@ -44,7 +44,7 @@
                         <div class="upload-instructions">
                             <h3>Before You Upload:</h3>
                             <ul>
-                                <li>Ensure your Mii is in a supported format (Wii .mii, 3DS/Wii U .bin, or QR code image)</li>
+                                <li>Upload any supported Mii file format - InfiniMii will auto-detect it</li>
                                 <li>Provide a clear, descriptive name and description</li>
                                 <li>Be respectful and follow community guidelines</li>
                                 <li>Miis uploaded are private to start, you can publish them to the public <a href="/MyPrivateMiis">here</a>.</li>
@@ -62,30 +62,15 @@
                             <form action="/uploadMii" method="post" enctype="multipart/form-data" id='uploadForm'>
                                 <div id="error-message" class="form-message" style="display: none;"></div>
                                 <% if (!fromAmiibo) { %>
-                                    <div class="radio-group">
-                                        <div class="radio-option">
-                                            <input type="radio" value="3ds" name="type" id="type3ds" checked>
-                                            <label for="type3ds">3DS/Wii U QR Code</label>
-                                        </div>
-                                        <div class="radio-option">
-                                            <input type="radio" value="3dsbin" name="type" id="type3dsbin">
-                                            <label for="type3dsbin">3DS Bin (Encrypted/Decrypted)</label>
-                                        </div>
-                                        <div class="radio-option">
-                                            <input type="radio" value="wii" name="type" id="typewii">
-                                            <label for="typewii">Wii Bin</label>
-                                        </div>
-                                    </div>
-                                    
                                     <div class="format-hint">
-                                        <strong>Supported formats:</strong><br>
-                                        • 3DS/Wii U: .jpg, .png QR codes<br>
-                                        • 3DS Bin: .bin files (both encrypted and decrypted)<br>
-                                        • Wii: .mii, .bin files
+                                        <strong>Supported inputs:</strong><br>
+                                        &bull; Any Mii file format supported by MiiJS (Wii/DS/3DS/Wii U/Switch/etc.)<br>
+                                        &bull; QR code images (.png, .jpg)<br>
+                                        &bull; Use the Studio tab for Mii Studio codes
                                     </div>
                                     
                                     <label for="mii-upload" hidden>Upload Mii File:</label>
-                                    <input type="file" name="mii" accept=".mii,.bin,.png,.jpg" required id="mii-upload">
+                                    <input type="file" name="mii" required id="mii-upload">
                                 <% } else { %>
                                     <input type="hidden" name="type" value="3dsbin_amiibo">
                                 <% } %>

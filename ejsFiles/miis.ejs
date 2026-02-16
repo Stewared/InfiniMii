@@ -4,6 +4,7 @@
         <title>
             <%= title %>
         </title>
+        <link rel="search" type="application/opensearchdescription+xml" title="InfiniMii Search" href="/opensearch.xml">
         <link href="./global.css" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -15,6 +16,29 @@
         <div class="content">
             <%- include('sidebar') %>
             <div class="main-content">
+                <% if (currentPath.startsWith('/searchResults')) { %>
+                    <section class="search-results-search" aria-label="Search">
+                        <form method="GET" action="/searchResults" role="search">
+                            <label for="search-results-query" class="sr-only">Search Mii characters</label>
+                            <input
+                                id="search-results-query"
+                                name="q"
+                                type="search"
+                                autocomplete="off"
+                                placeholder="Search by character name, creator, or description..."
+                                value="<%= query.q || '' %>"
+                                required
+                            >
+                            <input type="submit" value="Search">
+                        </form>
+                        <% if (query.q) { %>
+                            <p class="search-results-summary">
+                                <%= pagination?.total ?? displayedMiis.length %> result<%= (pagination?.total ?? displayedMiis.length) === 1 ? '' : 's' %> for "<%= query.q %>"
+                            </p>
+                        <% } %>
+                    </section>
+                <% } %>
+
                 <div id="browse-miis">
                     <% for(var i=0;i<displayedMiis.length;i++){ %>
                         <div class="mii-card" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;" id="<%= displayedMiis[i].id %>">

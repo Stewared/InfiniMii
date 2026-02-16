@@ -172,6 +172,18 @@
             .success-message.active {
                 display: block;
             }
+            .export-form {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+            }
+
+            .export-form input[type="text"] {
+                flex: 1;
+                min-width: 180px;
+                width: auto;
+            }
         </style>
     </head>
     <body>
@@ -190,7 +202,7 @@
                     <form id="extractForm" enctype="multipart/form-data">
                         <div class="upload-area" id="extractDropZone">
                             <p style="margin: 0 0 1rem 0;"><%- include('icon', { name: 'file-up', size: 16, class: 'icon-inline' }) %> Drag & drop your Amiibo dump here, or click to browse</p>
-                            <input type="file" name="amiibo" id="extractFile" accept=".bin" style="display: none;" onchange="document.getElementById('extrAction').click()">
+                            <input type="file" name="amiibo" id="extractFile"  style="display: none;" onchange="document.getElementById('extrAction').click()">
                             <button type="button" class="btn btn-secondary" onclick="document.getElementById('extractFile').click()">
                                 Choose File
                             </button>
@@ -209,9 +221,17 @@
                         </div>
                         <div class="action-buttons">
                             <button class="btn btn-primary" onclick="uploadExtractedMii()">Upload to InfiniMii</button>
-                            <a id="downloadExtractedQR" class="btn btn-secondary" download>Download QR Code</a>
-                            <a id="downloadExtractedBin" class="btn btn-secondary" download>Download 3DS Bin</a>
+                            <form id="extractedExportForm" class="export-form" method="GET" action="/exportMii">
+                                <input type="hidden" name="id" id="extractedMiiId">
+                                <input type="text" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
+                                <button type="submit" class="btn btn-secondary">Download</button>
+                            </form>
                         </div>
+                        <datalist id="exportFormatOptions">
+                            <% exportFormats.forEach(fmt => { %>
+                                <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
+                            <% }) %>
+                        </datalist>
                     </div>
                     
                     <div id="extractError" class="error-message"></div>
@@ -227,7 +247,7 @@
                     <form id="insertForm" enctype="multipart/form-data">
                         <div class="upload-area" id="insertDropZone">
                             <p style="margin: 0 0 1rem 0;"><%- include('icon', { name: 'file-up', size: 16, class: 'icon-inline' }) %> Upload Amiibo dump (.bin file)</p>
-                            <input type="file" name="amiibo" id="insertAmiiboFile" accept=".bin" style="display: none;">
+                            <input type="file" name="amiibo" id="insertAmiiboFile"  style="display: none;">
                             <button type="button" class="btn btn-secondary" onclick="document.getElementById('insertAmiiboFile').click()">
                                 Choose Amiibo File
                             </button>
@@ -252,12 +272,7 @@
                             </div>
                             
                             <div id="fileUploadSection">
-                                <input type="file" name="mii" id="insertMiiFile" accept=".jpg,.png,.bin,.mii">
-                                <select name="miiType" id="miiFileType">
-                                    <option value="3ds">3DS/Wii U QR Code</option>
-                                    <option value="3dsbin">3DS Bin (Encrypted/Decrypted)</option>
-                                    <option value="wii">Wii Bin</option>
-                                </select>
+                                <input type="file" name="mii" id="insertMiiFile" >
                             </div>
                             
                             <div id="miiIdSection" style="display: none;">
@@ -302,10 +317,9 @@
                         document.getElementById('extractedMiiImage').src = '/miiImgs/' + result.mii.id + '.png';
                         document.getElementById('extractedMiiName').textContent = result.mii.meta.name;
                         document.getElementById('extractedMiiCreator').textContent = 'Creator: ' + result.mii.meta.creatorName;
-                        document.getElementById('downloadExtractedQR').href = '/miiQRs/' + result.mii.id + '.png';
-                        document.getElementById('downloadExtractedQR').download = result.mii.meta.name + '_QR.png';
-                        document.getElementById('downloadExtractedBin').href = '/downloadMii?id=' + result.mii.id + '&format=3dsbin';
-                        document.getElementById('downloadExtractedBin').download = result.mii.meta.name + '.bin';
+                        document.getElementById('extractedMiiId').value = result.mii.id;
+                        const formatInput = document.querySelector('#extractedExportForm input[name="format"]');
+                        if (formatInput) formatInput.value = 'qr';
                         document.getElementById('extractedMii').classList.add('active');
                         document.getElementById('extractError').classList.remove('active');
                     }
