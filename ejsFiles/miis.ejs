@@ -84,8 +84,21 @@
                             <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %>" class="pagination-btn">&larr; Previous</a>
                         <% } %>
 
-                        <span class="pagination-info">
-                            Page <%= pagination.currentPage %> of <%= pagination.totalPages %>
+                        <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
+                            Page
+                            <button type="button" class="pagination-current-page" aria-label="Jump to page">
+                                <%= pagination.currentPage %>
+                            </button>
+                            <input
+                                type="number"
+                                class="pagination-page-input"
+                                min="1"
+                                max="<%= pagination.totalPages %>"
+                                value="<%= pagination.currentPage %>"
+                                inputmode="numeric"
+                                aria-label="Type page number"
+                            >
+                            of <%= pagination.totalPages %>
                             (<%= pagination.total %> Miis)
                         </span>
 

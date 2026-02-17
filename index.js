@@ -31,6 +31,7 @@ import { renderIcon, icons } from "./icons.js";
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 
 const defaultMiisPerPage = 16;
+const profileMiisPerPage = 18;
 const HOME_PREVIEW_COUNT = 6;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
 const baseUrl = process.env.baseUrl;
@@ -1000,6 +1001,16 @@ function normalizeTagList(rawTags) {
     }
 
     return normalized;
+}
+
+function ensureUploadMiiPermissions(miiData) {
+    if (!miiData || typeof miiData !== "object") return miiData;
+    if (!miiData.perms || typeof miiData.perms !== "object") {
+        miiData.perms = {};
+    }
+    miiData.perms.sharing = true;
+    miiData.perms.copying = true;
+    return miiData;
 }
 
 function getMiiTags(settings) {
@@ -2246,6 +2257,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
                         mii.desc = "Uploaded in Bulk";
                         mii.private = false;
                         mii.published = true;
+                        ensureUploadMiiPermissions(mii);
 
                         await Miis.create(mii);
 
@@ -2814,6 +2826,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
         mii.official = false;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
+        ensureUploadMiiPermissions(mii);
 
         const miiImageData = await miijs.renderMii(mii);
         if (wantsPublic) {
@@ -3034,7 +3047,7 @@ site.get('/verifyEmailChange', async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('check', { size: 14 })} Email Changed Successfully`,
+                title: `Email Changed Successfully`,
                 description: `User ${req.query.user} successfully verified and changed their email`,
                 color: 0x00FF00,
                 fields: [
@@ -3208,7 +3221,7 @@ site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (r
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('edit', { size: 14 })} Mii ${field} Updated`,
+                title: `Mii ${field} Updated`,
                 description: `Moderator ${req.cookies.username} updated ${field}`,
                 color: 0xFFA500,
                 fields: [
@@ -3263,7 +3276,7 @@ site.post('/regenerateQR', requireAuth, requireRole(ROLES.MODERATOR), async (req
     makeReport(JSON.stringify({
         embeds: [{
             type: 'rich',
-            title: `${renderIcon('refresh', { size: 14 })} QR Code Regenerated`,
+            title: `QR Code Regenerated`,
             description: `Moderator ${req.cookies.username} regenerated QR code`,
             color: 0x00AFF0,
             fields: [
@@ -3301,7 +3314,7 @@ site.post('/addUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('plus', { size: 14 })} Role Added to User`,
+                title: `Role Added to User`,
                 description: `Administrator ${req.cookies.username} added a role`,
                 color: 0x00FF00,
                 fields: [
@@ -3353,7 +3366,7 @@ site.post('/removeUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), asyn
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('minus', { size: 14 })} Role Removed from User`,
+                title: `Role Removed from User`,
                 description: `Administrator ${req.cookies.username} removed a role`,
                 color: 0xFF9900,
                 fields: [
@@ -3419,7 +3432,7 @@ site.post('/tempBanUser', requireAuth, requireRole(ROLES.MODERATOR), async (req,
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('timer', { size: 14 })} User Temporarily Banned`,
+                title: `User Temporarily Banned`,
                 description: `${req.cookies.username} temporarily banned a user`,
                 color: 0xFF9900,
                 fields: [
@@ -3487,7 +3500,7 @@ site.post('/permBanUser', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('ban', { size: 14 })} User Permanently Banned`,
+                title: `User Permanently Banned`,
                 description: `${req.cookies.username} permanently banned a user`,
                 color: 0xFF0000,
                 fields: [
@@ -3549,7 +3562,7 @@ site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('trash', { size: 14 })} All User Miis Deleted`,
+                title: `All User Miis Deleted`,
                 description: `${req.cookies.username} deleted all Miis from user ${username}`,
                 color: 0xFF6600,
                 fields: [
@@ -3634,7 +3647,7 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('edit', { size: 14 })} Username Changed (Moderator)`,
+                title: `Username Changed (Moderator)`,
                 description: `${req.cookies.username} changed a username`,
                 color: 0x00FF00,
                 fields: [
@@ -3695,7 +3708,7 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: normalizedOfficial ? `${renderIcon('star-filled', { size: 14 })} Mii Marked as Official` : `${renderIcon('x', { size: 14 })} Mii Unmarked as Official`,
+                title:  `Mii Marked as ${normalizedOfficial?'O':"Uno"}fficial`,
                 description: `Moderator ${req.cookies.username} changed official status`,
                 color: normalizedOfficial ? 0xFFD700 : 0x808080,
                 fields: [
@@ -4126,6 +4139,7 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
         mii.official = false;
         mii.published = false;
         mii.blockedFromPublishing = false;
+        ensureUploadMiiPermissions(mii);
         
         // Store in database as private Mii
         await Miis.create({
@@ -4315,7 +4329,7 @@ site.post('/changeUserPfp', requireAuth, requireRole(ROLES.MODERATOR), async (re
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('image', { size: 14 })} User PFP Changed`,
+                title: `User PFP Changed`,
                 description: `${req.cookies.username} changed profile picture for ${username}`,
                 color: 0x00CCFF,
                 fields: [
@@ -4450,16 +4464,42 @@ site.get('/user/:username', async (req, res) => {
     }
     let inp = await getSendables(req);
     inp.targetUser = targetUser;
-    // inp.targetUser.name = targetUsername;
-    inp.displayedMiis = [];
-    
-    // Get all user's public submissions
-    const miis = await Miis.find({ 
-        uploader: targetUsername, 
-        private: false, 
+    const requestedPage = Number.parseInt(req.query.page, 10);
+    const currentPageCandidate = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+    const profileFilter = {
+        uploader: targetUsername,
+        private: false,
         published: true
-    }).lean();
-    inp.displayedMiis = miis;
+    };
+
+    const [totalMiis, likeSummary] = await Promise.all([
+        Miis.countDocuments(profileFilter),
+        Miis.aggregate([
+            { $match: profileFilter },
+            { $group: { _id: null, totalLikes: { $sum: { $ifNull: ["$votes", 0] } } } }
+        ])
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(totalMiis / profileMiisPerPage));
+    const currentPage = Math.min(currentPageCandidate, totalPages);
+    const skip = (currentPage - 1) * profileMiisPerPage;
+
+    inp.displayedMiis = await Miis.find(profileFilter)
+        .sort({ uploadedOn: -1, _id: -1 })
+        .skip(skip)
+        .limit(profileMiisPerPage)
+        .lean();
+    inp.profileStats = {
+        totalMiis,
+        totalLikes: likeSummary?.[0]?.totalLikes || 0
+    };
+    inp.pagination = {
+        currentPage,
+        totalPages,
+        total: totalMiis,
+        perPage: profileMiisPerPage
+    };
     
     ejs.renderFile('./ejsFiles/userPage.ejs', inp, {}, function(err, str) {
         if (err) {
@@ -4912,7 +4952,7 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('info', { size: 14 })} Email Change Requested`,
+                title: `Email Change Requested`,
                 description: `User ${req.cookies.username} requested to change their email`,
                 color: 0x00CCFF,
                 fields: [
@@ -4975,7 +5015,7 @@ site.post('/changePassword', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('lock', { size: 14 })} Password Changed`,
+                title: `Password Changed`,
                 description: `User ${req.cookies.username} changed their password`,
                 color: 0x00FF00,
                 fields: [
@@ -5041,7 +5081,7 @@ site.post('/resetPassword', async (req, res) => {
     makeReport(JSON.stringify({
         embeds: [{
             type: 'rich',
-            title: `${renderIcon('lock', { size: 14 })} Password Reset Complete`,
+            title: `Password Reset Complete`,
             description: `User ${username} successfully reset their password`,
             color: 0x00FF00
         }]
@@ -5191,7 +5231,7 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('edit', { size: 14 })} Self Username Changed`,
+                title: `Self Username Changed`,
                 description: `User changed their username`,
                 color: 0x00AAFF,
                 fields: [
@@ -5244,7 +5284,7 @@ site.post('/deleteAllMyMiis', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('trash', { size: 14 })} User Deleted All Their Miis`,
+                title: `User Deleted All Their Miis`,
                 description: `${req.cookies.username} deleted all their own Miis`,
                 color: 0xFF6600,
                 fields: [
@@ -5311,7 +5351,7 @@ site.post('/deleteAccount', requireAuth, async (req, res) => {
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('info', { size: 14 })} Account Deleted`,
+                title: `Account Deleted`,
                 description: `User ${username} deleted their account`,
                 color: 0xFF0000,
                 fields: [
@@ -5486,6 +5526,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         mii.official = req.body.official;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
+        ensureUploadMiiPermissions(mii);
         
         // Save to correct folders
         const miiImageData = await miijs.renderMii(mii);
@@ -5591,7 +5632,7 @@ site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('folders', { size: 14 })} Official Mii Categories Updated`,
+                title: `Official Mii Categories Updated`,
                 description: `${req.cookies.username} updated categories for an official Mii`,
                 color: 0x00AAFF,
                 fields: [
@@ -5712,7 +5753,7 @@ site.post('/deleteMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('trash', { size: 14 })} Mii Tag Deleted`,
+                title: `Mii Tag Deleted`,
                 description: `${req.cookies.username} deleted a Mii tag`,
                 color: 0xFF9900,
                 fields: [
@@ -5774,7 +5815,7 @@ site.post('/updateMiiTags', requireAuth, requireRole(ROLES.MODERATOR), async (re
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('edit', { size: 14 })} Mii Tags Updated`,
+                title: `Mii Tags Updated`,
                 description: `${req.cookies.username} updated tags for a Mii`,
                 color: 0x00AAFF,
                 fields: [
@@ -5879,7 +5920,7 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('folder', { size: 14 })} New Category Created`,
+                title: `New Category Created`,
                 description: `${req.cookies.username} created a new category`,
                 color: parseInt(categoryColor.replace('#', ''), 16),
                 fields: [
@@ -5965,7 +6006,7 @@ site.post('/renameCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('edit', { size: 14 })} Category Renamed`,
+                title: `Category Renamed`,
                 description: `${req.cookies.username} renamed a category`,
                 color: parseInt(category.color?.replace('#', '') || '999999', 16),
                 fields: [
@@ -6047,7 +6088,7 @@ site.post('/deleteCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('trash', { size: 14 })} Category Deleted`,
+                title: `Category Deleted`,
                 description: `${req.cookies.username} deleted a category and all its descendants`,
                 color: 0xFF0000,
                 fields: [
@@ -6171,7 +6212,7 @@ site.post('/moveCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (re
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('package', { size: 14 })} Category Moved`,
+                title: `Category Moved`,
                 description: `${req.cookies.username} moved a category`,
                 color: 0x9C27B0,
                 fields: [
@@ -6322,7 +6363,7 @@ site.post('/blockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR), 
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('ban', { size: 14 })} Private Mii Blocked from Publishing`,
+                title: `Private Mii Blocked from Publishing`,
                 description: `${req.cookies.username} blocked a private Mii from being published`,
                 color: 0xFF6600,
                 fields: [
@@ -6375,7 +6416,7 @@ site.post('/unblockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR)
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `${renderIcon('check', { size: 14 })} Private Mii Unblocked`,
+                title: `Private Mii Unblocked`,
                 description: `${req.cookies.username} unblocked a private Mii for publishing`,
                 color: 0x00AA00,
                 fields: [

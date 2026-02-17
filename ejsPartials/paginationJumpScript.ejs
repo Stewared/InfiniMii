@@ -1,0 +1,111 @@
+<script>
+    (function () {
+        const paginationInfoRows = document.querySelectorAll(".pagination-info[data-current-page][data-total-pages]");
+        if (!paginationInfoRows.length) return;
+
+        function buildPageUrl(pageNumber) {
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set("page", String(pageNumber));
+                return url.toString();
+            } catch (e) {
+                const existingSearch = String(window.location.search || "").replace(/^\?/, "");
+                const queryParts = existingSearch ? existingSearch.split("&").filter(Boolean) : [];
+                const encodedPage = encodeURIComponent(String(pageNumber));
+                let foundPageParam = false;
+
+                const nextQueryParts = queryParts.map((part) => {
+                    const equalsIndex = part.indexOf("=");
+                    const rawKey = equalsIndex === -1 ? part : part.slice(0, equalsIndex);
+                    const key = decodeURIComponent(rawKey || "");
+                    if (key !== "page") return part;
+
+                    foundPageParam = true;
+                    return `page=${encodedPage}`;
+                });
+
+                if (!foundPageParam) {
+                    nextQueryParts.push(`page=${encodedPage}`);
+                }
+
+                const queryString = nextQueryParts.join("&");
+                return `${window.location.pathname}${queryString ? `?${queryString}` : ""}${window.location.hash || ""}`;
+            }
+        }
+
+        paginationInfoRows.forEach((row) => {
+            const pageButton = row.querySelector(".pagination-current-page");
+            const pageInput = row.querySelector(".pagination-page-input");
+            if (!pageButton || !pageInput) return;
+
+            const currentPage = Number.parseInt(row.dataset.currentPage || "", 10);
+            const totalPages = Number.parseInt(row.dataset.totalPages || "", 10);
+            if (!Number.isFinite(currentPage) || !Number.isFinite(totalPages) || totalPages < 1) return;
+
+            let isNavigating = false;
+
+            function openEditor() {
+                if (isNavigating) return;
+                row.classList.add("is-editing");
+                pageInput.value = String(currentPage);
+                requestAnimationFrame(() => {
+                    pageInput.focus();
+                    pageInput.select();
+                });
+            }
+
+            function closeEditor() {
+                row.classList.remove("is-editing");
+            }
+
+            function normalizePage(value) {
+                const parsed = Number.parseInt(String(value), 10);
+                if (!Number.isFinite(parsed)) return currentPage;
+                return Math.max(1, Math.min(totalPages, parsed));
+            }
+
+            function submitPage() {
+                if (isNavigating) return;
+
+                const nextPage = normalizePage(pageInput.value);
+                pageInput.value = String(nextPage);
+                closeEditor();
+
+                if (nextPage === currentPage) return;
+
+                isNavigating = true;
+                window.location.assign(buildPageUrl(nextPage));
+            }
+
+            pageButton.addEventListener("click", (event) => {
+                event.preventDefault();
+                openEditor();
+            });
+
+            pageButton.addEventListener("keydown", (event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                openEditor();
+            });
+
+            pageInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    submitPage();
+                    return;
+                }
+
+                if (event.key === "Escape") {
+                    event.preventDefault();
+                    pageInput.value = String(currentPage);
+                    closeEditor();
+                    pageButton.focus();
+                }
+            });
+
+            pageInput.addEventListener("blur", () => {
+                submitPage();
+            });
+        });
+    })();
+</script>

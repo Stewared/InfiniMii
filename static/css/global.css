@@ -1222,39 +1222,146 @@ fieldset a:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
-    margin: 2rem 0;
-    padding: 1rem;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    margin: 2.25rem 0 1.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 35%, #16131a 65%);
+    background: linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--layer-2-um) 92%, #ffffff 8%),
+        color-mix(in oklab, var(--layer-1-um) 88%, #000000 12%)
+    );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 .pagination-btn {
-    padding: 0.5rem 1rem;
-    background: #333;
-    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 8.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 30%, #26222b 70%);
+    background: linear-gradient(
+        160deg,
+        color-mix(in oklab, var(--layer-3-um) 65%, #ffffff 8%),
+        color-mix(in oklab, var(--layer-2-um) 90%, #000000 10%)
+    );
+    color: var(--text-1);
     text-decoration: none;
-    border-radius: 4px;
-    transition: background 0.2s;
-    font-weight: 500;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    font-weight: 600;
+    letter-spacing: 0.01em;
 }
 
 .pagination-btn:hover {
-    background: #555;
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 55%, #2d2834 45%);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+.pagination-btn:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--brand-color) 75%, white 25%);
+    outline-offset: 2px;
 }
 
 .pagination-info {
-    color: #ccc;
-    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 22%, #2a2530 78%);
+    background: color-mix(in oklab, var(--layer-2-um) 92%, #0f0c14 8%);
+    color: var(--text-2);
+    font-size: 0.92rem;
+    white-space: nowrap;
+}
+
+.pagination-current-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.4rem;
+    height: 2rem;
+    padding: 0 0.55rem;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 45%, #2e2735 55%);
+    border-radius: 0.65rem;
+    background: linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--brand-color) 86%, white 14%),
+        color-mix(in oklab, var(--brand-color) 72%, black 28%)
+    );
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: text;
+    box-shadow: 0 4px 12px color-mix(in oklab, var(--brand-color) 32%, transparent);
+}
+
+.pagination-current-page:hover {
+    filter: brightness(1.06);
+}
+
+.pagination-current-page:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--brand-color) 75%, white 25%);
+    outline-offset: 2px;
+}
+
+.pagination-page-input {
+    width: 3.6rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 45%, #2e2735 55%);
+    border-radius: 0.65rem;
+    background: color-mix(in oklab, var(--layer-1-um) 90%, #0b090f 10%);
+    color: var(--text-1);
+    text-align: center;
+    font: inherit;
+    font-weight: 700;
+    appearance: textfield;
+}
+
+.pagination-page-input::-webkit-outer-spin-button,
+.pagination-page-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.pagination-page-input:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--brand-color) 70%, white 30%);
+    outline-offset: 1px;
+}
+
+.pagination-info:not(.is-editing) .pagination-page-input {
+    display: none;
+}
+
+.pagination-info.is-editing .pagination-current-page {
+    display: none;
 }
 
 @media (max-width: 600px) {
     .pagination {
-        flex-direction: column;
-        gap: 0.5rem;
+        border-radius: 18px;
+        gap: 0.65rem;
+        padding: 0.75rem;
     }
     
     .pagination-btn {
+        min-width: 0;
+        flex: 1 1 auto;
+        padding-inline: 0.8rem;
+    }
+
+    .pagination-info {
         width: 100%;
-        text-align: center;
+        justify-content: center;
     }
 }
 

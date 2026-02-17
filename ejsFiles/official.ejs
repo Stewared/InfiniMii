@@ -85,16 +85,29 @@
                     <% if (pagination && pagination.totalPages > 1) { %>
                         <div class="pagination">
                             <% if (pagination.currentPage > 1) { %>
-                                <a href="?page=<%= pagination.currentPage - 1 %><%= currentFilter ? '&category=' + encodeURIComponent(currentFilter) : '' %>" class="pagination-btn">← Previous</a>
+                                <a href="?page=<%= pagination.currentPage - 1 %><%= currentFilter ? '&category=' + encodeURIComponent(currentFilter) : '' %>" class="pagination-btn">&larr; Previous</a>
                             <% } %>
                             
-                            <span class="pagination-info">
-                                Page <%= pagination.currentPage %> of <%= pagination.totalPages %> 
+                            <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
+                                Page
+                                <button type="button" class="pagination-current-page" aria-label="Jump to page">
+                                    <%= pagination.currentPage %>
+                                </button>
+                                <input
+                                    type="number"
+                                    class="pagination-page-input"
+                                    min="1"
+                                    max="<%= pagination.totalPages %>"
+                                    value="<%= pagination.currentPage %>"
+                                    inputmode="numeric"
+                                    aria-label="Type page number"
+                                >
+                                of <%= pagination.totalPages %>
                                 (<%= pagination.total %> Miis)
                             </span>
                             
                             <% if (pagination.currentPage < pagination.totalPages) { %>
-                                <a href="?page=<%= pagination.currentPage + 1 %><%= currentFilter ? '&category=' + encodeURIComponent(currentFilter) : '' %>" class="pagination-btn">Next →</a>
+                                <a href="?page=<%= pagination.currentPage + 1 %><%= currentFilter ? '&category=' + encodeURIComponent(currentFilter) : '' %>" class="pagination-btn">Next &rarr;</a>
                             <% } %>
                         </div>
                     <% } %>
@@ -113,3 +126,4 @@
         <%- include('footer') %>
     </body>
 </html>
+

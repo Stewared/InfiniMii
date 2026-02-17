@@ -17,6 +17,15 @@
         <div class="content">
             <%- include('sidebar') %>
             <div class="profile-container">
+                <%
+                    const totalUploaded = (profileStats && typeof profileStats.totalMiis === 'number')
+                        ? profileStats.totalMiis
+                        : displayedMiis.length;
+                    const totalLikes = (profileStats && typeof profileStats.totalLikes === 'number')
+                        ? profileStats.totalLikes
+                        : displayedMiis.reduce((sum, mii) => sum + (mii.votes || 0), 0);
+                    const profileBasePath = '/user/' + encodeURIComponent(targetUser.username);
+                %>
                 <!-- Profile Header -->
                 <div class="profile-header">
                     <a class="profile-avatar-link" href="/mii/<%= targetUser.miiPfp || '00000' %>" title="View <%= targetUser.username %>'s profile Mii">
@@ -50,13 +59,13 @@
                             <div class="stat-item">
                                 <span class="stat-label">Miis Uploaded</span>
                                 <span class="stat-value">
-                                    <%= displayedMiis.length %>
+                                    <%= totalUploaded %>
                                 </span>
                             </div>
                             <div class="stat-item">
                                 <span class="stat-label">Total Likes</span>
                                 <span class="stat-value">
-                                    <%= displayedMiis.reduce((sum, mii)=> sum + (mii.votes || 0), 0) %>
+                                    <%= totalLikes %>
                                 </span>
                             </div>
                             <% if(targetUser.joinedOn) { %>
@@ -132,7 +141,7 @@
                                     <label>Delete All User's Miis:</label>
                                     <button class="danger-btn"
                                         onclick="deleteAllUserMiis()"><%- include('icon', { name: 'trash', size: 14 }) %> Delete All Miis (
-                                        <%= displayedMiis.length %>)
+                                        <%= totalUploaded %>)
                                     </button>
                                 </div>
 
@@ -167,7 +176,7 @@
 
                     <% if(displayedMiis.length> 0) { %>
                         <div id="browse-miis">
-                            <% for(var i=0; i<displayedMiis.length && i<50; i++){ %>
+                            <% for(var i=0; i<displayedMiis.length; i++){ %>
                                 <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                     <a href="<%= '/mii/'+displayedMiis[i].id %>">
                                         <img src="/miiImgs/<%= displayedMiis[i].id %>.png" alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %>">
@@ -189,6 +198,36 @@
                                 </div>
                             <% } %>
                         </div>
+
+                        <% if (pagination && pagination.totalPages > 1) { %>
+                            <div class="pagination">
+                                <% if (pagination.currentPage > 1) { %>
+                                    <a href="<%= profileBasePath %>?page=<%= pagination.currentPage - 1 %>" class="pagination-btn">&larr; Previous</a>
+                                <% } %>
+
+                                <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
+                                    Page
+                                    <button type="button" class="pagination-current-page" aria-label="Jump to page">
+                                        <%= pagination.currentPage %>
+                                    </button>
+                                    <input
+                                        type="number"
+                                        class="pagination-page-input"
+                                        min="1"
+                                        max="<%= pagination.totalPages %>"
+                                        value="<%= pagination.currentPage %>"
+                                        inputmode="numeric"
+                                        aria-label="Type page number"
+                                    >
+                                    of <%= pagination.totalPages %>
+                                    (<%= pagination.total %> Miis)
+                                </span>
+
+                                <% if (pagination.currentPage < pagination.totalPages) { %>
+                                    <a href="<%= profileBasePath %>?page=<%= pagination.currentPage + 1 %>" class="pagination-btn">Next &rarr;</a>
+                                <% } %>
+                            </div>
+                        <% } %>
                     <% } else { %>
                         <div class="empty-state">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 96 960 960">
@@ -316,7 +355,7 @@
                 async function permBanUser() {
                     const reason = document.getElementById('permBanReason').value;
 
-                    showConfirm(`WARNING\n\nAre you ABSOLUTELY SURE you want to PERMANENTLY BAN ${targetUsername}?\n\nThis will:\n- Delete their account\n- Delete ALL their Miis (${'<%= displayedMiis.length %>'})\n- Ban their IP address from creating new accounts\n\nThis action CANNOT be undone!\n\nReason: ${reason || 'No reason provided'}`, () => {
+                    showConfirm(`WARNING\n\nAre you ABSOLUTELY SURE you want to PERMANENTLY BAN ${targetUsername}?\n\nThis will:\n- Delete their account\n- Delete ALL their Miis (${'<%= totalUploaded %>'})\n- Ban their IP address from creating new accounts\n\nThis action CANNOT be undone!\n\nReason: ${reason || 'No reason provided'}`, () => {
                         const doubleCheck = prompt(`Type "PERMANENT BAN" to confirm:`);
                         if (doubleCheck !== 'PERMANENT BAN') {
                             showAlert('Permanent ban cancelled.', 3000, { title: 'Cancelled' });
@@ -349,7 +388,7 @@
                 }
 
                 async function deleteAllUserMiis() {
-                    showConfirm(`Are you sure you want to delete ALL ${'<%= displayedMiis.length %>'} Miis from ${targetUsername}?\n\nThis action CANNOT be undone!`, () => {
+                    showConfirm(`Are you sure you want to delete ALL ${'<%= totalUploaded %>'} Miis from ${targetUsername}?\n\nThis action CANNOT be undone!`, () => {
                         const doubleCheck = prompt(`Type "DELETE ALL" to confirm:`);
                         if (doubleCheck !== 'DELETE ALL') {
                             showAlert('Deletion cancelled.', 3000, { title: 'Cancelled' });
