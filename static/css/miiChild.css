@@ -67,11 +67,51 @@
     padding: 1rem;
 }
 
+.child-stage-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
 .child-stage-card h4 {
-    margin: 0 0 0.75rem 0;
+    margin: 0;
     color: var(--brand-color);
     font-size: 1rem;
     font-weight: 600;
+}
+
+.child-stage-download-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 0;
+    padding: 0.35rem;
+    border-radius: 10px;
+    border: 1px solid var(--layer-3-um);
+    background-color: color-mix(in lab, var(--layer-2-um) 75%, var(--layer-1-um) 25%);
+    color: var(--text-2);
+    line-height: 0;
+    box-shadow: none;
+}
+
+.child-stage-download-trigger .icon {
+    transition: transform 0.3s ease;
+}
+
+.child-stage-download-trigger:hover,
+.child-stage-download-trigger:focus-visible {
+    background-color: var(--layer-3-um);
+    border-color: var(--brand-color);
+    color: var(--brand-color);
+    box-shadow: none;
+}
+
+.child-stage-download-trigger:hover .icon,
+.child-stage-download-trigger:focus-visible .icon {
+    transform: scale(1.2);
 }
 
 .child-stage-card img {
@@ -113,6 +153,127 @@
     grid-column: 1 / -1;
 }
 
+.child-download-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10020;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.72);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.child-download-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.child-download-modal-overlay[hidden] {
+    display: none !important;
+}
+
+.child-download-modal {
+    width: min(620px, 100%);
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    background-color: var(--layer-2-um);
+    border: 1px solid var(--layer-3-um);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transform: scale(0.96);
+    transition: transform 0.2s ease;
+}
+
+.child-download-modal-overlay.active .child-download-modal {
+    transform: scale(1);
+}
+
+.child-download-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--layer-3-um);
+}
+
+.child-download-modal-header h4 {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 1.1rem;
+}
+
+.child-download-modal-close {
+    margin: 0;
+    padding: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+    border: 1px solid var(--layer-3-um);
+    background: var(--layer-1-um);
+    color: var(--text-2);
+    font-size: 1.5rem;
+    line-height: 1;
+    box-shadow: none;
+}
+
+.child-download-modal-close:hover,
+.child-download-modal-close:focus-visible {
+    color: var(--text-1);
+    background-color: var(--layer-3-um);
+    box-shadow: none;
+}
+
+.child-download-modal-body {
+    padding: 1rem 1.25rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.child-download-stage-label,
+.child-download-note {
+    margin: 0;
+}
+
+.child-download-options-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+}
+
+.child-download-inline-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.child-download-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 1rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--layer-3-um);
+}
+
+.child-download-modal-actions button {
+    margin: 0;
+}
+
+.child-download-modal-actions .btn-secondary {
+    background-color: var(--layer-3-um);
+}
+
+.child-download-modal-actions .btn-secondary:hover,
+.child-download-modal-actions .btn-secondary:focus-visible {
+    background-color: #6d666b;
+    box-shadow: none;
+}
+
 @media (max-width: 900px) {
     .child-maker-file-grid {
         grid-template-columns: 1fr;
@@ -138,5 +299,14 @@
 
     .child-stage-stats .child-stage-stat:first-child {
         grid-column: auto;
+    }
+
+    .child-download-options-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .child-download-modal-actions button {
+        flex: 1 1 100%;
     }
 }

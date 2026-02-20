@@ -79,6 +79,51 @@
                     <p class="note">Each result includes raw Mii values and real-world measurement conversions.</p>
                     <div id="childResultsGrid" class="child-results-grid"></div>
                 </section>
+
+                <div id="childDownloadModal" class="child-download-modal-overlay" hidden>
+                    <div class="child-download-modal" role="dialog" aria-modal="true" aria-labelledby="childDownloadModalTitle">
+                        <div class="child-download-modal-header">
+                            <h4 id="childDownloadModalTitle">Export Child Stage</h4>
+                            <button type="button" id="childDownloadModalClose" class="child-download-modal-close" aria-label="Close export options">&times;</button>
+                        </div>
+
+                        <div class="child-download-modal-body">
+                            <p id="childDownloadStageLabel" class="note child-download-stage-label"></p>
+
+                            <label for="childDownloadFormat">Export format</label>
+                            <input type="text" id="childDownloadFormat" name="format" list="childExportFormatOptions" placeholder="Search formats..." required>
+
+                            <div class="child-download-options-row">
+                                <label class="child-download-inline-label">
+                                    <input type="checkbox" id="childDownloadSpecial" name="special">
+                                    Download as Special Mii
+                                </label>
+                                <label for="childDownloadQrConsole" class="child-download-inline-label">
+                                    QR Console:
+                                    <select id="childDownloadQrConsole" name="qrConsole">
+                                        <option value="3DS">3DS</option>
+                                        <option value="WIIU">Wii U</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <p class="note child-download-note">Use the same export format list as other download pages. Try <code>qr</code>, <code>charinfo</code>, or <code>ffsd</code>.</p>
+                            <div id="childDownloadMessage" class="form-message" style="display: none;"></div>
+                        </div>
+
+                        <div class="child-download-modal-actions">
+                            <button type="button" id="childStageDownloadBtn">Download</button>
+                            <button type="button" id="childStageCopyHexBtn" class="btn-secondary">Copy Hex</button>
+                            <button type="button" id="childStageCopyBase64Btn" class="btn-secondary">Copy Base64</button>
+                        </div>
+                    </div>
+                </div>
+
+                <datalist id="childExportFormatOptions">
+                    <% exportFormats.forEach(fmt => { %>
+                        <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
+                    <% }) %>
+                </datalist>
             </section>
 
             <%- include('featuredMiis') %>
@@ -90,6 +135,20 @@
             const childForm = document.getElementById('miiChildForm');
             const childResults = document.getElementById('childResults');
             const childResultsGrid = document.getElementById('childResultsGrid');
+            const childDownloadModal = document.getElementById('childDownloadModal');
+            const childDownloadModalClose = document.getElementById('childDownloadModalClose');
+            const childDownloadStageLabel = document.getElementById('childDownloadStageLabel');
+            const childDownloadFormat = document.getElementById('childDownloadFormat');
+            const childDownloadSpecial = document.getElementById('childDownloadSpecial');
+            const childDownloadQrConsole = document.getElementById('childDownloadQrConsole');
+            const childDownloadMessage = document.getElementById('childDownloadMessage');
+            const childStageDownloadBtn = document.getElementById('childStageDownloadBtn');
+            const childStageCopyHexBtn = document.getElementById('childStageCopyHexBtn');
+            const childStageCopyBase64Btn = document.getElementById('childStageCopyBase64Btn');
+            const childStageDownloadIconSvg = `<%- include('icon', { name: 'download', size: 18, class: 'child-stage-download-icon' }) %>`;
+            const CHILD_STAGE_EXPORT_META_FIELDS = new Set(['stageIndex', 'stageLabel', 'renderDataUri', 'heightMeasurements', 'weightMeasurements']);
+            let activeChildStage = null;
+            let activeChildStageLabel = '';
 
             function asFiniteNumber(value, fallback = 0) {
                 const parsed = Number(value);
@@ -126,6 +185,182 @@
                 return row;
             }
 
+            function setChildDownloadMessage(message, type = 'error') {
+                if (!childDownloadMessage) return;
+                if (!message) {
+                    childDownloadMessage.style.display = 'none';
+                    childDownloadMessage.textContent = '';
+                    childDownloadMessage.className = 'form-message';
+                    return;
+                }
+
+                childDownloadMessage.textContent = message;
+                childDownloadMessage.className = `form-message ${type}`;
+                childDownloadMessage.style.display = 'block';
+            }
+
+            function openChildDownloadModal(stage, stageLabelText) {
+                if (!childDownloadModal || !stage) return;
+                activeChildStage = stage;
+                activeChildStageLabel = stageLabelText || 'Child Stage';
+                const stageName = stage?.meta?.name ? `\u2022 ${stage.meta.name}` : '';
+                childDownloadStageLabel.textContent = `${activeChildStageLabel} ${stageName}`;
+                if (!childDownloadFormat.value) {
+                    childDownloadFormat.value = 'qr';
+                }
+                setChildDownloadMessage('');
+                childDownloadModal.hidden = false;
+                requestAnimationFrame(() => {
+                    childDownloadModal.classList.add('active');
+                });
+            }
+
+            function closeChildDownloadModal() {
+                if (!childDownloadModal) return;
+                childDownloadModal.classList.remove('active');
+                setTimeout(() => {
+                    if (!childDownloadModal.classList.contains('active')) {
+                        childDownloadModal.hidden = true;
+                    }
+                }, 200);
+            }
+
+            function parseFilename(contentDisposition, fallbackName = 'child-stage', fallbackExtension = 'bin') {
+                if (typeof contentDisposition === 'string' && contentDisposition) {
+                    const utfMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+                    if (utfMatch?.[1]) {
+                        try {
+                            return decodeURIComponent(utfMatch[1]);
+                        } catch (e) { }
+                    }
+
+                    const basicMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+                    if (basicMatch?.[1]) {
+                        return basicMatch[1];
+                    }
+                }
+
+                return `${fallbackName}.${fallbackExtension}`;
+            }
+
+            async function readChildExportError(response) {
+                const fallback = `Export failed (${response?.status || 'unknown status'}).`;
+                if (!response) return fallback;
+                const contentType = response.headers.get('content-type') || '';
+
+                if (contentType.includes('application/json')) {
+                    try {
+                        const payload = await response.json();
+                        if (payload?.error) return payload.error;
+                    } catch (e) { }
+                }
+
+                try {
+                    const text = (await response.text()).trim();
+                    if (text) return text;
+                } catch (e) { }
+
+                return fallback;
+            }
+
+            function buildExportableChildStage(stage) {
+                if (!stage || typeof stage !== 'object') return null;
+                const cloned = structuredClone(stage);
+                for (const field of CHILD_STAGE_EXPORT_META_FIELDS) {
+                    delete cloned[field];
+                }
+                return cloned;
+            }
+
+            function setChildExportBusy(isBusy, activeButton = null, loadingLabel = '') {
+                const actionButtons = [childStageDownloadBtn, childStageCopyHexBtn, childStageCopyBase64Btn];
+                actionButtons.forEach((button) => {
+                    if (!button) return;
+                    if (!button.dataset.originalText) {
+                        button.dataset.originalText = button.textContent;
+                    }
+                    button.disabled = isBusy;
+                    button.textContent = isBusy && button === activeButton
+                        ? loadingLabel
+                        : button.dataset.originalText;
+                });
+            }
+
+            async function requestChildStageExport() {
+                const format = String(childDownloadFormat?.value || '').trim();
+                if (!format) {
+                    throw new Error('Choose an export format first.');
+                }
+                if (!activeChildStage) {
+                    throw new Error('No child stage selected.');
+                }
+
+                const exportableMii = buildExportableChildStage(activeChildStage);
+                if (!exportableMii) {
+                    throw new Error('Selected child stage is invalid.');
+                }
+
+                const response = await fetch('/convertMii', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        miiData: exportableMii,
+                        format,
+                        special: Boolean(childDownloadSpecial?.checked),
+                        qrConsole: childDownloadQrConsole?.value || '3DS'
+                    })
+                });
+
+                const contentDisposition = response.headers.get('content-disposition') || '';
+                const isAttachment = contentDisposition.includes('attachment');
+                if (!response.ok || !isAttachment) {
+                    const errorMessage = await readChildExportError(response);
+                    throw new Error(errorMessage);
+                }
+
+                return { response, contentDisposition, format };
+            }
+
+            async function runChildStageExport(action, actionButton) {
+                setChildDownloadMessage('');
+                setChildExportBusy(true, actionButton, action === 'download' ? 'Downloading...' : 'Copying...');
+
+                try {
+                    const { response, contentDisposition, format } = await requestChildStageExport();
+
+                    if (action === 'download') {
+                        const blob = await response.blob();
+                        const downloadUrl = window.URL.createObjectURL(blob);
+                        const downloadAnchor = document.createElement('a');
+                        downloadAnchor.href = downloadUrl;
+                        downloadAnchor.download = parseFilename(
+                            contentDisposition,
+                            activeChildStageLabel.replace(/\s+/g, '_').toLowerCase() || 'child-stage',
+                            format.replace(/[^a-z0-9]+/gi, '')
+                        );
+                        document.body.appendChild(downloadAnchor);
+                        downloadAnchor.click();
+                        document.body.removeChild(downloadAnchor);
+                        window.URL.revokeObjectURL(downloadUrl);
+                        setChildDownloadMessage('Download started successfully.', 'success');
+                        return;
+                    }
+
+                    const bytes = new Uint8Array(await response.arrayBuffer());
+                    const isBase64 = action === 'copyBase64';
+                    const exportText = isBase64
+                        ? bytesToBase64String(bytes)
+                        : bytesToHexString(bytes);
+
+                    await copyTextToClipboard(exportText);
+                    setChildDownloadMessage(`${isBase64 ? 'Base64' : 'Hex'} copied to clipboard.`, 'success');
+                } catch (error) {
+                    setChildDownloadMessage(error.message || 'Failed to export child stage.', 'error');
+                } finally {
+                    setChildExportBusy(false);
+                }
+            }
+
             function renderChildStages(children) {
                 childResultsGrid.innerHTML = '';
 
@@ -135,6 +370,22 @@
 
                     const stageHeader = document.createElement('h4');
                     stageHeader.textContent = stage.stageLabel || `Stage ${index + 1}`;
+
+                    const stageHeaderRow = document.createElement('div');
+                    stageHeaderRow.className = 'child-stage-header-row';
+
+                    const stageDownloadButton = document.createElement('button');
+                    stageDownloadButton.type = 'button';
+                    stageDownloadButton.className = 'child-stage-download-trigger';
+                    stageDownloadButton.setAttribute('aria-label', `Export ${stageHeader.textContent}`);
+                    stageDownloadButton.setAttribute('title', 'Download and copy options');
+                    stageDownloadButton.innerHTML = childStageDownloadIconSvg;
+                    stageDownloadButton.addEventListener('click', () => {
+                        openChildDownloadModal(stage, stageHeader.textContent);
+                    });
+
+                    stageHeaderRow.appendChild(stageHeader);
+                    stageHeaderRow.appendChild(stageDownloadButton);
 
                     const stageImage = document.createElement('img');
                     stageImage.src = stage.renderDataUri;
@@ -154,7 +405,7 @@
                     statsWrap.appendChild(buildStatRow('Height (Real)', formatHeight(stage.heightMeasurements)));
                     statsWrap.appendChild(buildStatRow('Weight (Real)', formatWeight(stage.weightMeasurements)));
 
-                    stageCard.appendChild(stageHeader);
+                    stageCard.appendChild(stageHeaderRow);
                     stageCard.appendChild(stageImage);
                     stageCard.appendChild(statsWrap);
                     childResultsGrid.appendChild(stageCard);
@@ -162,6 +413,23 @@
 
                 childResults.hidden = false;
             }
+
+            childDownloadModalClose?.addEventListener('click', closeChildDownloadModal);
+            childDownloadModal?.addEventListener('click', (event) => {
+                if (event.target === childDownloadModal) {
+                    closeChildDownloadModal();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && childDownloadModal && !childDownloadModal.hidden) {
+                    closeChildDownloadModal();
+                }
+            });
+
+            childStageDownloadBtn?.addEventListener('click', () => runChildStageExport('download', childStageDownloadBtn));
+            childStageCopyHexBtn?.addEventListener('click', () => runChildStageExport('copyHex', childStageCopyHexBtn));
+            childStageCopyBase64Btn?.addEventListener('click', () => runChildStageExport('copyBase64', childStageCopyBase64Btn));
 
             childForm.addEventListener('submit', function(e) {
                 handleFormSubmit(e, '/makeMiiChild', 'Generating...', 'childMakerMessage', {

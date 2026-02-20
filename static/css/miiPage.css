@@ -182,6 +182,21 @@
     font-size: 14px;
 }
 
+.uploader-info .uploader-subtext {
+    color: var(--text-2);
+    font-size: 0.78rem;
+    opacity: 0.92;
+}
+
+.uploader-info .uploader-subtext a {
+    color: var(--text-2);
+    font-weight: 500;
+}
+
+.uploader-info .uploader-subtext a:hover {
+    color: var(--text-1);
+}
+
 .uploader-with-pfp {
     display: inline-flex;
     align-items: center;
@@ -336,8 +351,65 @@
 .like-button,
 .trash-button,
 .report-button {
-    display: flex;
-    gap: 1ch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 0;
+    box-shadow: none;
+}
+
+.like-button {
+    padding: 0.38rem 0.72rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-4) 55%, #7f8b9f 45%);
+    background: color-mix(in oklab, var(--layer-2-um) 72%, #2a3342 28%);
+    color: #d9e1ed;
+}
+
+.like-button:hover,
+.like-button:focus-visible {
+    transform: translateY(-1px);
+    background: color-mix(in oklab, var(--layer-2-um) 64%, #334056 36%);
+    border-color: color-mix(in oklab, var(--brand-color) 48%, #77839a 52%);
+    box-shadow: none;
+}
+
+.like-button.is-liked {
+    background: color-mix(in oklab, #341923 76%, var(--layer-2-um) 24%);
+    border-color: color-mix(in oklab, #ff6f97 70%, #8b6a73 30%);
+    color: #ff82a5;
+}
+
+.like-button.is-liked:hover,
+.like-button.is-liked:focus-visible {
+    background: color-mix(in oklab, #3f1d2a 74%, var(--layer-2-um) 26%);
+    border-color: #ff95b3;
+}
+
+.like-button.is-like-locked {
+    border-color: color-mix(in oklab, #f5d372 74%, #9d8f62 26%);
+    box-shadow: inset 0 0 0 1px rgba(245, 211, 114, 0.25);
+}
+
+.trash-button,
+.report-button {
+    padding: 0.35rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-4) 52%, #7e8490 48%);
+    background: color-mix(in oklab, var(--layer-2-um) 74%, #242c3a 26%);
+    color: color-mix(in oklab, var(--text-1) 72%, #ff9ba8 28%);
+}
+
+.trash-button:hover,
+.trash-button:focus-visible,
+.report-button:hover,
+.report-button:focus-visible {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, #ff748a 54%, #8892a3 46%);
+    background: color-mix(in oklab, var(--layer-2-um) 65%, #313d51 35%);
+    color: #ffd6dd;
+    box-shadow: none;
 }
 
 /* .vote-section > span {
@@ -357,14 +429,26 @@
 } */
 
 .like-icon {
-    width: 28px;
-    height: 28px;
-    fill: var(--text-1);
-    transition: transform 0.3s ease;
+    width: 24px;
+    height: 24px;
+    color: currentColor;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: transform 0.2s ease, fill 0.2s ease, color 0.2s ease;
 }
 
-.like-icon.liked {
-    fill: var(--brand-color);
+.like-button .icon:hover {
+    transform: none;
+}
+
+.like-button:hover .like-icon,
+.like-button:focus-visible .like-icon {
+    transform: scale(1.1);
+}
+
+.like-button.is-liked .like-icon {
+    fill: currentColor;
 }
 
 .vote-section > span:hover path {
@@ -376,18 +460,19 @@
 } */
 
 .vote-count {
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    color: currentColor;
+    min-width: 1ch;
 }
 
 .trash-icon,
 .report-icon {
-    width: 28px;
-    height: 28px;
-    fill: color-mix(in oklab, var(--text-1) 70%, #ff9999 30%);
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 /* Responsive Design */

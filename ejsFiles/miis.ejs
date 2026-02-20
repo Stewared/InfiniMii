@@ -19,6 +19,11 @@
                 <%
                     const selectedTagParams = Array.isArray(selectedTags) ? selectedTags : [];
                     const encodedTagQuery = selectedTagParams.map(tag => '&tags=' + encodeURIComponent(tag)).join('');
+                    const selectedSearchFieldParams = Array.isArray(selectedSearchFields) ? selectedSearchFields : [];
+                    const encodedSearchFieldQuery = currentPath.startsWith('/searchResults')
+                        ? '&searchFieldsConfigured=1' + selectedSearchFieldParams.map(field => '&searchIn=' + encodeURIComponent(field)).join('')
+                        : '';
+                    const hasActiveSearchQuery = Boolean(query.q && selectedSearchFieldParams.length > 0);
                 %>
 
                 <% if (currentPath.startsWith('/searchResults')) { %>
@@ -30,16 +35,17 @@
                                 name="q"
                                 type="search"
                                 autocomplete="off"
-                                placeholder="Search by character name, creator, or description..."
+                                placeholder="Search by text..."
                                 value="<%= query.q || '' %>"
                             >
+                            <%- include('searchFieldFilters', { selectedSearchFields, searchFieldsExplicitlyConfigured, searchFieldUiIdPrefix: 'search-results-fields' }) %>
                             <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: 'search-results', renderTagFilters: true, renderTagManagement: false }) %>
                             <input type="submit" value="Search">
                         </form>
-                        <% if (query.q || (Array.isArray(selectedTags) && selectedTags.length > 0)) { %>
+                        <% if (hasActiveSearchQuery || (Array.isArray(selectedTags) && selectedTags.length > 0)) { %>
                             <p class="search-results-summary">
                                 <%= pagination?.total ?? displayedMiis.length %> result<%= (pagination?.total ?? displayedMiis.length) === 1 ? '' : 's' %>
-                                <% if (query.q) { %>
+                                <% if (hasActiveSearchQuery) { %>
                                     for "<%= query.q %>"
                                 <% } %>
                                 <% if (Array.isArray(selectedTags) && selectedTags.length > 0) { %>
@@ -52,23 +58,31 @@
 
                 <div id="browse-miis" class="browse-miis-balanced">
                     <% for (var i = 0; i < displayedMiis.length; i++) { %>
-                        <div class="mii-card" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;" id="<%= displayedMiis[i].id %>">
-                            <a href="<%= '/mii/' + displayedMiis[i].id %>"><img src="miiImgs/<%= displayedMiis[i].id %>.png"></a>
+                        <%
+                            const miiItem = displayedMiis[i];
+                            if (!miiItem || !miiItem.id) {
+                                continue;
+                            }
+                            const miiItemName = miiItem?.meta?.name || miiItem?.name || 'Unknown Mii';
+                            const miiItemDesc = typeof miiItem?.desc === 'string' ? miiItem.desc : '';
+                        %>
+                        <div class="mii-card" style="--favorite-color: <%= decodeColor(miiItem.general?.favoriteColor) || decodeColor(0) %>;" id="<%= miiItem.id %>">
+                            <a href="<%= '/mii/' + miiItem.id %>"><img src="miiImgs/<%= miiItem.id %>.png" alt="<%= miiItemName %>"></a>
                             <div class="flex">
                                 <div>
-                                    <h3><%= displayedMiis[i].meta.name %></h3>
-                                    <a href="<%= '/user/' + encodeURIComponent(displayedMiis[i].uploader) %>"><%= displayedMiis[i].uploader %></a>
-                                    <% if (displayedMiis[i].official && displayedMiis[i].contributor) { %>
-                                        <small class="uploader-subtext">Contributed by <a href="/user/<%= encodeURIComponent(displayedMiis[i].contributor) %>"><%= displayedMiis[i].contributor %></a></small>
+                                    <h3><%= miiItemName %></h3>
+                                    <a href="<%= '/user/' + encodeURIComponent(miiItem.uploader) %>"><%= miiItem.uploader %></a>
+                                    <% if (miiItem.official && miiItem.contributor) { %>
+                                        <small class="uploader-subtext">Uploaded by <a href="/user/<%= encodeURIComponent(miiItem.contributor) %>"><%= miiItem.contributor %></a></small>
                                     <% } %>
-                                    <p><%= displayedMiis[i].desc.length > 75 ? displayedMiis[i].desc.slice(0, 73) + "..." : displayedMiis[i].desc %></p>
-                                    <% if (displayedMiis[i].tags && displayedMiis[i].tags.length > 0) { %>
+                                    <p><%= miiItemDesc.length > 75 ? miiItemDesc.slice(0, 73) + "..." : miiItemDesc %></p>
+                                    <% if (miiItem.tags && miiItem.tags.length > 0) { %>
                                         <div class="mii-card-tags">
-                                            <% displayedMiis[i].tags.slice(0, 3).forEach(tag => { %>
+                                            <% miiItem.tags.slice(0, 3).forEach(tag => { %>
                                                 <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
                                             <% }) %>
-                                            <% if (displayedMiis[i].tags.length > 3) { %>
-                                                <span class="mii-card-tag mii-card-tag-more">+<%= displayedMiis[i].tags.length - 3 %></span>
+                                            <% if (miiItem.tags.length > 3) { %>
+                                                <span class="mii-card-tag mii-card-tag-more">+<%= miiItem.tags.length - 3 %></span>
                                             <% } %>
                                         </div>
                                     <% } %>
@@ -81,7 +95,7 @@
                 <% if (pagination && pagination.totalPages > 1 && !title.toLowerCase().includes("random")) { %>
                     <div class="pagination">
                         <% if (pagination.currentPage > 1) { %>
-                            <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %>" class="pagination-btn">&larr; Previous</a>
+                            <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %>" class="pagination-btn">&larr; Previous</a>
                         <% } %>
 
                         <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
@@ -103,7 +117,7 @@
                         </span>
 
                         <% if (pagination.currentPage < pagination.totalPages) { %>
-                            <a href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %>" class="pagination-btn">Next &rarr;</a>
+                            <a href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %>" class="pagination-btn">Next &rarr;</a>
                         <% } %>
                     </div>
                 <% } %>

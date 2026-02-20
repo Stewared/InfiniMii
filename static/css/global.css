@@ -532,6 +532,97 @@ footer ul li a:hover {
     margin-left: 0.35rem;
 }
 
+.search-fields-panel {
+    margin-top: 0.4rem;
+    padding: 0.75rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7b7b7b 42%);
+    background: color-mix(in oklab, var(--layer-1-um) 84%, var(--layer-2-um) 16%);
+}
+
+.search-fields-title {
+    margin: 0 0 0.5rem;
+    color: var(--text-1);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.search-field-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.search-field-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.28rem 0.62rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7f7f7f 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 72%, var(--layer-3-um) 28%);
+    color: var(--text-1);
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.search-field-option:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 45%, #838383 55%);
+}
+
+.search-field-option input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin: 0;
+    border-radius: 0.3rem;
+    border: 1px solid color-mix(in oklab, var(--layer-4) 62%, #9b9b9b 38%);
+    background: color-mix(in oklab, var(--layer-1-um) 86%, #000000 14%);
+    display: inline-grid;
+    place-content: center;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.search-field-option input[type="checkbox"]::before {
+    content: "";
+    width: 0.58rem;
+    height: 0.58rem;
+    border-radius: 0.16rem;
+    background: color-mix(in oklab, var(--brand-color) 88%, #ffffff 12%);
+    transform: scale(0);
+    transition: transform 0.12s ease;
+}
+
+.search-field-option input[type="checkbox"]:checked {
+    border-color: color-mix(in oklab, var(--brand-color) 58%, #757575 42%);
+    background: color-mix(in oklab, var(--brand-color) 22%, var(--layer-1-um) 78%);
+}
+
+.search-field-option input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+.search-field-option input[type="checkbox"]:checked + span {
+    color: color-mix(in oklab, var(--brand-color) 22%, var(--text-1) 78%);
+}
+
+.search-field-option input[type="checkbox"]:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--brand-color) 68%, #ffffff 32%);
+    outline-offset: 1px;
+}
+
+.search-fields-help {
+    margin: 0.45rem 0 0;
+    color: var(--text-2);
+    font-size: 0.8rem;
+}
+
 .search-tags-panel {
     margin-top: 0.4rem;
     padding: 0.75rem 0.8rem;
@@ -662,6 +753,10 @@ footer ul li a:hover {
 @media (max-width: 600px) {
     #browse-miis.browse-miis-balanced {
         grid-template-columns: 1fr;
+    }
+
+    .search-field-options {
+        gap: 0.35rem;
     }
 
     .tag-management-actions {

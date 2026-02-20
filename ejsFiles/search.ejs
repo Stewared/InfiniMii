@@ -25,7 +25,8 @@
                     <fieldset>
                         <legend id="search-heading">Search Mii Characters</legend>
                         <label for="search-query" class="sr-only">Enter character name or keywords</label>
-                        <input name="q" autocomplete="off" placeholder="Search by character name, creator, or description..." type="search" id="search-query" value="<%= query.q || '' %>">
+                        <input name="q" autocomplete="off" placeholder="Search by text..." type="search" id="search-query" value="<%= query.q || '' %>">
+                        <%- include('searchFieldFilters', { selectedSearchFields, searchFieldsExplicitlyConfigured, searchFieldUiIdPrefix: 'search-page-fields' }) %>
                         <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: 'search-page', renderTagFilters: true, renderTagManagement: false }) %>
                         <input type="submit" value="Search">
 

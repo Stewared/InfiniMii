@@ -1,0 +1,37 @@
+<%
+    const searchFieldCatalog = [
+        { value: 'uploader', label: 'Uploader' },
+        { value: 'name', label: 'Name' },
+        { value: 'description', label: 'Description' }
+    ];
+    const selectedFieldSource = Array.isArray(selectedSearchFields) ? selectedSearchFields : [];
+    const hasExplicitSelection = Boolean(searchFieldsExplicitlyConfigured);
+    const activeFieldValues = selectedFieldSource.length > 0
+        ? selectedFieldSource
+        : (hasExplicitSelection ? [] : searchFieldCatalog.map(field => field.value));
+    const selectedFieldSet = new Set(activeFieldValues.map(field => String(field || '').toLowerCase()));
+    const fieldPanelPrefix = (typeof searchFieldUiIdPrefix === 'string' && searchFieldUiIdPrefix.trim())
+        ? searchFieldUiIdPrefix.trim()
+        : 'search-fields';
+%>
+
+<section class="search-fields-panel" aria-label="Search fields">
+    <h3 class="search-fields-title">Search In</h3>
+    <input type="hidden" name="searchFieldsConfigured" value="1">
+    <div class="search-field-options">
+        <% searchFieldCatalog.forEach(field => { %>
+            <% const inputId = `${fieldPanelPrefix}-${field.value}`; %>
+            <label class="search-field-option" for="<%= inputId %>">
+                <input
+                    id="<%= inputId %>"
+                    type="checkbox"
+                    name="searchIn"
+                    value="<%= field.value %>"
+                    <%= selectedFieldSet.has(field.value) ? 'checked' : '' %>
+                >
+                <span><%= field.label %></span>
+            </label>
+        <% }) %>
+    </div>
+    <p class="search-fields-help">Name also searches the Mii's Creator Name.</p>
+</section>

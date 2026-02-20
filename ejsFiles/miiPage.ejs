@@ -3,8 +3,9 @@
     <head>
         <%
         // Set page-specific variables for meta tags
+        const officialSourceLabel = mii.official ? (officialSourceName || mii.officialSource || mii.uploader || 'Nintendo') : '';
         const pageTitle = `${mii.meta.name} - InfiniMii | Download Mii Character`;
-        const pageDesc = mii.desc || `Download ${mii.meta.name} Mii character${mii.official ? ' (Official Nintendo Mii)' : ''} for Wii, 3DS, Wii U, Switch. Get QR code and convert to any format.`;
+        const pageDesc = mii.desc || `Download ${mii.meta.name} Mii character${mii.official ? ` (Official ${officialSourceLabel} Mii)` : ''} for Wii, 3DS, Wii U, Switch. Get QR code and convert to any format.`;
         const canonicalUrl = `${baseUrl}/mii/${mii.id}`;
         const ogImage = `${baseUrl}/miiImgs/${mii.id}.png`;
         const ogType = 'article';
@@ -367,23 +368,37 @@
                 <div class="id-card-footer">
                     <div class="uploader-info">
                         <% if(mii.official){ %>
-                            <span class="official-badge"><%- include('icon', { name: 'star-filled', size: 14, class: 'icon-gold' }) %> Official Nintendo Mii</span>
-                        <% } %>
-                        <span class="label">Uploaded by</span>
-                        <a class="uploader-with-pfp" href="/user/<%= encodeURIComponent(mii.uploader) %>">
-                            <img
-                                class="uploader-pfp"
-                                src="/miiImgs/<%= uploaderPfp %>.png"
-                                alt="<%= mii.uploader %>'s profile Mii"
-                                onerror="this.src='/miiImgs/00000.png'"
-                                loading="lazy"
-                                width="28"
-                                height="28"
-                            >
-                            <span><%= mii.uploader %></span>
-                        </a>
-                        <% if(mii.official && mii.contributor) { %>
-                            <small class="uploader-subtext">(Contributed by <a href="/user/<%= encodeURIComponent(mii.contributor) %>"><%= mii.contributor %></a>)</small>
+                            <span class="official-badge"><%- include('icon', { name: 'star-filled', size: 14, class: 'icon-gold' }) %> Official Mii</span>
+                            <span class="label">Source</span>
+                            <a class="uploader-with-pfp" href="/user/<%= encodeURIComponent(mii.uploader) %>">
+                                <img
+                                    class="uploader-pfp"
+                                    src="/miiImgs/<%= uploaderPfp %>.png"
+                                    alt="<%= officialSourceName %>'s profile Mii"
+                                    onerror="this.src='/miiImgs/00000.png'"
+                                    loading="lazy"
+                                    width="28"
+                                    height="28"
+                                >
+                                <span><%= officialSourceName %></span>
+                            </a>
+                            <% if(mii.contributor) { %>
+                                <small class="uploader-subtext">Uploaded by <a href="/user/<%= encodeURIComponent(mii.contributor) %>"><%= mii.contributor %></a></small>
+                            <% } %>
+                        <% } else { %>
+                            <span class="label">Uploaded by</span>
+                            <a class="uploader-with-pfp" href="/user/<%= encodeURIComponent(mii.uploader) %>">
+                                <img
+                                    class="uploader-pfp"
+                                    src="/miiImgs/<%= uploaderPfp %>.png"
+                                    alt="<%= mii.uploader %>'s profile Mii"
+                                    onerror="this.src='/miiImgs/00000.png'"
+                                    loading="lazy"
+                                    width="28"
+                                    height="28"
+                                >
+                                <span><%= mii.uploader %></span>
+                            </a>
                         <% } %>
                         <time class="date" datetime="<%= new Date(mii.uploadedOn).toISOString() %>" itemprop="datePublished">on <%= new Date(mii.uploadedOn).toLocaleDateString() %></time>
                     </div>
@@ -441,18 +456,23 @@
 
 
                     <div class="vote-section">
-                        <button onclick="likeMii(this,'<%= mii.id %>','<%= highlightedMii %>','<%= isModerator %>')" class="like-button">
-                            <!-- TODO check -->
-                            <% if(!user?.votedFor.includes(mii.id) && mii.uploader !== user?.username){ %> 
-                                <svg xmlns="http://www.w3.org/2000/svg" class="like-icon" viewBox="0 96 960 960" fill="currentColor">
-                                    <path d="m480 935-41-37q-105.768-97.121-174.884-167.561Q195 660 154 604.5T96.5 504Q80 459 80 413q0-90.155 60.5-150.577Q201 202 290 202q57 0 105.5 27t84.5 78q42-54 89-79.5T670 202q89 0 149.5 60.423Q880 322.845 880 413q0 46-16.5 91T806 604.5Q765 660 695.884 730.439 626.768 800.879 521 898l-41 37Zm0-79q101.236-92.995 166.618-159.498Q712 630 750.5 580t54-89.135q15.5-39.136 15.5-77.72Q820 347 778 304.5T670.225 262q-51.524 0-95.375 31.5Q531 325 504 382h-49q-26-56-69.85-88-43.851-32-95.375-32Q224 262 182 304.5t-42 108.816Q140 452 155.5 491.5t54 90Q248 632 314 698t166 158Zm0-297Z"/>
-                                </svg>
-                            <% } else { %>
-                                <svg class="like-icon liked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M0 0h24v24H0V0z" fill="none"/>
-                                    <path d="M13.35 20.13c-.76.69-1.93.69-2.69-.01l-.11-.1C5.3 15.27 1.87 12.16 2 8.28c.06-1.7.93-3.33 2.34-4.29 2.64-1.8 5.9-.96 7.66 1.1 1.76-2.06 5.02-2.91 7.66-1.1 1.41.96 2.28 2.59 2.34 4.29.14 3.88-3.3 6.99-8.55 11.76l-.1.09z"/>
-                                </svg>
-                            <% } %>
+                        <%
+                            const userVotedFor = Array.isArray(user?.votedFor) ? user.votedFor : [];
+                            const isLikeLocked = Boolean(
+                                user?.username &&
+                                (mii.uploader === user.username || mii.contributor === user.username)
+                            );
+                            const hasLikedMii = userVotedFor.includes(mii.id) || isLikeLocked;
+                        %>
+                        <button
+                            onclick="likeMii(this,'<%= mii.id %>','<%= highlightedMii %>','<%= isModerator %>')"
+                            class="like-button <%= hasLikedMii ? 'is-liked' : 'is-unliked' %><%= isLikeLocked ? ' is-like-locked' : '' %>"
+                            data-liked="<%= hasLikedMii ? 'true' : 'false' %>"
+                            data-like-locked="<%= isLikeLocked ? 'true' : 'false' %>"
+                            aria-pressed="<%= hasLikedMii ? 'true' : 'false' %>"
+                            aria-label="<%= isLikeLocked ? 'You permanently like Miis you upload' : (hasLikedMii ? 'Unlike this Mii' : 'Like this Mii') %>"
+                        >
+                            <%- include('icon', { name: 'heart', size: 26, class: 'like-icon' }) %>
                             <span class="vote-count" itemprop="interactionStatistic" itemscope itemtype="https://schema.org/InteractionCounter">
                                 <meta itemprop="interactionType" content="https://schema.org/LikeAction">
                                 <meta itemprop="userInteractionCount" content="<%= mii.votes || 0 %>">
@@ -522,6 +542,14 @@
                                     <button onclick="saveMiiTags()">Update Tags</button>
                                 </div>
 
+                                <% if(canManageOfficialCategories) { %>
+                                <div class="mod-tool-item">
+                                    <label>Official Categories:</label>
+                                    <p class="mod-tag-hint">Assign and update leaf categories for this official entry.</p>
+                                    <button onclick="openCategoryEditor()">Edit Categories</button>
+                                </div>
+                                <% } %>
+
                                 <!-- Toggle Official Status -->
                                 <div class="mod-tool-item">
                                     <label>Official Mii Status:</label>
@@ -556,6 +584,42 @@
                                 <div class="mod-tool-item mod-tool-danger">
                                     <label>Delete Mii:</label>
                                     <button class="danger-btn" onclick="confirmDeleteMii()"><%- include('icon', { name: 'trash', size: 16 }) %> Delete Mii</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+                <% if(!isModerator && canEditOfficialMii) { %>
+                    <div class="moderator-tools">
+                        <div class="mod-tools-header" onclick="toggleOfficialEditorTools()">
+                            <h3><%- include('icon', { name: 'flask', size: 18, class: 'icon-inline' }) %> Official Editor Tools</h3>
+                            <span class="dropdown-arrow" id="officialEditorToolsArrow">▼</span>
+                        </div>
+
+                        <div class="mod-tools-content" id="officialEditorToolsContent">
+                            <div class="mod-tool-grid">
+                                <div class="mod-tool-item">
+                                    <label>Mii Name:</label>
+                                    <input type="text" id="researcherEditMiiName" value="<%= mii.meta.name %>" placeholder="Mii Name">
+                                    <button onclick="updateMiiField('name', document.getElementById('researcherEditMiiName').value)">Update Name</button>
+                                </div>
+
+                                <div class="mod-tool-item">
+                                    <label>Description:</label>
+                                    <textarea id="researcherEditDesc" rows="3" placeholder="Description"><%= mii.desc %></textarea>
+                                    <button onclick="updateMiiField('desc', document.getElementById('researcherEditDesc').value)">Update Description</button>
+                                </div>
+
+                                <div class="mod-tool-item">
+                                    <label>Creator Name (in Mii file):</label>
+                                    <input type="text" id="researcherEditCreatorName" value="<%= mii.meta.creatorName || '' %>" placeholder="Creator Name">
+                                    <button onclick="updateMiiField('creatorName', document.getElementById('researcherEditCreatorName').value)">Update Creator</button>
+                                </div>
+
+                                <div class="mod-tool-item">
+                                    <label>Official Categories:</label>
+                                    <p class="mod-tag-hint">Assign and update leaf categories for this official entry.</p>
+                                    <button onclick="openCategoryEditor()">Edit Categories</button>
                                 </div>
                             </div>
                         </div>
@@ -649,6 +713,50 @@
                     return;
                 }
                 await copyExportHexFromForm(form);
+            }
+
+            function toggleOfficialEditorTools() {
+                const content = document.getElementById('officialEditorToolsContent');
+                const arrow = document.getElementById('officialEditorToolsArrow');
+                if (!content || !arrow) return;
+
+                content.classList.toggle('expanded');
+                arrow.classList.toggle('rotated');
+            }
+
+            async function updateMiiField(field, value) {
+                if (!value || value.trim() === '') {
+                    showAlert('Please enter a valid value', 5000, { title: 'Error', type: 'error' });
+                    return;
+                }
+
+                showConfirm(`Are you sure you want to update the ${field}?`, async () => {
+                    try {
+                        const response = await fetch('/updateMiiField', {
+                            method: 'POST',
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                id: '<%= mii.id %>',
+                                field: field,
+                                value: value
+                            })
+                        });
+
+                        const result = await response.json();
+
+                        if (!result.error) {
+                            showAlert(`Successfully updated ${field}!`, 3000, { title: 'Success', type: 'success' });
+                            setTimeout(() => location.reload(), 3000);
+                        }
+                        else {
+                            showAlert(`Error: ${result.error || 'Unknown error'}`, 5000, { title: 'Error', type: 'error' });
+                        }
+                    }
+                    catch (error) {
+                        console.error('Error:', error);
+                        showAlert('Failed to update. Please try again.', 5000, { title: 'Error', type: 'error' });
+                    }
+                }, null, { title: 'Update Field', confirmText: 'Update' });
             }
         </script>
 
@@ -786,41 +894,6 @@
                     document.addEventListener('DOMContentLoaded', renderModMiiTagList);
                 } else {
                     renderModMiiTagList();
-                }
-
-                async function updateMiiField(field, value) {
-                    if (!value || value.trim() === '') {
-                        showAlert('Please enter a valid value', 5000, { title: 'Error', type: 'error' });
-                        return;
-                    }
-
-                    showConfirm(`Are you sure you want to update the ${field}?`, async () => {
-                        try {
-                            const response = await fetch('/updateMiiField', {
-                                method: 'POST',
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    id: '<%= mii.id %>',
-                                    field: field,
-                                    value: value
-                                })
-                            });
-
-                            const result = await response.json();
-                            
-                            if (!result.error) {
-                                showAlert(`Successfully updated ${field}!`, 3000, { title: 'Success', type: 'success' });
-                                setTimeout(() => location.reload(), 3000);
-                            }
-                            else {
-                                showAlert(`Error: ${result.error || 'Unknown error'}`, 5000, { title: 'Error', type: 'error' });
-                            }
-                        }
-                        catch (error) {
-                            console.error('Error:', error);
-                            showAlert('Failed to update. Please try again.', 5000, { title: 'Error', type: 'error' });
-                        }
-                    }, null, { title: 'Update Field', confirmText: 'Update' });
                 }
 
                 async function regenerateQR() {

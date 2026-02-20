@@ -16,28 +16,33 @@
             <div class="official-miis-page">
                 <div class="official-header">
                     <h1><%- include('icon', { name: 'sparkles', size: 28, class: 'icon-inline icon-gold' }) %> Official Miis</h1>
-                    <p class="subtitle">Miis that appear officially in Nintendo games and promotions</p>
+                    <p class="subtitle">Miis that appear officially in games and promotions</p>
                 </div>
 
                 <!-- Category Filter -->
                 <div class="category-filter">
-                    <h3>Filter by Category:</h3>
-                    <div class="filter-buttons">
-                        <a href="/official" class="filter-btn <%= !currentFilter ? 'active' : '' %>">
-                            All (<%= displayedMiis.length %>)
-                            <span class="category-path">Everything</span>
-                        </a>
-                        <% availableCategories.forEach(category => { %>
-                            <a href="/official?category=<%= encodeURIComponent(category.path) %>" 
-                            class="filter-btn <%= currentFilter === category.path ? 'active' : '' %>"
-                            style="--category-color: <%= category.color || '#999999' %>;">
-                                <%= category.name %>
-                                <% if(category.fullPath) { %>
-                                    <span class="category-path"><%= category.fullPath %></span>
-                                <% } %>
+                    <details class="category-dropdown" <%= currentFilter ? 'open' : '' %>>
+                        <summary>
+                            <span class="summary-label">Filter by Category</span>
+                            <span class="summary-current"><%= currentFilter || 'All Categories' %></span>
+                        </summary>
+                        <div class="filter-buttons">
+                            <a href="/official" class="filter-btn <%= !currentFilter ? 'active' : '' %>">
+                                All (<%= displayedMiis.length %>)
+                                <span class="category-path">Everything</span>
                             </a>
-                        <% }); %>
-                    </div>
+                            <% availableCategories.forEach(category => { %>
+                                <a href="/official?category=<%= encodeURIComponent(category.path) %>" 
+                                class="filter-btn <%= currentFilter === category.path ? 'active' : '' %>"
+                                style="--category-color: <%= category.color || '#999999' %>;">
+                                    <%= category.name %>
+                                    <% if(category.fullPath) { %>
+                                        <span class="category-path"><%= category.fullPath %></span>
+                                    <% } %>
+                                </a>
+                            <% }); %>
+                        </div>
+                    </details>
                 </div>
 
                 <% if(currentFilter) { %>

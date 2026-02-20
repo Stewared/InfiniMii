@@ -229,6 +229,123 @@
     margin-top: 0.28rem;
 }
 
+.official-upload-fieldset {
+    margin-top: 2rem;
+    border-color: color-mix(in oklab, var(--brand-color) 62%, #7d6a3b 38%);
+    background: linear-gradient(
+        165deg,
+        color-mix(in oklab, var(--layer-2-um) 86%, var(--layer-3-um) 14%),
+        color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%)
+    );
+}
+
+.official-upload-intro {
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 44%, #7d7d7d 56%);
+    background: color-mix(in oklab, var(--layer-3-um) 72%, var(--layer-2-um) 28%);
+}
+
+.official-upload-intro p {
+    margin: 0;
+    color: var(--text-2);
+    line-height: 1.45;
+}
+
+.official-upload-intro p + p {
+    margin-top: 0.45rem;
+}
+
+.official-upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.official-source-card {
+    padding: 0.9rem;
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 55%, #797979 45%);
+    background: color-mix(in oklab, var(--layer-2-um) 80%, var(--layer-1-um) 20%);
+}
+
+.official-source-title {
+    margin: 0 0 0.55rem 0;
+    color: var(--text-1);
+    font-size: 1rem;
+}
+
+.official-source-mode {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-bottom: 0.7rem;
+}
+
+.official-source-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-1);
+    font-size: 0.92rem;
+}
+
+.official-source-row + .official-source-row {
+    margin-top: 0.55rem;
+}
+
+.official-source-row label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-2);
+    font-size: 0.88rem;
+}
+
+.official-source-row input[type="text"],
+.official-source-row select {
+    width: min(100%, 430px);
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 55%, #8b8b8b 45%);
+    background: color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%);
+    color: var(--text-1);
+    padding: 0.55rem 0.68rem;
+}
+
+.official-source-row input[type="text"]:focus,
+.official-source-row select:focus {
+    outline: none;
+    border-color: color-mix(in oklab, var(--brand-color) 62%, #7f7f7f 38%);
+}
+
+.official-upload-input-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.official-upload-input-card {
+    padding: 0.8rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 52%, #7d7d7d 48%);
+    background: color-mix(in oklab, var(--layer-1-um) 84%, var(--layer-2-um) 16%);
+}
+
+.official-upload-input-card label {
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+.official-upload-input-card input[type="file"],
+.official-upload-input-card input[type="text"],
+.official-upload-input-card textarea {
+    width: 100%;
+}
+
+.official-categories-panel {
+    margin-top: 0.2rem;
+}
+
 @media (max-width: 700px) {
     .official-fields-header {
         flex-direction: column;
@@ -237,5 +354,19 @@
 
     .category-tree-upload .tree-node-upload {
         margin-left: 0;
+    }
+
+    .official-upload-input-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .official-source-mode {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .official-source-row input[type="text"],
+    .official-source-row select {
+        width: 100%;
     }
 }

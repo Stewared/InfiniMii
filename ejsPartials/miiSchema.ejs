@@ -1,4 +1,7 @@
 <% if (typeof mii !== 'undefined') { %>
+<%
+const officialSourceName = mii.official ? (mii.officialSource || mii.uploader || "Nintendo") : "";
+%>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -11,7 +14,7 @@
   ],
   "creator": {
     "@type": "<%= mii.official ? 'Organization' : 'Person' %>",
-    "name": "<%= mii.uploader %>"
+    "name": "<%= mii.official ? officialSourceName : mii.uploader %>"
   },
   "datePublished": "<%= new Date(mii.uploadedOn).toISOString() %>",
   "url": "<%= baseUrl %>/mii/<%= mii.id %>",
@@ -32,10 +35,10 @@
   "@type": "Product",
   "name": "<%= mii.meta.name %> Official Mii",
   "image": "<%= baseUrl %>/miiImgs/<%= mii.id %>.png",
-  "description": "<%= mii.desc || `Official ${mii.meta.name} Mii character from Nintendo` %>",
+  "description": "<%= mii.desc || `Official ${mii.meta.name} Mii character from ${officialSourceName}` %>",
   "brand": {
     "@type": "Organization",
-    "name": "Nintendo"
+    "name": "<%= officialSourceName %>"
   },
   "offers": {
     "@type": "Offer",

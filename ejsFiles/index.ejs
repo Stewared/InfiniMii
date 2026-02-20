@@ -17,9 +17,15 @@
 					<div class="miiCategory">
 						<h1><a href="<%= miiCategories[cat].link %>"><%= cat %></a></h1>
 						<% miiCategories[cat].miis.forEach(mii=>{ %>
+							<%
+								if (!mii || !mii.id) {
+									return;
+								}
+								const miiName = mii?.meta?.name || mii?.name || "Unknown Mii";
+							%>
 							<a class="miiThumb" href="/mii/<%= mii.id %>">
-								<img src="./miiImgs/<%= mii.id %>.png">
-								<h3><%= mii.meta.name %></h3>
+								<img src="./miiImgs/<%= mii.id %>.png" alt="<%= miiName %>">
+								<h3><%= miiName %></h3>
 							</a>
 						<% }); %>
 					</div>

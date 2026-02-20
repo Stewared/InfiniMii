@@ -23,247 +23,334 @@
                 <fieldset>
                     <legend>Upload a Mii to InfiniMii</legend>
                     <% if (fromAmiibo) { %>
-                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; color: white;">
-                                <h4 style="margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px;">
-                                    Uploading Mii Extracted from Amiibo
-                                </h4>
-                                <div style="display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
-                                    <img src="/miiImgs/<%= fromAmiibo.id %>.png" 
-                                        style="width: 100px; height: 100px; border-radius: 8px; border: 3px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
-                                    <div>
-                                        <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold;"><%= fromAmiibo.name %></p>
-                                        <p style="margin: 0; opacity: 0.9;">Creator: <%= fromAmiibo.creator %></p>
-                                        <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.8;">
-                                            Edit the description below, then click Upload to add this Mii to your private collection.
-                                        </p>
-                                    </div>
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; color: white;">
+                            <h4 style="margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px;">
+                                Uploading Mii Extracted from Amiibo
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+                                <img src="/miiImgs/<%= fromAmiibo.id %>.png" style="width: 100px; height: 100px; border-radius: 8px; border: 3px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                                <div>
+                                    <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: bold;"><%= fromAmiibo.name %></p>
+                                    <p style="margin: 0; opacity: 0.9;">Creator: <%= fromAmiibo.creator %></p>
+                                    <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.8;">
+                                        Edit the description below, then click Upload to add this Mii to your private collection.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                    <div class="upload-instructions">
+                        <h3>Before You Upload:</h3>
+                        <ul>
+                            <li>Upload any supported Mii file format - InfiniMii will auto-detect it</li>
+                            <li>Provide a clear, descriptive name and description</li>
+                            <li>Be respectful and follow community guidelines</li>
+                            <li>Miis uploaded are private to start, you can publish them to the public <a href="/MyPrivateMiis">here</a>.</li>
+                            <% if (isResearcher) { %>
+                                <li>Official uploads are available in the dedicated Researcher form below.</li>
+                            <% } %>
+                        </ul>
+                    </div>
+
+                    <div class="upload-tabs">
+                        <button class="tab-button active" onclick="switchTab('file')"><%- include('icon', { name: 'file', size: 16 }) %> File Upload</button>
+                        <% if (!fromAmiibo) { %>
+                            <button class="tab-button" onclick="switchTab('code')"><%- include('icon', { name: 'copy', size: 16 }) %> Base64/Hex Code</button>
+                        <% } %>
+                        <button class="tab-button" onclick="switchTab('qr')"><%- include('icon', { name: 'qr-code', size: 16 }) %> Scan QR Code</button>
+                    </div>
+
+                    <form action="/uploadMii" method="post" enctype="multipart/form-data" id='uploadForm' class="upload-form-panel">
+                        <div id="error-message" class="form-message" style="display: none;"></div>
+
+                        <div id="fileTab" class="tab-content active">
+                            <% if (!fromAmiibo) { %>
+                                <div class="format-hint">
+                                    <strong>Supported file inputs:</strong><br>
+                                    &bull; Any Mii file format supported by MiiJS (Wii/DS/3DS/Wii U/Switch/etc.)<br>
+                                    &bull; QR code images (.png, .jpg)
+                                </div>
+
+                                <label for="mii-upload" hidden>Upload Mii File:</label>
+                                <input type="file" name="mii" id="mii-upload">
+                            <% } else { %>
+                                <input type="hidden" name="fromAmiibo" value="<%= fromAmiibo.id %>">
+                            <% } %>
+                        </div>
+
+                        <% if (!fromAmiibo) { %>
+                            <div id="codeTab" class="tab-content">
+                                <label for="upload-miiData">Paste raw Mii data (base64 or hex):</label>
+                                <textarea id="upload-miiData" name="miiData" rows="4" placeholder="Paste base64 or hex string (hex may contain spaces)"></textarea>
+                                <small class="code-length-hint">A 92-character code is treated as a Mii Studio code.</small>
+
+                                <div id="upload-miiName-group" class="studio-name-field" style="display: none;">
+                                    <label for="upload-miiName">Mii Name:</label>
+                                    <input type="text" id="upload-miiName" name="miiName" maxlength="40" placeholder="Enter the Mii name">
                                 </div>
                             </div>
                         <% } %>
-                        <div class="upload-instructions">
-                            <h3>Before You Upload:</h3>
-                            <ul>
-                                <li>Upload any supported Mii file format - InfiniMii will auto-detect it</li>
-                                <li>Provide a clear, descriptive name and description</li>
-                                <li>Be respectful and follow community guidelines</li>
-                                <li>Miis uploaded are private to start, you can publish them to the public <a href="/MyPrivateMiis">here</a>.</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="upload-tabs">
-                            <button class="tab-button active" onclick="switchTab('file')"><%- include('icon', { name: 'file', size: 16 }) %> File Upload</button>
-                            <% if (!fromAmiibo) { %>
-                                <button class="tab-button" onclick="switchTab('code')"><%- include('icon', { name: 'copy', size: 16 }) %> Base64/Hex Code</button>
-                            <% } %>
-                            <button class="tab-button" onclick="switchTab('qr')"><%- include('icon', { name: 'qr-code', size: 16 }) %> Scan QR Code</button>
+
+                        <label for="mii-description">Description (Max 250 characters):</label>
+                        <textarea maxlength="250" rows="5" placeholder="Description..." name="desc" id="mii-description" required aria-required="true"></textarea>
+
+                        <div class="checkbox-row" style="margin-top: 12px;">
+                            <input type="checkbox" name="makePublic" id="makePublic">
+                            <label for="makePublic">
+                                Make this Mii public immediately (default is private)
+                            </label>
                         </div>
 
-                        <form action="/uploadMii" method="post" enctype="multipart/form-data" id='uploadForm' class="upload-form-panel">
-                            <div id="error-message" class="form-message" style="display: none;"></div>
+                        <input type="submit" value="Upload">
+                    </form>
 
-                            <div id="fileTab" class="tab-content active">
-                                <% if (!fromAmiibo) { %>
-                                    <div class="format-hint">
-                                        <strong>Supported file inputs:</strong><br>
-                                        &bull; Any Mii file format supported by MiiJS (Wii/DS/3DS/Wii U/Switch/etc.)<br>
-                                        &bull; QR code images (.png, .jpg)
-                                    </div>
-                                    
-                                    <label for="mii-upload" hidden>Upload Mii File:</label>
-                                    <input type="file" name="mii" id="mii-upload">
-                                <% } else { %>
-                                    <input type="hidden" name="fromAmiibo" value="<%= fromAmiibo.id %>">
-                                <% } %>
-                            </div>
+                    <div id="qrTab" class="tab-content">
+                        <p style="color: var(--text-2); margin-bottom: 1rem;">
+                            Scan a 3DS/Wii U QR code directly using your device's camera.
+                        </p>
+                        <a href="/qr" class="btn btn-primary">Go to QR Scanner</a>
+                    </div>
+                </fieldset>
+                <br><br><br>
+                <% if (isResearcher) { %>
+                    <fieldset class="official-upload-fieldset" id="official-upload">
+                        <legend><%- include('icon', { name: 'flask', size: 18, class: 'icon-inline' }) %> Upload Official Mii</legend>
 
-                            <% if (!fromAmiibo) { %>
-                                <div id="codeTab" class="tab-content">
-                                    <label for="upload-miiData">Paste raw Mii data (base64 or hex):</label>
-                                    <textarea id="upload-miiData" name="miiData" rows="4" placeholder="Paste base64 or hex string (hex may contain spaces)"></textarea>
-                                    <small class="code-length-hint">A 92-character code is treated as a Mii Studio code.</small>
+                        <div class="official-upload-intro">
+                            <p><strong>Researchers and Administrators only.</strong> Official uploads are always published immediately and attributed to a company source.</p>
+                            <p>Choose an existing company source or create a new one. If a new source name conflicts with an existing account, the upload will use Nintendo and admins will be notified.</p>
+                        </div>
 
-                                    <div id="upload-miiName-group" class="studio-name-field" style="display: none;">
-                                        <label for="upload-miiName">Mii Name:</label>
-                                        <input type="text" id="upload-miiName" name="miiName" maxlength="40" placeholder="Enter the Mii name">
-                                    </div>
-                                </div>
-                            <% } %>
-                                
-                                <label for="mii-description">Description (Max 250 charactrs):</label>
-                                <textarea maxlength="250" rows="5" placeholder="Description..." name="desc" id="mii-description" required aria-required="true"></textarea>
+                        <form action="/uploadMii" method="post" enctype="multipart/form-data" id="officialUploadForm" class="upload-form-panel official-upload-form">
+                            <input type="hidden" name="official" value="true">
+                            <div id="official-error-message" class="form-message" style="display: none;"></div>
 
-                                <div class="checkbox-row" style="margin-top: 12px;">
-                                    <input type="checkbox" name="makePublic" id="makePublic">
-                                    <label for="makePublic">
-                                        Make this Mii public immediately (default is private)
+                            <div class="official-source-card">
+                                <h4 class="official-source-title">Company Source</h4>
+                                <div class="official-source-mode">
+                                    <label class="official-source-choice">
+                                        <input type="radio" name="officialSourceMode" value="existing" checked onchange="toggleOfficialSourceMode()">
+                                        Use existing source
+                                    </label>
+                                    <label class="official-source-choice">
+                                        <input type="radio" name="officialSourceMode" value="new" onchange="toggleOfficialSourceMode()">
+                                        Create new source
                                     </label>
                                 </div>
-                                
-                                <% if(isResearcher) { %>
-                                    <div class="official-section">
-                                        <input type="checkbox" name="official" id="officialCheckbox" onchange="toggleOfficialFields()"> 
-                                        <label for="officialCheckbox">
-                                            <b>This is an exact copy of a Mii</b> that appears in a Nintendo game/promotion officially
-                                        </label>
-                                        
-                                        <div id="officialFields" class="official-fields-card" style="display: none;">
-                                            <div class="official-fields-header">
-                                                <h4 class="official-fields-title">Official Mii Categories:</h4>
-                                                <a href="/manageCategories" target="_blank" class="manage-cats-link">
-                                                    <%- include('icon', { name: 'folders', size: 16 }) %> Manage Categories
-                                                </a>
-                                            </div>
-                                            
-                                            <p class="official-fields-help">
-                                                Select all categories that apply. Only leaf categories (those without children) can be selected.
-                                            </p>
-                                            
-                                            <div id="categoriesContainer">
-                                                <p class="upload-category-state upload-category-state-loading">Loading categories...</p>
-                                            </div>
-                                            
-                                            <p class="official-fields-note">
-                                                <strong>Note:</strong> Please mention specific details in the description above.
-                                                Incorrectly marking a Mii as official may result in it being removed.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    
-                                    <script>
-                                        let officialCategories = [];
-                                        let selectedPaths = new Set();
-                                        let expandedNodes = new Set();
-                                        
-                                        function toggleOfficialFields() {
-                                            const checkbox = document.getElementById('officialCheckbox');
-                                            const fields = document.getElementById('officialFields');
-                                            fields.style.display = checkbox.checked ? 'block' : 'none';
-                                            
-                                            if (checkbox.checked && officialCategories.length === 0) {
-                                                loadCategories();
-                                            }
-                                        }
-                                        
-                                        async function loadCategories() {
-                                            try {
-                                                const response = await fetch('/getOfficialCategories', {
-                                                    headers: { "Content-Type": "application/json" },
-                                                });
-                                                const data = await response.json();
-                                                
-                                                if (!data.error) {
-                                                    officialCategories = data.categories?.categories || data.categories || [];
-                                                    renderCategoryTree();
-                                                } else {
-                                                    document.getElementById('categoriesContainer').innerHTML = 
-                                                        '<p class=\"upload-category-state upload-category-state-error\">Error loading categories</p>';
-                                                }
-                                            } catch (error) {
-                                                console.error('Error loading categories:', error);
-                                                document.getElementById('categoriesContainer').innerHTML = 
-                                                    '<p class=\"upload-category-state upload-category-state-error\">Error loading categories</p>';
-                                            }
-                                        }
-                                        
-                                        function renderCategoryTree() {
-                                            const container = document.getElementById('categoriesContainer');
-                                            
-                                            if (officialCategories.length === 0) {
-                                                container.innerHTML = '<p class=\"upload-category-state upload-category-state-empty\">No categories available. <a href=\"/manageCategories\" target=\"_blank\">Create some!</a></p>';
-                                                return;
-                                            }
-                                            
-                                            container.innerHTML = '<div class="category-tree-upload">' + renderCategoryNodes(officialCategories) + '</div>';
-                                        }
-                                        
-                                        function renderCategoryNodes(nodes, level = 0) {
-                                            let html = '';
-                                            
-                                            nodes.forEach(node => {
-                                                const hasChildren = node.children && node.children.length > 0;
-                                                const isExpanded = expandedNodes.has(node.path);
-                                                const isLeaf = !hasChildren;
-                                                const isSelected = selectedPaths.has(node.path);
-                                                const indent = level * 20;
-                                                const nodeColor = node.color || '#999999';
-                                                
-                                                html += `
-                                                    <div class="tree-node-upload" style="--tree-indent: ${indent}px; --node-color: ${nodeColor};">
-                                                        <div class="node-line">
-                                                            ${hasChildren ? `
-                                                                <span class="toggle-upload" onclick="toggleNodeUpload('${node.path}')">
-                                                                    ${isExpanded ? '▼' : '▶'}
-                                                                </span>
-                                                            ` : '<span class="leaf-marker">•</span>'}
-                                                            
-                                                            ${isLeaf ? `
-                                                                <label class="category-label-upload">
-                                                                    <input type="checkbox" 
-                                                                        name="categories" 
-                                                                        value="${node.path}"
-                                                                        ${isSelected ? 'checked' : ''}
-                                                                        onchange="updateSelection('${node.path}', this.checked)">
-                                                                    <span class="category-label-upload-name">${node.name}</span>
-                                                                </label>
-                                                            ` : `
-                                                                <span class="parent-name">
-                                                                    ${node.name}
-                                                                </span>
-                                                            `}
-                                                        </div>
-                                                        
-                                                        ${hasChildren && isExpanded ? `
-                                                            <div class="children-upload">
-                                                                ${renderCategoryNodes(node.children, level + 1)}
-                                                            </div>
-                                                        ` : ''}
-                                                    </div>
-                                                `;
-                                            });
-                                            
-                                            return html;
-                                        }
-                                        
-                                        function toggleNodeUpload(path) {
-                                            if (expandedNodes.has(path)) {
-                                                expandedNodes.delete(path);
-                                            } else {
-                                                expandedNodes.add(path);
-                                            }
-                                            renderCategoryTree();
-                                        }
-                                        
-                                        function updateSelection(path, checked) {
-                                            if (checked) {
-                                                selectedPaths.add(path);
-                                            } else {
-                                                selectedPaths.delete(path);
-                                            }
-                                        }
-                                    </script>
-                                    
-                                <% } %>
-                                
-                            <input type="submit" value="Upload">
+
+                                <div id="officialExistingSourceWrap" class="official-source-row">
+                                    <label for="officialSourceExisting">Existing company source:</label>
+                                    <select id="officialSourceExisting" name="officialSourceExisting">
+                                        <% (officialCompanySources || ['Nintendo']).forEach(sourceName => { %>
+                                            <option value="<%= sourceName %>" <%= sourceName === 'Nintendo' ? 'selected' : '' %>><%= sourceName %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+
+                                <div id="officialNewSourceWrap" class="official-source-row" style="display: none;">
+                                    <label for="officialSourceNew">New company source name (max 15 characters):</label>
+                                    <input type="text" id="officialSourceNew" name="officialSourceNew" maxlength="15" placeholder="Example: Sega" disabled>
+                                </div>
+                            </div>
+
+                            <div class="official-upload-input-grid">
+                                <div class="official-upload-input-card">
+                                    <label for="official-mii-upload">Upload Mii file:</label>
+                                    <input type="file" name="mii" id="official-mii-upload">
+                                    <small class="code-length-hint">File upload and raw code are both supported. Provide one input method.</small>
+                                </div>
+                                <div class="official-upload-input-card">
+                                    <label for="official-miiData">Or paste raw Mii data (base64 or hex):</label>
+                                    <textarea id="official-miiData" name="miiData" rows="4" placeholder="Paste base64 or hex string (hex may contain spaces)"></textarea>
+                                    <label for="official-miiName">Mii Name (required for 92-character Mii Studio codes):</label>
+                                    <input type="text" id="official-miiName" name="miiName" maxlength="40" placeholder="Enter the Mii name if needed">
+                                </div>
+                            </div>
+
+                            <label for="official-description">Description (Max 250 characters):</label>
+                            <textarea maxlength="250" rows="5" placeholder="Description..." name="desc" id="official-description" required aria-required="true"></textarea>
+
+                            <div class="official-fields-card official-categories-panel">
+                                <div class="official-fields-header">
+                                    <h4 class="official-fields-title">Official Mii Categories</h4>
+                                    <a href="/manageCategories" target="_blank" class="manage-cats-link">
+                                        <%- include('icon', { name: 'folders', size: 16 }) %> Manage Categories
+                                    </a>
+                                </div>
+
+                                <p class="official-fields-help">
+                                    Select all categories that apply. Only leaf categories (those without children) can be selected.
+                                </p>
+
+                                <div id="officialCategoriesContainer">
+                                    <p class="upload-category-state upload-category-state-loading">Loading categories...</p>
+                                </div>
+
+                                <p class="official-fields-note">
+                                    <strong>Note:</strong> Include specific source details in the description for verification.
+                                </p>
+                            </div>
+
+                            <input type="submit" value="Upload Official Mii">
                         </form>
-                        <!-- QR Scan Tab -->
-                        <div id="qrTab" class="tab-content">
-                            <p style="color: var(--text-2); margin-bottom: 1rem;">
-                                Scan a 3DS/Wii U QR code directly using your device's camera.
-                            </p>
-                            <a href="/qr" class="btn btn-primary">Go to QR Scanner</a>
-                        </div>
                     </fieldset>
-                </article>
+                <% } %>
+            </article>
             <%- include('featuredMiis') %>
         </main>
         <%- include('footer') %>
         <script src="/upload.js"></script>
         <script>
-            // Handle file upload form submission
             document.getElementById('uploadForm').addEventListener('submit', function(e) {
                 handleFormSubmit(e, '/uploadMii', 'Uploading...', 'error-message');
             });
+
+            <% if (isResearcher) { %>
+                let uploadOfficialCategories = [];
+                let uploadOfficialSelectedPaths = new Set();
+                let uploadOfficialExpandedNodes = new Set();
+
+                function toggleOfficialSourceMode() {
+                    const modeInput = document.querySelector('input[name="officialSourceMode"]:checked');
+                    const mode = modeInput ? modeInput.value : 'existing';
+                    const existingWrap = document.getElementById('officialExistingSourceWrap');
+                    const newWrap = document.getElementById('officialNewSourceWrap');
+                    const existingSelect = document.getElementById('officialSourceExisting');
+                    const newInput = document.getElementById('officialSourceNew');
+
+                    const useNew = mode === 'new';
+                    existingWrap.style.display = useNew ? 'none' : 'block';
+                    newWrap.style.display = useNew ? 'block' : 'none';
+                    existingSelect.disabled = useNew;
+                    newInput.disabled = !useNew;
+                }
+
+                function escapeForSingleQuote(value) {
+                    return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                }
+
+                async function loadOfficialCategories() {
+                    try {
+                        const response = await fetch('/getOfficialCategories', {
+                            headers: { "Content-Type": "application/json" },
+                        });
+                        const data = await response.json();
+
+                        if (!data.error) {
+                            uploadOfficialCategories = data.categories?.categories || data.categories || [];
+                            renderOfficialCategoryTree();
+                        } else {
+                            document.getElementById('officialCategoriesContainer').innerHTML =
+                                '<p class="upload-category-state upload-category-state-error">Error loading categories</p>';
+                        }
+                    } catch (error) {
+                        console.error('Error loading categories:', error);
+                        document.getElementById('officialCategoriesContainer').innerHTML =
+                            '<p class="upload-category-state upload-category-state-error">Error loading categories</p>';
+                    }
+                }
+
+                function renderOfficialCategoryTree() {
+                    const container = document.getElementById('officialCategoriesContainer');
+
+                    if (uploadOfficialCategories.length === 0) {
+                        container.innerHTML = '<p class="upload-category-state upload-category-state-empty">No categories available. <a href="/manageCategories" target="_blank">Create some!</a></p>';
+                        return;
+                    }
+
+                    container.innerHTML = '<div class="category-tree-upload">' + renderOfficialCategoryNodes(uploadOfficialCategories) + '</div>';
+                }
+
+                function renderOfficialCategoryNodes(nodes, level = 0) {
+                    let html = '';
+
+                    nodes.forEach(node => {
+                        const hasChildren = node.children && node.children.length > 0;
+                        const isExpanded = uploadOfficialExpandedNodes.has(node.path);
+                        const isLeaf = !hasChildren;
+                        const isSelected = uploadOfficialSelectedPaths.has(node.path);
+                        const indent = level * 20;
+                        const nodeColor = node.color || '#999999';
+                        const escapedPath = escapeForSingleQuote(node.path);
+
+                        html += `
+                            <div class="tree-node-upload" style="--tree-indent: ${indent}px; --node-color: ${nodeColor};">
+                                <div class="node-line">
+                                    ${hasChildren ? `
+                                        <span class="toggle-upload" onclick="toggleOfficialUploadNode('${escapedPath}')">
+                                            ${isExpanded ? 'v' : '>'}
+                                        </span>
+                                    ` : '<span class="leaf-marker">*</span>'}
+
+                                    ${isLeaf ? `
+                                        <label class="category-label-upload">
+                                            <input type="checkbox"
+                                                name="categories"
+                                                value="${node.path}"
+                                                ${isSelected ? 'checked' : ''}
+                                                onchange="updateOfficialUploadSelection('${escapedPath}', this.checked)">
+                                            <span class="category-label-upload-name">${node.name}</span>
+                                        </label>
+                                    ` : `
+                                        <span class="parent-name">${node.name}</span>
+                                    `}
+                                </div>
+
+                                ${hasChildren && isExpanded ? `
+                                    <div class="children-upload">
+                                        ${renderOfficialCategoryNodes(node.children, level + 1)}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+
+                    return html;
+                }
+
+                function toggleOfficialUploadNode(path) {
+                    if (uploadOfficialExpandedNodes.has(path)) {
+                        uploadOfficialExpandedNodes.delete(path);
+                    } else {
+                        uploadOfficialExpandedNodes.add(path);
+                    }
+                    renderOfficialCategoryTree();
+                }
+
+                function updateOfficialUploadSelection(path, checked) {
+                    if (checked) {
+                        uploadOfficialSelectedPaths.add(path);
+                    } else {
+                        uploadOfficialSelectedPaths.delete(path);
+                    }
+                }
+
+                document.getElementById('officialUploadForm').addEventListener('submit', function(e) {
+                    handleFormSubmit(e, '/uploadMii', 'Uploading Official Mii...', 'official-error-message', {
+                        onSuccess: (result, messageDiv) => {
+                            if (result.notice) {
+                                showAlert(result.notice, 7000, { title: 'Notice', type: 'info' });
+                            }
+
+                            if (result.redirect) {
+                                setTimeout(() => {
+                                    window.location.href = result.redirect;
+                                }, result.notice ? 1200 : 0);
+                                return;
+                            }
+
+                            if (result.message) {
+                                messageDiv.textContent = result.message;
+                                messageDiv.className = 'form-message success';
+                                messageDiv.style.display = 'block';
+                            }
+                        }
+                    });
+                });
+
+                toggleOfficialSourceMode();
+                loadOfficialCategories();
+            <% } %>
         </script>
     </body>
 </html>

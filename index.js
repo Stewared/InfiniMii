@@ -38,10 +38,10 @@ const baseUrl = process.env.baseUrl;
 
 const EXPORT_FORMAT_LABELS = {
     qr: "QR Code (PNG)",
-    rcd: "Wii RCD (.rcd)",
-    rsd: "Wii RSD (.rsd)",
-    ncd: "Nintendo DS NCD (.ncd)",
-    nsd: "Nintendo DS NSD (.nsd)",
+    rcd: "Wii RSD (.rcd)",
+    rsd: "Wii RCD (.rsd)",
+    ncd: "DS NCD (.ncd)",
+    nsd: "DS NSD (.nsd)",
     cfcd: "3DS CFCD (.cfcd)",
     cfsd: "3DS CFSD (.cfsd)",
     cfed: "3DS CFED (QR Encrypted, .cfed)",
@@ -56,7 +56,7 @@ const EXPORT_FORMAT_LABELS = {
     nfcd: "Switch NFCD (.nfcd)",
     nfsd: "Switch NFSD (.nfsd)",
     charinfo: "Switch CHARINFO (.charinfo)",
-    mnms: "MNMS (.mnms)"
+    mnms: "My Nintendo Mii Studio (.mnms)"
 };
 
 const EXPORT_FORMAT_ORDER = [
@@ -113,6 +113,8 @@ function buildExportFormats() {
 
 const EXPORT_FORMATS = buildExportFormats();
 const EXPORT_FORMAT_SET = new Set(EXPORT_FORMATS.map(fmt => fmt.value));
+const SEARCH_FIELD_VALUES = ["uploader", "name", "description"];
+const SEARCH_FIELD_SET = new Set(SEARCH_FIELD_VALUES);
 const MII_CHILD_STAGE_LABELS = [
     "Newborn",
     "Infant",
@@ -123,6 +125,8 @@ const MII_CHILD_STAGE_LABELS = [
 ];
 const INSTRUCTION_CONSOLE_VALUES = new Set(["DS", "WII", "3DS", "WIIU", "SWITCH", "SWITCH2"]);
 const MAX_MII_TAG_LENGTH = 40;
+const MAX_COMPANY_SOURCE_NAME_LENGTH = 15;
+const DEFAULT_OFFICIAL_COMPANY_SOURCE = "Nintendo";
 
 function normalizeExportFormat(input) {
     if (!input) return null;
@@ -343,6 +347,7 @@ const MII_COMPARISON_IGNORED_TOP_LEVEL_FIELDS = new Set([
     "desc",
     "votes",
     "official",
+    "officialsource",
     "uploadedon",
     "officialcategories",
     "published",
@@ -646,6 +651,7 @@ async function getSettings() {
             highlightedMiiChangeDay: null,
             bannedIPs: [],
             officialCategories: { categories: [] },
+            officialCompanySources: [DEFAULT_OFFICIAL_COMPANY_SOURCE],
             miiTags: []
         });
     }
@@ -730,6 +736,31 @@ async function getUserByUsername(username, lean=true) {
     if (lean) userPromise = userPromise.lean();
     return await userPromise;
 }
+
+async function ensureUploaderAutoLike(username, miiId, minimumVotes = 1) {
+    const normalizedUsername = String(username || "").trim();
+    const normalizedMiiId = String(miiId || "").trim();
+    if (!normalizedUsername || !normalizedMiiId) return;
+
+    await Users.updateOne(
+        { username: normalizedUsername },
+        { $addToSet: { votedFor: normalizedMiiId } }
+    );
+
+    if (Number.isFinite(minimumVotes) && minimumVotes > 0) {
+        await Miis.updateOne(
+            {
+                id: normalizedMiiId,
+                $or: [
+                    { votes: { $exists: false } },
+                    { votes: { $lt: minimumVotes } }
+                ]
+            },
+            { $set: { votes: minimumVotes } }
+        );
+    }
+}
+
 async function getAllUsers() {
     return await Users.find({}).lean();
 }
@@ -749,6 +780,8 @@ async function getSendables(req, title, user) {
     const allUsers = await getAllUsers();
     const availableTags = getMiiTags(settings);
     const selectedTags = mapRequestedTagsToCatalog(req.query?.tags, availableTags);
+    const searchFieldsExplicitlyConfigured = parseBooleanLike(req.query?.searchFieldsConfigured);
+    const selectedSearchFields = getRequestedSearchFields(req.query);
 
     // Build information related to the current user
     let userPfpMiiColor = null;
@@ -768,8 +801,11 @@ async function getSendables(req, title, user) {
         highlightedMii: settings.highlightedMii,
         bannedIPs: settings.bannedIPs,
         officialCategories: settings.officialCategories,
+        officialCompanySources: getOfficialCompanySources(settings),
         availableTags,
         selectedTags,
+        selectedSearchFields,
+        searchFieldsExplicitlyConfigured,
         howToTitle: "How To",
         currentPath: currentPath + queryString,
         thisUser: currentUser, // *username
@@ -806,7 +842,7 @@ const ROLES = {
     MODERATOR: 'moderator',
     ADMINISTRATOR: 'administrator'
 };
-const OFFICIAL_ROLES = [ ROLES.RESEARCHER, ROLES.MODERATOR, ROLES.ADMINISTRATOR ];
+const OFFICIAL_ROLES = [ ROLES.RESEARCHER, ROLES.ADMINISTRATOR ];
 
 const ROLE_DISPLAY = {
     [ROLES.TEMP_BANNED]: `${renderIcon('ban', { size: 14 })} Temporarily Banned`,
@@ -842,8 +878,7 @@ function canModerate(user) {
 }
 
 function isOfficial(user) {
-    return hasRole(user, ROLES.MODERATOR) || 
-        hasRole(user, ROLES.RESEARCHER) ||
+    return hasRole(user, ROLES.RESEARCHER) ||
         hasRole(user, ROLES.ADMINISTRATOR);
 
 }
@@ -851,7 +886,6 @@ function isOfficial(user) {
 // Permission to edit official Miis
 function isResearcher(user) {
     return hasRole(user, ROLES.RESEARCHER) || 
-           hasRole(user, ROLES.MODERATOR) ||
            hasRole(user, ROLES.ADMINISTRATOR);
 }
 
@@ -1003,6 +1037,167 @@ function normalizeTagList(rawTags) {
     return normalized;
 }
 
+function normalizeCompanySourceName(source) {
+    if (typeof source !== "string") return "";
+    return source
+        .replace(/\s+/g, " ")
+        .replace(/[<>]/g, "")
+        .trim();
+}
+
+function normalizeOfficialCompanySourceList(rawSources) {
+    const source = Array.isArray(rawSources) ? rawSources : [rawSources];
+    const normalized = [];
+    const seen = new Set();
+
+    for (const rawSource of source) {
+        const value = normalizeCompanySourceName(rawSource);
+        if (!value) continue;
+        if (!validate(value)) continue;
+        if (value.length > MAX_COMPANY_SOURCE_NAME_LENGTH) continue;
+        if (isBad(value)) continue;
+
+        const key = value.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        normalized.push(value);
+    }
+
+    if (!seen.has(DEFAULT_OFFICIAL_COMPANY_SOURCE.toLowerCase())) {
+        normalized.unshift(DEFAULT_OFFICIAL_COMPANY_SOURCE);
+    }
+
+    const defaultSource = normalized.find(
+        sourceName => sourceName.toLowerCase() === DEFAULT_OFFICIAL_COMPANY_SOURCE.toLowerCase()
+    ) || DEFAULT_OFFICIAL_COMPANY_SOURCE;
+    const sortedOthers = normalized
+        .filter(sourceName => sourceName.toLowerCase() !== defaultSource.toLowerCase())
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+
+    return [defaultSource, ...sortedOthers];
+}
+
+function getOfficialCompanySources(settings) {
+    const normalized = normalizeOfficialCompanySourceList(settings?.officialCompanySources || []);
+    if (settings) {
+        settings.officialCompanySources = normalized;
+    }
+    return normalized;
+}
+
+async function ensureOfficialCompanySourceAccount(sourceName) {
+    const normalizedSource = normalizeCompanySourceName(sourceName);
+    if (!normalizedSource) return;
+
+    const existingUser = await getUserByUsername(normalizedSource);
+    if (existingUser) return;
+
+    try {
+        await Users.create({
+            username: normalizedSource,
+            salt: "",
+            pass: "",
+            creationDate: Date.now(),
+            email: "",
+            votedFor: [],
+            miiPfp: "00000",
+            roles: [ROLES.BASIC],
+            verified: true
+        });
+    } catch (e) {
+        if (e?.code !== 11000) {
+            throw e;
+        }
+    }
+}
+
+async function resolveOfficialCompanySourceForUpload(req, settings) {
+    const availableSources = getOfficialCompanySources(settings);
+    const sourceMode = String(req.body?.officialSourceMode || "existing").trim().toLowerCase();
+    const requestedExistingSource = normalizeCompanySourceName(req.body?.officialSourceExisting);
+    const requestedNewSource = normalizeCompanySourceName(req.body?.officialSourceNew);
+    const defaultSource = availableSources[0] || DEFAULT_OFFICIAL_COMPANY_SOURCE;
+    const findCanonicalSource = (sourceName) => availableSources.find(
+        existingSource => existingSource.toLowerCase() === sourceName.toLowerCase()
+    );
+
+    let selectedSource = defaultSource;
+    let notice = null;
+    let sourceListChanged = false;
+
+    if (sourceMode === "new") {
+        if (!requestedNewSource) {
+            return { error: "Enter a company source name to create, or switch to an existing source." };
+        }
+        if (!validate(requestedNewSource) || requestedNewSource.length > MAX_COMPANY_SOURCE_NAME_LENGTH) {
+            return { error: `Company source names must be between 1 and ${MAX_COMPANY_SOURCE_NAME_LENGTH} characters.` };
+        }
+        if (isBad(requestedNewSource)) {
+            return { error: "Company source name contains disallowed text." };
+        }
+
+        const canonicalExisting = findCanonicalSource(requestedNewSource);
+        if (canonicalExisting) {
+            selectedSource = canonicalExisting;
+        } else {
+            const existingAccount = await getUserByUsername(requestedNewSource);
+            if (existingAccount) {
+                selectedSource = defaultSource;
+                notice = `Company source "${requestedNewSource}" already exists as an account. Admins have been notified and will handle the discrepancy shortly. Using ${selectedSource} for now.`;
+                makeReport(JSON.stringify({
+                    embeds: [{
+                        type: "rich",
+                        title: "Official Source Account Conflict",
+                        description: `${req.user.username} attempted to create an official company source with an existing account name.`,
+                        color: 0xff8800,
+                        fields: [
+                            {
+                                name: "Requested Source",
+                                value: requestedNewSource,
+                                inline: true
+                            },
+                            {
+                                name: "Existing Account",
+                                value: existingAccount.username,
+                                inline: true
+                            },
+                            {
+                                name: "Fallback Source",
+                                value: selectedSource,
+                                inline: true
+                            }
+                        ]
+                    }]
+                }));
+            } else {
+                selectedSource = requestedNewSource;
+                availableSources.push(selectedSource);
+                sourceListChanged = true;
+            }
+        }
+    } else {
+        const canonicalExisting = requestedExistingSource
+            ? findCanonicalSource(requestedExistingSource)
+            : null;
+        selectedSource = canonicalExisting || defaultSource;
+    }
+
+    if (!findCanonicalSource(selectedSource)) {
+        availableSources.push(selectedSource);
+        sourceListChanged = true;
+    }
+
+    await ensureOfficialCompanySourceAccount(selectedSource);
+
+    if (sourceListChanged) {
+        const normalizedSources = normalizeOfficialCompanySourceList(availableSources);
+        await updateSettings({ officialCompanySources: normalizedSources });
+        settings.officialCompanySources = normalizedSources;
+    }
+
+    return { sourceName: selectedSource, notice };
+}
+
 function ensureUploadMiiPermissions(miiData) {
     if (!miiData || typeof miiData !== "object") return miiData;
     if (!miiData.perms || typeof miiData.perms !== "object") {
@@ -1037,6 +1232,34 @@ function mapRequestedTagsToCatalog(requestedTags, catalogTags) {
     }
 
     return mapped;
+}
+
+function normalizeSearchFieldSelection(requestedFields, { defaultToAll = true } = {}) {
+    const source = Array.isArray(requestedFields) ? requestedFields : [requestedFields];
+    const normalized = [];
+    const seen = new Set();
+
+    for (const rawField of source) {
+        const field = String(rawField || "").trim().toLowerCase();
+        if (!SEARCH_FIELD_SET.has(field)) continue;
+        if (seen.has(field)) continue;
+
+        seen.add(field);
+        normalized.push(field);
+    }
+
+    if (normalized.length === 0 && defaultToAll) {
+        return [...SEARCH_FIELD_VALUES];
+    }
+
+    return normalized;
+}
+
+function getRequestedSearchFields(source = {}) {
+    const hasExplicitFieldConfig = parseBooleanLike(source?.searchFieldsConfigured);
+    return normalizeSearchFieldSelection(source?.searchIn, {
+        defaultToAll: !hasExplicitFieldConfig
+    });
 }
 
 function escapeRegex(input) {
@@ -1385,6 +1608,9 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
                 ? filterObject.query.trim()
                 : "";
             const selectedTags = mapRequestedTagsToCatalog(filterObject.tags, getMiiTags(settings));
+            const selectedSearchFields = normalizeSearchFieldSelection(filterObject.searchIn, {
+                defaultToAll: !parseBooleanLike(filterObject.searchFieldsConfigured)
+            });
 
             if (selectedTags.length > 0) {
                 query.tags = { $all: selectedTags };
@@ -1392,11 +1618,22 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
 
             if (searchText) {
                 const searchRegex = new RegExp(escapeRegex(searchText), "i");
-                query.$or = [
-                    { "meta.name": searchRegex },
-                    { "desc": searchRegex },
-                    { "uploader": searchRegex }
-                ];
+                const searchFilters = [];
+
+                if (selectedSearchFields.includes("name")) {
+                    searchFilters.push({ "meta.name": searchRegex });
+                    searchFilters.push({ "meta.creatorName": searchRegex });
+                }
+                if (selectedSearchFields.includes("description")) {
+                    searchFilters.push({ "desc": searchRegex });
+                }
+                if (selectedSearchFields.includes("uploader")) {
+                    searchFilters.push({ "uploader": searchRegex });
+                }
+
+                if (searchFilters.length > 0) {
+                    query.$or = searchFilters;
+                }
             }
 
             sort = { votes: -1 };
@@ -2229,6 +2466,14 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
 
         // Initialize settings if not exists
         const settings = await getSettings();
+        const existingCompanySources = Array.isArray(settings.officialCompanySources)
+            ? [...settings.officialCompanySources]
+            : [];
+        const normalizedCompanySources = getOfficialCompanySources(settings);
+        if (!isDeepStrictEqual(existingCompanySources, normalizedCompanySources)) {
+            await updateSettings({ officialCompanySources: normalizedCompanySources });
+        }
+        await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source)));
         console.log("Settings initialized");
 
         // For Quickly Uploading Batches of Miis
@@ -2466,10 +2711,13 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
     const selectedTags = Array.isArray(toSend.selectedTags) ? toSend.selectedTags : [];
+    const selectedSearchFields = getRequestedSearchFields(req.query);
     
     const paginatedData = await paginatedApi("search", page, defaultMiisPerPage, {
         query: searchQuery,
-        tags: selectedTags
+        tags: selectedTags,
+        searchIn: selectedSearchFields,
+        searchFieldsConfigured: true
     });
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = {
@@ -2480,9 +2728,10 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     };
     
     toSend.searchQuery = searchQuery;
-    if (searchQuery && selectedTags.length) {
+    const hasActiveSearchQuery = Boolean(searchQuery && selectedSearchFields.length > 0);
+    if (hasActiveSearchQuery && selectedTags.length) {
         toSend.title = `Search '${searchQuery}' + Tags - InfiniMii`;
-    } else if (searchQuery) {
+    } else if (hasActiveSearchQuery) {
         toSend.title = `Search '${searchQuery}' - InfiniMii`;
     } else if (selectedTags.length) {
         toSend.title = `Tagged Miis - InfiniMii`;
@@ -2842,6 +3091,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
             id: mii.id,
             private: !wantsPublic
         });
+        await ensureUploaderAutoLike(user.username, mii.id, 1);
 
         makeReport(JSON.stringify({
             embeds: [{
@@ -3168,8 +3418,8 @@ site.post('/deleteMii', async (req, res) => { // TODO: csrf here, make post
         res.json({ error: 'Server error' });
     }
 });
-// Update Mii Field (Moderator only)
-site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
+// Update Mii Field (Moderator+, plus Researchers for official Miis)
+site.post('/updateMiiField', requireAuth, async (req, res) => {
     try {
         const { id, field, value } = req.body;
 
@@ -3180,6 +3430,18 @@ site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (r
         const mii = await getMiiById(id, true);
         if (!mii) {
             return res.json({ error: 'Mii not found' });
+        }
+
+        const canUseModeratorTools = canModerate(req.user);
+        const canResearchOfficial = isResearcher(req.user) && mii.official;
+        if (!canUseModeratorTools && !canResearchOfficial) {
+            return res.json({ error: 'Insufficient permissions' });
+        }
+
+        const isResearcherOnlyActor = canResearchOfficial && !canUseModeratorTools;
+        const researcherAllowedFields = new Set(['name', 'desc', 'creatorName']);
+        if (isResearcherOnlyActor && !researcherAllowedFields.has(field)) {
+            return res.json({ error: 'Researchers can only edit name, description, and creator name on official Miis' });
         }
 
         // Store old value for logging
@@ -3210,6 +3472,9 @@ site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (r
                 oldValue = mii.uploader;
                 
                 updates.uploader = value;
+                if (mii.official) {
+                    updates.officialSource = value;
+                }
                 break;
             default:
                 return res.json({ error: 'Invalid field' });
@@ -3217,12 +3482,16 @@ site.post('/updateMiiField', requireAuth, requireRole(ROLES.MODERATOR), async (r
 
         await Miis.findOneAndUpdate({ id }, { $set: updates });
 
+        const actorRoleLabel = isAdmin(req.user)
+            ? 'Administrator'
+            : (canUseModeratorTools ? 'Moderator' : 'Researcher');
+
         // Log to Discord
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
                 title: `Mii ${field} Updated`,
-                description: `Moderator ${req.cookies.username} updated ${field}`,
+                description: `${actorRoleLabel} ${req.cookies.username} updated ${field}`,
                 color: 0xFFA500,
                 fields: [
                     {
@@ -3699,9 +3968,13 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
 
         const oldStatus = mii.official;
         
+        const toggleUpdates = { official: normalizedOfficial };
+        if (normalizedOfficial && !mii.officialSource) {
+            toggleUpdates.officialSource = mii.uploader;
+        }
         await Miis.findOneAndUpdate(
             { id },
-            { $set: { official: normalizedOfficial } }
+            { $set: toggleUpdates }
         );
 
         // Log to Discord
@@ -4147,6 +4420,7 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
             id: newMiiId,
             private: true
         });
+        await ensureUploaderAutoLike(req.user.username, newMiiId, 1);
         
         // Send to Discord for moderator review
         var d = new Date();
@@ -4367,8 +4641,14 @@ site.post('/voteMii', requireAuth, async (req, res) => {
             res.json({error: "Mii not found"});
             return;
         }
-        if (mii.uploader === req.user.username) {
-            res.json({error: "You submitted this Mii"});
+
+        const isUploaderOrContributor = Boolean(
+            req.user?.username &&
+            (mii.uploader === req.user.username || mii.contributor === req.user.username)
+        );
+        if (isUploaderOrContributor) {
+            await ensureUploaderAutoLike(req.user.username, req.query.id, 1);
+            res.send("LockedLiked");
             return;
         }
         // Unlike (atomic)
@@ -4436,6 +4716,11 @@ site.get('/mii/:id', async (req, res) => {
     inp.weight=miijs.miiWeightToMeasurements(inp.mii.general.height,inp.mii.general.weight);
     const uploaderUser = await getUserByUsername(mii.uploader);
     inp.uploaderPfp = uploaderUser?.miiPfp || "00000";
+    inp.officialSourceName = mii.official
+        ? (normalizeCompanySourceName(mii.officialSource || mii.uploader) || DEFAULT_OFFICIAL_COMPANY_SOURCE)
+        : "";
+    inp.canEditOfficialMii = mii.official && (canModerate(req.user) || isResearcher(req.user));
+    inp.canManageOfficialCategories = mii.official && isResearcher(req.user);
 
     // Override mii color for this page
     inp.userPfpMiiColor = mii.general.favoriteColor;
@@ -5416,13 +5701,38 @@ site.post('/getInstructions', upload.single('mii'), async (req, res) => {
 
 site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
     try {
-        let uploader = req.user.username;
-        const wantsPublic = req.body.makePublic === 'on' || req.body.makePublic === true || req.body.makePublic === 'true';
+        const uploader = req.user.username;
+        const isOfficialUpload = parseBooleanLike(req.body.official);
+        let wantsPublic = req.body.makePublic === 'on' || req.body.makePublic === true || req.body.makePublic === 'true';
+        let officialSource = null;
+        let officialSourceNotice = null;
+        let officialSettings = null;
         const rawMiiDataInput = typeof req.body.miiData === "string" ? req.body.miiData : "";
         const normalizedRawMiiData = rawMiiDataInput.replace(/\s+/g, "");
         const providedMiiName = typeof req.body.miiName === "string" ? req.body.miiName.trim() : "";
         const isNinetyTwoCharCode = normalizedRawMiiData.length === 92;
-        
+
+        // Check if trying to upload official Mii without permission
+        if (isOfficialUpload && !canUploadOfficial(req.user)) {
+            res.json({'error': 'Only Researchers and Administrators can upload official Miis'});
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+            return;
+        }
+        if (isOfficialUpload) {
+            wantsPublic = true;
+            officialSettings = await getSettings();
+
+            const sourceResolution = await resolveOfficialCompanySourceForUpload(req, officialSettings);
+            if (sourceResolution.error) {
+                res.json({ error: sourceResolution.error });
+                try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+                return;
+            }
+
+            officialSource = sourceResolution.sourceName;
+            officialSourceNotice = sourceResolution.notice;
+        }
+
         // Check private Mii limit
         if (!wantsPublic) {
             const privateMiisCount = await Miis.countDocuments({ uploader: req.user.username, private: true });
@@ -5431,13 +5741,6 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                 try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
                 return;
             }
-        }
-        
-        // Check if trying to upload official Mii without permission
-        if (req.body.official && !canUploadOfficial(req.user)) {
-            res.json({'error': 'Only Researchers and Administrators can upload official Miis'});
-            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
-            return;
         }
 
         if (isNinetyTwoCharCode && !providedMiiName) {
@@ -5508,22 +5811,26 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         }
 
         // Add official Mii categorization
-        if (req.body.official) {
+        if (isOfficialUpload) {
             mii.officialCategories = [];
             
-            const settings = await getSettings();
-            const validLeafPaths = getLeafCategoryPathSet(getOfficialCategoryTree(settings));
+            const validLeafPaths = getLeafCategoryPathSet(
+                getOfficialCategoryTree(officialSettings || await getSettings())
+            );
             mii.officialCategories = normalizeCategoryPaths(req.body.categories)
                 .filter(path => validLeafPaths.has(path));
+        } else {
+            mii.officialCategories = [];
         }
         
         mii.id = await genId();
         mii.uploadedOn = Date.now();
-        mii.uploader = uploader;
-        mii.contributor = req.body.official ? uploader : undefined;
+        mii.uploader = isOfficialUpload ? officialSource : uploader;
+        mii.contributor = isOfficialUpload ? uploader : undefined;
+        mii.officialSource = isOfficialUpload ? officialSource : undefined;
         mii.desc = req.body.desc;
         mii.votes = 1;
-        mii.official = req.body.official;
+        mii.official = isOfficialUpload;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
         ensureUploadMiiPermissions(mii);
@@ -5544,32 +5851,56 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             id: mii.id,
             private: !wantsPublic
         });
+        await ensureUploaderAutoLike(uploader, mii.id, 1);
         
         // Send to Discord for moderator review
         var d = new Date();
         makeReport(JSON.stringify({
             embeds: [{
                 "type": "rich",
-                "title": (req.body.official ? "Official " : "") + `${wantsPublic ? "Public" : "Private"} Mii Uploaded`,
+                "title": (isOfficialUpload ? "Official " : "") + `${wantsPublic ? "Public" : "Private"} Mii Uploaded`,
                 "description": mii.desc,
                 "color": 0x00aaff,
-                "fields": [
-                    {
-                        "name": `Mii Name`,
-                        "value": mii.meta?.name || "Unknown",
-                        "inline": true
-                    },
-                    {
-                        "name": `Uploaded by`,
-                        "value": `[${uploader}](https://infinimii.com/user/${encodeURIComponent(uploader)})`,
-                        "inline": true
-                    },
-                    {
-                        "name": `Mii Creator Name`,
-                        "value": mii.meta?.creatorName || "Unknown",
-                        "inline": true
-                    }
-                ],
+                "fields": isOfficialUpload
+                    ? [
+                        {
+                            "name": `Mii Name`,
+                            "value": mii.meta?.name || "Unknown",
+                            "inline": true
+                        },
+                        {
+                            "name": "Official Source",
+                            "value": `[${officialSource}](https://infinimii.com/user/${encodeURIComponent(officialSource)})`,
+                            "inline": true
+                        },
+                        {
+                            "name": "Contributed by",
+                            "value": `[${uploader}](https://infinimii.com/user/${encodeURIComponent(uploader)})`,
+                            "inline": true
+                        },
+                        {
+                            "name": `Mii Creator Name`,
+                            "value": mii.meta?.creatorName || "Unknown",
+                            "inline": true
+                        }
+                    ]
+                    : [
+                        {
+                            "name": `Mii Name`,
+                            "value": mii.meta?.name || "Unknown",
+                            "inline": true
+                        },
+                        {
+                            "name": `Uploaded by`,
+                            "value": `[${uploader}](https://infinimii.com/user/${encodeURIComponent(uploader)})`,
+                            "inline": true
+                        },
+                        {
+                            "name": `Mii Creator Name`,
+                            "value": mii.meta?.creatorName || "Unknown",
+                            "inline": true
+                        }
+                    ],
                 "image": {
                     "url": `attachment://${mii.id}.png`
                 },
@@ -5585,7 +5916,15 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             }
         ]);
         
-        setTimeout(() => { res.json({ redirect: "/myPrivateMiis" });  }, 2000); // TODO: jank
+        setTimeout(() => {
+            const responsePayload = {
+                redirect: isOfficialUpload ? "/official" : "/myPrivateMiis"
+            };
+            if (officialSourceNotice) {
+                responsePayload.notice = officialSourceNotice;
+            }
+            res.json(responsePayload);
+        }, 2000); // TODO: jank
 
         // TODO: does rendering lag this? If so, 
 

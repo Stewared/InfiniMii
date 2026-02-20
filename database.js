@@ -6,9 +6,11 @@ mongoose.set("strictQuery", true);
 const miiSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true, index: true },
     uploader: { type: String, required: true, index: true },
+    contributor: { type: String, index: true },
     desc: { type: String, default: "No Description Provided" },
     votes: { type: Number, default: 1 },
     official: { type: Boolean, default: false, index: true },
+    officialSource: { type: String, index: true },
     uploadedOn: { type: Number, default: () => Date.now(), index: true },
     console: { type: String, default: "3DS" },
     general: {
@@ -72,6 +74,7 @@ const settingsSchema = new mongoose.Schema({
     highlightedMiiChangeDay: { type: Number, default: ()=>Date.now() },
     bannedIPs: { type: [String], default: [] },
     officialCategories: { type: mongoose.Schema.Types.Mixed, default: { categories: [] } },
+    officialCompanySources: { type: [String], default: ["Nintendo"] },
     miiTags: { type: [String], default: [] }
 }, { _id: false, minimize: false });
 

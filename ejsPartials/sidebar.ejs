@@ -44,7 +44,8 @@
         <a href="/upload"><li><%- include('icon', { name: 'upload', class: 'sidebar-icon' }) %> Upload</li></a>
         <a href="/settings"><li><%- include('icon', { name: 'settings', class: 'sidebar-icon' }) %> Settings</li></a>
         <a href="/convert"><li><%- include('icon', { name: 'arrow-right', class: 'sidebar-icon' }) %> Convert</li></a>
-        <% if(isOfficial) { %>
+        <% if(isResearcher || isAdmin) { %>
+            <a href="/upload#official-upload"><li><%- include('icon', { name: 'flask', class: 'sidebar-icon' }) %> Upload Official Mii</li></a>
             <a href="/manageCategories"><li><%- include('icon', { name: 'folders', class: 'sidebar-icon' }) %> Manage Categories</li></a>
         <% } %>
     </ul>

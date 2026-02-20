@@ -41,6 +41,52 @@
     font-weight: 600;
 }
 
+.category-dropdown {
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7f7f7f 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 78%, var(--layer-1-um) 22%);
+    overflow: hidden;
+}
+
+.category-dropdown summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.72rem 0.85rem;
+    color: var(--text-1);
+    font-size: 0.96rem;
+    font-weight: 600;
+}
+
+.category-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.category-dropdown summary::after {
+    content: ">";
+    color: var(--text-2);
+    font-size: 0.85rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.category-dropdown[open] summary::after {
+    transform: rotate(90deg);
+    color: var(--text-1);
+}
+
+.category-dropdown .summary-current {
+    color: var(--text-2);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.category-dropdown .filter-buttons {
+    padding: 0 0.65rem 0.7rem;
+}
+
 .filter-buttons {
     display: flex;
     flex-wrap: wrap;
