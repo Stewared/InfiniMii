@@ -7,7 +7,7 @@
         const canonicalUrl = baseUrl + '/search';
         const keywords = 'search mii, find mii character, mii database, mii search engine';
         %>
-        <%- include('metaTags') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
         <%- include('faqSchema') %>
         
@@ -20,19 +20,17 @@
         <%- include('accountDisplay') %>
         <main class="content" role="main">
             <%- include('sidebar') %>
-            <section class="utility-container" aria-labelledby="search-heading">
-                <form method="GET" action="/searchResults" role="search">
-                    <fieldset>
-                        <legend id="search-heading"><%= status || 'OOPS!' %></legend>
-                        <p class="error-message"><%= message || 'An unexpected error occurred.' %></p>
-                        <!-- TODO: style properly (ben pls don't kill us we loved your search page) -->
-                        
-                        <div class="error-actions">
-                            <button onclick="history.back()" class="error-btn btn-primary">Go Back</button>
-                            <a href="/" class="error-btn btn-secondary"><button>Home</button></a>
-                        </div>
-                    </fieldset>
-                </form>
+            <section class="utility-container error-shell" aria-labelledby="error-heading">
+                <div class="error-panel">
+                    <p class="error-eyebrow">Something went sideways</p>
+                    <h1 id="error-heading"><%= status || 'OOPS!' %></h1>
+                    <p class="error-message"><%= message || 'An unexpected error occurred.' %></p>
+                    <p class="error-help">Try going back to the previous page, or head home and keep browsing from there.</p>
+                    <div class="error-actions">
+                        <button type="button" onclick="history.back()" class="error-btn error-btn-primary">Go Back</button>
+                        <a href="/" class="error-btn error-btn-secondary">Home</a>
+                    </div>
+                </div>
             </section>
             <%- include('featuredMiis') %>
         </main>

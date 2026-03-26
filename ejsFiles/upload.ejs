@@ -7,7 +7,7 @@
         const canonicalUrl = `${baseUrl}/upload`;
         const keywords = 'upload mii, share mii, mii community, submit mii character';
         %>
-        <%- include('metaTags') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
         <link rel='stylesheet' href="/global.css">
         <link rel="stylesheet" href="/utilityPages.css">
@@ -354,4 +354,3 @@
         </script>
     </body>
 </html>
-

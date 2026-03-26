@@ -182,6 +182,44 @@ header img{
     cursor: pointer;
 }
 
+.account-login-prompt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.account-login-link,
+.mobile-auth-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(15, 12, 19, 0.18);
+    color: #fff;
+    font-size: 0.94rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.account-login-link:hover,
+.mobile-auth-link:hover {
+    transform: translateY(-1px);
+    background: rgba(15, 12, 19, 0.32);
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+    text-decoration: none;
+}
+
+.account-login-link-primary,
+.mobile-auth-link-primary {
+    background: rgba(255, 255, 255, 0.14);
+}
+
 .accDropdown {
     display: none;
     position: absolute;
@@ -958,27 +996,45 @@ fieldset a:hover {
 
 /* [CladeSS] Form message styles */
 .form-message {
-    padding: 12px 15px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    line-height: 1.5;
+    padding: 0.95rem 1rem;
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    background: color-mix(in oklab, var(--layer-2-um) 88%, black 12%);
+    color: var(--text-1);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 10px 22px rgba(0, 0, 0, 0.18);
     display: none;
 }
 .form-message.error {
-    color: #d32f2f;
-    background: #ffebee;
-    border: 1px solid #ef5350;
+    color: #ffe4ea;
+    background: linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--brand-color) 24%, var(--layer-2-um) 76%),
+        color-mix(in oklab, #4b1f2b 70%, var(--layer-1-um) 30%)
+    );
+    border-color: color-mix(in oklab, var(--brand-color) 62%, #7f525b 38%);
 }
 .form-message.success {
-    color: #2e7d32;
-    background: #e8f5e9;
-    border: 1px solid #66bb6a;
+    color: #dfffe7;
+    background: linear-gradient(
+        145deg,
+        color-mix(in oklab, #2ca96f 30%, var(--layer-2-um) 70%),
+        color-mix(in oklab, #153825 72%, var(--layer-1-um) 28%)
+    );
+    border-color: color-mix(in oklab, #41c47d 60%, #638e73 40%);
 }
 .form-message.warning {
-    color: #f57c00;
-    background: #fff3e0;
-    border: 1px solid #ffb74d;
+    color: #fff1d6;
+    background: linear-gradient(
+        145deg,
+        color-mix(in oklab, #d88922 34%, var(--layer-2-um) 66%),
+        color-mix(in oklab, #4d3111 74%, var(--layer-1-um) 26%)
+    );
+    border-color: color-mix(in oklab, #f2a640 62%, #9b7a45 38%);
 }
 
 @keyframes wipe-right {
@@ -1117,26 +1173,26 @@ fieldset a:hover {
         background: var(--layer-2-um);
     }
 
-    .mobile-auth-actions {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        font-size: 0.95rem;
-    }
+.mobile-auth-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    font-size: 0.95rem;
+}
 
-    .mobile-auth-actions a {
-        color: var(--brand-color);
-        font-weight: 600;
-        text-decoration: none;
-    }
+.mobile-auth-link {
+    min-height: 2.15rem;
+    padding-inline: 0.8rem;
+    font-size: 0.9rem;
+    background: color-mix(in oklab, var(--layer-1-um) 78%, var(--layer-2-um) 22%);
+    border-color: color-mix(in oklab, var(--layer-3-um) 72%, #8b8b8b 28%);
+}
 
-    .mobile-auth-actions a:hover {
-        text-decoration: underline;
-    }
-
-    .mobile-auth-actions span {
-        color: var(--text-2);
-    }
+.mobile-auth-link:hover {
+    background: color-mix(in oklab, var(--layer-2-um) 65%, var(--brand-color) 35%);
+    border-color: color-mix(in oklab, var(--brand-color) 62%, #7f7f7f 38%);
+}
 
     .account.account-guest {
         display: none;

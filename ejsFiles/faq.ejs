@@ -7,7 +7,7 @@
         const canonicalUrl = `${baseUrl}/about`;
         const keywords = 'mii faq, mii questions, what is a mii, mii help, mii guide, nintendo mii, tomodachi life, mii maker';
         %>
-        <%- include('metaTags') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
         
         <!-- Comprehensive FAQ Schema -->
@@ -194,10 +194,11 @@
             
             <article class="faq-article">
                 <h1>Mii Characters: Frequently Asked Questions</h1>
+                <p class="faq-lede">A practical guide to what Miis are, how transfers work, and which tools to use when you want to move or share them.</p>
                 
                 <nav class="faq-nav" aria-label="FAQ Categories">
-                    <h2>Jump to Category:</h2>
-                    <ul>
+                    <h2>Browse by Topic</h2>
+                    <ul class="faq-nav-list">
                         <li><a href="#basics">Mii Basics</a></li>
                         <li><a href="#transfer">Transferring Miis</a></li>
                         <li><a href="#qr-codes">QR Codes</a></li>
@@ -364,7 +365,7 @@
                 <section class="still-have-questions">
                     <h2>Still Have Questions?</h2>
                     <p>Can't find what you're looking for? Join our community:</p>
-                    <ul>
+                    <ul class="support-links">
                         <li><a href="https://discord.gg/your-discord" target="_blank" rel="noopener">Join Discord</a> - Get help from the community</li>
                         <li><a href="/upload">Upload a Mii</a> - Start using InfiniMii</li>
                         <li><a href="/guides/transfer">Transfer Guide</a> - Comprehensive system-to-system instructions</li>

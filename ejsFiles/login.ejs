@@ -5,25 +5,43 @@
     <title>Login - InfiniMii</title>
     <%- include('metaTags') %>
     <%- include('structuredData') %>
-    <link href="./global.css" rel="stylesheet">
-    <link href="./index.css" rel="stylesheet">
+    <link href="/global.css" rel="stylesheet">
+    <link href="/utilityPages.css" rel="stylesheet">
 </head>
 
 <body>
+    <%- include('globalStyle') %>
     <%- include('header') %>
-    <div class="content">
+    <%- include('accountDisplay') %>
+    <main class="content" role="main">
         <%- include('sidebar') %>
-        <form id="loginForm">
-            <fieldset>
-                <legend>Login</legend>
-                <div id="errorMessage" class="form-message" style="display: none;"></div>
-                <input placeholder="Username" required name="username" type="text" id="username"> <input type="password" placeholder="Password" required name="pass" id="password"> <input type="submit" value="Login">
-                <p style="margin-top: 15px;">
-                    <a href="/requestPasswordReset">Forgot Password?</a>
-                </p>
-            </fieldset>
-        </form>
-    </div>
+        <section class="utility-container auth-shell" aria-labelledby="login-heading">
+            <div class="auth-panel">
+                <div class="auth-copy">
+                    <p class="auth-kicker">Welcome back</p>
+                    <h1 id="login-heading">Manage all your best creations</h1>
+                    <p class="auth-lede">Log in to manage uploads, private Miis, account settings, and so much more.</p>
+                </div>
+
+                <form id="loginForm" class="auth-form">
+                    <fieldset class="auth-fieldset">
+                        <legend>Log In</legend>
+                        <div id="errorMessage" class="form-message" style="display: none;"></div>
+
+                        <label class="sr-only" for="username">Username</label>
+                        <input placeholder="Username" required name="username" type="text" id="username" autocomplete="username">
+
+                        <label class="sr-only" for="password">Password</label>
+                        <input type="password" placeholder="Password" required name="pass" id="password" autocomplete="current-password">
+
+                        <input type="submit" value="Log In">
+                        <p class="auth-links"><a href="/requestPasswordReset">Forgot Password?</a> <span class="auth-links-separator">/</span> <a href="/signup">Sign Up</a></p>
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+        <%- include('featuredMiis') %>
+    </main>
     <%- include('footer') %>
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {

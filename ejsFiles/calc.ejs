@@ -7,7 +7,7 @@
     const canonicalUrl = `${baseUrl}/calculator`;
     const keywords = 'calculate, calculator, height, weight, pixels, pounds, kilograms, inches, feet, foot, convert, conversion, metric, imperial';
     %>
-    <%- include('metaTags') %>
+    <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
     <%- include('structuredData') %>
     
     <link rel="stylesheet" href="/global.css">

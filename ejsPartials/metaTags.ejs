@@ -1,47 +1,84 @@
 <%
-// Default values - make everything optional with fallbacks
-const pageTitle = typeof title !== 'undefined' ? title : 'InfiniMii';
-const pageDesc = typeof description !== 'undefined' ? description : 'Create, convert, and share Mii characters';
-const pageUrl = typeof canonicalUrl !== 'undefined' ? canonicalUrl : baseUrl + '/';
-const pageImage = typeof ogImage !== 'undefined' ? ogImage : baseUrl + '/og-image.jpg';
-const pageType = typeof ogType !== 'undefined' ? ogType : 'website';
+const firstNonEmpty = (...values) => {
+    for (const value of values) {
+        if (typeof value === 'string') {
+            if (value.trim().length > 0) return value;
+            continue;
+        }
+        if (value !== null && typeof value !== 'undefined') {
+            return value;
+        }
+    }
+    return undefined;
+};
+
+const resolvedBaseUrl = typeof baseUrl === 'string' && baseUrl.trim()
+    ? baseUrl.replace(/\/+$/, '')
+    : '';
+
+// Support both legacy (`title`/`description`) and page-local (`pageTitle`/`pageDesc`) naming.
+const resolvedPageTitle = firstNonEmpty(
+    typeof pageTitle !== 'undefined' ? pageTitle : undefined,
+    typeof title !== 'undefined' ? title : undefined,
+    'InfiniMii'
+);
+const resolvedPageDesc = firstNonEmpty(
+    typeof pageDesc !== 'undefined' ? pageDesc : undefined,
+    typeof description !== 'undefined' ? description : undefined,
+    'Create, convert, and share Mii characters'
+);
+const resolvedPageUrl = firstNonEmpty(
+    typeof canonicalUrl !== 'undefined' ? canonicalUrl : undefined,
+    resolvedBaseUrl ? `${resolvedBaseUrl}/` : '/'
+);
+const resolvedPageImage = firstNonEmpty(
+    typeof ogImage !== 'undefined' ? ogImage : undefined,
+    resolvedBaseUrl ? `${resolvedBaseUrl}/og-image.jpg` : '/og-image.jpg'
+);
+const resolvedPageType = firstNonEmpty(
+    typeof ogType !== 'undefined' ? ogType : undefined,
+    'website'
+);
 const siteName = 'InfiniMii';
-const pageKeywords = typeof keywords !== 'undefined' ? keywords : 'mii, mii characters, nintendo';
-const openSearchUrl = (typeof baseUrl !== 'undefined' ? baseUrl : '').replace(/\/+$/, '') + '/opensearch.xml';
+const resolvedPageKeywords = firstNonEmpty(
+    typeof keywords !== 'undefined' ? keywords : undefined,
+    'mii, mii characters, nintendo'
+);
+const openSearchUrl = `${resolvedBaseUrl}/opensearch.xml`;
 %>
 
 <!-- Primary Meta Tags -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><%= pageTitle %></title>
-<meta name="description" content="<%= pageDesc %>">
-<meta name="keywords" content="<%= pageKeywords %>">
+<title><%= resolvedPageTitle %></title>
+<meta name="description" content="<%= resolvedPageDesc %>">
+<meta name="keywords" content="<%= resolvedPageKeywords %>">
 <meta name="author" content="InfiniMii">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 
 <!-- Canonical URL -->
-<link rel="canonical" href="<%= pageUrl %>">
+<link rel="canonical" href="<%= resolvedPageUrl %>">
 <link rel="search" type="application/opensearchdescription+xml" title="InfiniMii Search" href="<%= openSearchUrl %>">
 
 <!-- Open Graph / Facebook -->
-<meta property="og:type" content="<%= pageType %>">
-<meta property="og:url" content="<%= pageUrl %>">
-<meta property="og:title" content="<%= pageTitle %>">
-<meta property="og:description" content="<%= pageDesc %>">
-<meta property="og:image" content="<%= pageImage %>">
+<meta property="og:type" content="<%= resolvedPageType %>">
+<meta property="og:url" content="<%= resolvedPageUrl %>">
+<meta property="og:title" content="<%= resolvedPageTitle %>">
+<meta property="og:description" content="<%= resolvedPageDesc %>">
+<meta property="og:image" content="<%= resolvedPageImage %>">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="<%= pageTitle %>">
+<meta property="og:image:alt" content="<%= resolvedPageTitle %>">
 <meta property="og:site_name" content="<%= siteName %>">
 <meta property="og:locale" content="en_US">
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="<%= pageUrl %>">
-<meta name="twitter:title" content="<%= pageTitle %>">
-<meta name="twitter:description" content="<%= pageDesc %>">
-<meta name="twitter:image" content="<%= pageImage %>">
-<meta name="twitter:image:alt" content="<%= pageTitle %>">
+<meta name="twitter:url" content="<%= resolvedPageUrl %>">
+<meta name="twitter:title" content="<%= resolvedPageTitle %>">
+<meta name="twitter:description" content="<%= resolvedPageDesc %>">
+<meta name="twitter:image" content="<%= resolvedPageImage %>">
+<meta name="twitter:image:alt" content="<%= resolvedPageTitle %>">
 
 <!-- Additional SEO Tags -->
 <meta name="theme-color" content="#ff0000">

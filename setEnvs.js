@@ -11,6 +11,15 @@ import chalk from "chalk";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 
+// Node 25+ defines a global navigator without `gpu`, which causes
+// miijs to skip its Node WebGPU bootstrap path.
+if (process.versions?.node && globalThis.navigator && !globalThis.navigator.gpu) {
+    try {
+        delete globalThis.navigator;
+    }
+    catch { }
+}
+
 // Utility to catch errors reading envs
 function readEnvs(filename, warningOnMissing, warningOnInvalid, errorCallback) {
     let path;

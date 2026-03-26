@@ -3,21 +3,23 @@
     <head>
         <%
         // Set page-specific variables for meta tags
+        const rawMiiName = (mii?.meta?.name ?? mii?.name ?? '').toString().trim();
+        const miiName = rawMiiName || 'Unknown Mii';
         const officialSourceLabel = mii.official ? (officialSourceName || mii.officialSource || mii.uploader || 'Nintendo') : '';
-        const pageTitle = `${mii.meta.name} - InfiniMii | Download Mii Character`;
-        const pageDesc = mii.desc || `Download ${mii.meta.name} Mii character${mii.official ? ` (Official ${officialSourceLabel} Mii)` : ''} for Wii, 3DS, Wii U, Switch. Get QR code and convert to any format.`;
+        const pageTitle = `${miiName} - InfiniMii | Download Mii Character`;
+        const pageDesc = mii.desc || `Download ${miiName} Mii character${mii.official ? ` (Official ${officialSourceLabel} Mii)` : ''} for Wii, 3DS, Wii U, Switch. Get QR code and convert to any format.`;
         const canonicalUrl = `${baseUrl}/mii/${mii.id}`;
         const ogImage = `${baseUrl}/miiImgs/${mii.id}.png`;
         const ogType = 'article';
-        const keywords = `${mii.meta.name}, ${mii.official ? 'official ' : ''}mii character, download mii, mii qr code`;
+        const keywords = `${miiName}, ${mii.official ? 'official ' : ''}mii character, download mii, mii qr code`;
         const breadcrumbs = [
             { name: 'Home', url: '/' },
             { name: mii.official ? 'Official Miis' : 'Community Miis', url: mii.official ? '/official' : '/top' },
-            { name: mii.meta.name, url: `/mii/${mii.id}` }
+            { name: miiName, url: `/mii/${mii.id}` }
         ];
         %>
         
-        <%- include('metaTags') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogType, keywords }) %>
         <%- include('structuredData') %>
         <%- include('miiSchema') %>
         

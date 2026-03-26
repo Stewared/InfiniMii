@@ -34,10 +34,10 @@
         - Moderator
             - Not given perms of a researcher by default
             - Can delete Miis, edit Miis, delete all Miis of a user, ban users temporarily
-            - Must be in Kestron Programming Discord for communication purposes, as communication will not be built into the website
+            - Must be in Stewared Discord for communication purposes, as communication will not be built into the website
         - Admin
             - Can do everything a Mod and Researcher can do, make new Mods, remove Mods, and ban users permanently
-            - Must be in Kestron Programming Discord for same reason as Mods must be
+            - Must be in Stewared Discord for same reason as Mods must be
 - Logged In Pages
     - Upload Mii | As opposed to publishing
     - Settings

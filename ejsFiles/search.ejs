@@ -7,7 +7,7 @@
         const canonicalUrl = baseUrl + '/search';
         const keywords = 'search mii, find mii character, mii database, mii search engine';
         %>
-        <%- include('metaTags') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
         <%- include('faqSchema') %>
         

@@ -7,7 +7,7 @@
         const canonicalUrl = `${baseUrl}/about`;
         const keywords = 'about infinimii, mii platform, mii repository, mii community';
         %>
-        <%- include('metaTags') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
         
         <link rel="stylesheet" href="/global.css">

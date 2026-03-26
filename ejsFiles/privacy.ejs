@@ -2,12 +2,12 @@
 <html>
     <head>
         <%
-        const pageTitle = ' - InfiniMii';
-        const pageDesc = `Miis are awesome, Miis are cool. They're never nasty or mean. I'd make a website, for all the lost Miis, if ever one day I were a coder!`;
-        const canonicalUrl = baseUrl + '/RESTOFTHEURL';
-        const keywords = 'miis, miis, miis, miis, miis, miis';
+        const pageTitle = 'Privacy Policy - InfiniMii';
+        const pageDesc = 'Read how InfiniMii handles account data, cookies, moderation records, and data deletion.';
+        const canonicalUrl = `${baseUrl}/privacy`;
+        const keywords = 'privacy policy, infinimii privacy, account data, cookies, moderation records, data deletion';
         %>
-        <%- include('metaTags') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
         <%- include('faqSchema') %>
         
