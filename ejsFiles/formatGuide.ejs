@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%
+        const pageTitle = 'Mii File Format Guide - InfiniMii';
+        const pageDesc = 'Reference guide to common Mii file formats, QR workflows, compatibility notes, and which InfiniMii tools to use for each format.';
+        const canonicalUrl = `${baseUrl}/guides/formats`;
+        const keywords = 'mii file formats, mii format guide, wii mii file, 3ds mii format, switch mii data, mii qr format';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Mii Format Guide', url: '/guides/formats' }
+        ];
+        const schemaType = 'TechArticle';
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+    </head>
+    <body>
+        <%- include('globalStyle') %>
+        <%- include('header') %>
+        <%- include('accountDisplay') %>
+        <main class="content" role="main">
+            <%- include('sidebar') %>
+            <article class="guide-container">
+                <header>
+                    <h1>Mii File Format Guide</h1>
+                    <p>This guide explains the most common Mii formats you will run into on InfiniMii, what they are used for, and which tools are the best fit for converting or importing them.</p>
+                </header>
+
+                <section>
+                    <h2>Common Mii Formats</h2>
+                    <ul>
+                        <li><strong>Wii-era formats:</strong> `RCD` and `RSD` are classic Mii exports used by Wii-era workflows.</li>
+                        <li><strong>3DS and Wii U formats:</strong> `CFCD`, `CFSD`, `FFCD`, and `FFSD` store richer Mii data and often pair with QR workflows.</li>
+                        <li><strong>QR exports:</strong> Use `qr` when you need a scannable code for compatible systems like 3DS and Wii U.</li>
+                        <li><strong>Modern formats:</strong> `NFCD`, `NFSD`, and `charinfo` cover newer Nintendo Mii data workflows.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Which Tool Should You Use?</h2>
+                    <ul>
+                        <li><a href="/convert">Converter</a> when you already have Mii data and need a new output format.</li>
+                        <li><a href="/qr">QR Scanner</a> when you are starting from a QR image.</li>
+                        <li><a href="/guides/transfer">Transfer Guide</a> when the best method depends on the source and destination hardware.</li>
+                        <li><a href="/amiibo">Amiibo Tools</a> or <a href="/wiimote">Wii Remote Tools</a> when your Mii lives inside those specific devices.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Compatibility Notes</h2>
+                    <ul>
+                        <li>Older Nintendo systems support fewer facial features than newer ones, so down-level conversions can simplify details.</li>
+                        <li>QR code workflows are especially useful for 3DS and Wii U transfers.</li>
+                        <li>Switch-related transfers often rely on manual recreation or Amiibo instead of direct file import.</li>
+                        <li>Keep a backup export before converting or rewriting a Mii into another device or format.</li>
+                    </ul>
+                </section>
+            </article>
+            <%- include('featuredMiis') %>
+        </main>
+        <%- include('footer') %>
+    </body>
+</html>

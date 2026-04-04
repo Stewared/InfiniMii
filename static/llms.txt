@@ -1,0 +1,27 @@
+# InfiniMii
+
+> InfiniMii is a searchable Nintendo Mii character database and toolkit for browsing, converting, downloading, and transferring Miis across Nintendo systems.
+
+## Key Pages
+
+- [Home](https://infinimii.com/): Overview of the site, browse sections, and core tools.
+- [Trending Miis](https://infinimii.com/trending): Public Mii characters getting the most attention.
+- [Top Miis](https://infinimii.com/top): Highest-rated public Mii characters.
+- [Recent Miis](https://infinimii.com/recent): Newly uploaded public Mii characters.
+- [Official Miis](https://infinimii.com/official): Official Nintendo Miis preserved from games, promotions, and systems.
+- [Search](https://infinimii.com/search): Search form for Mii characters, uploaders, text, and tags.
+- [Mii Converter](https://infinimii.com/convert): Convert Mii data between Nintendo formats.
+- [QR Scanner](https://infinimii.com/qr): Scan Mii QR codes and decode them into exportable data.
+- [Amiibo Tools](https://infinimii.com/amiibo): Extract or insert Miis from Amiibo backups.
+- [Wii Remote Tools](https://infinimii.com/wiimote): Read and write Wii Remote Mii slots in supported browsers.
+- [Transfer Guide](https://infinimii.com/guides/transfer): Guide to moving Miis between Nintendo systems.
+- [Mii Format Guide](https://infinimii.com/guides/formats): Overview of common Mii formats and when to use each one.
+- [FAQ](https://infinimii.com/faq): General questions about Miis, transfers, QR codes, and site usage.
+- [Cite InfiniMii](https://infinimii.com/cite): Citation and attribution guidance.
+
+## Notes For Assistants
+
+- Prefer guide pages and the FAQ for general questions about Miis, transfers, formats, and site workflows.
+- Prefer specific `/mii/<id>` pages when answering questions about an individual Mii character.
+- Search result pages and random pages are not canonical long-term references.
+- Auth, account, private collection, and moderator pages are not intended as public reference content.

@@ -1,38 +1,84 @@
 <!DOCTYPE html>
-<html>
-	<head>
-        <%- include('metaTags') %>
+<html lang="en">
+    <head>
+        <%
+        const pageTitle = 'InfiniMii - Browse, Convert, and Share Nintendo Mii Characters';
+        const pageDesc = 'Browse official and community-made Mii characters, convert Mii files between Nintendo formats, generate QR codes, and follow transfer guides for Wii, 3DS, Wii U, Switch, and more.';
+        const canonicalUrl = `${baseUrl}/`;
+        const keywords = 'mii characters, nintendo miis, download miis, mii converter, mii qr codes, official miis';
+        const schemaType = 'CollectionPage';
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "InfiniMii Homepage Sections",
+            "itemListElement": Object.keys(miiCategories || {}).map((cat, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "name": cat,
+                "url": `${baseUrl}${miiCategories[cat].link.replace(/^\./, '')}`
+            }))
+        }];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
-		<link href="./global.css" rel="stylesheet">
-		<link href="./index.css" rel="stylesheet">
-	</head>
-	<body>
+        <link href="/global.css" rel="stylesheet">
+        <link href="/index.css" rel="stylesheet">
+    </head>
+    <body>
         <%- include('globalStyle') %>
-		<%- include('header') %>
+        <%- include('header') %>
         <%- include('accountDisplay') %>
-		<div class="content">
-			<%- include('sidebar') %>
-			<div id="browse-miis">
-				<% Object.keys(miiCategories).forEach(cat=>{ %>
-					<div class="miiCategory">
-						<h1><a href="<%= miiCategories[cat].link %>"><%= cat %></a></h1>
-						<% miiCategories[cat].miis.forEach(mii=>{ %>
-							<%
-								if (!mii || !mii.id) {
-									return;
-								}
-								const miiName = mii?.meta?.name || mii?.name || "Unknown Mii";
-							%>
-							<a class="miiThumb" href="/mii/<%= mii.id %>">
-								<img src="./miiImgs/<%= mii.id %>.png" alt="<%= miiName %>">
-								<h3><%= miiName %></h3>
-							</a>
-						<% }); %>
-					</div>
-				<% }); %>
-			</div>
-			<%- include('featuredMiis') %>
-		</div>
+        <main class="content" role="main">
+            <%- include('sidebar') %>
+            <div class="main-content">
+                <section class="home-hero" aria-labelledby="home-heading">
+                    <p class="home-kicker">Mii Database + Tools</p>
+                    <h1 id="home-heading">Browse, preserve, and convert Nintendo Mii characters</h1>
+                    <p class="home-lede">InfiniMii is a searchable Mii character repository and toolkit for Wii, DS, 3DS, Wii U, Switch, Switch 2, Miitomo, Tomodachi Life, and Nintendo Mii Studio. Use it to discover official Miis, share your own creations, generate QR codes, and move Miis between formats.</p>
+                    <p class="home-links">
+                        <a href="/trending">Browse trending Miis</a>
+                        <span aria-hidden="true"> | </span>
+                        <a href="/convert">Convert Mii formats</a>
+                        <span aria-hidden="true"> | </span>
+                        <a href="/guides/transfer">Read the transfer guide</a>
+                    </p>
+                </section>
+
+                <section class="home-highlights" aria-labelledby="highlights-heading">
+                    <h2 id="highlights-heading">What You Can Do on InfiniMii</h2>
+                    <ul>
+                        <li>Browse official Nintendo Miis and community recreations.</li>
+                        <li>Convert Mii data between classic and modern Nintendo systems.</li>
+                        <li>Generate and scan QR codes for compatible Mii formats.</li>
+                        <li>Use transfer guides for Wii, 3DS, Wii U, Switch, and Amiibo workflows.</li>
+                    </ul>
+                </section>
+
+                <section aria-labelledby="browse-sections-heading">
+                    <h2 id="browse-sections-heading">Browse Popular Mii Collections</h2>
+                    <div id="browse-miis">
+                        <% Object.keys(miiCategories).forEach(cat=>{ %>
+                            <section class="miiCategory" aria-labelledby="section-<%= cat.toLowerCase() %>">
+                                <h3 id="section-<%= cat.toLowerCase() %>"><a href="<%= miiCategories[cat].link %>"><%= cat %></a></h3>
+                                <% miiCategories[cat].miis.forEach(mii=>{ %>
+                                    <%
+                                        if (!mii || !mii.id) {
+                                            return;
+                                        }
+                                        const miiName = mii?.meta?.name || mii?.name || "Unknown Mii";
+                                    %>
+                                    <a class="miiThumb" href="/mii/<%= mii.id %>">
+                                        <img src="/miiImgs/<%= mii.id %>.png" alt="<%= miiName %>">
+                                        <h4><%= miiName %></h4>
+                                    </a>
+                                <% }); %>
+                            </section>
+                        <% }); %>
+                    </div>
+                </section>
+            </div>
+            <%- include('featuredMiis') %>
+        </main>
         <%- include('footer') %>
-	</body>
+    </body>
 </html>

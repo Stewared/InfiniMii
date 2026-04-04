@@ -1,10 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>Manage Official Categories - InfiniMii</title>
-        <link rel='stylesheet' href="global.css">
-        <link rel="stylesheet" href="utilityPages.css">
-        <link rel="stylesheet" href="manageCategories.css">
+        <%
+        const pageTitle = 'Manage Official Categories - InfiniMii';
+        const pageDesc = 'Moderator and researcher interface for organizing official Mii categories.';
+        const canonicalUrl = `${baseUrl}/manageCategories`;
+        const pageRobots = 'noindex, nofollow, noarchive';
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, pageRobots }) %>
+        <%- include('structuredData') %>
+        <link rel='stylesheet' href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+        <link rel="stylesheet" href="/manageCategories.css">
     </head>
     <body>
         <%- include('globalStyle') %>

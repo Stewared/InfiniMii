@@ -1,25 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <%
-        // Set page-specific variables for meta tags
         const rawMiiName = (mii?.meta?.name ?? mii?.name ?? '').toString().trim();
         const miiName = rawMiiName || 'Unknown Mii';
-        const officialSourceLabel = mii.official ? (officialSourceName || mii.officialSource || mii.uploader || 'Nintendo') : '';
-        const pageTitle = `${miiName} - InfiniMii | Download Mii Character`;
-        const pageDesc = mii.desc || `Download ${miiName} Mii character${mii.official ? ` (Official ${officialSourceLabel} Mii)` : ''} for Wii, 3DS, Wii U, Switch. Get QR code and convert to any format.`;
+        const seo = miiSeo || {};
+        const officialSourceLabel = mii.official ? (seo.officialSourceName || officialSourceName || mii.officialSource || mii.uploader || 'Nintendo') : '';
+        const categoryDetails = Array.isArray(seo.categoryDetails) ? seo.categoryDetails : [];
+        const tagList = Array.isArray(seo.tagList) ? seo.tagList : [];
+        const searchTopics = Array.isArray(seo.searchTopicPhrases) ? seo.searchTopicPhrases : [];
+        const creatorName = seo.creatorName || '';
+        const consoleLabel = seo.consoleLabel || '';
+        const favoriteColorName = seo.favoriteColorName || '';
+        const genderLabel = seo.genderLabel || '';
+        const birthdayLabel = seo.birthdayLabel || '';
+        const archiveTypeLabel = seo.archiveTypeLabel || (mii.official ? 'Official Mii' : (isPrivate ? 'Private Mii' : 'Community Mii'));
+        const typeLabel = seo.typeLabel || 'Standard Mii';
+        const keywordList = Array.isArray(seo.keywordList) ? seo.keywordList : [];
+        const pageTitle = `${miiName} Mii QR Code & Download${mii.official ? ` | ${officialSourceLabel}` : ''} - InfiniMii`;
+        const pageDesc = seo.metaDescription || mii.desc || `Download ${miiName} Mii character${mii.official ? ` from ${officialSourceLabel}` : ''} for Wii, 3DS, Wii U, and Switch. Get QR code access and convert to supported formats.`;
         const canonicalUrl = `${baseUrl}/mii/${mii.id}`;
         const ogImage = `${baseUrl}/miiImgs/${mii.id}.png`;
+        const ogImageAlt = `${miiName} Mii character preview`;
         const ogType = 'article';
-        const keywords = `${miiName}, ${mii.official ? 'official ' : ''}mii character, download mii, mii qr code`;
+        const keywords = keywordList.length > 0
+            ? keywordList.join(', ')
+            : `${miiName}, ${mii.official ? 'official ' : ''}mii character, download mii, mii qr code`;
+        const publishedTime = mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined;
+        const modifiedTime = pageUpdatedAt || publishedTime;
+        const pageRobots = isPrivate ? 'noindex, nofollow, noarchive' : undefined;
+        const schemaType = 'ItemPage';
         const breadcrumbs = [
             { name: 'Home', url: '/' },
             { name: mii.official ? 'Official Miis' : 'Community Miis', url: mii.official ? '/official' : '/top' },
             { name: miiName, url: `/mii/${mii.id}` }
         ];
+        const archiveOwnerLabel = mii.official ? officialSourceLabel : (seo.uploaderName || mii.uploader || 'InfiniMii User');
+        const archiveOwnerStatsLabel = archiveOwnerStats?.totalMiis
+            ? `${archiveOwnerLabel} has ${archiveOwnerStats.totalMiis} public Mii${archiveOwnerStats.totalMiis === 1 ? '' : 's'} on InfiniMii${archiveOwnerStats.totalLikes ? ` with ${archiveOwnerStats.totalLikes} total likes` : ''}.`
+            : '';
+        const archiveIntro = mii.official
+            ? `${miiName} is preserved on InfiniMii as an official ${officialSourceLabel} Mii${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`
+            : `${miiName} is a community Mii uploaded by ${mii.uploader}${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`;
+        const archiveSearchIntro = searchTopics.length > 0
+            ? `People often search for this entry using phrases like ${searchTopics.slice(0, 8).join(', ')}.`
+            : '';
+        const nameSearchUrl = `/searchResults?q=${encodeURIComponent(miiName)}&searchFieldsConfigured=1&searchIn=name`;
+        const creatorSearchUrl = creatorName
+            ? `/searchResults?q=${encodeURIComponent(creatorName)}&searchFieldsConfigured=1&searchIn=name`
+            : '';
+        const uploaderSearchUrl = `/searchResults?q=${encodeURIComponent(mii.uploader)}&searchFieldsConfigured=1&searchIn=uploader`;
+        const archiveOwnerProfileUrl = `/user/${encodeURIComponent(mii.uploader)}`;
+        const faqEntries = [
+            {
+                question: `How do I download ${miiName}?`,
+                answer: `Use the download controls on this page to export ${miiName} as a QR code or another supported Mii format such as charinfo, studio, and other converter-friendly outputs.`
+            },
+            {
+                question: `Who made ${miiName}?`,
+                answer: mii.official
+                    ? `${miiName} is archived here as an official ${officialSourceLabel} Mii${creatorName ? ` with creator name ${creatorName}` : ''}${mii.contributor ? `, contributed to InfiniMii by ${mii.contributor}` : ''}.`
+                    : `${miiName} was uploaded to InfiniMii by ${mii.uploader}${creatorName ? ` and carries the creator name ${creatorName}` : ''}.`
+            },
+            {
+                question: `Where can I use ${miiName}?`,
+                answer: `The QR code and converter tools on this page are designed for common Nintendo Mii workflows including 3DS and Wii U QR importing plus compatible export paths for Wii, Switch, and related formats.`
+            }
+        ];
+        const schemaGraphs = !pageRobots
+            ? [{
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": faqEntries.map((entry) => ({
+                    "@type": "Question",
+                    "name": entry.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": entry.answer
+                    }
+                }))
+            }]
+            : [];
         %>
         
-        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogType, keywords }) %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogImageAlt, ogType, keywords, publishedTime, modifiedTime, pageRobots }) %>
         <%- include('structuredData') %>
         <%- include('miiSchema') %>
         
@@ -54,16 +118,16 @@
                     <figure class="id-card-photo">
                         <img src="/<%= imgPath %>/<%= mii.id %>.png" 
                             onerror="this.src='/<%= imgPath %>/<%= mii.id %>.png'"
-                            alt="<%= mii.meta.name %> Mii Character Face"
+                            alt="<%= miiName %> Mii character face"
                             itemprop="image"
                             width="400" 
                             height="400"
                             fetchpriority="high">
                         <figcaption class="qr-code">
-                            <a href="/<%= qrPath %>/<%= mii.id %>.png" target="_blank">
+                            <a href="/<%= qrPath %>/<%= mii.id %>.png" target="_blank" rel="noopener noreferrer">
                                 <img src="/<%= qrPath %>/<%= mii.id %>.png" 
                                     onerror="this.src='/<%= qrPath %>/<%= mii.id %>.png'"
-                                    alt="QR Code for <%= mii.meta.name %> - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo" 
+                                    alt="QR Code for <%= miiName %> - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo" 
                                     width="200" 
                                     height="200"
                                     loading="lazy">
@@ -93,19 +157,38 @@
 
                     <!-- Right side: Information -->
                     <div class="id-card-info">
-                        <h1 class="mii-name"><%= mii.meta.name %></h1>
+                        <h1 class="mii-name"><%= miiName %></h1>
                         
                         <div class="info-grid">
-                            <% if(mii.meta.creatorName?.length>0){ %>
+                            <% if(creatorName.length > 0){ %>
                             <div class="info-item">
                                 <span class="info-label">Creator Name</span>
-                                <span class="info-value" itemprop="creator"><%= mii.meta.creatorName %></span>
+                                <span class="info-value" itemprop="creator"><%= creatorName %></span>
+                            </div>
+                            <% } %>
+
+                            <div class="info-item">
+                                <span class="info-label">Archive Type</span>
+                                <span class="info-value"><%= archiveTypeLabel %></span>
+                            </div>
+
+                            <% if(consoleLabel) { %>
+                            <div class="info-item">
+                                <span class="info-label">Original Console</span>
+                                <span class="info-value"><%= consoleLabel %></span>
+                            </div>
+                            <% } %>
+
+                            <% if(genderLabel) { %>
+                            <div class="info-item">
+                                <span class="info-label">Gender</span>
+                                <span class="info-value"><%= genderLabel %></span>
                             </div>
                             <% } %>
                             
                             <div class="info-item">
                                 <span class="info-label">Birthday</span>
-                                <span class="info-value"><%= ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][mii.general.birthMonth] %> <%= mii.general.birthday>0?mii.general.birthday:"Not Set" %></span>
+                                <span class="info-value"><%= birthdayLabel || 'Not Set' %></span>
                             </div>
 
                             <% if(mii.general.height !== undefined) { %>
@@ -122,10 +205,29 @@
                             </div>
                             <% } %>
 
-                            <% if(mii.general.favoriteColor !== undefined) { %>
+                            <% if(favoriteColorName) { %>
                             <div class="info-item">
                                 <span class="info-label">Favorite Color</span>
-                                <span class="info-value"><%= ["Red", "Orange", "Yellow", "Lime", "Green", "Blue", "Cyan", "Pink", "Purple", "Brown", "White", "Black"][mii.general.favoriteColor] %></span>
+                                <span class="info-value"><%= favoriteColorName %></span>
+                            </div>
+                            <% } %>
+
+                            <% if(mii.official && officialSourceLabel) { %>
+                            <div class="info-item">
+                                <span class="info-label">Official Source</span>
+                                <span class="info-value"><%= officialSourceLabel %></span>
+                            </div>
+                            <% } else if(mii.uploader) { %>
+                            <div class="info-item">
+                                <span class="info-label">Uploaded By</span>
+                                <span class="info-value"><%= mii.uploader %></span>
+                            </div>
+                            <% } %>
+
+                            <% if(mii.contributor) { %>
+                            <div class="info-item">
+                                <span class="info-label">Contributor</span>
+                                <span class="info-value"><%= mii.contributor %></span>
                             </div>
                             <% } %>
                                 <script>
@@ -318,9 +420,9 @@
                                 </script>
                             <div class="mii-tags-section">
                                 <span class="info-label">Tags</span>
-                                <% if(Array.isArray(mii.tags) && mii.tags.length > 0) { %>
+                                <% if(tagList.length > 0) { %>
                                     <div class="mii-tags-list">
-                                        <% mii.tags.forEach(tag => { %>
+                                        <% tagList.forEach(tag => { %>
                                             <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
                                         <% }); %>
                                     </div>
@@ -328,6 +430,19 @@
                                     <span class="no-tags">No tags assigned.</span>
                                 <% } %>
                             </div>
+
+                            <% if(categoryDetails.length > 0) { %>
+                            <div class="official-categories-section">
+                                <span class="info-label">Official Categories</span>
+                                <div class="categories-display">
+                                    <% categoryDetails.forEach(category => { %>
+                                        <a class="category-badge" href="<%= category.url %>" style="--category-color: <%= category.color || '#999999' %>;">
+                                            <%= category.fullPath || category.name %>
+                                        </a>
+                                    <% }); %>
+                                </div>
+                            </div>
+                            <% } %>
                         </div>
                     </div>
                     <% if(isPrivate) { %>
@@ -406,12 +521,10 @@
                     </div>
                 </div>
                 <!-- Description -->
-                <% if(mii.desc && mii.desc.length > 0) { %>
-                    <div class="id-card-description">
-                        <h3 class="info-label">Description</h3>
-                        <p itemprop="description"><%= mii.desc %></p>
-                    </div>
-                <% } %>
+                <div class="id-card-description">
+                    <h3 class="info-label">Description</h3>
+                    <p itemprop="description"><%= (mii.desc && mii.desc.length > 0) ? mii.desc : `${archiveIntro} ${archiveOwnerStatsLabel}`.trim() %></p>
+                </div>
 
                 <!-- Actions -->
                 <div class="id-card-actions">
@@ -496,6 +609,160 @@
                             </button>
                         <% } %>
                     </div>
+                </div>
+
+                <div class="mii-seo-sections">
+                    <section class="mii-seo-panel" aria-labelledby="mii-archive-heading">
+                        <h2 id="mii-archive-heading">About This <%= miiName %> Mii</h2>
+                        <p><%= archiveIntro %></p>
+                        <% if(archiveOwnerStatsLabel) { %>
+                            <p><%= archiveOwnerStatsLabel %></p>
+                        <% } %>
+                        <% if(archiveSearchIntro) { %>
+                            <p><%= archiveSearchIntro %></p>
+                        <% } %>
+                    </section>
+
+                    <section class="mii-seo-panel" aria-labelledby="mii-facts-heading">
+                        <h2 id="mii-facts-heading">Searchable Archive Details</h2>
+                        <dl class="mii-fact-list">
+                            <div class="mii-fact">
+                                <dt>Name</dt>
+                                <dd><%= miiName %></dd>
+                            </div>
+                            <div class="mii-fact">
+                                <dt>Archive Type</dt>
+                                <dd><%= archiveTypeLabel %></dd>
+                            </div>
+                            <div class="mii-fact">
+                                <dt>Mii Type</dt>
+                                <dd><%= typeLabel %></dd>
+                            </div>
+                            <% if(creatorName) { %>
+                                <div class="mii-fact">
+                                    <dt>Creator Name</dt>
+                                    <dd><%= creatorName %></dd>
+                                </div>
+                            <% } %>
+                            <% if(mii.official && officialSourceLabel) { %>
+                                <div class="mii-fact">
+                                    <dt>Official Source</dt>
+                                    <dd><%= officialSourceLabel %></dd>
+                                </div>
+                            <% } %>
+                            <% if(mii.uploader) { %>
+                                <div class="mii-fact">
+                                    <dt>Uploader</dt>
+                                    <dd><%= mii.uploader %></dd>
+                                </div>
+                            <% } %>
+                            <% if(mii.contributor) { %>
+                                <div class="mii-fact">
+                                    <dt>Contributor</dt>
+                                    <dd><%= mii.contributor %></dd>
+                                </div>
+                            <% } %>
+                            <% if(consoleLabel) { %>
+                                <div class="mii-fact">
+                                    <dt>Original Console</dt>
+                                    <dd><%= consoleLabel %></dd>
+                                </div>
+                            <% } %>
+                            <% if(genderLabel) { %>
+                                <div class="mii-fact">
+                                    <dt>Gender</dt>
+                                    <dd><%= genderLabel %></dd>
+                                </div>
+                            <% } %>
+                            <% if(birthdayLabel) { %>
+                                <div class="mii-fact">
+                                    <dt>Birthday</dt>
+                                    <dd><%= birthdayLabel %></dd>
+                                </div>
+                            <% } %>
+                            <% if(favoriteColorName) { %>
+                                <div class="mii-fact">
+                                    <dt>Favorite Color</dt>
+                                    <dd><%= favoriteColorName %></dd>
+                                </div>
+                            <% } %>
+                            <% if(categoryDetails.length > 0) { %>
+                                <div class="mii-fact">
+                                    <dt>Official Categories</dt>
+                                    <dd><%= categoryDetails.map(category => category.fullPath || category.name).join(', ') %></dd>
+                                </div>
+                            <% } %>
+                            <% if(tagList.length > 0) { %>
+                                <div class="mii-fact">
+                                    <dt>Tags</dt>
+                                    <dd><%= tagList.join(', ') %></dd>
+                                </div>
+                            <% } %>
+                        </dl>
+                    </section>
+
+                    <section class="mii-seo-panel" aria-labelledby="mii-links-heading">
+                        <h2 id="mii-links-heading">Search Topics And Related Links</h2>
+                        <p>Browse by character name, creator name, uploader, tags, and official categories related to <%= miiName %>.</p>
+                        <div class="mii-chip-list">
+                            <a class="mii-chip mii-chip-link" href="<%= nameSearchUrl %>"><%= miiName %> search</a>
+                            <% if(creatorSearchUrl) { %>
+                                <a class="mii-chip mii-chip-link" href="<%= creatorSearchUrl %>"><%= creatorName %> creator search</a>
+                            <% } %>
+                            <a class="mii-chip mii-chip-link" href="<%= archiveOwnerProfileUrl %>"><%= archiveOwnerLabel %> profile</a>
+                            <a class="mii-chip mii-chip-link" href="<%= uploaderSearchUrl %>"><%= mii.uploader %> uploader search</a>
+                            <% categoryDetails.forEach(category => { %>
+                                <a class="mii-chip mii-chip-link" href="<%= category.url %>"><%= category.name %></a>
+                            <% }) %>
+                            <% tagList.forEach(tag => { %>
+                                <a class="mii-chip mii-chip-link" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                            <% }) %>
+                        </div>
+                        <% if(searchTopics.length > 0) { %>
+                            <p class="mii-search-topic-copy">Common search phrases: <%= searchTopics.join(', ') %>.</p>
+                        <% } %>
+                    </section>
+
+                    <section class="mii-seo-panel" aria-labelledby="mii-download-heading">
+                        <h2 id="mii-download-heading">Download And Compatibility</h2>
+                        <p>This page includes the preview image, QR code, and export tools for <%= miiName %>. If you are trying to find <%= miiName %> for 3DS, Wii U, Wii, Switch, or another supported Mii format, use the export controls above to download the format you need.</p>
+                    </section>
+
+                    <section class="mii-seo-panel" aria-labelledby="mii-faq-heading">
+                        <h2 id="mii-faq-heading">Questions About This Mii</h2>
+                        <div class="mii-faq-list">
+                            <% faqEntries.forEach((entry) => { %>
+                                <article class="mii-faq-item">
+                                    <h3><%= entry.question %></h3>
+                                    <p><%= entry.answer %></p>
+                                </article>
+                            <% }) %>
+                        </div>
+                    </section>
+
+                    <% if(Array.isArray(relatedCollections) && relatedCollections.length > 0) { %>
+                        <% relatedCollections.forEach((collection) => { %>
+                            <section class="mii-seo-panel" aria-labelledby="related-<%= collection.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') %>">
+                                <h2 id="related-<%= collection.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') %>"><%= collection.title %></h2>
+                                <% if(collection.description) { %>
+                                    <p><%= collection.description %></p>
+                                <% } %>
+                                <div class="related-mii-grid">
+                                    <% collection.items.forEach((relatedMii) => { %>
+                                        <article class="related-mii-card" style="--favorite-color: <%= decodeColor(relatedMii.general?.favoriteColor) || decodeColor(0) %>;">
+                                            <a class="related-mii-image" href="/mii/<%= relatedMii.id %>">
+                                                <img src="/miiImgs/<%= relatedMii.id %>.png" alt="<%= relatedMii.meta?.name || relatedMii.name %> Mii character">
+                                            </a>
+                                            <div class="related-mii-body">
+                                                <h3><a href="/mii/<%= relatedMii.id %>"><%= relatedMii.meta?.name || relatedMii.name %></a></h3>
+                                                <p><%= relatedMii.desc && relatedMii.desc.length > 96 ? `${relatedMii.desc.slice(0, 93)}...` : (relatedMii.desc || `${relatedMii.meta?.name || relatedMii.name} Mii character`) %></p>
+                                            </div>
+                                        </article>
+                                    <% }) %>
+                                </div>
+                            </section>
+                        <% }) %>
+                    <% } %>
                 </div>
 
                 <!-- Moderator Tools -->

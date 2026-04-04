@@ -6,6 +6,24 @@
         const pageDesc = 'Upload two Miis and generate a Tomodachi-style child progression with optional name, gender, and favorite color overrides.';
         const canonicalUrl = `${baseUrl}/miiChild`;
         const keywords = 'mii child generator, make mii child, tomodachi life child, mii baby, mii tool';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Mii Child Generator', url: '/miiChild' }
+        ];
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "InfiniMii Mii Child Generator",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web Browser",
+            "url": `${baseUrl}/miiChild`,
+            "description": pageDesc,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }];
         %>
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
@@ -23,6 +41,10 @@
             <%- include('sidebar') %>
 
             <section class="utility-container child-maker-container">
+                <header class="child-maker-intro">
+                    <h1>Generate a Mii Child</h1>
+                    <p>Upload two parent Miis and generate a Tomodachi-style child progression across six stages of life.</p>
+                </header>
                 <form id="miiChildForm" method="POST" enctype="multipart/form-data" action="/makeMiiChild">
                     <fieldset>
                         <legend>Generate Mii Child</legend>

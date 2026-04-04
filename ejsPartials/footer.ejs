@@ -1,11 +1,22 @@
+<%
+const resolvedUpdatedAt = (() => {
+    if (typeof pageUpdatedAt !== 'undefined' && pageUpdatedAt) return new Date(pageUpdatedAt);
+    if (typeof modifiedTime !== 'undefined' && modifiedTime) return new Date(modifiedTime);
+    if (typeof mii !== 'undefined' && mii?.uploadedOn) return new Date(mii.uploadedOn);
+    return null;
+})();
+const hasResolvedUpdatedAt = resolvedUpdatedAt instanceof Date && !Number.isNaN(resolvedUpdatedAt.getTime());
+%>
 <div class="content-metadata" hidden>
-    <!-- For SEO/LLM-O -->
+    <p><strong>Site Summary:</strong> InfiniMii is a searchable database and toolkit for Nintendo Mii characters, including browsing, downloads, QR codes, conversion tools, transfer guides, and official Mii preservation.</p>
+    <% if (hasResolvedUpdatedAt) { %>
     <p class="last-updated">
-        <strong>Last Updated:</strong> 
-        <time datetime="<%= new Date().toISOString() %>">
-            <%= new Date(Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+        <strong>Last Updated:</strong>
+        <time datetime="<%= resolvedUpdatedAt.toISOString() %>">
+            <%= resolvedUpdatedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
         </time>
     </p>
+    <% } %>
 </div>
 
 <footer class="site-footer">
@@ -26,6 +37,8 @@
             <ul>
                 <li><a href="/convert">Mii Format Converter</a></li>
                 <li><a href="/qr">QR Code Scanner</a></li>
+                <li><a href="/amiibo">Amiibo Tools</a></li>
+                <li><a href="/wiimote">Wii Remote Tools</a></li>
                 <li><a href="/upload">Upload Your Mii</a></li>
                 <li><a href="/search">Search Miis</a></li>
                 <li><a href="/mii/average">The Average Mii</a></li>
@@ -37,7 +50,8 @@
             <ul>
                 <li><a href="/guides/transfer">How to Transfer Miis</a></li>
                 <li><a href="/guides/formats">Mii Format Guide</a></li>
-                <!-- TODO: broken links -->
+                <li><a href="/faq">Mii FAQ</a></li>
+                <li><a href="/cite">How to Cite InfiniMii</a></li>
             </ul>
         </div>
         

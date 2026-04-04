@@ -1,9 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>Wii Remote Mii Tools - InfiniMii</title>
-        <link rel='stylesheet' href="global.css">
-        <link rel="stylesheet" href="utilityPages.css">
+        <%
+        const pageTitle = 'Wii Remote Mii Tools - InfiniMii';
+        const pageDesc = 'Connect a supported Wii Remote, inspect its Mii slots, and export or import Mii data through InfiniMii\'s WebHID tools.';
+        const canonicalUrl = `${baseUrl}/wiimote`;
+        const keywords = 'wii remote mii tool, wiimote mii reader, wiimote export mii, webhid wiimote';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Wii Remote Tools', url: '/wiimote' }
+        ];
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "InfiniMii Wii Remote Tools",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web Browser",
+            "url": `${baseUrl}/wiimote`,
+            "description": pageDesc,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+        <link rel='stylesheet' href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
         <style>
             .wiimote-tools {
                 display: flex;
@@ -332,11 +357,16 @@
         </style>
     </head>
     <body>
+        <%- include('globalStyle') %>
         <%- include('header') %>
         <%- include('accountDisplay') %>
         <div class='content'>
             <%- include('sidebar') %>
             <div class='wiimote-tools'>
+                <section class="tool-section" aria-labelledby="wiimote-heading">
+                    <h1 id="wiimote-heading">Wii Remote Mii Tools</h1>
+                    <p>Read the ten Wii Remote Mii slots, export selected Miis, and write compatible data back to the controller in supported browsers.</p>
+                </section>
                 <div class="browser-warning" id="browserWarning">
                     ⚠️ <strong>Limited API support!</strong> WebHID requires Chromium-based browsers like Chrome, Brave, Edge, or Opera GX. Firefox and Safari do not support this feature. All browsers on iPhone are Safari-based and will not work.
                 </div>
@@ -347,7 +377,7 @@
                     <div class="instructions">
                         <h4>Setup Instructions</h4>
                         <ol>
-                            <li>Pair your Wii Remote with your computer via Bluetooth (You can use <a target="_blank" href="https://github.com/Stewared/WiimoteBridge">this program</a> to help)</li>
+                            <li>Pair your Wii Remote with your computer via Bluetooth (You can use <a target="_blank" rel="noopener noreferrer" href="https://github.com/Stewared/WiimoteBridge">this program</a> to help)</li>
                             <li>Press the SYNC button inside the battery compartment if not already paired</li>
                             <li>Click "Connect to Wii Remote" below</li>
                             <li>Select your Wii Remote (Nintendo RVL-CNT-01) from the device picker</li>

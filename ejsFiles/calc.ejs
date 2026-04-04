@@ -3,9 +3,27 @@
 <head>
     <%
     const pageTitle = 'Mii Height/Weight Calculator - InfiniMii';
-    const pageDesc = 'InfiniMii is the most comprehensive Mii character repository and toolkit. Convert, share, and download Miis for all Nintendo systems. Learn about our mission and features.';
+    const pageDesc = 'Convert Mii slider values into real-world measurements, or estimate Mii slider values from feet, inches, centimeters, pounds, and kilograms.';
     const canonicalUrl = `${baseUrl}/calculator`;
     const keywords = 'calculate, calculator, height, weight, pixels, pounds, kilograms, inches, feet, foot, convert, conversion, metric, imperial';
+    const breadcrumbs = [
+        { name: 'Home', url: '/' },
+        { name: 'Calculator', url: '/calculator' }
+    ];
+    const schemaGraphs = [{
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "InfiniMii Mii Height and Weight Calculator",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web Browser",
+        "url": `${baseUrl}/calculator`,
+        "description": pageDesc,
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }];
     %>
     <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
     <%- include('structuredData') %>
@@ -22,7 +40,7 @@
     <div class='content'>
         <%- include('sidebar') %>
         <div class="calculator-container">
-            <h2>Mii Height & Weight Calculator</h2>
+            <h1>Mii Height & Weight Calculator</h1>
             
             <div class="calc-grid">
                 <!-- Mii Height/Weight Section -->

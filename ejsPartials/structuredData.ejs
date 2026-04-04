@@ -1,135 +1,157 @@
-<% if (typeof breadcrumbs === 'undefined') { %>
-<!-- Organization Schema -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "InfiniMii",
-  "url": "<%= baseUrl %>",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": {
-      "@type": "EntryPoint",
-      "urlTemplate": "<%= baseUrl %>/searchResults?q={search_term_string}"
-    },
-    "query-input": "required name=search_term_string"
-  }
-}
-</script>
-<% } else { %>
-<!-- Breadcrumb Schema -->
-<!-- Enhanced Organization Schema with Entity Links -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": ["WebSite", "SoftwareApplication"],
-  "@id": "<%= baseUrl %>/#website",
-  "name": "InfiniMii",
-  "alternateName": ["InfiniMii - Mii Repository", "Mii Character Database"],
-  "url": "<%= baseUrl %>",
-  "applicationCategory": "UtilitiesApplication",
-  "operatingSystem": "Web Browser",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "description": "InfiniMii is the most comprehensive Mii character platform supporting all Nintendo systems including Wii, DS, 3DS, Wii U, Switch, Tomodachi Life, and Miitomo. Convert Miis between formats, generate QR codes, and access thousands of official and community-created Mii characters.",
-  "about": [
-    {
-      "@type": "Thing",
-      "@id": "https://www.wikidata.org/wiki/Q843402",
-      "name": "Mii",
-      "sameAs": [
-        "https://en.wikipedia.org/wiki/Mii",
-        "https://www.wikidata.org/wiki/Q8093"
-      ]
-    },
-    {
-      "@type": "VideoGame",
-      "name": "Tomodachi Life",
-      "sameAs": "https://www.wikidata.org/wiki/Q16269165"
-    },
-    {
-      "@type": "Product",
-      "name": "Nintendo 3DS",
-      "brand": {
-        "@type": "Organization",
-        "name": "Nintendo"
-      },
-      "sameAs": "https://www.wikidata.org/wiki/Q203597"
+<%
+const firstNonEmpty = (...values) => {
+    for (const value of values) {
+        if (typeof value === 'string') {
+            if (value.trim().length > 0) return value.trim();
+            continue;
+        }
+        if (value !== null && typeof value !== 'undefined') {
+            return value;
+        }
     }
-  ],
-  "featureList": [
-    "Convert Miis between all Nintendo formats",
-    "Generate QR codes for 3DS and Wii U",
-    "Browse official Nintendo Miis",
-    "Upload and share custom Mii characters",
-    "Access comprehensive Mii transfer guides",
-    "Store Miis in personal cloud bank"
-  ],
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": {
-      "@type": "EntryPoint",
-      "urlTemplate": "<%= baseUrl %>/searchResults?q={search_term_string}"
-    },
-    "query-input": "required name=search_term_string"
-  },
-  "provider": {
-    "@type": "Organization",
-    "@id": "<%= baseUrl %>/#organization",
-    "name": "InfiniMii",
-    "url": "<%= baseUrl %>",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "<%= baseUrl %>/banner.png",
-      "width": "600",
-      "height": "60"
-    },
-    "sameAs": [
-      "https://github.com/Stewared/MiiJS",
-      "https://discord.gg/mTFKpBcvae"
-    ],
-    "knowsAbout": [
-      "Mii Characters",
-      "Nintendo Avatar System",
-      "Character Format Conversion",
-      "QR Code Generation",
-      "Nintendo 3DS",
-      "Nintendo Wii",
-      "Tomodachi Life"
-    ]
-  }
-}
-</script>
+    return undefined;
+};
 
-<!-- SoftwareApplication Schema for Mii Converter -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "InfiniMii Mii Converter",
-  "applicationCategory": "UtilitiesApplication",
-  "operatingSystem": "Web Browser",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "description": "Free online tool to convert Mii characters between Wii, 3DS, Wii U, and Switch formats. Supports QR code generation and all Mii file types.",
-  "featureList": [
-    "Wii to 3DS conversion",
-    "3DS to Wii backporting",
-    "QR code generation",
-    "Binary file conversion",
-    "Format optimization"
-  ],
-  "screenshot": "<%= baseUrl %>/screenshots/converter.jpg",
-  "softwareHelp": {
-    "@type": "CreativeWork",
-    "url": "<%= baseUrl %>/guides/transfer"
-  }
+const resolvedBaseUrl = typeof baseUrl === 'string' && baseUrl.trim()
+    ? baseUrl.replace(/\/+$/, '')
+    : '';
+const rawCurrentPath = typeof currentPath === 'string' && currentPath.trim()
+    ? currentPath.trim()
+    : '/';
+const currentPathValue = rawCurrentPath.startsWith('/') ? rawCurrentPath : `/${rawCurrentPath}`;
+const currentPathWithoutHash = currentPathValue.split('#')[0];
+const resolvedPageTitle = firstNonEmpty(
+    typeof pageTitle !== 'undefined' ? pageTitle : undefined,
+    typeof title !== 'undefined' ? title : undefined,
+    'InfiniMii'
+);
+const resolvedPageDesc = firstNonEmpty(
+    typeof pageDesc !== 'undefined' ? pageDesc : undefined,
+    typeof description !== 'undefined' ? description : undefined,
+    'Create, convert, and share Mii characters across Nintendo systems.'
+);
+const toAbsoluteUrl = (value, fallbackPath = '/') => {
+    const trimmed = typeof value === 'string' ? value.trim() : '';
+    if (!trimmed) {
+        if (!resolvedBaseUrl) return fallbackPath;
+        return fallbackPath.startsWith('/')
+            ? `${resolvedBaseUrl}${fallbackPath}`
+            : `${resolvedBaseUrl}/${fallbackPath.replace(/^\/+/, '')}`;
+    }
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    if (!resolvedBaseUrl) return trimmed.startsWith('/') ? trimmed : `/${trimmed.replace(/^\/+/, '')}`;
+    return trimmed.startsWith('/')
+        ? `${resolvedBaseUrl}${trimmed}`
+        : `${resolvedBaseUrl}/${trimmed.replace(/^\/+/, '')}`;
+};
+const resolvedPageUrl = toAbsoluteUrl(
+    firstNonEmpty(
+        typeof canonicalUrl !== 'undefined' ? canonicalUrl : undefined,
+        currentPathWithoutHash
+    )
+);
+const resolvedPageImage = toAbsoluteUrl(
+    firstNonEmpty(
+        typeof ogImage !== 'undefined' ? ogImage : undefined,
+        '/banner.png'
+    ),
+    '/banner.png'
+);
+const resolvedSchemaType = firstNonEmpty(
+    typeof schemaType !== 'undefined' ? schemaType : undefined,
+    'WebPage'
+);
+const sameAsLinks = [
+    typeof githubLink === 'string' ? githubLink.trim() : '',
+    typeof discordInvite === 'string' ? discordInvite.trim() : ''
+].filter(Boolean);
+const pageRobotsValue = String(
+    firstNonEmpty(
+        typeof robots !== 'undefined' ? robots : undefined,
+        typeof pageRobots !== 'undefined' ? pageRobots : undefined,
+        ''
+    ) || ''
+).toLowerCase();
+const shouldSuppressSchema = pageRobotsValue.includes('noindex') || Boolean(structuredDataDisabled);
+
+const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${resolvedBaseUrl}/#website`,
+    "url": resolvedBaseUrl,
+    "name": "InfiniMii",
+    "description": "InfiniMii is a searchable Mii character database and toolkit for converting, sharing, and downloading Miis across Nintendo systems.",
+    "publisher": { "@id": `${resolvedBaseUrl}/#organization` },
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": `${resolvedBaseUrl}/searchResults?q={search_term_string}`
+        },
+        "query-input": "required name=search_term_string"
+    }
+};
+
+const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${resolvedBaseUrl}/#organization`,
+    "name": "InfiniMii",
+    "url": resolvedBaseUrl,
+    "logo": {
+        "@type": "ImageObject",
+        "url": `${resolvedBaseUrl}/banner.png`
+    },
+    "sameAs": sameAsLinks.length ? sameAsLinks : undefined
+};
+
+const pageSchema = {
+    "@context": "https://schema.org",
+    "@type": resolvedSchemaType,
+    "@id": `${resolvedPageUrl}#webpage`,
+    "url": resolvedPageUrl,
+    "name": resolvedPageTitle,
+    "description": resolvedPageDesc,
+    "image": resolvedPageImage,
+    "isPartOf": { "@id": `${resolvedBaseUrl}/#website` },
+    "about": {
+        "@type": "Thing",
+        "name": "Mii characters"
+    }
+};
+
+if (typeof publishedTime !== 'undefined' && publishedTime) {
+    pageSchema.datePublished = publishedTime;
 }
-</script>
+if (typeof modifiedTime !== 'undefined' && modifiedTime) {
+    pageSchema.dateModified = modifiedTime;
+} else if (typeof pageUpdatedAt !== 'undefined' && pageUpdatedAt) {
+    pageSchema.dateModified = pageUpdatedAt;
+}
+
+const breadcrumbSchema = Array.isArray(breadcrumbs) && breadcrumbs.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": breadcrumbs.map((breadcrumb, index) => ({
+            "@type": "ListItem",
+            "position": index + 1,
+            "name": breadcrumb.name,
+            "item": toAbsoluteUrl(breadcrumb.url || '/')
+        }))
+    }
+    : null;
+
+const extraSchemaGraphs = Array.isArray(schemaGraphs)
+    ? schemaGraphs.filter(Boolean)
+    : [];
+%>
+<% if (!shouldSuppressSchema) { %>
+<script type="application/ld+json"><%- JSON.stringify(websiteSchema, null, 2) %></script>
+<script type="application/ld+json"><%- JSON.stringify(organizationSchema, null, 2) %></script>
+<script type="application/ld+json"><%- JSON.stringify(pageSchema, null, 2) %></script>
+<% if (breadcrumbSchema) { %><script type="application/ld+json"><%- JSON.stringify(breadcrumbSchema, null, 2) %></script><% } %>
+<% extraSchemaGraphs.forEach((schemaGraph) => { %>
+<script type="application/ld+json"><%- JSON.stringify(schemaGraph, null, 2) %></script>
+<% }); %>
 <% } %>

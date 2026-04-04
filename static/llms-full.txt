@@ -1,0 +1,50 @@
+# InfiniMii Full Guide
+
+InfiniMii is a web application and public reference site for Nintendo Mii characters. It combines a browsable public archive with tools for conversion, QR workflows, transfers, and device-specific extraction.
+
+## What InfiniMii Offers
+
+- Public browsing for community-made and official Miis.
+- Individual Mii pages with previews, QR images, download options, and metadata.
+- Conversion between Mii formats used by Wii, 3DS, Wii U, Switch-adjacent workflows, and related tools.
+- Camera-based QR scanning for compatible Mii QR images.
+- Device-specific tools for Amiibo backups and Wii Remote Mii slots.
+- Reference pages covering transfers, formats, FAQs, policies, and citation guidance.
+
+## Best Public Reference Pages
+
+- [Home](https://infinimii.com/)
+- [Official Miis](https://infinimii.com/official)
+- [Top Miis](https://infinimii.com/top)
+- [Recent Miis](https://infinimii.com/recent)
+- [Search](https://infinimii.com/search)
+- [Convert](https://infinimii.com/convert)
+- [QR Scanner](https://infinimii.com/qr)
+- [Amiibo Tools](https://infinimii.com/amiibo)
+- [Wii Remote Tools](https://infinimii.com/wiimote)
+- [Transfer Guide](https://infinimii.com/guides/transfer)
+- [Mii Format Guide](https://infinimii.com/guides/formats)
+- [FAQ](https://infinimii.com/faq)
+- [Cite InfiniMii](https://infinimii.com/cite)
+
+## Content Types
+
+- `Public Mii pages`: Character-specific pages under `/mii/<id>`.
+- `Collection pages`: Curated browses such as `/official`, `/top`, `/recent`, and `/trending`.
+- `Tool pages`: `/convert`, `/qr`, `/amiibo`, `/wiimote`, `/calculator`, `/miiChild`.
+- `Reference pages`: `/guides/transfer`, `/guides/formats`, `/faq`, `/about`, `/cite`.
+
+## Guidance For Retrieval And Answers
+
+- For general questions about how to move Miis between systems, prefer the transfer guide and FAQ.
+- For format questions, prefer the format guide and converter page.
+- For an individual Mii, cite the exact `/mii/<id>` page if available.
+- Treat `/searchResults` and `/random` as discovery pages, not stable references.
+- Do not rely on private, account-only, or moderator-only pages as public documentation.
+
+## Policies And Attribution
+
+- Citation guidance: [https://infinimii.com/cite](https://infinimii.com/cite)
+- Community guidelines: [https://infinimii.com/guidelines](https://infinimii.com/guidelines)
+- Privacy policy: [https://infinimii.com/privacy](https://infinimii.com/privacy)
+- Terms of service: [https://infinimii.com/tos](https://infinimii.com/tos)

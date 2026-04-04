@@ -1,21 +1,38 @@
-<% if(howToTitle!=="How To"){ %>
-<!-- HowTo Schema for Transfer Guides -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "HowTo",
-  "name": "<%= howToTitle %>",
-  "description": "<%= howToDescription %>",
-  "image": "<%= baseUrl %>/<%= howToImage || 'og-image.jpg' %>",
-  "totalTime": "<%= howToDuration || 'PT10M' %>",
-  "estimatedCost": {
-    "@type": "MonetaryAmount",
-    "currency": "USD",
-    "value": "0"
-  },
-  "supply": <%= JSON.stringify(howToSupplies || []) %>,
-  "tool": <%= JSON.stringify(howToTools || []) %>,
-  "step": <%= JSON.stringify(howToSteps) %>
-}
-</script>
+<%
+const resolvedBaseUrl = typeof baseUrl === 'string' && baseUrl.trim()
+    ? baseUrl.replace(/\/+$/, '')
+    : '';
+const toAbsoluteUrl = (value, fallbackPath = '/banner.png') => {
+    const trimmed = typeof value === 'string' ? value.trim() : '';
+    if (!trimmed) {
+        return resolvedBaseUrl ? `${resolvedBaseUrl}${fallbackPath}` : fallbackPath;
+    }
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    if (!resolvedBaseUrl) return trimmed.startsWith('/') ? trimmed : `/${trimmed.replace(/^\/+/, '')}`;
+    return trimmed.startsWith('/')
+        ? `${resolvedBaseUrl}${trimmed}`
+        : `${resolvedBaseUrl}/${trimmed.replace(/^\/+/, '')}`;
+};
+const shouldRenderHowTo = typeof howToTitle === 'string' && howToTitle.trim() && howToTitle !== 'How To' && Array.isArray(howToSteps) && howToSteps.length > 0;
+%>
+<% if (shouldRenderHowTo) { %>
+<%
+const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": howToTitle,
+    "description": howToDescription,
+    "image": toAbsoluteUrl(howToImage || '/banner.png'),
+    "totalTime": howToDuration || 'PT10M',
+    "estimatedCost": {
+        "@type": "MonetaryAmount",
+        "currency": "USD",
+        "value": "0"
+    },
+    "supply": Array.isArray(howToSupplies) ? howToSupplies : [],
+    "tool": Array.isArray(howToTools) ? howToTools : [],
+    "step": howToSteps
+};
+%>
+<script type="application/ld+json"><%- JSON.stringify(howToSchema, null, 2) %></script>
 <% } %>

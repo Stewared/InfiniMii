@@ -4,183 +4,62 @@
         <%
         const pageTitle = 'Mii Characters FAQ - Everything About Nintendo Miis, Formats & Conversion';
         const pageDesc = 'Complete FAQ about Mii characters: What are Miis? How to transfer between systems? QR code usage? Format differences? Expert answers to all your Mii questions.';
-        const canonicalUrl = `${baseUrl}/about`;
+        const canonicalUrl = `${baseUrl}/faq`;
         const keywords = 'mii faq, mii questions, what is a mii, mii help, mii guide, nintendo mii, tomodachi life, mii maker';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'FAQ', url: '/faq' }
+        ];
+        const schemaType = 'FAQPage';
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "What is a Mii character?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "A Mii is a customizable Nintendo avatar used across systems like Wii, 3DS, Wii U, and Switch."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "How do I transfer Miis between Nintendo systems?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Transfer methods depend on the systems involved and can include QR codes, Amiibo, direct system tools, file conversion, or manual recreation."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "What is a Mii QR code?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "A Mii QR code stores Mii data in a scannable image that compatible Nintendo systems can import."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Can I convert Miis from Wii to 3DS or back again?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Yes. InfiniMii can convert Miis between Wii, 3DS, Wii U, and other supported formats, though older systems may lose some detail."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "What are official Miis?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "Official Miis are Miis that appeared in Nintendo games, promotions, system software, or other verified official materials."
+                    }
+                }
+            ]
+        }];
         %>
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
-        
-        <!-- Comprehensive FAQ Schema -->
-        <script type="application/ld+json">
-        {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-            {
-            "@type": "Question",
-            "name": "What is a Mii character?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "A Mii is a digital avatar character created and used on Nintendo gaming systems including the Wii, Nintendo DS, Nintendo 3DS, Wii U, and Nintendo Switch. Miis are customizable avatars representing you or any character you create, featuring adjustable faces, hairstyles, and accessories. They appear in games, system menus, and social features across Nintendo platforms."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "What Nintendo systems use Mii characters?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Mii characters are used on: Nintendo Wii (2006), Nintendo DS (limited support), Nintendo 3DS (2011), Wii U (2012), Nintendo Switch (2017), Tomodachi Life (3DS game), Miitomo (mobile app, discontinued), and they're expected on Nintendo Switch 2. Each system has its own Mii format and features."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "How do I transfer Miis between Nintendo systems?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Transfer methods vary by system: (1) QR codes for 3DS/Wii U to 3DS/Wii U transfers, (2) Amiibo for 3DS/Wii U to Switch transfers, (3) Manual recreation for most Switch transfers, (4) File conversion tools like InfiniMii for Wii to 3DS and vice versa. See our comprehensive transfer guide at InfiniMii.com/guides/transfer for detailed instructions."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "What is a Mii QR code and how do I use it?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "A Mii QR code is a scannable image that contains all the data needed to recreate a Mii character. To use: On 3DS or Wii U, open Mii Maker, select 'QR Code/Image Options,' choose 'Scan QR Code,' and point your camera at the QR code. The Mii will be instantly imported to your system. QR codes work with 3DS, Wii U, Tomodachi Life, and Miitomo."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "Can I convert Miis from Wii to 3DS?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes! Wii Miis can be converted to 3DS format using conversion tools like InfiniMii. Since the 3DS supports all Wii Mii features plus additional customization options, Wii to 3DS conversion is lossless and can even enhance your Mii with new features available on the 3DS."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "Can I convert Miis from 3DS to Wii?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes, but with some limitations. The Wii has fewer customization options than the 3DS, so some advanced facial features may be simplified during conversion. Tools like InfiniMii automatically adjust 3DS Miis to be compatible with Wii hardware while preserving as much detail as possible."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "How do I get Miis on Nintendo Switch?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "There are three ways to get Miis on Switch: (1) Create new Miis directly in Switch System Settings > Mii, (2) Transfer via Amiibo - register a Mii to an Amiibo on 3DS/Wii U, then scan the Amiibo on Switch, (3) Manual recreation - use visual references or guides to manually recreate Miis from other systems."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "What are official Miis?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Official Miis are characters created by Nintendo that appear in games, promotional materials, or pre-installed on Nintendo consoles. These include celebrity Miis, character Miis (like Mario, Link, Pikachu), developer Miis, and promotional Miis from Nintendo events. InfiniMii maintains a comprehensive repository of official Miis."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "Can I use Miis in games?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes! Many Nintendo games use Miis: Wii Sports, Wii Play, Mario Kart Wii/8, Smash Bros (3DS/Wii U/Ultimate), Tomodachi Life, Miitomo, Animal Crossing, Mario Tennis, and many more. Miis can be playable characters, NPCs, or appear in various game features depending on the title."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "What is the Average Mii?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "The Average Mii is a unique InfiniMii feature - a statistically calculated Mii character representing the most common facial features across all Miis in our database. It's updated automatically as new Miis are added and serves as the closest representation of a 'generic' or 'default' human face in Mii form."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "Are Miis still supported on modern Nintendo systems?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes! While Miis are less prominent than during the Wii/3DS era, they remain fully supported on Nintendo Switch. You can create and use Miis in Switch system menus and compatible games. Nintendo has confirmed Mii support will continue on future systems including the anticipated Switch 2."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "How do I make a Mii QR code?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "To create a Mii QR code: On 3DS/Wii U, open Mii Maker, select your Mii, choose 'QR Code/Image Options,' then 'Save Mii as QR Code.' The QR code will be saved to your SD card. Alternatively, use online tools like InfiniMii to generate QR codes for any Mii file format."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "What file formats do Miis use?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Mii file formats: Wii uses .mii files (74 bytes), 3DS/Wii U use .cfsd or .bin files (96 bytes), Switch uses proprietary encrypted format, QR codes encode 3DS Mii data in scannable image format. Each format contains character appearance data but may have different feature support."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "Can I backup my Miis?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes! Methods include: Exporting Miis as QR codes (3DS/Wii U), saving Mii files to SD card or computer, using system transfer features when upgrading consoles, or uploading to cloud services like InfiniMii's Mii Bank for cross-device access and permanent backup."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "Is Tomodachi Life still playable in 2025?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": ""@type": "Answer",
-                "text": "Yes! Tomodachi Life remains fully playable on Nintendo 3DS in 2025. While online features were discontinued, the core game including QR code scanning, Mii importing, and all gameplay features work perfectly. You can still import Miis via QR codes and the game maintains an active fan community."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "What happened to Miitomo?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Miitomo, Nintendo's social mobile app featuring Miis, was discontinued on May 9, 2018. The app is no longer available to download or use. However, Mii QR codes from Miitomo can still be scanned on 3DS and Wii U systems, and the characters can be preserved using tools like InfiniMii."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "How many Miis can I store?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Storage limits vary by system: Wii stores up to 100 Miis, 3DS stores up to 100 Miis in Mii Maker, Wii U stores up to 100 Miis, Switch stores up to 100 Miis. Cloud services like InfiniMii's Mii Bank offer unlimited storage accessible from any device with browser access."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "Can I share Miis online?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes! Share Miis by: Posting QR codes on social media or forums, uploading to community sites like InfiniMii, sharing Mii files directly, or using StreetPass on 3DS (locally). InfiniMii allows you to upload, browse, and download thousands of community-created and official Miis."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "Are there contests or competitions for Mii creation?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes! InfiniMii hosts monthly Mii creation contests where participants create Miis based on specific themes, characters, or concepts. Moderators select top three submissions, and the community votes for the winner. Winning Miis are featured prominently on the site for the following month."
-            }
-            },
-            {
-            "@type": "Question",
-            "name": "What is MiiJS?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "MiiJS is an open-source JavaScript library that powers InfiniMii. It enables reading, writing, rendering, and converting Mii characters across all Nintendo formats. MiiJS handles QR code generation, 3D rendering, format conversion, and statistical analysis of Mii data. It's available on GitHub for developers building Mii applications."
-            }
-            }
-        ]
-        }
-        </script>
-        
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/utilityPages.css">
     </head>
@@ -366,7 +245,7 @@
                     <h2>Still Have Questions?</h2>
                     <p>Can't find what you're looking for? Join our community:</p>
                     <ul class="support-links">
-                        <li><a href="https://discord.gg/your-discord" target="_blank" rel="noopener">Join Discord</a> - Get help from the community</li>
+                        <li><a href="<%= discordInvite %>" target="_blank" rel="noopener noreferrer">Join Discord</a> - Get help from the community</li>
                         <li><a href="/upload">Upload a Mii</a> - Start using InfiniMii</li>
                         <li><a href="/guides/transfer">Transfer Guide</a> - Comprehensive system-to-system instructions</li>
                     </ul>

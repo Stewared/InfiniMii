@@ -1,12 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title><%= targetUser.username %> - InfiniMii</title>
-        <meta content="<%= targetUser.username %>" property="og:title" />
-        <meta content="User <%= targetUser.username %>'s Miis on InfiniMii" property="og:description" />
-        <meta content="https://infinimii.com/user/<%= encodeURIComponent(targetUser.username) %>" property="og:url" />
-        <meta content="https://infinimii.com/miiImgs/<%= targetUser.miiPfp || '00000' %>.png" property="og:image" />
-        <meta content="#ff0000" data-react-helmet="true" name="theme-color" />
+        <%
+            const normalizeKeywordList = (values) => {
+                const seen = new Set();
+                return (Array.isArray(values) ? values : [values]).flatMap((value) => Array.isArray(value) ? value : [value]).filter((value) => {
+                    const normalized = String(value || '').trim();
+                    if (!normalized) return false;
+                    const key = normalized.toLowerCase();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                }).map((value) => String(value).trim());
+            };
+            const totalUploaded = (profileStats && typeof profileStats.totalMiis === 'number')
+                ? profileStats.totalMiis
+                : displayedMiis.length;
+            const totalLikes = (profileStats && typeof profileStats.totalLikes === 'number')
+                ? profileStats.totalLikes
+                : displayedMiis.reduce((sum, mii) => sum + (mii.votes || 0), 0);
+            const officialCount = profileStats?.officialCount || 0;
+            const communityCount = typeof profileStats?.communityCount === 'number'
+                ? profileStats.communityCount
+                : Math.max(0, totalUploaded - officialCount);
+            const memberSince = profileStats?.memberSince;
+            const latestUploadOn = profileStats?.latestUploadOn;
+            const firstUploadOn = profileStats?.firstUploadOn;
+            const topTags = Array.isArray(profileHighlights?.topTags) ? profileHighlights.topTags : [];
+            const topCategories = Array.isArray(profileHighlights?.topCategories) ? profileHighlights.topCategories : [];
+            const creatorNames = Array.isArray(profileHighlights?.creatorNames) ? profileHighlights.creatorNames : [];
+            const profileFeaturedMiis = Array.isArray(profileHighlights?.featuredMiis) ? profileHighlights.featuredMiis : [];
+            const featuredNames = Array.isArray(profileHighlights?.featuredNames) ? profileHighlights.featuredNames : [];
+            const currentPageNumber = pagination?.currentPage || 1;
+            const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
+            const memberSinceLabel = memberSince
+                ? new Date(memberSince).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+                : '';
+            const latestUploadLabel = latestUploadOn
+                ? new Date(latestUploadOn).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                : '';
+            const firstUploadLabel = firstUploadOn
+                ? new Date(firstUploadOn).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                : '';
+            const pageTitle = `${targetUser.username} Mii Profile${pageSuffix} - InfiniMii`;
+            const profileLead = totalUploaded > 0
+                ? `${targetUser.username} has published ${totalUploaded} public Mii character${totalUploaded === 1 ? '' : 's'} on InfiniMii with ${totalLikes} total likes.`
+                : `${targetUser.username} has a public InfiniMii creator profile.`;
+            const profileArchiveSummary = totalUploaded > 0
+                ? `${officialCount > 0 ? `${officialCount} official` : '0 official'} and ${communityCount} community uploads${firstUploadLabel ? ` dating back to ${firstUploadLabel}` : ''}${latestUploadLabel ? `, with recent activity on ${latestUploadLabel}` : ''}.`
+                : '';
+            const themeSummary = topTags.length > 0
+                ? `Common tags include ${topTags.slice(0, 5).join(', ')}.`
+                : '';
+            const categorySummary = topCategories.length > 0
+                ? `Official archive categories include ${topCategories.slice(0, 4).map((category) => category.name).join(', ')}.`
+                : '';
+            const featuredSummary = featuredNames.length > 0
+                ? `Popular uploads include ${featuredNames.slice(0, 4).join(', ')}.`
+                : '';
+            const pageDesc = totalUploaded > 0
+                ? `${profileLead} ${profileArchiveSummary} ${themeSummary} ${categorySummary} ${featuredSummary}`.replace(/\s+/g, ' ').trim()
+                : `Public profile for ${targetUser.username} on InfiniMii.`;
+            const canonicalUrl = `${baseUrl}/user/${encodeURIComponent(targetUser.username)}${currentPageNumber > 1 ? `?page=${currentPageNumber}` : ''}`;
+            const ogImage = `${baseUrl}/miiImgs/${targetUser.miiPfp || '00000'}.png`;
+            const keywords = normalizeKeywordList([
+                targetUser.username,
+                `${targetUser.username} Mii`,
+                `${targetUser.username} Miis`,
+                `${targetUser.username} Mii profile`,
+                'InfiniMii creator',
+                topTags,
+                topCategories.map((category) => category.name),
+                creatorNames.map((name) => `${name} Mii`),
+                featuredNames.map((name) => `${name} Mii`)
+            ]).join(', ');
+            const pageRobots = totalUploaded > 0 ? undefined : 'noindex, follow, noarchive';
+            const breadcrumbs = [
+                { name: 'Home', url: '/' },
+                { name: 'Creators', url: '/search' },
+                { name: targetUser.username, url: `/user/${encodeURIComponent(targetUser.username)}` }
+            ];
+            const schemaType = 'ProfilePage';
+            const listOffset = ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
+            const uploaderSearchUrl = `/searchResults?q=${encodeURIComponent(targetUser.username)}&searchFieldsConfigured=1&searchIn=uploader`;
+            const faqEntries = totalUploaded > 0
+                ? [
+                    {
+                        question: `What kind of Miis does ${targetUser.username} upload?`,
+                        answer: `${targetUser.username} has published ${totalUploaded} public Miis on InfiniMii.${topTags.length > 0 ? ` Frequent tags include ${topTags.slice(0, 5).join(', ')}.` : ''}${topCategories.length > 0 ? ` Official archive categories include ${topCategories.slice(0, 4).map((category) => category.name).join(', ')}.` : ''}${creatorNames.length > 0 ? ` Creator names found in this archive include ${creatorNames.slice(0, 5).join(', ')}.` : ''}`
+                    },
+                    {
+                        question: `How many Miis has ${targetUser.username} published?`,
+                        answer: `${targetUser.username} has ${totalUploaded} public Mii character${totalUploaded === 1 ? '' : 's'} on InfiniMii with ${totalLikes} total likes.${officialCount > 0 ? ` ${officialCount} of those are official archive entries.` : ''}${communityCount > 0 ? ` ${communityCount} are community uploads.` : ''}`
+                    },
+                    {
+                        question: `How do I browse all Miis from ${targetUser.username}?`,
+                        answer: `Use this profile page to browse the archive grid, or run an uploader search for ${targetUser.username} to jump directly into search results filtered to this creator.`
+                    }
+                ]
+                : [];
+            const schemaGraphs = [];
+            if (!pageRobots) {
+                schemaGraphs.push({
+                    "@context": "https://schema.org",
+                    "@type": "Person",
+                    "name": targetUser.username,
+                    "url": `${baseUrl}/user/${encodeURIComponent(targetUser.username)}`,
+                    "image": ogImage,
+                    "description": pageDesc,
+                    "knowsAbout": normalizeKeywordList([
+                        topTags,
+                        topCategories.map((category) => category.name),
+                        creatorNames
+                    ]).slice(0, 20),
+                    "interactionStatistic": {
+                        "@type": "InteractionCounter",
+                        "interactionType": "https://schema.org/LikeAction",
+                        "userInteractionCount": totalLikes
+                    }
+                });
+                schemaGraphs.push({
+                    "@context": "https://schema.org",
+                    "@type": "CollectionPage",
+                    "name": `${targetUser.username}'s Mii archive`,
+                    "url": canonicalUrl,
+                    "description": pageDesc,
+                    "about": {
+                        "@type": "Person",
+                        "name": targetUser.username,
+                        "url": `${baseUrl}/user/${encodeURIComponent(targetUser.username)}`
+                    },
+                    "keywords": keywords
+                });
+            }
+            if (!pageRobots && Array.isArray(displayedMiis) && displayedMiis.length > 0) {
+                schemaGraphs.push({
+                    "@context": "https://schema.org",
+                    "@type": "ItemList",
+                    "name": `${targetUser.username}'s Miis`,
+                    "numberOfItems": pagination?.total || displayedMiis.length,
+                    "itemListElement": displayedMiis
+                        .filter((miiItem) => miiItem && miiItem.id)
+                        .map((miiItem, index) => ({
+                            "@type": "ListItem",
+                            "position": listOffset + index + 1,
+                            "url": `${baseUrl}/mii/${miiItem.id}`,
+                            "name": miiItem?.meta?.name || miiItem?.name || 'Unknown Mii'
+                        }))
+                });
+            }
+            if (!pageRobots && faqEntries.length > 0) {
+                schemaGraphs.push({
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": faqEntries.map((entry) => ({
+                        "@type": "Question",
+                        "name": entry.question,
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": entry.answer
+                        }
+                    }))
+                });
+            }
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, keywords, pageRobots, prevUrl, nextUrl }) %>
+        <%- include('structuredData') %>
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/profile.css">
     </head>
@@ -17,15 +176,7 @@
         <div class="content">
             <%- include('sidebar') %>
             <div class="profile-container">
-                <%
-                    const totalUploaded = (profileStats && typeof profileStats.totalMiis === 'number')
-                        ? profileStats.totalMiis
-                        : displayedMiis.length;
-                    const totalLikes = (profileStats && typeof profileStats.totalLikes === 'number')
-                        ? profileStats.totalLikes
-                        : displayedMiis.reduce((sum, mii) => sum + (mii.votes || 0), 0);
-                    const profileBasePath = '/user/' + encodeURIComponent(targetUser.username);
-                %>
+                <% const profileBasePath = '/user/' + encodeURIComponent(targetUser.username); %>
                 <!-- Profile Header -->
                 <div class="profile-header">
                     <a class="profile-avatar-link" href="/mii/<%= targetUser.miiPfp || '00000' %>" title="View <%= targetUser.username %>'s profile Mii">
@@ -68,17 +219,103 @@
                                     <%= totalLikes %>
                                 </span>
                             </div>
-                            <% if(targetUser.joinedOn) { %>
+                            <div class="stat-item">
+                                <span class="stat-label">Official Miis</span>
+                                <span class="stat-value">
+                                    <%= officialCount %>
+                                </span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Community Miis</span>
+                                <span class="stat-value">
+                                    <%= communityCount %>
+                                </span>
+                            </div>
+                            <% if(memberSinceLabel) { %>
                                 <div class="stat-item">
                                     <span class="stat-label">Member Since</span>
                                     <span class="stat-value">
-                                        <%= new Date(targetUser.joinedOn).toLocaleDateString('en-US', {
-                                            year: 'numeric' , month: 'short' })%>
+                                        <%= memberSinceLabel %>
+                                    </span>
+                                </div>
+                            <% } %>
+                            <% if(latestUploadLabel) { %>
+                                <div class="stat-item">
+                                    <span class="stat-label">Latest Upload</span>
+                                    <span class="stat-value">
+                                        <%= latestUploadLabel %>
                                     </span>
                                 </div>
                             <% } %>
                         </div>
                     </div>
+                </div>
+
+                <div class="profile-discovery">
+                    <section class="profile-panel" aria-labelledby="profile-summary-heading">
+                        <h2 id="profile-summary-heading">About <%= targetUser.username %>'s Mii Archive</h2>
+                        <p><%= profileLead %></p>
+                        <% if(profileArchiveSummary) { %>
+                            <p><%= profileArchiveSummary %></p>
+                        <% } %>
+                        <% if(themeSummary || categorySummary || featuredSummary) { %>
+                            <p><%= `${themeSummary} ${categorySummary} ${featuredSummary}`.replace(/\s+/g, ' ').trim() %></p>
+                        <% } %>
+                    </section>
+
+                    <section class="profile-panel" aria-labelledby="profile-topics-heading">
+                        <h2 id="profile-topics-heading">Search Topics And Archive Themes</h2>
+                        <p>Browse this creator by uploader name, recurring tags, official categories, creator names, and standout character uploads.</p>
+                        <div class="profile-chip-list">
+                            <a class="profile-chip" href="<%= uploaderSearchUrl %>"><%= targetUser.username %> uploader search</a>
+                            <% topTags.forEach((tag) => { %>
+                                <a class="profile-chip" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                            <% }) %>
+                            <% topCategories.forEach((category) => { %>
+                                <a class="profile-chip" href="<%= category.url %>"><%= category.name %></a>
+                            <% }) %>
+                            <% creatorNames.forEach((name) => { %>
+                                <a class="profile-chip" href="/searchResults?q=<%= encodeURIComponent(name) %>&searchFieldsConfigured=1&searchIn=name"><%= name %></a>
+                            <% }) %>
+                            <% featuredNames.forEach((name) => { %>
+                                <a class="profile-chip" href="/searchResults?q=<%= encodeURIComponent(name) %>&searchFieldsConfigured=1&searchIn=name"><%= name %></a>
+                            <% }) %>
+                        </div>
+                    </section>
+
+                    <% if(profileFeaturedMiis.length > 0) { %>
+                        <section class="profile-panel" aria-labelledby="profile-featured-heading">
+                            <h2 id="profile-featured-heading">Popular Uploads From <%= targetUser.username %></h2>
+                            <p>These uploads are currently the strongest search and discovery signals on this profile.</p>
+                            <div class="profile-featured-grid">
+                                <% profileFeaturedMiis.forEach((featuredMii) => { %>
+                                    <article class="profile-featured-card" style="--favorite-color: <%= decodeColor(featuredMii.general?.favoriteColor) || decodeColor(0) %>;">
+                                        <a class="profile-featured-image" href="/mii/<%= featuredMii.id %>">
+                                            <img src="/miiImgs/<%= featuredMii.id %>.png" alt="<%= featuredMii.meta?.name || featuredMii.name %> Mii character">
+                                        </a>
+                                        <div class="profile-featured-body">
+                                            <h3><a href="/mii/<%= featuredMii.id %>"><%= featuredMii.meta?.name || featuredMii.name %></a></h3>
+                                            <p><%= featuredMii.desc && featuredMii.desc.length > 92 ? `${featuredMii.desc.slice(0, 89)}...` : (featuredMii.desc || `${featuredMii.meta?.name || featuredMii.name} Mii character`) %></p>
+                                        </div>
+                                    </article>
+                                <% }) %>
+                            </div>
+                        </section>
+                    <% } %>
+
+                    <% if(faqEntries.length > 0) { %>
+                        <section class="profile-panel" aria-labelledby="profile-faq-heading">
+                            <h2 id="profile-faq-heading">Questions About This Creator</h2>
+                            <div class="profile-faq-list">
+                                <% faqEntries.forEach((entry) => { %>
+                                    <article class="profile-faq-item">
+                                        <h3><%= entry.question %></h3>
+                                        <p><%= entry.answer %></p>
+                                    </article>
+                                <% }) %>
+                            </div>
+                        </section>
+                    <% } %>
                 </div>
 
                 <!-- Moderator Tools for Profiles -->
@@ -171,8 +408,11 @@
                 <!-- Profile Content -->
                 <div class="profile-content">
                     <h2 class="profile-section-title">
-                        <%= targetUser.username %>'s Miis
+                        Latest Uploads From <%= targetUser.username %>
                     </h2>
+                    <% if(totalUploaded > 0) { %>
+                        <p class="profile-section-copy">This grid lists the public Miis on <%= targetUser.username %>'s profile in reverse chronological order, with older uploads available through pagination.</p>
+                    <% } %>
 
                     <% if(displayedMiis.length> 0) { %>
                         <div id="browse-miis">

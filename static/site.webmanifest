@@ -1,0 +1,16 @@
+{
+  "name": "InfiniMii",
+  "short_name": "InfiniMii",
+  "description": "Browse, convert, and share Nintendo Mii characters.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E0C10",
+  "theme_color": "#ff0000",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

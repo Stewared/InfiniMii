@@ -6,10 +6,13 @@
         const pageDesc = `Terms of Service for using InfiniMii`;
         const canonicalUrl = baseUrl + '/tos';
         const keywords = 'terms of service, tos, privacy policy';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Terms of Service', url: '/tos' }
+        ];
         %>
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
-        <%- include('faqSchema') %>
         
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/utilityPages.css">
@@ -27,7 +30,7 @@
             <%- include('sidebar') %>
             
             <div class="guide-container">
-                <h2>Terms of Service</h2>
+                <h1>Terms of Service</h1>
                 <article>
                     <h2>Introduction</h2>
                     <p>InfiniMii is a website designed to provide an interface for working with Nintendo's Mii characters in as many capacities as possible. It is not necessary to modify your console or system in any way to interact with InfiniMii to the fullest, but it is designed to fully interface with and be an extension of and enhancement of these consoles, and in no way a replacement for them.</p>

@@ -12,9 +12,46 @@ const firstNonEmpty = (...values) => {
     return undefined;
 };
 
+const toTrimmedString = (value) => typeof value === 'string' ? value.trim() : '';
+
 const resolvedBaseUrl = typeof baseUrl === 'string' && baseUrl.trim()
     ? baseUrl.replace(/\/+$/, '')
     : '';
+const rawCurrentPath = typeof currentPath === 'string' && currentPath.trim()
+    ? currentPath.trim()
+    : '/';
+const currentPathValue = rawCurrentPath.startsWith('/') ? rawCurrentPath : `/${rawCurrentPath}`;
+const currentPathWithoutHash = currentPathValue.split('#')[0];
+const currentPathname = currentPathWithoutHash.split('?')[0] || '/';
+const noindexByDefaultPaths = new Set([
+    '/login',
+    '/signup',
+    '/requestPasswordReset',
+    '/resetPassword',
+    '/settings',
+    '/myPrivateMiis',
+    '/manageCategories',
+    '/error'
+]);
+
+const toAbsoluteUrl = (value, fallbackPath = '/') => {
+    const trimmed = toTrimmedString(value);
+    if (!trimmed) {
+        if (!resolvedBaseUrl) return fallbackPath;
+        return fallbackPath.startsWith('/')
+            ? `${resolvedBaseUrl}${fallbackPath}`
+            : `${resolvedBaseUrl}/${fallbackPath.replace(/^\/+/, '')}`;
+    }
+
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    if (!resolvedBaseUrl) {
+        return trimmed.startsWith('/') ? trimmed : `/${trimmed.replace(/^\/+/, '')}`;
+    }
+
+    return trimmed.startsWith('/')
+        ? `${resolvedBaseUrl}${trimmed}`
+        : `${resolvedBaseUrl}/${trimmed.replace(/^\/+/, '')}`;
+};
 
 // Support both legacy (`title`/`description`) and page-local (`pageTitle`/`pageDesc`) naming.
 const resolvedPageTitle = firstNonEmpty(
@@ -27,13 +64,19 @@ const resolvedPageDesc = firstNonEmpty(
     typeof description !== 'undefined' ? description : undefined,
     'Create, convert, and share Mii characters'
 );
-const resolvedPageUrl = firstNonEmpty(
-    typeof canonicalUrl !== 'undefined' ? canonicalUrl : undefined,
-    resolvedBaseUrl ? `${resolvedBaseUrl}/` : '/'
+const resolvedPageUrl = toAbsoluteUrl(
+    firstNonEmpty(
+        typeof canonicalUrl !== 'undefined' ? canonicalUrl : undefined,
+        currentPathWithoutHash
+    ),
+    '/'
 );
-const resolvedPageImage = firstNonEmpty(
-    typeof ogImage !== 'undefined' ? ogImage : undefined,
-    resolvedBaseUrl ? `${resolvedBaseUrl}/og-image.jpg` : '/og-image.jpg'
+const resolvedPageImage = toAbsoluteUrl(
+    firstNonEmpty(
+        typeof ogImage !== 'undefined' ? ogImage : undefined,
+        '/banner.png'
+    ),
+    '/banner.png'
 );
 const resolvedPageType = firstNonEmpty(
     typeof ogType !== 'undefined' ? ogType : undefined,
@@ -44,6 +87,32 @@ const resolvedPageKeywords = firstNonEmpty(
     typeof keywords !== 'undefined' ? keywords : undefined,
     'mii, mii characters, nintendo'
 );
+const resolvedPageImageAlt = firstNonEmpty(
+    typeof ogImageAlt !== 'undefined' ? ogImageAlt : undefined,
+    resolvedPageTitle
+);
+const resolvedPublishedTime = firstNonEmpty(
+    typeof publishedTime !== 'undefined' ? publishedTime : undefined,
+    typeof datePublished !== 'undefined' ? datePublished : undefined
+);
+const resolvedModifiedTime = firstNonEmpty(
+    typeof modifiedTime !== 'undefined' ? modifiedTime : undefined,
+    typeof dateModified !== 'undefined' ? dateModified : undefined,
+    typeof pageUpdatedAt !== 'undefined' ? pageUpdatedAt : undefined
+);
+const isSearchResultsPage = currentPathname === '/searchResults';
+const isRandomPage = currentPathname === '/random';
+const defaultNoindex = noindexByDefaultPaths.has(currentPathname) || isSearchResultsPage || isRandomPage;
+const resolvedRobots = firstNonEmpty(
+    typeof robots !== 'undefined' ? robots : undefined,
+    typeof pageRobots !== 'undefined' ? pageRobots : undefined,
+    defaultNoindex
+        ? 'noindex, follow, noarchive'
+        : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+);
+const resolvedPrevUrl = typeof prevUrl !== 'undefined' ? toAbsoluteUrl(prevUrl) : '';
+const resolvedNextUrl = typeof nextUrl !== 'undefined' ? toAbsoluteUrl(nextUrl) : '';
+const resolvedTwitterSite = toTrimmedString(typeof twitterSite !== 'undefined' ? twitterSite : '');
 const openSearchUrl = `${resolvedBaseUrl}/opensearch.xml`;
 %>
 
@@ -54,11 +123,18 @@ const openSearchUrl = `${resolvedBaseUrl}/opensearch.xml`;
 <meta name="description" content="<%= resolvedPageDesc %>">
 <meta name="keywords" content="<%= resolvedPageKeywords %>">
 <meta name="author" content="InfiniMii">
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<meta name="application-name" content="InfiniMii">
+<meta name="robots" content="<%= resolvedRobots %>">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 
 <!-- Canonical URL -->
 <link rel="canonical" href="<%= resolvedPageUrl %>">
 <link rel="search" type="application/opensearchdescription+xml" title="InfiniMii Search" href="<%= openSearchUrl %>">
+<link rel="alternate" type="text/plain" href="/humans.txt" title="InfiniMii Humans">
+<link rel="alternate" type="text/markdown" href="/llms.txt" title="InfiniMii LLM Guide">
+<link rel="manifest" href="/site.webmanifest">
+<% if (resolvedPrevUrl) { %><link rel="prev" href="<%= resolvedPrevUrl %>"><% } %>
+<% if (resolvedNextUrl) { %><link rel="next" href="<%= resolvedNextUrl %>"><% } %>
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="<%= resolvedPageType %>">
@@ -68,9 +144,11 @@ const openSearchUrl = `${resolvedBaseUrl}/opensearch.xml`;
 <meta property="og:image" content="<%= resolvedPageImage %>">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="<%= resolvedPageTitle %>">
+<meta property="og:image:alt" content="<%= resolvedPageImageAlt %>">
 <meta property="og:site_name" content="<%= siteName %>">
 <meta property="og:locale" content="en_US">
+<% if (resolvedPublishedTime) { %><meta property="article:published_time" content="<%= resolvedPublishedTime %>"><% } %>
+<% if (resolvedModifiedTime) { %><meta property="article:modified_time" content="<%= resolvedModifiedTime %>"><% } %>
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
@@ -78,14 +156,15 @@ const openSearchUrl = `${resolvedBaseUrl}/opensearch.xml`;
 <meta name="twitter:title" content="<%= resolvedPageTitle %>">
 <meta name="twitter:description" content="<%= resolvedPageDesc %>">
 <meta name="twitter:image" content="<%= resolvedPageImage %>">
-<meta name="twitter:image:alt" content="<%= resolvedPageTitle %>">
+<meta name="twitter:image:alt" content="<%= resolvedPageImageAlt %>">
+<% if (resolvedTwitterSite) { %><meta name="twitter:site" content="<%= resolvedTwitterSite %>"><% } %>
 
 <!-- Additional SEO Tags -->
 <meta name="theme-color" content="#ff0000">
-<link rel="icon" type="image/png" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/favicon.ico">
 
 <!-- Preload critical resources -->
+<link rel="preload" as="font" href="/fonts/poppins-v20-latin-regular.woff2" type="font/woff2" crossorigin>
+<link rel="preload" as="font" href="/fonts/poppins-v20-latin-500.woff2" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="/banner.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="dns-prefetch" href="https://fonts.googleapis.com">

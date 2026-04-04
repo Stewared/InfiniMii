@@ -1,10 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title><%= title %></title>
-        <link rel="stylesheet" href="global.css">
-        <link rel="stylesheet" href="utilityPages.css">
-        <link rel="stylesheet" href="official.css">
+        <%
+            const currentPageNumber = pagination?.currentPage || 1;
+            const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
+            const pageTitle = currentFilter
+                ? `Official Mii Characters in ${currentFilter}${pageSuffix} - InfiniMii`
+                : `Official Nintendo Mii Characters${pageSuffix} - InfiniMii`;
+            const pageDesc = currentFilter
+                ? `Browse official Mii characters filed under ${currentFilter} on InfiniMii.`
+                : 'Browse official Nintendo Mii characters from games, promotions, and system sources preserved on InfiniMii.';
+            const canonicalQuery = currentFilter
+                ? `${currentPageNumber > 1 ? `?category=${encodeURIComponent(currentFilter)}&page=${currentPageNumber}` : `?category=${encodeURIComponent(currentFilter)}`}`
+                : (currentPageNumber > 1 ? `?page=${currentPageNumber}` : '');
+            const canonicalUrl = `${baseUrl}/official${canonicalQuery}`;
+            const keywords = currentFilter
+                ? `official miis, ${currentFilter}, nintendo miis`
+                : 'official miis, official nintendo miis, preserved miis';
+            const breadcrumbs = [
+                { name: 'Home', url: '/' },
+                { name: 'Official Miis', url: '/official' }
+            ];
+            if (currentFilter) {
+                breadcrumbs.push({ name: currentFilter, url: `/official?category=${encodeURIComponent(currentFilter)}` });
+            }
+            const schemaType = 'CollectionPage';
+            const listOffset = ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
+            const schemaGraphs = Array.isArray(displayedMiis) && displayedMiis.length > 0
+                ? [{
+                    "@context": "https://schema.org",
+                    "@type": "ItemList",
+                    "name": currentFilter ? `Official Miis in ${currentFilter}` : 'Official Mii Characters',
+                    "numberOfItems": pagination?.total || displayedMiis.length,
+                    "itemListElement": displayedMiis
+                        .filter((miiItem) => miiItem && miiItem.id)
+                        .map((miiItem, index) => ({
+                            "@type": "ListItem",
+                            "position": listOffset + index + 1,
+                            "url": `${baseUrl}/mii/${miiItem.id}`,
+                            "name": miiItem?.meta?.name || miiItem?.name || 'Unknown Mii'
+                        }))
+                }]
+                : [];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords, prevUrl, nextUrl }) %>
+        <%- include('structuredData') %>
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+        <link rel="stylesheet" href="/official.css">
     </head>
     <body>
         <%- include('globalStyle') %>

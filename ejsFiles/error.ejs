@@ -4,12 +4,12 @@
         <%
         const pageTitle = 'Error - InfiniMii';
         const pageDesc = 'If you landed here, something went wrong.';
-        const canonicalUrl = baseUrl + '/search';
+        const canonicalUrl = baseUrl + '/error';
         const keywords = 'search mii, find mii character, mii database, mii search engine';
+        const pageRobots = 'noindex, nofollow, noarchive';
         %>
-        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords, pageRobots }) %>
         <%- include('structuredData') %>
-        <%- include('faqSchema') %>
         
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/utilityPages.css">

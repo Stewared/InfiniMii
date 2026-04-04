@@ -6,8 +6,9 @@
         const pageDesc = 'Share your custom Mii characters with the InfiniMii community. Upload Miis from Wii, 3DS, Wii U, or scan QR codes to contribute to our growing repository.';
         const canonicalUrl = `${baseUrl}/upload`;
         const keywords = 'upload mii, share mii, mii community, submit mii character';
+        const pageRobots = 'noindex, nofollow, noarchive';
         %>
-        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords, pageRobots }) %>
         <%- include('structuredData') %>
         <link rel='stylesheet' href="/global.css">
         <link rel="stylesheet" href="/utilityPages.css">
@@ -173,7 +174,7 @@
                             <div class="official-fields-card official-categories-panel">
                                 <div class="official-fields-header">
                                     <h4 class="official-fields-title">Official Mii Categories</h4>
-                                    <a href="/manageCategories" target="_blank" class="manage-cats-link">
+                                    <a href="/manageCategories" target="_blank" rel="noopener noreferrer" class="manage-cats-link">
                                         <%- include('icon', { name: 'folders', size: 16 }) %> Manage Categories
                                     </a>
                                 </div>
@@ -254,7 +255,7 @@
                     const container = document.getElementById('officialCategoriesContainer');
 
                     if (uploadOfficialCategories.length === 0) {
-                        container.innerHTML = '<p class="upload-category-state upload-category-state-empty">No categories available. <a href="/manageCategories" target="_blank">Create some!</a></p>';
+                        container.innerHTML = '<p class="upload-category-state upload-category-state-empty">No categories available. <a href="/manageCategories" target="_blank" rel="noopener noreferrer">Create some!</a></p>';
                         return;
                     }
 

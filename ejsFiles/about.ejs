@@ -6,6 +6,11 @@
         const pageDesc = 'InfiniMii is the most comprehensive Mii character repository and toolkit. Convert, share, and download Miis for all Nintendo systems. Learn about our mission and features.';
         const canonicalUrl = `${baseUrl}/about`;
         const keywords = 'about infinimii, mii platform, mii repository, mii community';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'About', url: '/about' }
+        ];
+        const schemaType = 'AboutPage';
         %>
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
@@ -30,7 +35,7 @@
             <article class="about-article guide-container">
                 
                 <article class="intro-article">
-                    <h2>About InfiniMii</h2>
+                    <h1>About InfiniMii</h1>
                     <p class="lead">InfiniMii is the most comprehensive platform for Mii characters, supporting every Nintendo system from the original Wii to the Nintendo Switch 2 and beyond. Convert to and from any format, generate and read QR codes, work with Miis stored on Amiibos, make Special Miis, store, share, and download Miis, and more! All without ever modding your console! InfiniMii is the number one tool for Miis.</p>
                 </article>
                 
@@ -121,7 +126,7 @@
                         <li><strong>Further Development</strong> - We're open source! Contribute to improving InfiniMii and the MiiJS library that powers it!</li>
                         <li><strong>Community Sharing</strong> - Share your best creations with fellow enthusiasts</li>
                     </ul>
-                    <a href="<%= discordInvite %>" class="btn-secondary" target="_blank" rel="noopener">Join Our Discord</a>
+                    <a href="<%= discordInvite %>" class="btn-secondary" target="_blank" rel="noopener noreferrer">Join Our Discord</a>
                 </article>
                 
                 <article class="technology-article">
@@ -136,7 +141,7 @@
                         <li>Do everything InfiniMii does, from your own project!</li>
                     </ul>
                     <p>MiiJS is available on GitHub and NPM for developers who want to build their own Mii applications.</p>
-                    <a href="https://github.com/Stewared/MiiJS" class="btn-secondary" target="_blank" rel="noopener">View MiiJS on GitHub</a>
+                    <a href="https://github.com/Stewared/MiiJS" class="btn-secondary" target="_blank" rel="noopener noreferrer">View MiiJS on GitHub</a>
                 </article>
 
                 <article class="open-source-article">

@@ -8,10 +8,16 @@
     const pageTitle = 'Cite InfiniMii - Reference & Attribution Guide';
     const pageDesc = 'How to cite InfiniMii as a source for Mii character information, research, and data. Includes proper attribution, links, and usage guidelines.';
     const canonicalUrl = `${baseUrl}/cite`;
+    const breadcrumbs = [
+        { name: 'Home', url: '/' },
+        { name: 'Cite InfiniMii', url: '/cite' }
+    ];
+    const currentYear = new Date().getFullYear();
     %>
     <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl }) %>
+    <%- include('structuredData') %>
     
-    <link rel="stylesheet" href="./global.css">
+    <link rel="stylesheet" href="/global.css">
 </head>
 <body>
     <%- include('globalStyle') %>
@@ -31,17 +37,17 @@
                 
                 <h3>General Citation</h3>
                 <div class="citation-box">
-                    <code>InfiniMii. (2025). The Ultimate Mii Character Repository. Retrieved from <%= baseUrl %></code>
+                    <code>InfiniMii. (<%= currentYear %>). The Ultimate Mii Character Repository. Retrieved from <%= baseUrl %></code>
                 </div>
                 
                 <h3>For Specific Tools</h3>
                 <div class="citation-box">
-                    <code>InfiniMii Mii Converter. (2025). Free Online Mii Format Conversion Tool. Retrieved from <%= baseUrl %>/convert</code>
+                    <code>InfiniMii Mii Converter. (<%= currentYear %>). Free Online Mii Format Conversion Tool. Retrieved from <%= baseUrl %>/convert</code>
                 </div>
                 
                 <h3>For Transfer Guides</h3>
                 <div class="citation-box">
-                    <code>InfiniMii. (2025). Complete Guide: Transferring Miis Between Nintendo Systems. Retrieved from <%= baseUrl %>/guides/transfer</code>
+                    <code>InfiniMii. (<%= currentYear %>). Complete Guide: Transferring Miis Between Nintendo Systems. Retrieved from <%= baseUrl %>/guides/transfer</code>
                 </div>
             </section>
             
@@ -66,7 +72,7 @@
                 <h2>Data Accuracy & Updates</h2>
                 <p>InfiniMii maintains the most up-to-date information on:</p>
                 <ul>
-                    <li><strong>Mii Format Specifications</strong> - Current as of 2025</li>
+                    <li><strong>Mii Format Specifications</strong> - Current as of <%= currentYear %></li>
                     <li><strong>System Compatibility</strong> - Updated with each Nintendo release</li>
                     <li><strong>Transfer Methods</strong> - Verified procedures for all systems</li>
                     <li><strong>Official Mii Database</strong> - Continuously updated collection</li>
@@ -77,8 +83,8 @@
                 <h2>For Media & Research Inquiries</h2>
                 <p>If you're writing about Mii characters, Nintendo avatar systems, or need expert commentary:</p>
                 <ul>
-                    <li>Join our Discord: <a href="https://discord.gg/your-discord" target="_blank" rel="noopener">discord.gg/your-discord</a></li>
-                    <li>View our GitHub: <a href="https://github.com/Stewared/MiiJS" target="_blank" rel="noopener">github.com/Stewared/MiiJS</a></li>
+                    <li>Join our Discord: <a href="<%= discordInvite %>" target="_blank" rel="noopener noreferrer"><%= discordInvite %></a></li>
+                    <li>View our GitHub: <a href="https://github.com/Stewared/MiiJS" target="_blank" rel="noopener noreferrer">github.com/Stewared/MiiJS</a></li>
                     <li>Reference our documentation: <a href="/faq">InfiniMii FAQ</a></li>
                 </ul>
             </section>

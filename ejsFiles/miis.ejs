@@ -1,12 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>
-            <%= title %>
-        </title>
-        <link rel="search" type="application/opensearchdescription+xml" title="InfiniMii Search" href="/opensearch.xml">
-        <link href="./global.css" rel="stylesheet">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <%
+            const currentPathName = currentPath.split('?')[0];
+            const currentPageNumber = pagination?.currentPage || 1;
+            const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
+            const hasSelectedTags = Array.isArray(selectedTags) && selectedTags.length > 0;
+            const tagSummary = hasSelectedTags ? selectedTags.join(', ') : '';
+            const safeSearchQuery = typeof searchQuery === 'string' ? searchQuery.trim() : '';
+            const canonicalUrl = `${baseUrl}${currentPath}`;
+            const breadcrumbs = [{ name: 'Home', url: '/' }];
+            let pageTitle = title || 'Browse Mii Characters - InfiniMii';
+            let pageDesc = 'Browse Mii characters from the InfiniMii collection, including official Nintendo Miis and community uploads.';
+            let keywords = 'mii characters, browse miis, nintendo miis, download miis';
+            let pageRobots;
+            let introHeading = 'Browse Mii Characters';
+            let introBody = 'Explore Mii characters from the InfiniMii collection, then open any page to download exports, QR codes, and recreation details.';
+
+            if (currentPathName === '/trending') {
+                pageTitle = `Trending Mii Characters${pageSuffix} - InfiniMii`;
+                pageDesc = 'Browse the Mii characters currently getting the most attention on InfiniMii.';
+                keywords = 'trending miis, popular mii characters, hot miis';
+                introHeading = 'Trending Mii Characters';
+                introBody = 'These Miis are attracting the most attention right now across the InfiniMii community.';
+                breadcrumbs.push({ name: 'Trending', url: '/trending' });
+            } else if (currentPathName === '/top') {
+                pageTitle = `Top Rated Mii Characters${pageSuffix} - InfiniMii`;
+                pageDesc = 'Browse the highest-rated Mii characters on InfiniMii, including fan favorites and standout recreations.';
+                keywords = 'top miis, best mii characters, top rated miis';
+                introHeading = 'Top Rated Mii Characters';
+                introBody = 'Browse the highest-rated Miis on InfiniMii, from fan favorites to standout recreations.';
+                breadcrumbs.push({ name: 'Top Miis', url: '/top' });
+            } else if (currentPathName === '/recent') {
+                pageTitle = `Recent Mii Uploads${pageSuffix} - InfiniMii`;
+                pageDesc = 'See the latest Mii character uploads added to InfiniMii.';
+                keywords = 'recent miis, latest mii uploads, new mii characters';
+                introHeading = 'Recent Mii Uploads';
+                introBody = 'See the newest Mii characters uploaded to the site, including fresh recreations and recent official additions.';
+                breadcrumbs.push({ name: 'Recent', url: '/recent' });
+            } else if (currentPathName === '/random') {
+                pageTitle = `Random Mii Characters${pageSuffix} - InfiniMii`;
+                pageDesc = 'Explore a random set of Mii characters from the InfiniMii database.';
+                keywords = 'random miis, surprise mii characters, explore miis';
+                pageRobots = 'noindex, follow, noarchive';
+                introHeading = 'Random Mii Characters';
+                introBody = 'A random roll from the InfiniMii archive for quick discovery and inspiration.';
+                breadcrumbs.push({ name: 'Random', url: '/random' });
+            } else if (currentPathName === '/searchResults') {
+                pageTitle = safeSearchQuery
+                    ? `Search Results for ${safeSearchQuery}${pageSuffix} - InfiniMii`
+                    : `Search Results${pageSuffix} - InfiniMii`;
+                pageDesc = safeSearchQuery
+                    ? `Search results for "${safeSearchQuery}" on InfiniMii${hasSelectedTags ? ` with tags: ${tagSummary}.` : '.'}`
+                    : 'Search results from the InfiniMii Mii character database.';
+                keywords = `search miis, mii search results${safeSearchQuery ? `, ${safeSearchQuery}` : ''}${tagSummary ? `, ${tagSummary}` : ''}`;
+                pageRobots = 'noindex, follow, noarchive';
+                introHeading = safeSearchQuery ? `Search Results for "${safeSearchQuery}"` : 'Search Results';
+                introBody = hasSelectedTags
+                    ? `Filtering the InfiniMii archive by search text and tags: ${tagSummary}.`
+                    : 'Filtering the InfiniMii archive by your requested search terms.';
+                breadcrumbs.push({ name: 'Search', url: '/search' });
+            }
+
+            const listOffset = ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
+            const schemaType = 'CollectionPage';
+            const schemaGraphs = (!pageRobots && Array.isArray(displayedMiis) && displayedMiis.length > 0)
+                ? [{
+                    "@context": "https://schema.org",
+                    "@type": "ItemList",
+                    "name": introHeading,
+                    "numberOfItems": pagination?.total || displayedMiis.length,
+                    "itemListElement": displayedMiis
+                        .filter((miiItem) => miiItem && miiItem.id)
+                        .map((miiItem, index) => ({
+                            "@type": "ListItem",
+                            "position": listOffset + index + 1,
+                            "url": `${baseUrl}/mii/${miiItem.id}`,
+                            "name": miiItem?.meta?.name || miiItem?.name || 'Unknown Mii'
+                        }))
+                }]
+                : [];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords, pageRobots, prevUrl, nextUrl }) %>
+        <%- include('structuredData') %>
+        <link href="/global.css" rel="stylesheet">
     </head>
 
     <body>
@@ -16,6 +93,10 @@
         <div class="content">
             <%- include('sidebar') %>
             <div class="main-content">
+                <section class="browse-page-intro" aria-labelledby="browse-heading">
+                    <h1 id="browse-heading"><%= introHeading %></h1>
+                    <p><%= introBody %></p>
+                </section>
                 <%
                     const selectedTagParams = Array.isArray(selectedTags) ? selectedTags : [];
                     const encodedTagQuery = selectedTagParams.map(tag => '&tags=' + encodeURIComponent(tag)).join('');
@@ -92,7 +173,7 @@
                     <% } %>
                 </div>
 
-                <% if (pagination && pagination.totalPages > 1 && !title.toLowerCase().includes("random")) { %>
+                <% if (pagination && pagination.totalPages > 1 && !pageTitle.toLowerCase().includes("random")) { %>
                     <div class="pagination">
                         <% if (pagination.currentPage > 1) { %>
                             <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %>" class="pagination-btn">&larr; Previous</a>

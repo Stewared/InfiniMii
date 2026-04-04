@@ -1,20 +1,19 @@
 # robots.txt for InfiniMii
 User-agent: *
 Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /requestPasswordReset
+Disallow: /resetPassword
+Disallow: /settings
+Disallow: /upload
+Disallow: /myPrivateMiis
+Disallow: /manageCategories
+Disallow: /privateMiiImgs
+Disallow: /privateMiiQRs
 
-# Allow search engines to crawl images
-Allow: /mii/
-Allow: /miiImgs/
-Allow: /miiQRs/
+Sitemap: https://infinimii.com/sitemap.xml
 
-# Sitemap location
-Sitemap: https://infimii.com/sitemap.xml
-Sitemap: https://infimii.com/sitemap-miis.xml
-Sitemap: https://infimii.com/sitemap-users.xml
-
-# Crawl-delay for specific bots (optional, helps with server load)
-User-agent: GPTBot
-Crawl-delay: 2
-
-User-agent: CCBot
-Crawl-delay: 2
+# LLM-friendly summary files
+# https://infinimii.com/llms.txt
+# https://infinimii.com/llms-full.txt

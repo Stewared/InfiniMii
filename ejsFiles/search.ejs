@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <%
         const pageTitle = 'Search Mii Characters - InfiniMii';
         const pageDesc = 'Search our vast collection of Mii characters for all Nintendo systems. Find official Nintendo Miis, community creations, and celebrity Miis for Wii, 3DS, Wii U, and Switch.';
         const canonicalUrl = baseUrl + '/search';
         const keywords = 'search mii, find mii character, mii database, mii search engine';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Search', url: '/search' }
+        ];
         %>
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
-        <%- include('faqSchema') %>
         
-        <link rel="stylesheet" href="./global.css">
-        <link rel="stylesheet" href="utilityPages.css">
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
     </head>
     <body>
         <%- include('globalStyle') %>
@@ -21,9 +24,13 @@
         <main class="content" role="main">
             <%- include('sidebar') %>
             <section class="utility-container" aria-labelledby="search-heading">
+                <header class="search-page-intro">
+                    <h1>Search Mii Characters</h1>
+                    <p>Search by character name, uploader, description, and tags to find Miis anywhere in the InfiniMii archive.</p>
+                </header>
                 <form method="GET" action="/searchResults" role="search">
                     <fieldset>
-                        <legend id="search-heading">Search Mii Characters</legend>
+                        <legend id="search-heading">Search Filters</legend>
                         <label for="search-query" class="sr-only">Enter character name or keywords</label>
                         <input name="q" autocomplete="off" placeholder="Search by text..." type="search" id="search-query" value="<%= query.q || '' %>">
                         <%- include('searchFieldFilters', { selectedSearchFields, searchFieldsExplicitlyConfigured, searchFieldUiIdPrefix: 'search-page-fields' }) %>

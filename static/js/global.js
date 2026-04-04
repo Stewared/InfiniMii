@@ -203,16 +203,37 @@ function showAlert(message, duration = 5000, options = {}) {
     const type = options.type || 'info';
     
     overlay.className = 'custom-modal-overlay custom-modal-alert';
-    overlay.innerHTML = `
-        <div class="custom-modal">
-            <div class="custom-modal-header">
-                <h3>${title}</h3>
-                <button class="custom-modal-close" aria-label="Close">&times;</button>
-            </div>
-            <div class="custom-modal-body">${message}</div>
-            <div class="custom-modal-timer" style="animation-duration: ${duration}ms;"></div>
-        </div>
-    `;
+    overlay.innerHTML = '';
+
+    const modal = document.createElement('div');
+    modal.className = 'custom-modal';
+
+    const header = document.createElement('div');
+    header.className = 'custom-modal-header';
+
+    const titleEl = document.createElement('h3');
+    titleEl.textContent = title;
+
+    const closeBtnObj = document.createElement('button');
+    closeBtnObj.className = 'custom-modal-close';
+    closeBtnObj.setAttribute('aria-label', 'Close');
+    closeBtnObj.innerHTML = '&times;';
+
+    header.appendChild(titleEl);
+    header.appendChild(closeBtnObj);
+
+    const body = document.createElement('div');
+    body.className = 'custom-modal-body';
+    body.textContent = typeof message === 'string' ? message : String(message ?? '');
+
+    const timer = document.createElement('div');
+    timer.className = 'custom-modal-timer';
+    timer.style.animationDuration = `${duration}ms`;
+
+    modal.appendChild(header);
+    modal.appendChild(body);
+    modal.appendChild(timer);
+    overlay.appendChild(modal);
     
     const closeBtn = overlay.querySelector('.custom-modal-close');
     
@@ -292,6 +313,22 @@ function highlightedMiiChange(){
             showAlert(d.error, 5000, { title: 'Error', type: 'error' });
         }
     });
+}
+
+function getSafeClientRedirectTarget(target, fallback = '/') {
+    const fallbackPath = (typeof fallback === 'string' && fallback.startsWith('/')) ? fallback : '/';
+    const candidate = typeof target === 'string' ? target.trim() : '';
+
+    if (!candidate) return fallbackPath;
+
+    try {
+        const resolved = new URL(candidate, window.location.origin);
+        if (resolved.origin !== window.location.origin) return fallbackPath;
+        if (!resolved.pathname.startsWith('/')) return fallbackPath;
+        return `${resolved.pathname}${resolved.search}${resolved.hash}` || fallbackPath;
+    } catch {
+        return fallbackPath;
+    }
 }
 
 /**
@@ -380,7 +417,7 @@ async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
             if (options.onSuccess) {
                 options.onSuccess(result, messageDiv, response);
             } else if (result.redirect) {
-                window.location.href = options?.next || result.redirect;
+                window.location.href = getSafeClientRedirectTarget(options?.next || result.redirect, '/');
             } else if (result.message) {
                 messageDiv.textContent = result.message;
                 messageDiv.className = 'form-message success';

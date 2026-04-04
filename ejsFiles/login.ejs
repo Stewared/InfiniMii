@@ -1,9 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Login - InfiniMii</title>
-    <%- include('metaTags') %>
+    <%
+    const pageTitle = 'Log In - InfiniMii';
+    const pageDesc = 'Log in to manage your InfiniMii account, private Miis, uploads, and settings.';
+    const canonicalUrl = `${baseUrl}/login`;
+    const pageRobots = 'noindex, nofollow, noarchive';
+    %>
+    <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, pageRobots }) %>
     <%- include('structuredData') %>
     <link href="/global.css" rel="stylesheet">
     <link href="/utilityPages.css" rel="stylesheet">

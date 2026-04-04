@@ -1,9 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>Amiibo Tools - InfiniMii</title>
-        <link rel='stylesheet' href="global.css">
-        <link rel="stylesheet" href="utilityPages.css">
+        <%
+        const pageTitle = 'Amiibo Mii Tools - InfiniMii';
+        const pageDesc = 'Extract a Mii from an Amiibo dump or insert a Mii into an Amiibo backup with InfiniMii\'s browser-based Amiibo tools.';
+        const canonicalUrl = `${baseUrl}/amiibo`;
+        const keywords = 'amiibo mii tool, extract mii from amiibo, insert mii into amiibo, amiibo backup';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Amiibo Tools', url: '/amiibo' }
+        ];
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "InfiniMii Amiibo Tools",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web Browser",
+            "url": `${baseUrl}/amiibo`,
+            "description": pageDesc,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+        <link rel='stylesheet' href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
         <style>
             .amiibo-tools {
                 display: flex;
@@ -189,11 +214,16 @@
         </style>
     </head>
     <body>
+        <%- include('globalStyle') %>
         <%- include('header') %>
         <%- include('accountDisplay') %>
         <div class='content'>
             <%- include('sidebar') %>
             <div class='amiibo-tools'>
+                <section class="tool-section" aria-labelledby="amiibo-heading">
+                    <h1 id="amiibo-heading">Amiibo Mii Tools</h1>
+                    <p>Work with Amiibo backups that store Mii owner data. Extract a Mii for export or upload, or insert a new Mii into the dump.</p>
+                </section>
                 <!-- Extract Mii from Amiibo -->
                 <div class="tool-section">
                     <h3><%- include('icon', { name: 'upload', size: 20, class: 'icon-inline' }) %> Extract Mii from Amiibo</h3>

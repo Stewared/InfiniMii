@@ -169,6 +169,27 @@ function parseBooleanLike(value) {
     return cleaned === "true" || cleaned === "1" || cleaned === "yes" || cleaned === "on";
 }
 
+function getSafeRedirectPath(target, fallback = "/") {
+    const fallbackPath = typeof fallback === "string" && fallback.startsWith("/")
+        ? fallback
+        : "/";
+    const candidate = typeof target === "string"
+        ? target.trim()
+        : "";
+
+    if (!candidate) return fallbackPath;
+    if (!candidate.startsWith("/")) return fallbackPath;
+    if (candidate.startsWith("//")) return fallbackPath;
+
+    try {
+        const parsed = new URL(candidate, "https://infinimii.local");
+        if (parsed.origin !== "https://infinimii.local") return fallbackPath;
+        return `${parsed.pathname}${parsed.search}${parsed.hash}` || fallbackPath;
+    } catch {
+        return fallbackPath;
+    }
+}
+
 function normalizeQrConsole(input) {
     const cleaned = String(input || "").trim().toUpperCase().replace(/[\s_-]+/g, "");
     if (cleaned === "WIIU") return "WIIU";
@@ -642,10 +663,33 @@ function bitStringToBuffer(bitString) {
 }
 
 //#region Database
-async function getSettings() {
-    let settings = await Settings.findById("global");
+const SETTINGS_CACHE_TTL_MS = 5000;
+let cachedSettings = null;
+let cachedSettingsLoadedAt = 0;
+let cachedSettingsPromise = null;
+
+function cloneSettings(settings) {
+    return settings ? structuredClone(settings) : settings;
+}
+
+function normalizeSettingsRecord(settings) {
+    if (!settings) return settings;
+    if (typeof settings.toObject === "function") {
+        return settings.toObject();
+    }
+    return settings;
+}
+
+function invalidateSettingsCache(nextValue = null) {
+    cachedSettings = nextValue ? normalizeSettingsRecord(nextValue) : null;
+    cachedSettingsLoadedAt = nextValue ? Date.now() : 0;
+    cachedSettingsPromise = null;
+}
+
+async function loadSettingsFromDatabase() {
+    let settings = await Settings.findById("global").lean();
     if (!settings) {
-        settings = await Settings.create({
+        settings = normalizeSettingsRecord(await Settings.create({
             _id: "global",
             highlightedMii: null,
             highlightedMiiChangeDay: null,
@@ -653,13 +697,37 @@ async function getSettings() {
             officialCategories: { categories: [] },
             officialCompanySources: [DEFAULT_OFFICIAL_COMPANY_SOURCE],
             miiTags: []
-        });
+        }));
     }
+    cachedSettings = settings;
+    cachedSettingsLoadedAt = Date.now();
     return settings;
 }
 
+async function getSettings() {
+    const now = Date.now();
+    if (cachedSettings && (now - cachedSettingsLoadedAt) < SETTINGS_CACHE_TTL_MS) {
+        return cloneSettings(cachedSettings);
+    }
+
+    if (!cachedSettingsPromise) {
+        cachedSettingsPromise = loadSettingsFromDatabase()
+            .finally(() => {
+                cachedSettingsPromise = null;
+            });
+    }
+
+    return cloneSettings(await cachedSettingsPromise);
+}
+
 async function updateSettings(updates) {
-    return await Settings.findByIdAndUpdate("global", updates, { new: true, upsert: true });
+    const settings = await Settings.findByIdAndUpdate("global", updates, {
+        new: true,
+        upsert: true,
+        lean: true
+    });
+    invalidateSettingsCache(settings);
+    return cloneSettings(settings);
 }
 
 async function getAllMiis(includePrivate = false) {
@@ -761,9 +829,6 @@ async function ensureUploaderAutoLike(username, miiId, minimumVotes = 1) {
     }
 }
 
-async function getAllUsers() {
-    return await Users.find({}).lean();
-}
 //#endregion
 
 const ejsFunctions = {
@@ -776,8 +841,8 @@ async function getSendables(req, title, user) {
     const queryString = Object.keys(req.query).length > 0 
         ? '?' + new URLSearchParams(req.query).toString() 
         : '';
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
     const settings = await getSettings();
-    const allUsers = await getAllUsers();
     const availableTags = getMiiTags(settings);
     const selectedTags = mapRequestedTagsToCatalog(req.query?.tags, availableTags);
     const searchFieldsExplicitlyConfigured = parseBooleanLike(req.query?.searchFieldsConfigured);
@@ -787,11 +852,18 @@ async function getSendables(req, title, user) {
     let userPfpMiiColor = null;
     const currentUser = req.user?.username || "Default";
     const pfp = req.user?.miiPfp || "00000";
+    const [
+        highlightedMiiData,
+        averageMiiData,
+        userPfpMii
+    ] = await Promise.all([
+        getMiiById(settings.highlightedMii, false),
+        getMiiById("average", false),
+        req.user ? getMiiById(pfp, true) : Promise.resolve(null)
+    ]);
 
     if (req.user) {
-        let userPfpMii = await getMiiById(pfp, true);
-        if(!userPfpMii) userPfpMii=await getMiiById("average",true);
-        userPfpMiiColor = userPfpMii.general.favoriteColor;
+        userPfpMiiColor = (userPfpMii || averageMiiData)?.general?.favoriteColor ?? null;
     }
     
     
@@ -818,13 +890,13 @@ async function getSendables(req, title, user) {
         query: req.query,
         discordInvite: process.env.discordInvite,
         githubLink: process.env.githubLink,
-        baseUrl: baseUrl,
+        baseUrl: resolvedBaseUrl,
         title: title,
         exportFormats: EXPORT_FORMATS,
         favoriteColors: Array.isArray(miijs.FavoriteColors) ? miijs.FavoriteColors : [],
         userPfpMiiColor: userPfpMiiColor ?? "#111111",
-        highlightedMiiData: await getMiiById(settings.highlightedMii, false),
-        averageMiiData: await getMiiById("average", false),
+        highlightedMiiData,
+        averageMiiData,
     };
 
     send.currentFilter=send.currentFilter||"";
@@ -1002,6 +1074,249 @@ function normalizeCategoryColor(color, fallback = "#999999") {
     if (typeof color !== "string") return fallback;
     const trimmed = color.trim();
     return /^#[0-9A-Fa-f]{6}$/.test(trimmed) ? trimmed : fallback;
+}
+
+function getDisplayMiiName(mii) {
+    const candidate = mii?.meta?.name ?? mii?.name ?? "";
+    const normalized = String(candidate || "").trim();
+    return normalized || "Unknown Mii";
+}
+
+function uniqueTextValues(values) {
+    const source = Array.isArray(values) ? values : [values];
+    const flattened = source.flatMap(value => Array.isArray(value) ? value : [value]);
+    const normalized = [];
+    const seen = new Set();
+
+    for (const value of flattened) {
+        const text = String(value || "").trim();
+        if (!text) continue;
+
+        const key = text.toLowerCase();
+        if (seen.has(key)) continue;
+
+        seen.add(key);
+        normalized.push(text);
+    }
+
+    return normalized;
+}
+
+function getMiiFavoriteColorLabel(colorIndex) {
+    const favoriteColors = [
+        "Red",
+        "Orange",
+        "Yellow",
+        "Lime",
+        "Green",
+        "Blue",
+        "Cyan",
+        "Pink",
+        "Purple",
+        "Brown",
+        "White",
+        "Black"
+    ];
+    const parsedIndex = Number.parseInt(colorIndex, 10);
+    return Number.isInteger(parsedIndex) && favoriteColors[parsedIndex]
+        ? favoriteColors[parsedIndex]
+        : "";
+}
+
+function getMiiGenderLabel(gender) {
+    const parsedGender = Number.parseInt(gender, 10);
+    if (parsedGender === 0) return "Male";
+    if (parsedGender === 1) return "Female";
+    return "";
+}
+
+function getConsoleLabel(rawConsole) {
+    const original = typeof rawConsole === "string" ? rawConsole.trim() : "";
+    if (!original) return "";
+
+    const normalized = original.toUpperCase();
+    const consoleLabels = {
+        "3DS": "3DS",
+        "WII": "Wii",
+        "WIIU": "Wii U",
+        "SWITCH": "Switch",
+        "MIITOMO": "Miitomo",
+        "DS": "DS",
+        "DSI": "DSi",
+        "TOMODACHI LIFE": "Tomodachi Life"
+    };
+
+    return consoleLabels[normalized] || original;
+}
+
+function getReadableBirthdayLabel(month, day) {
+    const monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const parsedMonth = Number.parseInt(month, 10);
+    const parsedDay = Number.parseInt(day, 10);
+
+    if (!Number.isInteger(parsedMonth) || parsedMonth < 1 || parsedMonth > 12) return "";
+    if (!Number.isInteger(parsedDay) || parsedDay < 1 || parsedDay > 31) return "";
+
+    return `${monthNames[parsedMonth]} ${parsedDay}`;
+}
+
+function normalizeTimestampValue(value) {
+    if (value instanceof Date) {
+        const timestamp = value.getTime();
+        return Number.isFinite(timestamp) ? timestamp : undefined;
+    }
+
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : undefined;
+}
+
+function getUserJoinTimestamp(user) {
+    return normalizeTimestampValue(user?.joinedOn)
+        ?? normalizeTimestampValue(user?.creationDate)
+        ?? normalizeTimestampValue(user?.createdAt);
+}
+
+function getMiiCategoryDetails(rawPaths, categoryConfig) {
+    const normalizedPaths = normalizeCategoryPaths(rawPaths);
+    const categoryTree = Array.isArray(categoryConfig?.categories)
+        ? categoryConfig.categories
+        : (Array.isArray(categoryConfig) ? categoryConfig : []);
+
+    return normalizedPaths.map((path) => {
+        const node = findCategoryByPath(path, categoryTree);
+        const pathSegments = path.split("/").map(segment => segment.trim()).filter(Boolean);
+        const fallbackName = pathSegments[pathSegments.length - 1] || path;
+
+        return {
+            path,
+            name: node?.name || fallbackName,
+            fullPath: node?.fullPath || path,
+            color: normalizeCategoryColor(node?.color),
+            url: `/official?category=${encodeURIComponent(path)}`
+        };
+    });
+}
+
+function buildMiiSeoDetails(mii, categoryConfig, options = {}) {
+    const miiName = getDisplayMiiName(mii);
+    const creatorName = String(mii?.meta?.creatorName || "").trim();
+    const uploaderName = String(mii?.uploader || "").trim();
+    const contributorName = String(mii?.contributor || "").trim();
+    const officialSourceName = mii?.official
+        ? (String(options.officialSourceName || "").trim()
+            || normalizeCompanySourceName(mii?.officialSource || mii?.uploader)
+            || DEFAULT_OFFICIAL_COMPANY_SOURCE)
+        : "";
+    const consoleLabel = getConsoleLabel(mii?.meta?.console || mii?.console || "");
+    const favoriteColorName = getMiiFavoriteColorLabel(mii?.general?.favoriteColor);
+    const genderLabel = getMiiGenderLabel(mii?.general?.gender);
+    const birthdayLabel = getReadableBirthdayLabel(mii?.general?.birthMonth, mii?.general?.birthday);
+    const categoryDetails = getMiiCategoryDetails(mii?.officialCategories || [], categoryConfig);
+    const categoryNames = categoryDetails.map(category => category.name);
+    const tagList = uniqueTextValues(normalizeTagList(mii?.tags || []));
+    const archiveTypeLabel = mii?.private
+        ? "Private Mii"
+        : (mii?.official ? "Official Mii" : "Community Mii");
+    const typeLabel = String(mii?.meta?.type || "").trim().toLowerCase() === "special"
+        ? "Special Mii"
+        : "Standard Mii";
+    const primaryOwnerLabel = mii?.official ? officialSourceName : uploaderName;
+
+    const metaDescriptionParts = [
+        `Download ${miiName}, an ${archiveTypeLabel.toLowerCase()}${mii?.official ? ` from ${officialSourceName}` : (uploaderName ? ` uploaded by ${uploaderName}` : "")}${creatorName ? ` with creator name ${creatorName}` : ""}.`,
+        consoleLabel
+            ? `Includes QR code access and export options for ${consoleLabel} Mii workflows.`
+            : "Includes QR code access and export options for Nintendo Mii workflows.",
+        categoryNames.length
+            ? `Filed under ${categoryNames.slice(0, 3).join(", ")}.`
+            : "",
+        tagList.length
+            ? `Tagged ${tagList.slice(0, 4).join(", ")}.`
+            : ""
+    ].filter(Boolean);
+
+    const searchTopicPhrases = uniqueTextValues([
+        `${miiName} Mii`,
+        `${miiName} Mii QR code`,
+        `${miiName} Mii download`,
+        `${miiName} Mii character`,
+        creatorName ? `${creatorName} Mii` : "",
+        primaryOwnerLabel ? `${primaryOwnerLabel} Mii` : "",
+        mii?.official && officialSourceName ? `${officialSourceName} official Mii` : "",
+        consoleLabel ? `${miiName} ${consoleLabel}` : "",
+        favoriteColorName ? `${favoriteColorName} Mii` : "",
+        genderLabel ? `${genderLabel} Mii` : "",
+        ...tagList.map(tag => `${tag} Mii`),
+        ...categoryNames.map(name => `${name} Mii`)
+    ]).slice(0, 20);
+
+    const keywordList = uniqueTextValues([
+        miiName,
+        `${miiName} Mii`,
+        `${miiName} Mii QR code`,
+        `${miiName} Mii download`,
+        `${miiName} Mii character`,
+        creatorName ? `${creatorName} Mii` : "",
+        primaryOwnerLabel ? `${primaryOwnerLabel} Mii` : "",
+        mii?.official && officialSourceName ? `${officialSourceName} official Mii` : "",
+        consoleLabel ? `${miiName} ${consoleLabel}` : "",
+        favoriteColorName ? `${favoriteColorName} Mii` : "",
+        genderLabel ? `${genderLabel} Mii` : "",
+        ...tagList,
+        ...categoryNames
+    ]).slice(0, 28);
+
+    return {
+        name: miiName,
+        creatorName,
+        uploaderName,
+        contributorName,
+        officialSourceName,
+        consoleLabel,
+        favoriteColorName,
+        genderLabel,
+        birthdayLabel,
+        categoryDetails,
+        categoryNames,
+        tagList,
+        archiveTypeLabel,
+        typeLabel,
+        primaryOwnerLabel,
+        searchTopicPhrases,
+        keywordList,
+        metaDescription: metaDescriptionParts.join(" ").replace(/\s+/g, " ").trim()
+    };
+}
+
+function buildCuratedMiiCollections(collections, limitPerCollection = 4) {
+    const usedIds = new Set();
+    const curatedCollections = [];
+
+    for (const collection of collections) {
+        const items = Array.isArray(collection?.items) ? collection.items : [];
+        const curatedItems = [];
+
+        for (const item of items) {
+            const id = String(item?.id || "").trim();
+            if (!id || usedIds.has(id)) continue;
+
+            usedIds.add(id);
+            curatedItems.push(item);
+
+            if (curatedItems.length >= limitPerCollection) {
+                break;
+            }
+        }
+
+        if (curatedItems.length > 0) {
+            curatedCollections.push({
+                ...collection,
+                items: curatedItems
+            });
+        }
+    }
+
+    return curatedCollections;
 }
 
 function normalizeTagValue(tag) {
@@ -2042,16 +2357,16 @@ function generateSitemapXML(urls) {
     
     urls.forEach(url => {
         xml += '  <url>\n';
-        xml += `    <loc>${url.loc}</loc>\n`;
-        if (url.lastmod) xml += `    <lastmod>${url.lastmod}</lastmod>\n`;
-        if (url.changefreq) xml += `    <changefreq>${url.changefreq}</changefreq>\n`;
-        if (url.priority) xml += `    <priority>${url.priority}</priority>\n`;
+        xml += `    <loc>${escapeXml(url.loc)}</loc>\n`;
+        if (url.lastmod) xml += `    <lastmod>${escapeXml(url.lastmod)}</lastmod>\n`;
+        if (url.changefreq) xml += `    <changefreq>${escapeXml(url.changefreq)}</changefreq>\n`;
+        if (url.priority) xml += `    <priority>${escapeXml(url.priority)}</priority>\n`;
         
         // Add image sitemap data if present
         if (url.images && url.images.length > 0) {
             url.images.forEach(img => {
                 xml += '    <image:image>\n';
-                xml += `      <image:loc>${img.loc}</image:loc>\n`;
+                xml += `      <image:loc>${escapeXml(img.loc)}</image:loc>\n`;
                 if (img.title) xml += `      <image:title>${escapeXml(img.title)}</image:title>\n`;
                 if (img.caption) xml += `      <image:caption>${escapeXml(img.caption)}</image:caption>\n`;
                 xml += '    </image:image>\n';
@@ -2066,7 +2381,7 @@ function generateSitemapXML(urls) {
 }
 
 function escapeXml(unsafe) {
-    return unsafe.replace(/[<>&'"]/g, (c) => {
+    return String(unsafe).replace(/[<>&'"]/g, (c) => {
         switch (c) {
             case '<': return '&lt;';
             case '>': return '&gt;';
@@ -2075,6 +2390,89 @@ function escapeXml(unsafe) {
             case '"': return '&quot;';
         }
     });
+}
+
+function getResolvedBaseUrlFromRequest(req) {
+    return (baseUrl || `${req.protocol}://${req.get("host")}`).replace(/\/+$/, "");
+}
+
+function toAbsoluteSiteUrl(req, value = "/") {
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+    const trimmed = String(value || "").trim();
+
+    if (!trimmed) return `${resolvedBaseUrl}/`;
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+    return trimmed.startsWith("/")
+        ? `${resolvedBaseUrl}${trimmed}`
+        : `${resolvedBaseUrl}/${trimmed.replace(/^\/+/, "")}`;
+}
+
+function buildRequestPathWithPage(req, pageNumber) {
+    const params = new URLSearchParams();
+
+    Object.entries(req.query || {}).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+            value
+                .filter(item => typeof item !== "undefined" && item !== null && `${item}`.trim() !== "")
+                .forEach(item => params.append(key, String(item)));
+            return;
+        }
+
+        if (typeof value === "undefined" || value === null) return;
+        const normalized = String(value).trim();
+        if (!normalized) return;
+        params.append(key, normalized);
+    });
+
+    if (pageNumber > 1) {
+        params.set("page", String(pageNumber));
+    } else {
+        params.delete("page");
+    }
+
+    const queryString = params.toString();
+    return queryString ? `${req.path}?${queryString}` : req.path;
+}
+
+function attachPaginationMeta(req, toSend, pagination) {
+    if (!pagination || pagination.totalPages <= 1) return;
+
+    if (pagination.currentPage > 1) {
+        toSend.prevUrl = buildRequestPathWithPage(req, pagination.currentPage - 1);
+    }
+
+    if (pagination.currentPage < pagination.totalPages) {
+        toSend.nextUrl = buildRequestPathWithPage(req, pagination.currentPage + 1);
+    }
+}
+
+function getNewestUploadedOn(items) {
+    if (!Array.isArray(items) || items.length === 0) return undefined;
+
+    const timestamps = items
+        .map(item => Number(item?.uploadedOn))
+        .filter(timestamp => Number.isFinite(timestamp) && timestamp > 0);
+
+    if (timestamps.length === 0) return undefined;
+    return new Date(Math.max(...timestamps)).toISOString();
+}
+
+function generateSitemapIndexXML(sitemaps) {
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+    sitemaps.forEach((sitemap) => {
+        xml += '  <sitemap>\n';
+        xml += `    <loc>${escapeXml(sitemap.loc)}</loc>\n`;
+        if (sitemap.lastmod) {
+            xml += `    <lastmod>${escapeXml(sitemap.lastmod)}</lastmod>\n`;
+        }
+        xml += '  </sitemap>\n';
+    });
+
+    xml += '</sitemapindex>';
+    return xml;
 }
 
 import 'express-async-errors'; // Inject express to make router async errors handle the same as sync errors (dropping down to next() handler)
@@ -2287,65 +2685,126 @@ async function sendError(res, req, message, status) {
 
 //#region Static handling
 
-  
-// Require auth on private Mii images
-site.use('/privateMiiImgs', async (req, res, next) => {
-    const miiId = req.path.split('/').pop().split('.')[0];
-    
-    const privateMii = await Miis.findOne({ id: miiId, private: true }).lean();
-    if (privateMii) {
-        const isOwner = privateMii.uploader === req.user.username;
-        const isModerator = req.user && canModerate(req.user);
-        
-        if (isModerator || isOwner) {
-            next();
-        } else {
-            if (req.accepts('html')) {
-                res.status(403).json({ error: 'Access denied' });
-            } else {
-                await sendError(res, req, "Access denied. This is a private Mii.", 403);
-            }
-        }
-    } else {
-        next();
-    }
-});
+const privateAssetMiiCacheKey = Symbol("privateAssetMii");
+const assetGenerationTasks = new Map();
 
-// Require auth on private Mii QRs
-site.use('/privateMiiQRs', async (req, res, next) => {
-    const miiId = req.path.split('/').pop().split('.')[0];
-    
-    const privateMii = await Miis.findOne({ id: miiId, private: true }).lean();
-    if (privateMii) {
-        const isOwner = privateMii.uploader === req.user.username;
-        const isModerator = req.user && canModerate(req.user);
-        
-        if (isOwner || isModerator) {
-            next();
-        } else {
-            return sendError(res, req, "Access denied. This is a private Mii.", 403);
-        }
-    } else {
-        next();
+function getRequestedMiiId(req) {
+    return req.path.split('/').pop()?.split('.')?.[0] || "";
+}
+
+function getMiiAssetPath(dirName, miiId) {
+    return path.join(__dirname, 'static', dirName, `${miiId}.png`);
+}
+
+async function fileExists(filePath) {
+    try {
+        await fs.promises.access(filePath, fs.constants.F_OK);
+        return true;
+    } catch {
+        return false;
     }
-});
+}
+
+async function runSingleFlightTask(map, key, task) {
+    const existingTask = map.get(key);
+    if (existingTask) {
+        return await existingTask;
+    }
+
+    const taskPromise = (async () => await task())();
+    map.set(key, taskPromise);
+
+    try {
+        return await taskPromise;
+    } finally {
+        if (map.get(key) === taskPromise) {
+            map.delete(key);
+        }
+    }
+}
+
+async function ensureGeneratedAsset(assetPath, generator) {
+    if (await fileExists(assetPath)) {
+        return true;
+    }
+
+    return await runSingleFlightTask(assetGenerationTasks, assetPath, async () => {
+        if (await fileExists(assetPath)) {
+            return true;
+        }
+        return Boolean(await generator());
+    });
+}
+
+async function resolvePrivateAssetMii(req) {
+    if (Object.prototype.hasOwnProperty.call(req, privateAssetMiiCacheKey)) {
+        return req[privateAssetMiiCacheKey];
+    }
+
+    const miiId = getRequestedMiiId(req);
+    req[privateAssetMiiCacheKey] = miiId
+        ? await Miis.findOne({ id: miiId, private: true }).lean()
+        : null;
+    return req[privateAssetMiiCacheKey];
+}
+
+async function requirePrivateMiiAssetAccess(req, res, next) {
+    const privateMii = await resolvePrivateAssetMii(req);
+    if (!privateMii) {
+        return next();
+    }
+
+    const isOwner = Boolean(req.user && privateMii.uploader === req.user.username);
+    const isModerator = Boolean(req.user && canModerate(req.user));
+
+    if (isOwner || isModerator) {
+        return next();
+    }
+
+    if (req.baseUrl === "/privateMiiQRs") {
+        return await sendError(res, req, "Access denied. This is a private Mii.", 403);
+    }
+
+    if (req.accepts('html')) {
+        return await sendError(res, req, "Access denied. This is a private Mii.", 403);
+    }
+
+    return res.status(403).json({ error: 'Access denied' });
+}
+
+async function writeRenderedMiiImage(mii, assetPath) {
+    await fs.promises.writeFile(assetPath, await miijs.renderMii(mii));
+}
+
+async function writeRenderedMiiQr(mii, assetPath) {
+    await writeQrPng(mii, assetPath);
+}
+
+site.use('/privateMiiImgs', requirePrivateMiiAssetAccess);
+site.use('/privateMiiQRs', requirePrivateMiiAssetAccess);
 
 // Render missing private Mii images on demand
 site.use('/privateMiiImgs', async (req, res, next) => {
-    const miiId = req.path.split('/').pop()?.split('.')?.[0];
+    const miiId = getRequestedMiiId(req);
     if (!miiId) return next();
 
-    const imgPath = `./static/privateMiiImgs/${miiId}.png`;
-    if (fs.existsSync(imgPath)) {
-        return res.sendFile(path.join(__dirname, 'static', 'privateMiiImgs', `${miiId}.png`));
+    const imgPath = getMiiAssetPath('privateMiiImgs', miiId);
+    if (await fileExists(imgPath)) {
+        return res.sendFile(imgPath);
     }
 
-    const mii = await Miis.findOne({ id: miiId, private: true }).lean();
-    if (!mii) return next();
-
     try {
-        await fs.promises.writeFile(imgPath, await miijs.renderMii(mii));
-        return res.sendFile(path.join(__dirname, 'static', 'privateMiiImgs', `${miiId}.png`));
+        const generated = await ensureGeneratedAsset(imgPath, async () => {
+            const mii = await resolvePrivateAssetMii(req);
+            if (!mii) return false;
+            await writeRenderedMiiImage(mii, imgPath);
+            return true;
+        });
+
+        if (generated) {
+            return res.sendFile(imgPath);
+        }
+        return next();
     } catch (e) {
         return next(e);
     }
@@ -2353,20 +2812,26 @@ site.use('/privateMiiImgs', async (req, res, next) => {
 
 // Render missing private Mii QRs on demand
 site.use('/privateMiiQRs', async (req, res, next) => {
-    const miiId = req.path.split('/').pop()?.split('.')?.[0];
+    const miiId = getRequestedMiiId(req);
     if (!miiId) return next();
 
-    const qrPath = `./static/privateMiiQRs/${miiId}.png`;
-    if (fs.existsSync(qrPath)) {
-        return res.sendFile(path.join(__dirname, 'static', 'privateMiiQRs', `${miiId}.png`));
+    const qrPath = getMiiAssetPath('privateMiiQRs', miiId);
+    if (await fileExists(qrPath)) {
+        return res.sendFile(qrPath);
     }
 
-    const mii = await Miis.findOne({ id: miiId, private: true }).lean();
-    if (!mii) return next();
-
     try {
-        await writeQrPng(mii, qrPath);
-        return res.sendFile(path.join(__dirname, 'static', 'privateMiiQRs', `${miiId}.png`));
+        const generated = await ensureGeneratedAsset(qrPath, async () => {
+            const mii = await resolvePrivateAssetMii(req);
+            if (!mii) return false;
+            await writeRenderedMiiQr(mii, qrPath);
+            return true;
+        });
+
+        if (generated) {
+            return res.sendFile(qrPath);
+        }
+        return next();
     } catch (e) {
         return next(e);
     }
@@ -2374,20 +2839,26 @@ site.use('/privateMiiQRs', async (req, res, next) => {
 
 // Render missing public Mii images on demand
 site.use('/miiImgs', async (req, res, next) => {
-    const miiId = req.path.split('/').pop()?.split('.')?.[0];
+    const miiId = getRequestedMiiId(req);
     if (!miiId) return next();
 
-    const imgPath = `./static/miiImgs/${miiId}.png`;
-    if (fs.existsSync(imgPath)) {
-        return res.sendFile(path.join(__dirname, 'static', 'miiImgs', `${miiId}.png`));
+    const imgPath = getMiiAssetPath('miiImgs', miiId);
+    if (await fileExists(imgPath)) {
+        return res.sendFile(imgPath);
     }
 
-    const mii = await Miis.findOne({ id: miiId, private: false }).lean();
-    if (!mii) return next();
-
     try {
-        await fs.promises.writeFile(imgPath, await miijs.renderMii(mii));
-        return res.sendFile(path.join(__dirname, 'static', 'miiImgs', `${miiId}.png`));
+        const generated = await ensureGeneratedAsset(imgPath, async () => {
+            const mii = await Miis.findOne({ id: miiId, private: false }).lean();
+            if (!mii) return false;
+            await writeRenderedMiiImage(mii, imgPath);
+            return true;
+        });
+
+        if (generated) {
+            return res.sendFile(imgPath);
+        }
+        return next();
     } catch (e) {
         return next(e);
     }
@@ -2395,20 +2866,26 @@ site.use('/miiImgs', async (req, res, next) => {
 
 // Render missing public Mii QRs on demand
 site.use('/miiQRs', async (req, res, next) => {
-    const miiId = req.path.split('/').pop()?.split('.')?.[0];
+    const miiId = getRequestedMiiId(req);
     if (!miiId) return next();
 
-    const qrPath = `./static/miiQRs/${miiId}.png`;
-    if (fs.existsSync(qrPath)) {
-        return res.sendFile(path.join(__dirname, 'static', 'miiQRs', `${miiId}.png`));
+    const qrPath = getMiiAssetPath('miiQRs', miiId);
+    if (await fileExists(qrPath)) {
+        return res.sendFile(qrPath);
     }
 
-    const mii = await Miis.findOne({ id: miiId, private: false }).lean();
-    if (!mii) return next();
-
     try {
-        await writeQrPng(mii, qrPath);
-        return res.sendFile(path.join(__dirname, 'static', 'miiQRs', `${miiId}.png`));
+        const generated = await ensureGeneratedAsset(qrPath, async () => {
+            const mii = await Miis.findOne({ id: miiId, private: false }).lean();
+            if (!mii) return false;
+            await writeRenderedMiiQr(mii, qrPath);
+            return true;
+        });
+
+        if (generated) {
+            return res.sendFile(qrPath);
+        }
+        return next();
     } catch (e) {
         return next(e);
     }
@@ -2547,7 +3024,7 @@ site.get('/', highGeneralRatelimit, async (req, res) => {
         "Official": { miis: (await paginatedApi("official", 1, HOME_PREVIEW_COUNT)).items, link: "./official" }
     };
     
-    ejs.renderFile(toSend.thisUser.toLowerCase() === "default" ? './ejsFiles/about.ejs' : './ejsFiles/index.ejs', toSend, {}, function (err, str) {
+    ejs.renderFile('./ejsFiles/index.ejs', toSend, {}, function (err, str) {
         if (err) {
             res.send(err);
             console.log(err);
@@ -2575,6 +3052,8 @@ site.get('/random', miiListRatelimiter, async (req, res) => {
         perPage: paginatedData.perPage,
         seed: paginatedData.seed // Pass seed to template for pagination links
     };
+    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     toSend.title = "Random Miis - InfiniMii";
     ejs.renderFile('./ejsFiles/miis.ejs', toSend, {}, function(err, str) {
@@ -2598,6 +3077,8 @@ site.get('/trending', miiListRatelimiter, async (req, res) => {
         total: paginatedData.total,
         perPage: paginatedData.perPage
     };
+    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     toSend.title = "Trending Miis - InfiniMii";
     ejs.renderFile('./ejsFiles/miis.ejs', toSend, {}, function(err, str) {
@@ -2621,6 +3102,8 @@ site.get('/top', miiListRatelimiter, async (req, res) => {
         total: paginatedData.total,
         perPage: paginatedData.perPage
     };
+    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     toSend.title = "Top Miis - InfiniMii";
     ejs.renderFile('./ejsFiles/miis.ejs', toSend, {}, function(err, str) {
@@ -2644,6 +3127,8 @@ site.get('/recent', miiListRatelimiter, async (req, res) => {
         total: paginatedData.total,
         perPage: paginatedData.perPage
     };
+    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     toSend.title = "Recent Miis - InfiniMii";
     ejs.renderFile('./ejsFiles/miis.ejs', toSend, {}, function(err, str) {
@@ -2688,6 +3173,8 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
         total: paginatedData.total,
         perPage: paginatedData.perPage
     };
+    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     if (filterCategory) {
         toSend.currentFilter = filterCategory;
@@ -2726,8 +3213,10 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
         total: paginatedData.total,
         perPage: paginatedData.perPage
     };
+    attachPaginationMeta(req, toSend, toSend.pagination);
     
     toSend.searchQuery = searchQuery;
+    toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     const hasActiveSearchQuery = Boolean(searchQuery && selectedSearchFields.length > 0);
     if (hasActiveSearchQuery && selectedTags.length) {
         toSend.title = `Search '${searchQuery}' + Tags - InfiniMii`;
@@ -2772,6 +3261,9 @@ site.get('/opensearch.xml', (req, res) => {
     res.send(xml);
 });
 site.get('/transferInstructions', async (req, res) => {
+    res.redirect(301, '/guides/transfer');
+});
+site.get('/guides/transfer', async (req, res) => {
     ejs.renderFile('./ejsFiles/transferInstructions.ejs', await getSendables(req), {}, function(err, str) {
         if (err) {
             res.send(err);
@@ -3079,10 +3571,10 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
 
         const miiImageData = await miijs.renderMii(mii);
         if (wantsPublic) {
-            fs.writeFileSync(`./static/miiImgs/${mii.id}.png`, miiImageData);
+            await fs.promises.writeFile(`./static/miiImgs/${mii.id}.png`, miiImageData);
             await writeQrPng(mii, `./static/miiQRs/${mii.id}.png`);
         } else {
-            fs.writeFileSync(`./static/privateMiiImgs/${mii.id}.png`, miiImageData);
+            await fs.promises.writeFile(`./static/privateMiiImgs/${mii.id}.png`, miiImageData);
             await writeQrPng(mii, `./static/privateMiiQRs/${mii.id}.png`);
         }
 
@@ -3214,7 +3706,9 @@ site.get('/verify', async (req, res) => {
         const jwtToken = createToken(updatedUser);
         
         res.cookie("username", req.query.user, { 
-            maxAge: ms("30 days") // 1 Month
+            maxAge: ms("30 days"), // 1 Month
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
         });
         res.cookie("token", jwtToken, { 
             maxAge: ms("30 days"), // 1 Month
@@ -3285,7 +3779,9 @@ site.get('/verifyEmailChange', async (req, res) => {
         
         // Set new JWT token cookie
         res.cookie("username", req.query.user, { 
-            maxAge: ms("30 days")
+            maxAge: ms("30 days"),
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
         });
         res.cookie("token", jwtToken, { 
             maxAge: ms("30 days"),
@@ -4016,87 +4512,154 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
 
 // Main sitemap endpoint
 site.get('/sitemap.xml', async (req, res) => {
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+    const today = new Date().toISOString().split('T')[0];
+    const sitemaps = [
+        { loc: `${resolvedBaseUrl}/sitemap-pages.xml`, lastmod: today },
+        { loc: `${resolvedBaseUrl}/sitemap-miis.xml`, lastmod: today },
+        { loc: `${resolvedBaseUrl}/sitemap-users.xml`, lastmod: today }
+    ];
+
+    res.header('Content-Type', 'application/xml');
+    res.send(generateSitemapIndexXML(sitemaps));
+});
+
+site.get('/sitemap-pages.xml', async (req, res) => {
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+    const today = new Date().toISOString().split('T')[0];
     const urls = [
         {
-            loc: baseUrl + '/',
-            lastmod: new Date().toISOString().split('T')[0],
+            loc: `${resolvedBaseUrl}/`,
+            lastmod: today,
             changefreq: 'daily',
             priority: '1.0'
         },
         {
-            loc: baseUrl + '/random',
-            changefreq: 'always',
-            priority: '0.8'
-        },
-        {
-            loc: baseUrl + '/trending',
+            loc: `${resolvedBaseUrl}/trending`,
             changefreq: 'hourly',
             priority: '0.9'
         },
         {
-            loc: baseUrl + '/top',
+            loc: `${resolvedBaseUrl}/top`,
             changefreq: 'daily',
             priority: '0.9'
         },
         {
-            loc: baseUrl + '/recent',
+            loc: `${resolvedBaseUrl}/recent`,
             changefreq: 'hourly',
             priority: '0.8'
         },
         {
-            loc: baseUrl + '/official',
+            loc: `${resolvedBaseUrl}/official`,
             changefreq: 'weekly',
             priority: '0.9'
         },
         {
-            loc: baseUrl + '/search',
+            loc: `${resolvedBaseUrl}/search`,
             changefreq: 'monthly',
             priority: '0.7'
         },
         {
-            loc: baseUrl + '/upload',
+            loc: `${resolvedBaseUrl}/convert`,
+            changefreq: 'monthly',
+            priority: '0.8'
+        },
+        {
+            loc: `${resolvedBaseUrl}/qr`,
+            changefreq: 'monthly',
+            priority: '0.7'
+        },
+        {
+            loc: `${resolvedBaseUrl}/amiibo`,
+            changefreq: 'monthly',
+            priority: '0.7'
+        },
+        {
+            loc: `${resolvedBaseUrl}/wiimote`,
+            changefreq: 'monthly',
+            priority: '0.7'
+        },
+        {
+            loc: `${resolvedBaseUrl}/calculator`,
             changefreq: 'monthly',
             priority: '0.6'
         },
         {
-            loc: baseUrl + '/convert',
+            loc: `${resolvedBaseUrl}/miiChild`,
+            changefreq: 'monthly',
+            priority: '0.6'
+        },
+        {
+            loc: `${resolvedBaseUrl}/guides/transfer`,
+            changefreq: 'monthly',
+            priority: '0.8'
+        },
+        {
+            loc: `${resolvedBaseUrl}/guides/formats`,
             changefreq: 'monthly',
             priority: '0.7'
         },
         {
-            loc: baseUrl + '/qr',
+            loc: `${resolvedBaseUrl}/faq`,
             changefreq: 'monthly',
             priority: '0.7'
+        },
+        {
+            loc: `${resolvedBaseUrl}/about`,
+            changefreq: 'monthly',
+            priority: '0.6'
+        },
+        {
+            loc: `${resolvedBaseUrl}/cite`,
+            changefreq: 'monthly',
+            priority: '0.5'
+        },
+        {
+            loc: `${resolvedBaseUrl}/privacy`,
+            changefreq: 'yearly',
+            priority: '0.3'
+        },
+        {
+            loc: `${resolvedBaseUrl}/tos`,
+            changefreq: 'yearly',
+            priority: '0.3'
+        },
+        {
+            loc: `${resolvedBaseUrl}/guidelines`,
+            changefreq: 'yearly',
+            priority: '0.3'
         }
     ];
-    
+
     res.header('Content-Type', 'application/xml');
     res.send(generateSitemapXML(urls));
 });
 
 // Mii-specific sitemap (separate for better organization)
 site.get('/sitemap-miis.xml', async (req, res) => {
-    // TODO: I believe that this xml must be linked to by the first one
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
     const urls = [];
     
     // Add all published Miis
     const allMiis = await getAllMiis(false);
     allMiis.forEach(mii => {
+        const miiId = mii?.id;
+        if (!miiId) return;
         const lastmod = mii.uploadedOn ? new Date(mii.uploadedOn).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         
         urls.push({
-            loc: `${baseUrl}/mii/${miiId}`,
+            loc: `${resolvedBaseUrl}/mii/${miiId}`,
             lastmod: lastmod,
             changefreq: 'weekly',
             priority: mii.official ? '0.9' : '0.7',
             images: [
                 {
-                    loc: `${baseUrl}/miiImgs/${miiId}.png`,
+                    loc: `${resolvedBaseUrl}/miiImgs/${miiId}.png`,
                     title: `${mii.meta.name} - Mii Character`,
                     caption: mii.desc || `${mii.meta.name} Mii character for Nintendo systems`
                 },
                 {
-                    loc: `${baseUrl}/miiQRs/${miiId}.png`,
+                    loc: `${resolvedBaseUrl}/miiQRs/${miiId}.png`,
                     title: `${mii.meta.name} - QR Code`,
                     caption: `QR Code for ${mii.meta.name} - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo`
                 }
@@ -4108,47 +4671,42 @@ site.get('/sitemap-miis.xml', async (req, res) => {
     res.send(generateSitemapXML(urls));
 });
 
-// // User profiles sitemap
-// site.get('/sitemap-users.xml', async (req, res) => {
-//     // TODO: I believe that this xml must be linked to by the first one
-//     const urls = [];
-//     const allUsers = await getAllUsers();
-//     allUsers.forEach(user => {
-//         if (user.username !== 'default' && user.username !== 'Nintendo') {
-//             urls.push({
-//                 loc: `${baseUrl}/user/${encodeURIComponent(user.username)}`,
-//                 changefreq: 'weekly',
-//                 priority: '0.6'
-//             });
-//         }
-//     });
-//     res.header('Content-Type', 'application/xml');
-//     res.send(generateSitemapXML(urls));
-// });
+// User profiles sitemap
+site.get('/sitemap-users.xml', async (req, res) => {
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+    const publicUploaders = await Miis.aggregate([
+        {
+            $match: {
+                private: false,
+                published: true,
+                uploader: { $nin: ['default', 'Nintendo', '[Deleted User]'] }
+            }
+        },
+        {
+            $group: {
+                _id: '$uploader',
+                lastUploaded: { $max: '$uploadedOn' }
+            }
+        },
+        { $sort: { _id: 1 } }
+    ]);
+
+    const urls = publicUploaders.map((summary) => ({
+        loc: `${resolvedBaseUrl}/user/${encodeURIComponent(summary._id)}`,
+        lastmod: summary.lastUploaded
+            ? new Date(summary.lastUploaded).toISOString().split('T')[0]
+            : undefined,
+        changefreq: 'weekly',
+        priority: '0.6'
+    }));
+
+    res.header('Content-Type', 'application/xml');
+    res.send(generateSitemapXML(urls));
+});
 
 // Sitemap index
 site.get('/sitemap-index.xml', async (req, res) => {
-    // TODO: I believe that this xml must be linked to by the first one
-    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-    xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
-    
-    const sitemaps = [
-        { loc: `${baseUrl}/sitemap.xml`, lastmod: new Date().toISOString().split('T')[0] },
-        { loc: `${baseUrl}/sitemap-miis.xml`, lastmod: new Date().toISOString().split('T')[0] },
-        { loc: `${baseUrl}/sitemap-users.xml`, lastmod: new Date().toISOString().split('T')[0] }
-    ];
-    
-    sitemaps.forEach(sitemap => {
-        xml += '  <sitemap>\n';
-        xml += `    <loc>${sitemap.loc}</loc>\n`;
-        xml += `    <lastmod>${sitemap.lastmod}</lastmod>\n`;
-        xml += '  </sitemap>\n';
-    });
-    
-    xml += '</sitemapindex>';
-    
-    res.header('Content-Type', 'application/xml');
-    res.send(xml);
+    res.redirect(301, '/sitemap.xml');
 });
 
 // ========== AMIIBO ENDPOINTS ==========
@@ -4272,11 +4830,11 @@ site.post('/extractMiiFromAmiibo', upload.single('amiibo'), async (req, res) => 
         
         // Render images with FFL - save to temp location
         const miiImage = await miijs.renderMii(mii);
-        fs.writeFileSync("./static/miiImgs/" + tempId + ".png", miiImage);
+        await fs.promises.writeFile("./static/miiImgs/" + tempId + ".png", miiImage);
         await writeQrPng(mii, "./static/miiQRs/" + tempId + ".png");
         
         // Also save the decrypted bin data for upload
-        fs.writeFileSync("./static/temp/" + tempId + ".bin", miiData);
+        await fs.promises.writeFile("./static/temp/" + tempId + ".bin", miiData);
         
         // Clean up upload
         try { fs.unlinkSync("./uploads/" + req.file.filename); } catch (e) { }
@@ -4699,9 +5257,8 @@ site.get('/mii/:id', async (req, res) => {
     
     // Check access for private Miis
     if (mii.private) {
-        const user = await getUserByUsername(req.cookies.username);
-        const isModerator = user && canModerate(user);
-        const isOwner = mii.uploader === req.cookies.username;
+        const isModerator = Boolean(req.user && canModerate(req.user));
+        const isOwner = Boolean(req.user && mii.uploader === req.user.username);
         
         if (!isOwner && !isModerator) {
             return sendError(res, req, "Access denied. This is a private Mii.", 403);
@@ -4721,6 +5278,91 @@ site.get('/mii/:id', async (req, res) => {
         : "";
     inp.canEditOfficialMii = mii.official && (canModerate(req.user) || isResearcher(req.user));
     inp.canManageOfficialCategories = mii.official && isResearcher(req.user);
+    inp.pageUpdatedAt = mii?.updatedAt
+        ? new Date(mii.updatedAt).toISOString()
+        : (mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined);
+    inp.miiSeo = buildMiiSeoDetails(mii, inp.officialCategories, {
+        officialSourceName: inp.officialSourceName
+    });
+
+    const relatedVisibilityFilter = {
+        private: false,
+        published: true,
+        id: { $ne: miiId }
+    };
+    const sameArchiveOwnerQuery = mii.official
+        ? {
+            official: true,
+            officialSource: mii.officialSource || mii.uploader
+        }
+        : { uploader: mii.uploader };
+
+    const [sameArchiveOwnerMiis, relatedTagMiis, relatedCategoryMiis, archiveOwnerSummary] = await Promise.all([
+        Miis.find({ ...relatedVisibilityFilter, ...sameArchiveOwnerQuery })
+            .sort({ votes: -1, uploadedOn: -1 })
+            .limit(8)
+            .lean(),
+        inp.miiSeo.tagList.length > 0
+            ? Miis.find({
+                ...relatedVisibilityFilter,
+                tags: { $in: inp.miiSeo.tagList.slice(0, 6) }
+            })
+                .sort({ votes: -1, uploadedOn: -1 })
+                .limit(8)
+                .lean()
+            : Promise.resolve([]),
+        inp.miiSeo.categoryDetails.length > 0
+            ? Miis.find({
+                ...relatedVisibilityFilter,
+                officialCategories: { $in: inp.miiSeo.categoryDetails.map(category => category.path).slice(0, 6) }
+            })
+                .sort({ votes: -1, uploadedOn: -1 })
+                .limit(8)
+                .lean()
+            : Promise.resolve([]),
+        Miis.aggregate([
+            {
+                $match: {
+                    uploader: mii.uploader,
+                    private: false,
+                    published: true
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalMiis: { $sum: 1 },
+                    totalLikes: { $sum: { $ifNull: ["$votes", 0] } }
+                }
+            }
+        ])
+    ]);
+
+    inp.archiveOwnerStats = {
+        totalMiis: archiveOwnerSummary?.[0]?.totalMiis || 0,
+        totalLikes: archiveOwnerSummary?.[0]?.totalLikes || 0
+    };
+    inp.relatedCollections = buildCuratedMiiCollections([
+        {
+            title: mii.official
+                ? `More official Miis from ${inp.miiSeo.officialSourceName}`
+                : `More Miis from ${inp.miiSeo.uploaderName}`,
+            description: mii.official
+                ? `Browse other preserved official Miis filed under the ${inp.miiSeo.officialSourceName} archive.`
+                : `Browse additional Miis uploaded by ${inp.miiSeo.uploaderName}.`,
+            items: sameArchiveOwnerMiis
+        },
+        {
+            title: "Miis with matching tags",
+            description: "These Miis overlap with the same community tags and search topics.",
+            items: relatedTagMiis
+        },
+        {
+            title: "Miis in matching official categories",
+            description: "These official archive entries share the same source categories.",
+            items: relatedCategoryMiis
+        }
+    ], 4);
 
     // Override mii color for this page
     inp.userPfpMiiColor = mii.general.favoriteColor;
@@ -4758,14 +5400,63 @@ site.get('/user/:username', async (req, res) => {
         published: true
     };
 
-    const [totalMiis, likeSummary] = await Promise.all([
-        Miis.countDocuments(profileFilter),
+    const [profileSummaryRows, topTagsRows, topCategoryRows, topCreatorRows, featuredMiis] = await Promise.all([
         Miis.aggregate([
             { $match: profileFilter },
-            { $group: { _id: null, totalLikes: { $sum: { $ifNull: ["$votes", 0] } } } }
-        ])
+            {
+                $group: {
+                    _id: null,
+                    totalMiis: { $sum: 1 },
+                    totalLikes: { $sum: { $ifNull: ["$votes", 0] } },
+                    officialCount: {
+                        $sum: {
+                            $cond: ["$official", 1, 0]
+                        }
+                    },
+                    latestUploadOn: { $max: "$uploadedOn" },
+                    firstUploadOn: { $min: "$uploadedOn" }
+                }
+            }
+        ]),
+        Miis.aggregate([
+            { $match: profileFilter },
+            { $unwind: "$tags" },
+            { $group: { _id: "$tags", count: { $sum: 1 } } },
+            { $sort: { count: -1, _id: 1 } },
+            { $limit: 10 }
+        ]),
+        Miis.aggregate([
+            { $match: profileFilter },
+            { $unwind: "$officialCategories" },
+            { $group: { _id: "$officialCategories", count: { $sum: 1 } } },
+            { $sort: { count: -1, _id: 1 } },
+            { $limit: 8 }
+        ]),
+        Miis.aggregate([
+            {
+                $match: {
+                    ...profileFilter,
+                    "meta.creatorName": { $exists: true, $type: "string", $ne: "" }
+                }
+            },
+            { $group: { _id: "$meta.creatorName", count: { $sum: 1 } } },
+            { $sort: { count: -1, _id: 1 } },
+            { $limit: 8 }
+        ]),
+        Miis.find(profileFilter)
+            .sort({ votes: -1, uploadedOn: -1 })
+            .limit(4)
+            .lean()
     ]);
 
+    const profileSummary = profileSummaryRows?.[0] || {
+        totalMiis: 0,
+        totalLikes: 0,
+        officialCount: 0,
+        latestUploadOn: undefined,
+        firstUploadOn: undefined
+    };
+    const totalMiis = profileSummary.totalMiis || 0;
     const totalPages = Math.max(1, Math.ceil(totalMiis / profileMiisPerPage));
     const currentPage = Math.min(currentPageCandidate, totalPages);
     const skip = (currentPage - 1) * profileMiisPerPage;
@@ -4775,9 +5466,25 @@ site.get('/user/:username', async (req, res) => {
         .skip(skip)
         .limit(profileMiisPerPage)
         .lean();
+    const topCategories = getMiiCategoryDetails(
+        topCategoryRows.map(row => row?._id).filter(Boolean),
+        inp.officialCategories
+    );
     inp.profileStats = {
         totalMiis,
-        totalLikes: likeSummary?.[0]?.totalLikes || 0
+        totalLikes: profileSummary.totalLikes || 0,
+        officialCount: profileSummary.officialCount || 0,
+        communityCount: Math.max(0, totalMiis - (profileSummary.officialCount || 0)),
+        latestUploadOn: profileSummary.latestUploadOn,
+        firstUploadOn: profileSummary.firstUploadOn,
+        memberSince: getUserJoinTimestamp(targetUser)
+    };
+    inp.profileHighlights = {
+        topTags: topTagsRows.map(row => row?._id).filter(Boolean),
+        topCategories,
+        creatorNames: topCreatorRows.map(row => row?._id).filter(Boolean),
+        featuredMiis,
+        featuredNames: uniqueTextValues(featuredMiis.map(getDisplayMiiName)).slice(0, 6)
     };
     inp.pagination = {
         currentPage,
@@ -4785,6 +5492,10 @@ site.get('/user/:username', async (req, res) => {
         total: totalMiis,
         perPage: profileMiisPerPage
     };
+    attachPaginationMeta(req, inp, inp.pagination);
+    inp.pageUpdatedAt = profileSummary.latestUploadOn
+        ? new Date(profileSummary.latestUploadOn).toISOString()
+        : undefined;
     
     ejs.renderFile('./ejsFiles/userPage.ejs', inp, {}, function(err, str) {
         if (err) {
@@ -4846,7 +5557,7 @@ site.get('/signup', async (req, res) => {
     });
 });
 site.get('/login', async (req, res) => {
-    const next = req.query.next || '/';
+    const next = getSafeRedirectPath(req.query.next, '/');
 
     ejs.renderFile('./ejsFiles/login.ejs', {
         next: next,
@@ -4991,7 +5702,7 @@ site.post('/changePfp', requireAuth, async (req, res) => {
         const mii = await getMiiById(req.body.id);
         if (mii) {
             await Users.findOneAndUpdate(
-                { username: req.cookies.username },
+                { username: req.user.username },
                 { $set: { miiPfp: req.body.id } }
             );
             res.json({ okay: true });
@@ -5005,7 +5716,7 @@ site.post('/changePfp', requireAuth, async (req, res) => {
 });
 site.post('/changeUser', requireAuth, async (req, res) => {   // change username  
     const newUsername = req.body.newUser;
-    const oldUsername = req.cookies.username;
+    const oldUsername = req.user.username;
     const existingUser = await getUserByUsername(newUsername);
     
     if (validate(newUsername) && !existingUser) {
@@ -5040,7 +5751,18 @@ site.post('/changeUser', requireAuth, async (req, res) => {   // change username
                 "url": `https://infinimii.com/user/${encodeURIComponent(newUsername)}`
             }]
         }));
-        res.cookie('username', newUsername, { maxAge: ms("30 days") });
+        const updatedToken = createToken(updatedUser);
+        res.cookie('token', updatedToken, {
+            maxAge: ms("30 days"),
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+        });
+        res.cookie('username', newUsername, {
+            maxAge: ms("30 days"),
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+        });
         res.json({ okay: true });
     }
     else {
@@ -5191,6 +5913,16 @@ site.get('/faq', async (req, res) => {
         res.send(str);
     });
 });
+site.get('/guides/formats', async (req, res) => {
+    ejs.renderFile('./ejsFiles/formatGuide.ejs', await getSendables(req), {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
 site.get('/cite', async (req, res) => {
     ejs.renderFile('./ejsFiles/cite.ejs', await getSendables(req), {}, function(err, str) {
         if (err) {
@@ -5206,6 +5938,7 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
     try {
         const { newEmail } = req.body;
         const oldEmail = req.user.email;
+        const currentUsername = req.user.username;
 
         // Basic email validation
         // TODO: real email validation with library
@@ -5219,12 +5952,12 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
         }
 
         var token = genToken();
-        let link = "https://infinimii.com/verifyEmailChange?user=" + encodeURIComponent(req.cookies.username) + "&token=" + encodeURIComponent(token);
+        let link = "https://infinimii.com/verifyEmailChange?user=" + encodeURIComponent(currentUsername) + "&token=" + encodeURIComponent(token);
         
         // Store pending email and verification token, but keep current email active
         // This way user can still login with their account even if they enter wrong email
         await Users.findOneAndUpdate(
-            { username: req.cookies.username },
+            { username: currentUsername },
             { 
                 $set: { 
                     pendingEmail: newEmail,
@@ -5238,20 +5971,20 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
             embeds: [{
                 type: 'rich',
                 title: `Email Change Requested`,
-                description: `User ${req.cookies.username} requested to change their email`,
+                description: `User ${currentUsername} requested to change their email`,
                 color: 0x00CCFF,
                 fields: [
                     {
                         name: 'User',
-                        value: req.cookies.username,
+                        value: currentUsername,
                         inline: true
                     }
                 ]
             }]
         }));
 
-        sendEmail(oldEmail, "InfiniMii Email Change Request", `Hi ${req.cookies.username}, we received a request to change your email on InfiniMii. If this was not you, please reply to this email to receive support.`);
-        sendEmail(newEmail, "InfiniMii Email Verification", `Hi ${req.cookies.username}, we received a request to change your email on InfiniMii. Please verify your new email by clicking this link: ${link}. This link will expire in 24 hours. If this was not you, please ignore this email.`);
+        sendEmail(oldEmail, "InfiniMii Email Change Request", `Hi ${currentUsername}, we received a request to change your email on InfiniMii. If this was not you, please reply to this email to receive support.`);
+        sendEmail(newEmail, "InfiniMii Email Verification", `Hi ${currentUsername}, we received a request to change your email on InfiniMii. Please verify your new email by clicking this link: ${link}. This link will expire in 24 hours. If this was not you, please ignore this email.`);
 
 
         res.json({ okay: true });
@@ -5265,6 +5998,7 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
 site.post('/changePassword', requireAuth, async (req, res) => {
     try {
         const { oldPassword, newPassword } = req.body;
+        const currentUsername = req.user.username;
 
         // Verify old password
         if (!validatePassword(oldPassword, req.user.salt, req.user.pass)) {
@@ -5278,7 +6012,7 @@ site.post('/changePassword', requireAuth, async (req, res) => {
         const newTokenVersion = (req.user.tokenVersion || 0) + 1;
 
         await Users.findOneAndUpdate(
-            { username: req.cookies.username },
+            { username: currentUsername },
             { 
                 pass: newHashed.hash,
                 tokenVersion: newTokenVersion
@@ -5286,7 +6020,7 @@ site.post('/changePassword', requireAuth, async (req, res) => {
         );
 
         // Get updated user and create new JWT
-        const updatedUser = await getUserByUsername(req.cookies.username);
+        const updatedUser = await getUserByUsername(currentUsername);
         const newToken = createToken(updatedUser);
 
         // Set new JWT token cookie
@@ -5301,18 +6035,18 @@ site.post('/changePassword', requireAuth, async (req, res) => {
             embeds: [{
                 type: 'rich',
                 title: `Password Changed`,
-                description: `User ${req.cookies.username} changed their password`,
+                description: `User ${currentUsername} changed their password`,
                 color: 0x00FF00,
                 fields: [
                     {
                         name: 'User',
-                        value: req.cookies.username,
+                        value: currentUsername,
                         inline: true
                     }
                 ]
             }]
         }));
-        sendEmail(req.user.email,`Password Changed - InfiniMii`,`Hi ${req.cookies.username}, your password was recently changed on InfiniMii. If this was not you, you can reply to this email to receive support.`);
+        sendEmail(req.user.email,`Password Changed - InfiniMii`,`Hi ${currentUsername}, your password was recently changed on InfiniMii. If this was not you, you can reply to this email to receive support.`);
 
         res.json({ okay: true });
     } catch (e) {
@@ -5506,7 +6240,9 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
             sameSite: 'lax'
         });
         res.cookie('username', newUsername, {
-            maxAge: ms("30 days")
+            maxAge: ms("30 days"),
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
         });
         
         sendEmail(req.user.email, 'Username Changed - InfiniMii',
@@ -5545,6 +6281,7 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
 // Delete All User's Miis (User - own miis only)
 site.post('/deleteAllMyMiis', requireAuth, async (req, res) => {
     try {
+        const currentUsername = req.user.username;
         const miis = await Miis.find({ uploader: req.user.username, private: false, published: true }).lean();
         const miiIds = miis.map(m => m.id);
         let deletedCount = 0;
@@ -5570,12 +6307,12 @@ site.post('/deleteAllMyMiis', requireAuth, async (req, res) => {
             embeds: [{
                 type: 'rich',
                 title: `User Deleted All Their Miis`,
-                description: `${req.cookies.username} deleted all their own Miis`,
+                description: `${currentUsername} deleted all their own Miis`,
                 color: 0xFF6600,
                 fields: [
                     {
                         name: 'User',
-                        value: req.cookies.username,
+                        value: currentUsername,
                         inline: true
                     },
                     {
@@ -5586,7 +6323,7 @@ site.post('/deleteAllMyMiis', requireAuth, async (req, res) => {
                 ]
             }]
         }));
-        sendEmail(req.user.email,`All Miis Deleted - InfiniMii`,`Hi ${req.cookies.username}, we received a request to delete all of your Miis. If this wasn't you, reply to this email to receive support.`);
+        sendEmail(req.user.email,`All Miis Deleted - InfiniMii`,`Hi ${currentUsername}, we received a request to delete all of your Miis. If this wasn't you, reply to this email to receive support.`);
         res.json({ deletedCount });
     } catch (e) {
         console.error('Error deleting all user Miis:', e);
@@ -5653,7 +6390,7 @@ site.post('/deleteAccount', requireAuth, async (req, res) => {
                 ]
             }]
         }));
-        sendEmail(req.user.email,`Account Deleted - InfiniMii`,`Hi ${req.cookies.username}, we received a request to delete your account. We're sorry to see you go! If this wasn't you, please reply to this email to receive support.`)
+        sendEmail(req.user.email,`Account Deleted - InfiniMii`,`Hi ${username}, we received a request to delete your account. We're sorry to see you go! If this wasn't you, please reply to this email to receive support.`)
         res.json({ okay: true });
     } catch (e) {
         console.error('Error deleting account:', e);
@@ -5838,10 +6575,10 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         // Save to correct folders
         const miiImageData = await miijs.renderMii(mii);
         if (wantsPublic) {
-            fs.writeFileSync("./static/miiImgs/" + mii.id + ".png", miiImageData);
+            await fs.promises.writeFile("./static/miiImgs/" + mii.id + ".png", miiImageData);
             await writeQrPng(mii, "./static/miiQRs/" + mii.id + ".png");
         } else {
-            fs.writeFileSync("./static/privateMiiImgs/" + mii.id + ".png", miiImageData);
+            await fs.promises.writeFile("./static/privateMiiImgs/" + mii.id + ".png", miiImageData);
             await writeQrPng(mii, "./static/privateMiiQRs/" + mii.id + ".png");
         }
         
@@ -6617,7 +7354,7 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
         }
         if (!miiImageData) {
             miiImageData = await miijs.renderMii(mii);
-            fs.writeFileSync(publicImgPath, miiImageData);
+            await fs.promises.writeFile(publicImgPath, miiImageData);
         }
         if (!fs.existsSync(publicQrPath)) {
             await writeQrPng(mii, publicQrPath);
@@ -6991,7 +7728,9 @@ site.post('/login', async (req, res) => {
                 sameSite: 'lax' // CSRF protection
             });
             res.cookie('username', req.body.username, { 
-                maxAge: ms("30 days") 
+                maxAge: ms("30 days"),
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax'
             });
         }
         else {
@@ -7008,7 +7747,10 @@ site.post('/login', async (req, res) => {
 });
 
 site.get("/error", async(req, res) => {
-    let crash = undefined.field;
+    if (process.env.NODE_ENV === 'development') {
+        throw new Error('Intentional test error route');
+    }
+    return sendError(res, req, "This diagnostic route is disabled outside development.", 404);
 });
 
 // Error-handling middleware at the bottom of the stack

@@ -1,57 +1,109 @@
-<% if (typeof mii !== 'undefined') { %>
+<% if (typeof mii !== 'undefined' && !(String(pageRobots || '').toLowerCase().includes('noindex'))) { %>
 <%
-const officialSourceName = mii.official ? (mii.officialSource || mii.uploader || "Nintendo") : "";
-%>
-<script type="application/ld+json">
-{
+const seo = miiSeo || {};
+const officialSourceName = mii.official
+  ? (seo.officialSourceName || mii.officialSource || mii.uploader || "Nintendo")
+  : "";
+const miiName = seo.name || mii?.meta?.name || "Unknown Mii";
+const publishedIso = mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined;
+const modifiedIso = pageUpdatedAt || publishedIso;
+const miiUrl = `${baseUrl}/mii/${mii.id}`;
+const miiImageUrl = `${baseUrl}/miiImgs/${mii.id}.png`;
+const miiQrUrl = `${baseUrl}/miiQRs/${mii.id}.png`;
+const miiDescription = seo.metaDescription || mii.desc || `${miiName} Mii character${mii.official ? ` from ${officialSourceName}` : ''} for Nintendo systems.`;
+const creatorName = seo.creatorName || "";
+const keywordList = Array.isArray(seo.keywordList) && seo.keywordList.length > 0
+  ? seo.keywordList
+  : [
+      miiName,
+      "Mii character",
+      "Nintendo Mii",
+      mii.official ? "Official Mii" : "Community Mii"
+    ];
+const relatedTopicThings = [
+  ...(Array.isArray(seo.tagList) ? seo.tagList : []),
+  ...(Array.isArray(seo.categoryNames) ? seo.categoryNames : [])
+].map((name) => ({
+  "@type": "Thing",
+  "name": name
+}));
+const additionalProperties = [
+  seo.archiveTypeLabel ? { "@type": "PropertyValue", "name": "Archive type", "value": seo.archiveTypeLabel } : null,
+  seo.typeLabel ? { "@type": "PropertyValue", "name": "Mii type", "value": seo.typeLabel } : null,
+  seo.consoleLabel ? { "@type": "PropertyValue", "name": "Original console", "value": seo.consoleLabel } : null,
+  seo.genderLabel ? { "@type": "PropertyValue", "name": "Gender", "value": seo.genderLabel } : null,
+  seo.favoriteColorName ? { "@type": "PropertyValue", "name": "Favorite color", "value": seo.favoriteColorName } : null,
+  seo.birthdayLabel ? { "@type": "PropertyValue", "name": "Birthday", "value": seo.birthdayLabel } : null
+].filter(Boolean);
+const archiveOwnerEntity = {
+  "@type": mii.official ? "Organization" : "Person",
+  "name": mii.official ? officialSourceName : (mii.uploader || "InfiniMii User"),
+  "url": `${baseUrl}/user/${encodeURIComponent(mii.uploader || "")}`
+};
+const characterSchema = {
+  "@context": "https://schema.org",
+  "@type": "Character",
+  "@id": `${miiUrl}#character`,
+  "name": miiName,
+  "description": miiDescription,
+  "url": miiUrl,
+  "image": miiImageUrl,
+  "mainEntityOfPage": miiUrl,
+  "publisher": { "@id": `${baseUrl}/#organization` },
+  "creator": creatorName
+    ? { "@type": "Person", "name": creatorName }
+    : archiveOwnerEntity,
+  "contributor": mii.contributor
+    ? { "@type": "Person", "name": mii.contributor, "url": `${baseUrl}/user/${encodeURIComponent(mii.contributor)}` }
+    : archiveOwnerEntity,
+  "keywords": keywordList,
+  "genre": Array.isArray(seo.tagList) && seo.tagList.length > 0 ? seo.tagList : undefined,
+  "about": relatedTopicThings.length > 0 ? relatedTopicThings : undefined,
+  "additionalProperty": additionalProperties.length > 0 ? additionalProperties : undefined
+};
+
+const miiCreativeWorkSchema = {
   "@context": "https://schema.org",
   "@type": "CreativeWork",
-  "name": "<%= mii.meta.name %>",
-  "description": "<%= mii.desc || `${mii.meta.name} - Mii character for Nintendo systems` %>",
-  "image": [
-    "<%= baseUrl %>/miiImgs/<%= mii.id %>.png",
-    "<%= baseUrl %>/miiQRs/<%= mii.id %>.png"
-  ],
-  "creator": {
-    "@type": "<%= mii.official ? 'Organization' : 'Person' %>",
-    "name": "<%= mii.official ? officialSourceName : mii.uploader %>"
-  },
-  "datePublished": "<%= new Date(mii.uploadedOn).toISOString() %>",
-  "url": "<%= baseUrl %>/mii/<%= mii.id %>",
-  "keywords": "mii character, <%= mii.meta.name %>, nintendo mii, <%= mii.official ? 'official mii' : 'custom mii' %>",
-  "thumbnailUrl": "<%= baseUrl %>/miiImgs/<%= mii.id %>.png",
+  "@id": `${miiUrl}#creativework`,
+  "name": `${miiName} Mii Character`,
+  "description": miiDescription,
+  "url": miiUrl,
+  "image": miiImageUrl,
+  "thumbnailUrl": miiImageUrl,
+  "about": { "@id": `${miiUrl}#character` },
+  "creator": characterSchema.creator,
+  "contributor": characterSchema.contributor,
+  "datePublished": publishedIso,
+  "dateModified": modifiedIso,
+  "keywords": keywordList,
   "interactionStatistic": {
     "@type": "InteractionCounter",
     "interactionType": "https://schema.org/LikeAction",
-    "userInteractionCount": <%= mii.votes || 0 %>
+    "userInteractionCount": mii.votes || 0
   }
-}
-</script>
+};
 
-<% if (mii.official) { %>
-<script type="application/ld+json">
-{
+const miiPreviewSchema = {
   "@context": "https://schema.org",
-  "@type": "Product",
-  "name": "<%= mii.meta.name %> Official Mii",
-  "image": "<%= baseUrl %>/miiImgs/<%= mii.id %>.png",
-  "description": "<%= mii.desc || `Official ${mii.meta.name} Mii character from ${officialSourceName}` %>",
-  "brand": {
-    "@type": "Organization",
-    "name": "<%= officialSourceName %>"
-  },
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD",
-    "availability": "https://schema.org/InStock"
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "<%= Math.min(5, Math.max(1, (mii.votes || 1) / 10)) %>",
-    "reviewCount": "<%= mii.votes || 1 %>"
-  }
-}
-</script>
-<% } %>
+  "@type": "ImageObject",
+  "@id": `${miiUrl}#preview`,
+  "name": `${miiName} Mii Preview`,
+  "contentUrl": miiImageUrl,
+  "caption": `${miiName} Mii character preview image.`
+};
+
+const miiQrSchema = {
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  "@id": `${miiUrl}#qr`,
+  "name": `${miiName} Mii QR Code`,
+  "contentUrl": miiQrUrl,
+  "caption": `QR code for ${miiName}. Scan with compatible Nintendo systems to import the Mii.`
+};
+%>
+<script type="application/ld+json"><%- JSON.stringify(characterSchema, null, 2) %></script>
+<script type="application/ld+json"><%- JSON.stringify(miiCreativeWorkSchema, null, 2) %></script>
+<script type="application/ld+json"><%- JSON.stringify(miiPreviewSchema, null, 2) %></script>
+<script type="application/ld+json"><%- JSON.stringify(miiQrSchema, null, 2) %></script>
 <% } %>

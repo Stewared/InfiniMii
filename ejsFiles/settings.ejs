@@ -1,9 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<title>Settings - InfiniMii</title>
-		<link rel="stylesheet" href="./global.css">
-        <link rel="stylesheet" href="utilityPages.css">
+		<%
+		const pageTitle = 'Account Settings - InfiniMii';
+		const pageDesc = 'Manage your InfiniMii profile, email, password, and account preferences.';
+		const canonicalUrl = `${baseUrl}/settings`;
+		const pageRobots = 'noindex, nofollow, noarchive';
+		%>
+		<%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, pageRobots }) %>
+		<%- include('structuredData') %>
+		<link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
 	</head>
 	<body>
         <%- include('globalStyle') %>

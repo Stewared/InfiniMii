@@ -1,8 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>Transferring Miis Guide - InfiniMii</title>
-        <link rel="stylesheet" href="./global.css">
+        <%
+        const pageTitle = 'How to Transfer Miis Between Nintendo Systems - InfiniMii';
+        const pageDesc = 'Complete guide to transferring Miis between Wii, DS, 3DS, Wii U, Switch, Amiibo, and Mii Studio, including import, export, and recreation workflows.';
+        const canonicalUrl = `${baseUrl}/guides/transfer`;
+        const keywords = 'transfer miis, mii transfer guide, wii mii transfer, 3ds mii qr, switch mii transfer, amiibo mii';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Transfer Guide', url: '/guides/transfer' }
+        ];
+        const schemaType = 'TechArticle';
+        const howToTitle = 'How to Transfer Miis Between Nintendo Systems';
+        const howToDescription = pageDesc;
+        const howToDuration = 'PT15M';
+        const howToSupplies = [
+            { "@type": "HowToSupply", "name": "A Nintendo system with Mii support" },
+            { "@type": "HowToSupply", "name": "A Mii source such as a QR code, file, or Amiibo" }
+        ];
+        const howToTools = [
+            { "@type": "HowToTool", "name": "InfiniMii", "url": `${baseUrl}/` },
+            { "@type": "HowToTool", "name": "Nintendo Mii Maker" }
+        ];
+        const howToSteps = [
+            {
+                "@type": "HowToStep",
+                "name": "Choose your source and destination systems",
+                "text": "Identify the systems you are moving Miis between so you can follow the right method.",
+                "url": `${baseUrl}/guides/transfer#top`
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Find the matching section in this guide",
+                "text": "Use the Wii, 3DS, Wii U, Amiibo, Switch, or Mii Studio sections below for detailed instructions.",
+                "url": `${baseUrl}/guides/transfer#3ds`
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Export, transfer, or recreate the Mii",
+                "text": "Follow the method that matches your hardware and tool support, then verify the Mii on the destination device.",
+                "url": `${baseUrl}/guides/transfer#switch`
+            }
+        ];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+        <%- include('howToSchema') %>
+        <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/utilityPages.css">
     </head>
     <body>
@@ -78,8 +122,8 @@
                         <button class="copy-link-btn" onclick="copyArticleLink(this)" data-section="wii-pc" title="Copy link to this section">🔗</button>
                     </h4>
                     <p>
-                        You will need to pair your Wiimote to your Windows device. This can with some models be done simply through bluetooth settings and putting the Wiimote in sync mode, but the most consistent method I've found is simply to pair the Wiimote in <a target="_blank" href="https://dolphin-emu.org/">Dolphin</a>, and once it is paired, leave Dolphin running but we won't be using it further.<br><br>
-                        You can then use <a target="_blank" href="https://sourceforge.net/projects/wdml/">WDML Mii Transfer</a>. After unzipping the program, with the Wiimote paired, you can use readslotX.bat to transfer a Mii off of the Wiimote and to your device, where X is the slot the Mii you wanted to read was in, minus one (so if the slot was the third from the left, use readslot2.bat). To write a Mii to the Wiimote, first place the Mii file in the same folder as the WDML files. Rename the file miiX.bat, where X is the slot you want to write the Mii to, minus one (so if I wanted to write to the fifth from the left, I would name it mii4.mii). You can then run writeslotX.bat, where X is the same number from miiX.bat.
+                        You will need to pair your Wiimote to your Windows device. This can with some models be done simply through bluetooth settings and putting the Wiimote in sync mode, but the most consistent method I've found is simply to pair the Wiimote in <a target="_blank" rel="noopener noreferrer" href="https://dolphin-emu.org/">Dolphin</a>, and once it is paired, leave Dolphin running but we won't be using it further.<br><br>
+                        You can then use <a target="_blank" rel="noopener noreferrer" href="https://sourceforge.net/projects/wdml/">WDML Mii Transfer</a>. After unzipping the program, with the Wiimote paired, you can use readslotX.bat to transfer a Mii off of the Wiimote and to your device, where X is the slot the Mii you wanted to read was in, minus one (so if the slot was the third from the left, use readslot2.bat). To write a Mii to the Wiimote, first place the Mii file in the same folder as the WDML files. Rename the file miiX.bat, where X is the slot you want to write the Mii to, minus one (so if I wanted to write to the fifth from the left, I would name it mii4.mii). You can then run writeslotX.bat, where X is the same number from miiX.bat.
                     </p>
                     
                     <h4 id="wii-3ds">
@@ -179,12 +223,12 @@
                         Amiibos can be interacted with using NFC enabled phones.
                         <ul>
                             <li>
-                                <b>Android: <a target="_blank" href="https://play.google.com/store/apps/details?id=com.hiddenramblings.tagmo.eightbit&hl=en_US&pli=1">Tagmo</a></b><br>
+                                <b>Android: <a target="_blank" rel="noopener noreferrer" href="https://play.google.com/store/apps/details?id=com.hiddenramblings.tagmo.eightbit&hl=en_US&pli=1">Tagmo</a></b><br>
                                 To use Tagmo after selecting your Amiibo key files, press the "nfc" button in the bottom right, and then "Create Backup". After scanning your Amiibo, this will create a .bin file representing the data your Amiibo transmits. This file can be uploaded to <a href="/amiibo">our Amiibo page</a> to interact with further.<br>
                                 To write to your Amiibo, place the new .bin file in Tagmo's folder. Making sure the filename is right on Tagmo's main screen (you may need to drag down to refresh), tap it and then tap "Update". Scan your Amiibo once more, and the Mii will be available on the Amiibo.
                             </li>
                             <li>
-                                <b>iOS: <a target="_blank" href="https://www.reddit.com/r/tagmo/comments/ynxonu/list_of_ios_iphone_amiibo_apps/">Reddit Thread with a List of Options</a></b><br>
+                                <b>iOS: <a target="_blank" rel="noopener noreferrer" href="https://www.reddit.com/r/tagmo/comments/ynxonu/list_of_ios_iphone_amiibo_apps/">Reddit Thread with a List of Options</a></b><br>
                                 There is no known really good option for iOS. All I am aware of are paid, or limit the amount of writes you can do before paying. If this ever changes, please feel free to contact me at the link in the footer. For the time being, the linked Reddit thread lists some options you can pay for, or wade through the limited free writes on. I use an Android as my primary phone, so I use Tagmo and have no use for paid iPhone apps. If a free option becomes available, let me know and I will become acquainted with its use and add it to this guide.
                             </li>
                         </ul>
@@ -215,7 +259,7 @@
                         <button class="copy-link-btn" onclick="copyArticleLink(this)" data-section="studio" title="Copy link to this section">🔗</button>
                     </h2>
                     <p>
-                        Mii Studio is Nintendo's online offering that exists primarily to provide profile pictures for your Nintendo account. After making sure your device is logged into <a href="https://accounts.nintendo.com/" target="_blank">https://accounts.nintendo.com/</a>, you can open Mii Studio <a href="https://my.nintendo.com/mii" target="_blank">here</a>.
+                        Mii Studio is Nintendo's online offering that exists primarily to provide profile pictures for your Nintendo account. After making sure your device is logged into <a href="https://accounts.nintendo.com/" target="_blank" rel="noopener noreferrer">https://accounts.nintendo.com/</a>, you can open Mii Studio <a href="https://my.nintendo.com/mii" target="_blank" rel="noopener noreferrer">here</a>.
                     </p>
                     
                     <h4 id="studio-tools">
@@ -223,7 +267,7 @@
                         <button class="copy-link-btn" onclick="copyArticleLink(this)" data-section="studio-tools" title="Copy link to this section">🔗</button>
                     </h4>
                     <p>
-                        To transfer Miis in and out of Mii Studio without direct recreation, you will need a tool of some kind. I will likely write my own at some point, but for the time being, <a href="https://mii.tools/studioloader/" target="_blank">this browser extension</a> by HEYimHeroic is able to help with this. After installing, go to <a href="https://my.nintendo.com/mii" target="_blank">Mii Studio</a>, edit a Mii, and make sure to make a small change even if you revert it right after. Once you do this, open the extension and copy the generated data. On InfiniMii, use the Copy Hex or Copy Base64 export options when you need portable raw Mii data.
+                        To transfer Miis in and out of Mii Studio without direct recreation, you will need a tool of some kind. I will likely write my own at some point, but for the time being, <a href="https://mii.tools/studioloader/" target="_blank" rel="noopener noreferrer">this browser extension</a> by HEYimHeroic is able to help with this. After installing, go to <a href="https://my.nintendo.com/mii" target="_blank" rel="noopener noreferrer">Mii Studio</a>, edit a Mii, and make sure to make a small change even if you revert it right after. Once you do this, open the extension and copy the generated data. On InfiniMii, use the Copy Hex or Copy Base64 export options when you need portable raw Mii data.
                     </p>
                 </article>
             </div>

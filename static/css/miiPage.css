@@ -120,6 +120,7 @@
     margin: 0 0 1.5rem 0;
     color: var(--brand-color);
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    overflow-wrap: anywhere;
 }
 
 .info-grid {
@@ -1078,11 +1079,187 @@
     padding: 0.24rem 0.58rem;
     font-size: 0.8rem;
     line-height: 1.25;
+    text-decoration: none;
 }
 
 .no-categories {
     color: var(--text-2);
     font-style: italic;
+}
+
+.mii-seo-sections {
+    display: grid;
+    gap: 1rem;
+    padding: 0 2rem 2rem;
+    background-color: var(--layer-2-um);
+}
+
+.mii-seo-panel {
+    border-radius: 16px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #787878 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 82%, var(--layer-1-um) 18%);
+    padding: 1.15rem 1.2rem;
+    min-width: 0;
+}
+
+.mii-seo-panel h2 {
+    margin: 0 0 0.7rem;
+    color: var(--text-1);
+    font-size: 1.1rem;
+}
+
+.mii-seo-panel h3 {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 0.98rem;
+}
+
+.mii-seo-panel p {
+    margin: 0;
+    color: var(--text-2);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.mii-seo-panel p + p {
+    margin-top: 0.75rem;
+}
+
+.mii-fact-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem 1rem;
+    margin: 0;
+}
+
+.mii-fact {
+    padding: 0.8rem 0.9rem;
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--layer-1-um) 76%, var(--layer-2-um) 24%);
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 56%, #767676 44%);
+}
+
+.mii-fact dt {
+    margin: 0 0 0.35rem;
+    color: var(--text-2);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.mii-fact dd {
+    margin: 0;
+    color: var(--text-1);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.mii-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+}
+
+.mii-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.42rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 48%, #858585 52%);
+    background: color-mix(in oklab, var(--brand-color) 20%, var(--layer-2-um) 80%);
+    color: var(--text-1);
+    font-size: 0.88rem;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.mii-chip:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 72%, #8a8a8a 28%);
+    background: color-mix(in oklab, var(--brand-color) 28%, var(--layer-2-um) 72%);
+}
+
+.mii-search-topic-copy {
+    margin-top: 0.85rem !important;
+}
+
+.mii-faq-list {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.mii-faq-item {
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--layer-1-um) 78%, var(--layer-2-um) 22%);
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 56%, #757575 44%);
+}
+
+.mii-faq-item p {
+    margin-top: 0.45rem;
+}
+
+.related-mii-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.9rem;
+    margin-top: 0.9rem;
+}
+
+.related-mii-card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7a7a7a 42%);
+    background: color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%);
+}
+
+.related-mii-image {
+    display: block;
+    overflow: hidden;
+}
+
+.related-mii-image img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+    --darker-color: color-mix(in oklab, #222 60%, var(--favorite-color) 30%);
+    --lighter-color: color-mix(in oklab, #555 90%, var(--favorite-color) 60%);
+    background: radial-gradient(circle, var(--lighter-color) 26%, var(--darker-color) 100%);
+}
+
+.related-mii-image:hover img {
+    transform: scale(1.05);
+}
+
+.related-mii-body {
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.85rem 0.9rem 1rem;
+}
+
+.related-mii-body h3 {
+    font-size: 1rem;
+}
+
+.related-mii-body h3 a {
+    color: var(--text-1);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.related-mii-body h3 a:hover {
+    color: var(--brand-color);
+}
+
+.related-mii-body p {
+    font-size: 0.9rem;
 }
 
 .edit-categories-btn,
@@ -1277,6 +1454,18 @@
 }
 
 @media (max-width: 760px) {
+    .mii-seo-sections {
+        padding: 0 1.15rem 1.2rem;
+    }
+
+    .mii-fact-list {
+        grid-template-columns: 1fr;
+    }
+
+    .related-mii-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
     .mod-tag-selector {
         grid-column: span 1;
     }

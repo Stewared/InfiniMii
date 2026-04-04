@@ -1,10 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <meta charset="utf-8">
-        <title>Scanning QR - InfiniMii</title>
-        <link rel="stylesheet" href="global.css">
-        <link rel="stylesheet" href="utilityPages.css">
+        <%
+        const pageTitle = 'Scan Mii QR Codes - InfiniMii';
+        const pageDesc = 'Use your camera to scan a Mii QR code, then export the decoded data or upload the Mii through InfiniMii.';
+        const canonicalUrl = `${baseUrl}/qr`;
+        const keywords = 'scan mii qr code, mii qr scanner, 3ds qr code, wii u qr code';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'QR Scanner', url: '/qr' }
+        ];
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "InfiniMii QR Scanner",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web Browser",
+            "url": `${baseUrl}/qr`,
+            "description": pageDesc,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
     </head>
     <body>
         <%- include('globalStyle') %>
@@ -12,6 +36,10 @@
         <%- include('accountDisplay') %>
         <div class="content">
             <%- include('sidebar') %>
+            <section class="utility-container" aria-labelledby="qr-heading">
+                <h1 id="qr-heading">Scan a Mii QR Code</h1>
+                <p>Point your camera at a compatible Mii QR code to decode it, then export it into another format or upload it to InfiniMii.</p>
+            </section>
             <form method="POST" enctype="multipart/form-data" action="/exportMii" class="convert" hidden>
                 <fieldset>
                     <legend>Convert</legend>
