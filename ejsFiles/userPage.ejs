@@ -219,25 +219,13 @@
                                     <%= totalLikes %>
                                 </span>
                             </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Official Miis</span>
-                                <span class="stat-value">
-                                    <%= officialCount %>
-                                </span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Community Miis</span>
-                                <span class="stat-value">
-                                    <%= communityCount %>
-                                </span>
-                            </div>
                             <% if(memberSinceLabel) { %>
-                                <div class="stat-item">
+                                <!-- div class="stat-item">
                                     <span class="stat-label">Member Since</span>
                                     <span class="stat-value">
                                         <%= memberSinceLabel %>
                                     </span>
-                                </div>
+                                </div-->
                             <% } %>
                             <% if(latestUploadLabel) { %>
                                 <div class="stat-item">
@@ -251,8 +239,8 @@
                     </div>
                 </div>
 
-                <div class="profile-discovery">
-                    <section class="profile-panel" aria-labelledby="profile-summary-heading">
+                <div class="profile-discovery" hidden>
+                    <section class="profile-panel" aria-labelledby="profile-summary-heading" hidden>
                         <h2 id="profile-summary-heading">About <%= targetUser.username %>'s Mii Archive</h2>
                         <p><%= profileLead %></p>
                         <% if(profileArchiveSummary) { %>
@@ -263,7 +251,7 @@
                         <% } %>
                     </section>
 
-                    <section class="profile-panel" aria-labelledby="profile-topics-heading">
+                    <section class="profile-panel" aria-labelledby="profile-topics-heading" hidden>
                         <h2 id="profile-topics-heading">Search Topics And Archive Themes</h2>
                         <p>Browse this creator by uploader name, recurring tags, official categories, creator names, and standout character uploads.</p>
                         <div class="profile-chip-list">
@@ -284,7 +272,7 @@
                     </section>
 
                     <% if(profileFeaturedMiis.length > 0) { %>
-                        <section class="profile-panel" aria-labelledby="profile-featured-heading">
+                        <section class="profile-panel" aria-labelledby="profile-featured-heading" hidden>
                             <h2 id="profile-featured-heading">Popular Uploads From <%= targetUser.username %></h2>
                             <p>These uploads are currently the strongest search and discovery signals on this profile.</p>
                             <div class="profile-featured-grid">
@@ -304,7 +292,7 @@
                     <% } %>
 
                     <% if(faqEntries.length > 0) { %>
-                        <section class="profile-panel" aria-labelledby="profile-faq-heading">
+                        <section class="profile-panel" aria-labelledby="profile-faq-heading" hidden>
                             <h2 id="profile-faq-heading">Questions About This Creator</h2>
                             <div class="profile-faq-list">
                                 <% faqEntries.forEach((entry) => { %>
@@ -411,7 +399,7 @@
                         Latest Uploads From <%= targetUser.username %>
                     </h2>
                     <% if(totalUploaded > 0) { %>
-                        <p class="profile-section-copy">This grid lists the public Miis on <%= targetUser.username %>'s profile in reverse chronological order, with older uploads available through pagination.</p>
+                        <p class="profile-section-copy" hidden>This grid lists the public Miis on <%= targetUser.username %>'s profile in reverse chronological order, with older uploads available through pagination.</p>
                     <% } %>
 
                     <% if(displayedMiis.length> 0) { %>

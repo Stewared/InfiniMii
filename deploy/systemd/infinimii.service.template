@@ -1,0 +1,20 @@
+[Unit]
+Description=InfiniMii web application
+Wants=network-online.target
+After=network-online.target mongod.service
+
+[Service]
+Type=simple
+WorkingDirectory=__APP_DIR__
+Environment=NODE_ENV=production
+EnvironmentFile=-/etc/default/infinimii
+ExecStart=__NODE_BIN__ __APP_DIR__/index.js
+Restart=always
+RestartSec=5
+TimeoutStopSec=20
+KillSignal=SIGTERM
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

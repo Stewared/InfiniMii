@@ -123,6 +123,7 @@ const MII_CHILD_STAGE_LABELS = [
     "Young Adult",
     "Adult"
 ];
+const DEFAULT_USER_PFP_MII_ID = "QfK19";
 const INSTRUCTION_CONSOLE_VALUES = new Set(["DS", "WII", "3DS", "WIIU", "SWITCH", "SWITCH2"]);
 const MAX_MII_TAG_LENGTH = 40;
 const MAX_COMPANY_SOURCE_NAME_LENGTH = 15;
@@ -674,10 +675,22 @@ function cloneSettings(settings) {
 
 function normalizeSettingsRecord(settings) {
     if (!settings) return settings;
-    if (typeof settings.toObject === "function") {
-        return settings.toObject();
+    const normalized = typeof settings.toObject === "function"
+        ? settings.toObject()
+        : settings;
+
+    if (typeof normalized.defaultUserPfpMii !== "string" || !normalized.defaultUserPfpMii.trim()) {
+        normalized.defaultUserPfpMii = DEFAULT_USER_PFP_MII_ID;
     }
-    return settings;
+
+    return normalized;
+}
+
+function getDefaultUserPfpMiiId(settings) {
+    const configured = typeof settings?.defaultUserPfpMii === "string"
+        ? settings.defaultUserPfpMii.trim()
+        : "";
+    return configured || DEFAULT_USER_PFP_MII_ID;
 }
 
 function invalidateSettingsCache(nextValue = null) {
@@ -692,12 +705,24 @@ async function loadSettingsFromDatabase() {
         settings = normalizeSettingsRecord(await Settings.create({
             _id: "global",
             highlightedMii: null,
+            defaultUserPfpMii: DEFAULT_USER_PFP_MII_ID,
             highlightedMiiChangeDay: null,
             bannedIPs: [],
             officialCategories: { categories: [] },
             officialCompanySources: [DEFAULT_OFFICIAL_COMPANY_SOURCE],
             miiTags: []
         }));
+    } else {
+        const hasDefaultUserPfpMii = typeof settings.defaultUserPfpMii === "string" && settings.defaultUserPfpMii.trim();
+        if (!hasDefaultUserPfpMii) {
+            settings = normalizeSettingsRecord(await Settings.findByIdAndUpdate(
+                "global",
+                { defaultUserPfpMii: DEFAULT_USER_PFP_MII_ID },
+                { new: true, lean: true }
+            ));
+        } else {
+            settings = normalizeSettingsRecord(settings);
+        }
     }
     cachedSettings = settings;
     cachedSettingsLoadedAt = Date.now();
@@ -1400,7 +1425,7 @@ function getOfficialCompanySources(settings) {
     return normalized;
 }
 
-async function ensureOfficialCompanySourceAccount(sourceName) {
+async function ensureOfficialCompanySourceAccount(sourceName, settings = null) {
     const normalizedSource = normalizeCompanySourceName(sourceName);
     if (!normalizedSource) return;
 
@@ -1408,6 +1433,7 @@ async function ensureOfficialCompanySourceAccount(sourceName) {
     if (existingUser) return;
 
     try {
+        const resolvedSettings = settings || await getSettings();
         await Users.create({
             username: normalizedSource,
             salt: "",
@@ -1415,7 +1441,7 @@ async function ensureOfficialCompanySourceAccount(sourceName) {
             creationDate: Date.now(),
             email: "",
             votedFor: [],
-            miiPfp: "00000",
+            miiPfp: getDefaultUserPfpMiiId(resolvedSettings),
             roles: [ROLES.BASIC],
             verified: true
         });
@@ -1502,7 +1528,7 @@ async function resolveOfficialCompanySourceForUpload(req, settings) {
         sourceListChanged = true;
     }
 
-    await ensureOfficialCompanySourceAccount(selectedSource);
+    await ensureOfficialCompanySourceAccount(selectedSource, settings);
 
     if (sourceListChanged) {
         const normalizedSources = normalizeOfficialCompanySourceList(availableSources);
@@ -1682,11 +1708,38 @@ function sha256(str) {
     return crypto.createHash('sha256').update(`${str}${globalSalt}`).digest('hex');
 }
 
+function getMiiAssetPaths(miiId, isPrivate) {
+    return {
+        imgPath: isPrivate ? `./static/privateMiiImgs/${miiId}.png` : `./static/miiImgs/${miiId}.png`,
+        qrPath: isPrivate ? `./static/privateMiiQRs/${miiId}.png` : `./static/miiQRs/${miiId}.png`
+    };
+}
+
 function deleteMiiAssets(miiId, isPrivate) {
-    const imgPath = isPrivate ? `./static/privateMiiImgs/${miiId}.png` : `./static/miiImgs/${miiId}.png`;
-    const qrPath = isPrivate ? `./static/privateMiiQRs/${miiId}.png` : `./static/miiQRs/${miiId}.png`;
+    const { imgPath, qrPath } = getMiiAssetPaths(miiId, isPrivate);
     try { fs.unlinkSync(imgPath); } catch (e) {}
     try { fs.unlinkSync(qrPath); } catch (e) {}
+}
+
+async function moveMiiAssets(miiId, fromPrivate, toPrivate) {
+    const sourcePaths = getMiiAssetPaths(miiId, fromPrivate);
+    const destinationPaths = getMiiAssetPaths(miiId, toPrivate);
+    let movedImage = false;
+    let movedQr = false;
+
+    if (fs.existsSync(sourcePaths.imgPath)) {
+        try { await fs.promises.unlink(destinationPaths.imgPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.imgPath, destinationPaths.imgPath);
+        movedImage = true;
+    }
+
+    if (fs.existsSync(sourcePaths.qrPath)) {
+        try { await fs.promises.unlink(destinationPaths.qrPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.qrPath, destinationPaths.qrPath);
+        movedQr = true;
+    }
+
+    return { movedImage, movedQr, ...destinationPaths };
 }
 
 function isVPN(ip) {
@@ -1811,6 +1864,15 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
         case "random": { // TODO: this is random, but based on sort order. True random is possible but not deterministically
                          // QK, Kestron: I think this is more random than it was, I left the old code commented, reimplement if necessary.
             const totalCount = await Miis.countDocuments(query);
+            if (totalCount === 0) {
+                return {
+                    items: [],
+                    total: 0,
+                    page,
+                    perPage,
+                    totalPages: 0
+                };
+            }
             // const pipeline = [
             //     { $match: query },
             //     {
@@ -2322,6 +2384,11 @@ async function setAverageMii(){
     ];
     const allMiis = await Miis.aggregate(pipeline);
 
+    if (allMiis.length === 0) {
+        await Miis.deleteOne({ id: "average" });
+        return null;
+    }
+
 
     const leaves = await getCollectedLeavesAcrossMiis(allMiis);
     var avg=averageObjectWithPairs(leaves);
@@ -2436,6 +2503,8 @@ function buildRequestPathWithPage(req, pageNumber) {
 }
 
 function attachPaginationMeta(req, toSend, pagination) {
+    toSend.prevUrl = undefined;
+    toSend.nextUrl = undefined;
     if (!pagination || pagination.totalPages <= 1) return;
 
     if (pagination.currentPage > 1) {
@@ -2477,6 +2546,8 @@ function generateSitemapIndexXML(sitemaps) {
 
 import 'express-async-errors'; // Inject express to make router async errors handle the same as sync errors (dropping down to next() handler)
 const site = express();
+// Cloudflare Tunnel terminates upstream and forwards from localhost with X-Forwarded-* headers.
+site.set("trust proxy", "loopback");
 site.use(express.json());
 site.use(express.urlencoded({ extended: true }));
 site.use(express.static(path.join(__dirname + '/static')));
@@ -2950,7 +3021,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
         if (!isDeepStrictEqual(existingCompanySources, normalizedCompanySources)) {
             await updateSettings({ officialCompanySources: normalizedCompanySources });
         }
-        await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source)));
+        await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
         console.log("Settings initialized");
 
         // For Quickly Uploading Batches of Miis
@@ -3003,6 +3074,11 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
         if (avgMii) {
             fs.promises.writeFile(`./static/miiImgs/average.png`, await miijs.renderMii(avgMii)).catch(() => console.log);
             await writeQrPng(avgMii, `./static/miiQRs/average.png`).catch(() => console.log);
+        } else {
+            await Promise.allSettled([
+                fs.promises.unlink(`./static/miiImgs/average.png`),
+                fs.promises.unlink(`./static/miiQRs/average.png`)
+            ]);
         }
 
         fs.readdirSync("./uploads").forEach(failedUploadFile=>{
@@ -6345,6 +6421,7 @@ site.post('/deleteAccount', requireAuth, async (req, res) => {
         // Transfer Miis to a special "Deleted User" account
         let deletedUser = await getUserByUsername("[Deleted User]");
         if (!deletedUser) {
+            const settings = await getSettings();
             await Users.create({
                 username: "[Deleted User]",
                 salt: "",
@@ -6352,7 +6429,7 @@ site.post('/deleteAccount', requireAuth, async (req, res) => {
                 creationDate: Date.now(),
                 email: "",
                 votedFor: [],
-                miiPfp: "00000",
+                miiPfp: getDefaultUserPfpMiiId(settings),
                 roles: [ROLES.BASIC],
             });
         }
@@ -7340,11 +7417,17 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
             return res.json({ error: 'This Mii has been blocked from publishing by a moderator. Please contact support if you believe this is an error.' });
         }
 
-        const publicImgPath = `./static/miiImgs/${mii.id}.png`;
-        const publicQrPath = `./static/miiQRs/${mii.id}.png`;
+        // Update Mii status to published and public
+        await Miis.findOneAndUpdate(
+            { id: miiId },
+            { $set: { private: false, published: true } }
+        );
+
+        const { imgPath: publicImgPath, qrPath: publicQrPath } = getMiiAssetPaths(mii.id, false);
         let miiImageData = null;
 
-        // Because private assets are protected, we regenerate in public folders.
+        await moveMiiAssets(mii.id, true, false);
+
         if (fs.existsSync(publicImgPath)) {
             try {
                 miiImageData = fs.readFileSync(publicImgPath);
@@ -7360,13 +7443,7 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
             await writeQrPng(mii, publicQrPath);
         }
 
-        // Update Mii status to published and public
-        await Miis.findOneAndUpdate(
-            { id: miiId },
-            { $set: { private: false, published: true } }
-        );
-
-        // Remove private files after successful publish
+        // Clean up any remaining private files after successful publish
         deleteMiiAssets(miiId, true);
 
         // Notify Discord
@@ -7700,6 +7777,7 @@ site.post('/signup', async (req, res) => {
         verificationToken: hashPassword(token, hashedPassword.salt).hash,
         creationDate: Date.now(),
         email: cleanEmail,
+        miiPfp: getDefaultUserPfpMiiId(settings),
         roles: [ ROLES.BASIC ],
     });
     

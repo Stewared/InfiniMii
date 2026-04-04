@@ -1,15 +1,22 @@
-<% if (typeof mii !== 'undefined' && !(String(pageRobots || '').toLowerCase().includes('noindex'))) { %>
 <%
-const seo = miiSeo || {};
+const pageRobotsValue = typeof pageRobots !== 'undefined' ? pageRobots : '';
+const seo = typeof miiSeo !== 'undefined' && miiSeo ? miiSeo : {};
+const resolvedBaseUrl = typeof baseUrl !== 'undefined' && baseUrl
+  ? String(baseUrl).replace(/\/+$/, '')
+  : '';
+const resolvedPageUpdatedAt = typeof pageUpdatedAt !== 'undefined' ? pageUpdatedAt : undefined;
+if (typeof mii !== 'undefined' && !(String(pageRobotsValue).toLowerCase().includes('noindex'))) {
+%>
+<%
 const officialSourceName = mii.official
   ? (seo.officialSourceName || mii.officialSource || mii.uploader || "Nintendo")
   : "";
 const miiName = seo.name || mii?.meta?.name || "Unknown Mii";
 const publishedIso = mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined;
-const modifiedIso = pageUpdatedAt || publishedIso;
-const miiUrl = `${baseUrl}/mii/${mii.id}`;
-const miiImageUrl = `${baseUrl}/miiImgs/${mii.id}.png`;
-const miiQrUrl = `${baseUrl}/miiQRs/${mii.id}.png`;
+const modifiedIso = resolvedPageUpdatedAt || publishedIso;
+const miiUrl = `${resolvedBaseUrl}/mii/${mii.id}`;
+const miiImageUrl = `${resolvedBaseUrl}/miiImgs/${mii.id}.png`;
+const miiQrUrl = `${resolvedBaseUrl}/miiQRs/${mii.id}.png`;
 const miiDescription = seo.metaDescription || mii.desc || `${miiName} Mii character${mii.official ? ` from ${officialSourceName}` : ''} for Nintendo systems.`;
 const creatorName = seo.creatorName || "";
 const keywordList = Array.isArray(seo.keywordList) && seo.keywordList.length > 0
@@ -38,7 +45,7 @@ const additionalProperties = [
 const archiveOwnerEntity = {
   "@type": mii.official ? "Organization" : "Person",
   "name": mii.official ? officialSourceName : (mii.uploader || "InfiniMii User"),
-  "url": `${baseUrl}/user/${encodeURIComponent(mii.uploader || "")}`
+  "url": `${resolvedBaseUrl}/user/${encodeURIComponent(mii.uploader || "")}`
 };
 const characterSchema = {
   "@context": "https://schema.org",
@@ -49,12 +56,12 @@ const characterSchema = {
   "url": miiUrl,
   "image": miiImageUrl,
   "mainEntityOfPage": miiUrl,
-  "publisher": { "@id": `${baseUrl}/#organization` },
+  "publisher": { "@id": `${resolvedBaseUrl}/#organization` },
   "creator": creatorName
     ? { "@type": "Person", "name": creatorName }
     : archiveOwnerEntity,
   "contributor": mii.contributor
-    ? { "@type": "Person", "name": mii.contributor, "url": `${baseUrl}/user/${encodeURIComponent(mii.contributor)}` }
+    ? { "@type": "Person", "name": mii.contributor, "url": `${resolvedBaseUrl}/user/${encodeURIComponent(mii.contributor)}` }
     : archiveOwnerEntity,
   "keywords": keywordList,
   "genre": Array.isArray(seo.tagList) && seo.tagList.length > 0 ? seo.tagList : undefined,

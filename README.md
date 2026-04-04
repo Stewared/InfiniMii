@@ -25,7 +25,9 @@ The email instructions and code are designed for use with Zoho Mail, and mileage
 
 
 ## Setup Storage
-You will need ot setup a MongoDB server on localhost on the default port (later we will support any URL). 
+For local development, `npm run dev` will automatically start an in-memory MongoDB instance if no MongoDB URI is configured.
+
+For persistent storage or production, set `MONGODB_URI` in your shell before starting the app. If `MONGODB_URI` is unset in production, the app falls back to `mongodb://127.0.0.1:27017/infinimii`.
 
 A default Mii ID and such will need to be set. You can use MiiJS to get the necessary JSON if the site won't initialize without one. Paste the JSON into the miis array, and add the following fields to it.
 ```json
@@ -44,5 +46,11 @@ Once you sign up for the website, find yourself in the `users` model storage, an
 
 ## Running
 ```bash
-node index.js
+npm run dev
+```
+
+For a production-style start:
+
+```bash
+MONGODB_URI="mongodb://127.0.0.1:27017/infinimii" npm start
 ```

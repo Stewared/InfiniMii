@@ -34,70 +34,80 @@
         <%- include('globalStyle') %>
         <%- include('header') %>
         <%- include('accountDisplay') %>
-        <div class="content">
+        <main class="content" role="main">
             <%- include('sidebar') %>
-            <section class="utility-container" aria-labelledby="qr-heading">
-                <h1 id="qr-heading">Scan a Mii QR Code</h1>
-                <p>Point your camera at a compatible Mii QR code to decode it, then export it into another format or upload it to InfiniMii.</p>
-            </section>
-            <form method="POST" enctype="multipart/form-data" action="/exportMii" class="convert" hidden>
-                <fieldset>
-                    <legend>Convert</legend>
-                    <div id="convert-error-message" class="form-message" style="display: none;"></div>
-                    <input type="hidden" name="miiData" class="convert-miidata">
-                    <label for="qr-output-format">Export format:</label>
-                    <input type="text" id="qr-output-format" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
-                    <datalist id="exportFormatOptions">
-                        <% exportFormats.forEach(fmt => { %>
-                            <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
-                        <% }) %>
-                    </datalist>
-                    <label style="display: inline-flex; align-items: center; gap: 8px; margin-top: 10px;">
-                        <input type="checkbox" name="special">
-                        Download as Special Mii
-                    </label>
-                    <label for="qr-export-console">QR Console:</label>
-                    <select id="qr-export-console" name="qrConsole">
-                        <option value="3DS">3DS</option>
-                        <option value="WIIU">Wii U</option>
-                    </select>
-                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 10px;">
-                        <input type="submit" value="Export">
-                        <button type="button" id="qrCopyHexBtn">Copy Hex</button>
-                        <button type="button" id="qrCopyBase64Btn">Copy Base64</button>
-                        <button type="button" id="qrInstructionsBtn">Recreation Instructions</button>
+            <section class="qr-page" aria-labelledby="qr-heading">
+                <section class="utility-container qr-intro-card" aria-labelledby="qr-heading">
+                    <h1 id="qr-heading">Scan a Mii QR Code</h1>
+                    <p>Point your camera at a compatible Mii QR code to decode it, then export it into another format or upload it to InfiniMii.</p>
+                </section><br>
+
+                <form method="POST" enctype="multipart/form-data" action="/exportMii" class="convert qr-panel" hidden>
+                    <fieldset>
+                        <legend>Convert</legend>
+                        <div id="convert-error-message" class="form-message" style="display: none;"></div>
+                        <input type="hidden" name="miiData" class="convert-miidata">
+                        <label for="qr-output-format">Export format:</label>
+                        <input type="text" id="qr-output-format" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
+                        <datalist id="exportFormatOptions">
+                            <% exportFormats.forEach(fmt => { %>
+                                <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
+                            <% }) %>
+                        </datalist>
+                        <div class="qr-inline-options">
+                            <label class="qr-inline-option">
+                                <input type="checkbox" name="special">
+                                <span>Download as Special Mii</span>
+                            </label>
+                            <label class="qr-inline-option qr-inline-select" for="qr-export-console">
+                                <span>QR Console:</span>
+                                <select id="qr-export-console" name="qrConsole">
+                                    <option value="3DS">3DS</option>
+                                    <option value="WIIU">Wii U</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="qr-button-row">
+                            <input type="submit" value="Export">
+                            <button type="button" id="qrCopyHexBtn">Copy Hex</button>
+                            <button type="button" id="qrCopyBase64Btn">Copy Base64</button>
+                            <button type="button" id="qrInstructionsBtn">Recreation Instructions</button>
+                        </div>
+                        <h6>*Note: Down-level conversions may have limitations.</h6>
+                    </fieldset>
+                </form>
+
+                <form action="/uploadMii" method="post" enctype="multipart/form-data" class="upload qr-panel" hidden>
+                    <fieldset>
+                        <legend>Upload a Mii to the Website</legend>
+                        <div id="upload-error-message" class="form-message" style="display: none;"></div>
+                        <input type="hidden" name="miiData" class="upload-miidata">
+                        <label for="qr-upload-desc">Description</label>
+                        <input id="qr-upload-desc" size="50" placeholder="Description..." name="desc" type="text">
+                        <input type="submit" value="Upload">
+                    </fieldset>
+                </form>
+
+                <section class="qr qr-panel" aria-label="QR scanner">
+                    <div class="qr-button-row qr-primary-actions">
+                        <input type="button" value="Start Scanning" onclick="start(this)">
                     </div>
-                    <h6>*Note: Down-level conversions may have limitations.</h6>
-                </fieldset>
-            </form>
-            
-            <form action="/uploadMii" method="post" enctype="multipart/form-data" class='upload' hidden>
-                <fieldset>
-                    <legend>Upload a Mii to the Website</legend>
-                    <div id="upload-error-message" class="form-message" style="display: none;"></div>
-                    <input type="hidden" name="miiData" class="upload-miidata">
-                    <input size="50" placeholder="Description..." name="desc" type="text"><br>
-                    <input type="submit" value="Upload">
-                </fieldset>
-            </form>
 
-            <div class="qr">
-                <input type="button" value="Start Scanning" onclick="start(this)">
+                    <div class="after qr-button-row" hidden>
+                        <input type="button" value="Upload Mii" onclick="after('upload')">
+                        <input type="button" value="Convert Mii" onclick="after('convert')">
+                        <input type="button" value="Scan Again" onclick="start()">
+                    </div>
 
-                <div class="after" hidden>
-                    <input type="button" value="Upload Mii" onclick="after('upload')">
-                    <input type="button" value="Convert Mii" onclick="after('convert')">
-                    <input type="button" value="Scan Again" onclick="start()">
-                </div>
-
-                <div id="loadingMessage"><%- include('icon', { name: 'camera', size: 18, class: 'icon-inline' }) %> Click the start button to begin scanning</div>
-                <canvas id="canvas" hidden></canvas>
-                <div id="output" hidden>
-                    <div id="outputMessage">No QR code detected.</div>
-                </div>
-            </div>
+                    <div id="loadingMessage"><%- include('icon', { name: 'camera', size: 18, class: 'icon-inline' }) %> Click the start button to begin scanning</div>
+                    <canvas id="canvas" hidden></canvas>
+                    <div id="output" hidden>
+                        <div id="outputMessage">No QR code detected.</div>
+                    </div>
+                </section>
+            </section>
             <%- include('featuredMiis') %>
-        </div>
+        </main>
         <%- include('footer') %>
         <script src="./easy.qrcode.js" type="text/javascript" charset="utf-8"></script>
         <script src="./jsQR.js"></script>

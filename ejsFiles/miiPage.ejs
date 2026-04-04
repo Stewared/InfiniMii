@@ -167,11 +167,6 @@
                             </div>
                             <% } %>
 
-                            <div class="info-item">
-                                <span class="info-label">Archive Type</span>
-                                <span class="info-value"><%= archiveTypeLabel %></span>
-                            </div>
-
                             <% if(consoleLabel) { %>
                             <div class="info-item">
                                 <span class="info-label">Original Console</span>
@@ -446,34 +441,40 @@
                         </div>
                     </div>
                     <% if(isPrivate) { %>
-                        <div style="background: #fff3cd; border: 2px solid #ffc107; padding: 15px; margin: 15px; border-radius: 8px; text-align: center;">
-                            <strong><%- include('icon', { name: 'lock', size: 16, class: 'icon-inline' }) %> This is a Private Mii</strong>
-                            <p style="margin: 10px 0;">Only you and moderators can view this Mii.</p>
+                        <div class="private-mii-panel">
+                            <strong class="private-mii-panel-title"><%- include('icon', { name: 'lock', size: 16, class: 'icon-inline' }) %> This is a Private Mii</strong>
+                            <p class="private-mii-panel-text">Only you and moderators can view this Mii.</p>
                             <% if(mii.blockedFromPublishing) { %>
-                                <div style="background: #ffe6e6; padding: 10px; margin-top: 10px; border-radius: 6px;">
-                                    <strong><%- include('icon', { name: 'ban', size: 16, class: 'icon-inline icon-danger' }) %> This Mii has been blocked from publishing</strong>
+                                <div class="private-mii-status">
+                                    <strong class="private-mii-status-title"><%- include('icon', { name: 'ban', size: 16, class: 'icon-inline icon-danger' }) %> This Mii has been blocked from publishing</strong>
                                     <% if(mii.blockReason) { %>
-                                        <p><%= mii.blockReason %></p>
+                                        <p class="private-mii-status-text"><%= mii.blockReason %></p>
                                     <% } %>
                                 </div>
                             <% } else { %>
-                                <button onclick="publishThisMii()" style="background: #00cc00; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
-                                    <%- include('icon', { name: 'upload', size: 16 }) %> Publish This Mii
-                                </button>
+                                <div class="private-mii-actions">
+                                    <button onclick="publishThisMii()" class="btn-primary private-mii-btn">
+                                        <%- include('icon', { name: 'upload', size: 16 }) %> Publish This Mii
+                                    </button>
+                                </div>
                             <% } %>
                         </div>
                         <% if(isModerator) { %>
-                            <div style="background: #fff3cd; border: 2px solid #ff6600; padding: 15px; margin: 15px; border-radius: 8px;">
-                                <strong><%- include('icon', { name: 'shield', size: 16, class: 'icon-inline' }) %> Moderator Actions</strong>
+                            <div class="private-mii-panel private-mii-panel-moderator">
+                                <strong class="private-mii-panel-title"><%- include('icon', { name: 'shield', size: 16, class: 'icon-inline' }) %> Moderator Actions</strong>
                                 <% if(!mii.blockedFromPublishing) { %>
-                                    <button onclick="blockMiiFromPublishing()" style="background: #ff6600; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
-                                        <%- include('icon', { name: 'ban', size: 16 }) %> Block from Publishing
-                                    </button>
+                                    <div class="private-mii-actions">
+                                        <button onclick="blockMiiFromPublishing()" class="private-mii-btn private-mii-btn-warning">
+                                            <%- include('icon', { name: 'ban', size: 16 }) %> Block from Publishing
+                                        </button>
+                                    </div>
                                 <% } else { %>
-                                    <p style="margin: 10px 0;">This Mii is already blocked from publishing.</p>
-                                    <button onclick="unblockMiiFromPublishing()" style="background: #2e7d32; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px;">
-                                        <%- include('icon', { name: 'check', size: 16 }) %> Unblock Publishing
-                                    </button>
+                                    <p class="private-mii-panel-text">This Mii is already blocked from publishing.</p>
+                                    <div class="private-mii-actions">
+                                        <button onclick="unblockMiiFromPublishing()" class="private-mii-btn private-mii-btn-success">
+                                            <%- include('icon', { name: 'check', size: 16 }) %> Unblock Publishing
+                                        </button>
+                                    </div>
                                 <% } %>
                             </div>
                         <% } %>
@@ -611,8 +612,8 @@
                     </div>
                 </div>
 
-                <div class="mii-seo-sections">
-                    <section class="mii-seo-panel" aria-labelledby="mii-archive-heading">
+                <div class="mii-seo-sections" hidden>
+                    <section class="mii-seo-panel" aria-labelledby="mii-archive-heading" hidden>
                         <h2 id="mii-archive-heading">About This <%= miiName %> Mii</h2>
                         <p><%= archiveIntro %></p>
                         <% if(archiveOwnerStatsLabel) { %>
@@ -623,7 +624,7 @@
                         <% } %>
                     </section>
 
-                    <section class="mii-seo-panel" aria-labelledby="mii-facts-heading">
+                    <section class="mii-seo-panel" aria-labelledby="mii-facts-heading" hidden>
                         <h2 id="mii-facts-heading">Searchable Archive Details</h2>
                         <dl class="mii-fact-list">
                             <div class="mii-fact">
@@ -701,7 +702,7 @@
                         </dl>
                     </section>
 
-                    <section class="mii-seo-panel" aria-labelledby="mii-links-heading">
+                    <section class="mii-seo-panel" aria-labelledby="mii-links-heading" hidden>
                         <h2 id="mii-links-heading">Search Topics And Related Links</h2>
                         <p>Browse by character name, creator name, uploader, tags, and official categories related to <%= miiName %>.</p>
                         <div class="mii-chip-list">
@@ -723,12 +724,12 @@
                         <% } %>
                     </section>
 
-                    <section class="mii-seo-panel" aria-labelledby="mii-download-heading">
+                    <section class="mii-seo-panel" aria-labelledby="mii-download-heading" hidden>
                         <h2 id="mii-download-heading">Download And Compatibility</h2>
                         <p>This page includes the preview image, QR code, and export tools for <%= miiName %>. If you are trying to find <%= miiName %> for 3DS, Wii U, Wii, Switch, or another supported Mii format, use the export controls above to download the format you need.</p>
                     </section>
 
-                    <section class="mii-seo-panel" aria-labelledby="mii-faq-heading">
+                    <section class="mii-seo-panel" aria-labelledby="mii-faq-heading" hidden>
                         <h2 id="mii-faq-heading">Questions About This Mii</h2>
                         <div class="mii-faq-list">
                             <% faqEntries.forEach((entry) => { %>

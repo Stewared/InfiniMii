@@ -341,6 +341,187 @@
     filter: brightness(0) invert(1);
 }
 
+.private-mii-panel {
+    --private-panel-accent: var(--brand-color);
+    --private-panel-accent-soft: #ff8ba0;
+    --private-panel-border: color-mix(in oklab, var(--private-panel-accent) 58%, #838b98 42%);
+    --private-panel-glow: rgba(222, 67, 98, 0.18);
+    --private-panel-surface-top: color-mix(in oklab, var(--layer-3-um) 20%, var(--layer-2-um) 80%);
+    --private-panel-surface-mid: color-mix(in oklab, var(--private-panel-accent) 12%, var(--layer-2-um) 88%);
+    --private-panel-surface-bottom: color-mix(in oklab, var(--private-panel-accent) 8%, var(--layer-1-um) 92%);
+    grid-column: 1 / -1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.2rem 1.3rem 1.25rem;
+    border-radius: 18px;
+    border: 1px solid var(--private-panel-border);
+    background: linear-gradient(
+        145deg,
+        var(--private-panel-surface-top) 0%,
+        var(--private-panel-surface-mid) 48%,
+        var(--private-panel-surface-bottom) 100%
+    );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 16px 36px rgba(0, 0, 0, 0.22),
+        0 0 0 1px rgba(255, 255, 255, 0.02),
+        0 0 28px var(--private-panel-glow);
+    overflow: hidden;
+    isolation: isolate;
+    text-align: left;
+}
+
+.private-mii-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at top right, var(--private-panel-glow) 0%, transparent 45%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 34%);
+    opacity: 0.22;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.private-mii-panel::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--private-panel-accent-soft) 0%, var(--private-panel-accent) 60%, #c93855 100%);
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+.private-mii-panel-moderator {
+    --private-panel-accent: #f15b72;
+    --private-panel-accent-soft: #ff9aac;
+    --private-panel-border: color-mix(in oklab, var(--private-panel-accent) 60%, #838b98 40%);
+    --private-panel-glow: rgba(241, 91, 114, 0.18);
+    --private-panel-surface-top: color-mix(in oklab, var(--layer-3-um) 18%, var(--layer-2-um) 82%);
+    --private-panel-surface-mid: color-mix(in oklab, var(--private-panel-accent) 14%, var(--layer-2-um) 86%);
+    --private-panel-surface-bottom: color-mix(in oklab, var(--private-panel-accent) 10%, var(--layer-1-um) 90%);
+}
+
+.private-mii-panel-title,
+.private-mii-status-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    width: fit-content;
+    padding: 0.38rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--private-panel-accent) 34%, #8b94a2 66%);
+    background: color-mix(in oklab, var(--private-panel-accent) 22%, var(--layer-1-um) 78%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    color: var(--text-1);
+    font-size: 0.98rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.45;
+}
+
+.private-mii-panel-text,
+.private-mii-status-text {
+    margin: 0;
+    color: var(--text-2);
+    line-height: 1.6;
+}
+
+.private-mii-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 0.95rem 1rem;
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 54%, #ef4444 46%);
+    background: linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--brand-color) 10%, var(--layer-2-um) 90%) 0%,
+        color-mix(in oklab, var(--layer-1-um) 84%, #3c1821 16%) 100%
+    );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 8px 20px rgba(0, 0, 0, 0.16);
+}
+
+.private-mii-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.private-mii-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.9rem;
+    padding: 0.82rem 1.2rem;
+    margin: 0;
+    gap: 8px;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    text-decoration: none;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    font-weight: 600;
+}
+
+.private-mii-btn:hover,
+.private-mii-btn:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.24);
+}
+
+.private-mii-btn.btn-primary {
+    background: linear-gradient(135deg, var(--brand-color) 0%, #ef5f7e 100%);
+}
+
+.private-mii-btn.btn-primary:hover,
+.private-mii-btn.btn-primary:focus-visible {
+    background: linear-gradient(135deg, #e64d6d 0%, #f5718c 100%);
+}
+
+.private-mii-btn-warning {
+    background: linear-gradient(
+        135deg,
+        #ba3555 0%,
+        #e04d63 100%
+    );
+    color: #fff;
+}
+
+.private-mii-btn-warning:hover,
+.private-mii-btn-warning:focus-visible {
+    background: linear-gradient(
+        135deg,
+        #c53a5a 0%,
+        #eb5a6c 100%
+    );
+}
+
+.private-mii-btn-success {
+    background: linear-gradient(
+        135deg,
+        color-mix(in oklab, #236c4c 72%, var(--brand-color) 28%) 0%,
+        color-mix(in oklab, #2d8560 82%, var(--layer-2-um) 18%) 100%
+    );
+    color: #fff;
+}
+
+.private-mii-btn-success:hover,
+.private-mii-btn-success:focus-visible {
+    background: linear-gradient(
+        135deg,
+        color-mix(in oklab, #287553 70%, var(--brand-color) 30%) 0%,
+        color-mix(in oklab, #31906a 84%, var(--layer-2-um) 16%) 100%
+    );
+}
+
 /* Vote Section */
 .vote-section {
     margin-left: auto;
@@ -519,6 +700,19 @@
 
     .mii-name {
         font-size: 32px;
+    }
+
+    .private-mii-panel {
+        padding: 1rem;
+    }
+
+    .private-mii-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .private-mii-btn {
+        width: 100%;
     }
 
     .id-card-actions {

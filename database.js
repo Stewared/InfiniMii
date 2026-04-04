@@ -1,6 +1,16 @@
 import mongoose from "mongoose";
+import { MongoMemoryServer } from "mongodb-memory-server";
 
 mongoose.set("strictQuery", true);
+
+const DEFAULT_MONGODB_URI = "mongodb://127.0.0.1:27017/infinimii";
+const configuredMongoUri = process.env.MONGODB_URI || process.env.mongoUri;
+const shouldUseMemoryMongo =
+    !configuredMongoUri &&
+    process.env.NODE_ENV !== "production" &&
+    process.env.MONGODB_DISABLE_MEMORY_SERVER !== "true";
+
+let memoryMongoServer = null;
 
 // --- Schemas --- //
 const miiSchema = new mongoose.Schema({
@@ -71,6 +81,7 @@ const userSchema = new mongoose.Schema({
 const settingsSchema = new mongoose.Schema({
     _id: { type: String, required: true },
     highlightedMii: { type: String, default: "00000" },
+    defaultUserPfpMii: { type: String, default: "QfK19" },
     highlightedMiiChangeDay: { type: Number, default: ()=>Date.now() },
     bannedIPs: { type: [String], default: [] },
     officialCategories: { type: mongoose.Schema.Types.Mixed, default: { categories: [] } },
@@ -92,9 +103,58 @@ const Settings = mongoose.model("Settings", settingsSchema);
 const ReservedUsername = mongoose.model("ReservedUsername", reservedUsernameSchema);
 
 // --- Connection --- //
-const connectionPromise = mongoose.connect("mongodb://localhost:27017/infinimii", {
-    autoIndex: true
-});
+async function resolveMongoUri() {
+    if (configuredMongoUri) {
+        return configuredMongoUri;
+    }
+
+    if (!shouldUseMemoryMongo) {
+        return DEFAULT_MONGODB_URI;
+    }
+
+    memoryMongoServer = await MongoMemoryServer.create({
+        instance: {
+            dbName: "infinimii"
+        }
+    });
+
+    console.log("[mongo] No MongoDB URI configured. Using an in-memory MongoDB instance for local development.");
+    return memoryMongoServer.getUri();
+}
+
+async function cleanupMongoResources() {
+    try {
+        if (mongoose.connection.readyState !== 0) {
+            await mongoose.disconnect();
+        }
+    } catch (error) {
+        console.warn("[mongo] Failed to close mongoose cleanly:", error.message);
+    }
+
+    if (!memoryMongoServer) return;
+
+    try {
+        await memoryMongoServer.stop();
+    } catch (error) {
+        console.warn("[mongo] Failed to stop in-memory MongoDB cleanly:", error.message);
+    } finally {
+        memoryMongoServer = null;
+    }
+}
+
+for (const signal of ["SIGINT", "SIGTERM"]) {
+    process.once(signal, () => {
+        cleanupMongoResources()
+            .finally(() => process.exit(0));
+    });
+}
+
+const connectionPromise = (async () => {
+    const mongoUri = await resolveMongoUri();
+    return mongoose.connect(mongoUri, {
+        autoIndex: true
+    });
+})();
 
 
 

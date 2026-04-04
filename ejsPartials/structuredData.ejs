@@ -72,7 +72,9 @@ const pageRobotsValue = String(
         ''
     ) || ''
 ).toLowerCase();
-const shouldSuppressSchema = pageRobotsValue.includes('noindex') || Boolean(structuredDataDisabled);
+const shouldSuppressSchema = pageRobotsValue.includes('noindex') || Boolean(
+    typeof structuredDataDisabled !== 'undefined' ? structuredDataDisabled : false
+);
 
 const websiteSchema = {
     "@context": "https://schema.org",
@@ -129,11 +131,14 @@ if (typeof modifiedTime !== 'undefined' && modifiedTime) {
     pageSchema.dateModified = pageUpdatedAt;
 }
 
-const breadcrumbSchema = Array.isArray(breadcrumbs) && breadcrumbs.length > 0
+const breadcrumbItems = typeof breadcrumbs !== 'undefined' && Array.isArray(breadcrumbs)
+    ? breadcrumbs
+    : [];
+const breadcrumbSchema = breadcrumbItems.length > 0
     ? {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
-        "itemListElement": breadcrumbs.map((breadcrumb, index) => ({
+        "itemListElement": breadcrumbItems.map((breadcrumb, index) => ({
             "@type": "ListItem",
             "position": index + 1,
             "name": breadcrumb.name,
@@ -142,7 +147,7 @@ const breadcrumbSchema = Array.isArray(breadcrumbs) && breadcrumbs.length > 0
     }
     : null;
 
-const extraSchemaGraphs = Array.isArray(schemaGraphs)
+const extraSchemaGraphs = typeof schemaGraphs !== 'undefined' && Array.isArray(schemaGraphs)
     ? schemaGraphs.filter(Boolean)
     : [];
 %>

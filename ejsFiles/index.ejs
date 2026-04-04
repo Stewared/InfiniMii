@@ -31,7 +31,7 @@
         <main class="content" role="main">
             <%- include('sidebar') %>
             <div class="main-content">
-                <section class="home-hero" aria-labelledby="home-heading">
+                <section class="home-hero" aria-labelledby="home-heading" hidden>
                     <p class="home-kicker">Mii Database + Tools</p>
                     <h1 id="home-heading">Browse, preserve, and convert Nintendo Mii characters</h1>
                     <p class="home-lede">InfiniMii is a searchable Mii character repository and toolkit for Wii, DS, 3DS, Wii U, Switch, Switch 2, Miitomo, Tomodachi Life, and Nintendo Mii Studio. Use it to discover official Miis, share your own creations, generate QR codes, and move Miis between formats.</p>
@@ -44,7 +44,7 @@
                     </p>
                 </section>
 
-                <section class="home-highlights" aria-labelledby="highlights-heading">
+                <section class="home-highlights" aria-labelledby="highlights-heading" hidden>
                     <h2 id="highlights-heading">What You Can Do on InfiniMii</h2>
                     <ul>
                         <li>Browse official Nintendo Miis and community recreations.</li>
@@ -59,7 +59,7 @@
                     <div id="browse-miis">
                         <% Object.keys(miiCategories).forEach(cat=>{ %>
                             <section class="miiCategory" aria-labelledby="section-<%= cat.toLowerCase() %>">
-                                <h3 id="section-<%= cat.toLowerCase() %>"><a href="<%= miiCategories[cat].link %>"><%= cat %></a></h3>
+                                <h1 id="section-<%= cat.toLowerCase() %>"><a href="<%= miiCategories[cat].link %>"><%= cat %></a></h1>
                                 <% miiCategories[cat].miis.forEach(mii=>{ %>
                                     <%
                                         if (!mii || !mii.id) {
