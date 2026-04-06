@@ -14,7 +14,7 @@
 
 /* Keep profile pages in the standard 3-column shell so Featured Miis stays visible */
 .content {
-    grid-template-columns: 280px minmax(0, 1fr) 280px;
+    grid-template-columns: clamp(230px, 16vw, 280px) minmax(0, 1fr) clamp(230px, 16vw, 280px);
 }
 
 /* Profile Header */

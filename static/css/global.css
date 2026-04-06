@@ -295,10 +295,14 @@ footer ul li a:hover {
 /* Content layout */
 .content {
     display: grid;
-    grid-template-columns: 320px 1fr 320px;
-    margin: 0 var(--gutter-size);
-    gap: var(--gutter-size);
+    grid-template-columns: clamp(230px, 16vw, 280px) minmax(0, 1fr) clamp(230px, 16vw, 280px);
+    margin: 0 clamp(12px, 2vw, var(--gutter-size));
+    gap: clamp(16px, 2vw, var(--gutter-size));
     align-items: start;
+}
+
+.content > * {
+    min-width: 0;
 }
 
 /* Left sidebar */
@@ -360,13 +364,14 @@ footer ul li a:hover {
 
 #browse-miis.browse-miis-balanced {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.5rem), 1fr));
     align-items: stretch;
     justify-items: stretch;
 }
 
 #browse-miis.browse-miis-balanced .mii-card {
     width: 100%;
+    max-width: none;
     min-width: 0;
 }
 
@@ -375,7 +380,7 @@ footer ul li a:hover {
     --mii-card-inner-radius: calc(var(--mii-card-radius) - 2px);
     display: flex;
     flex-flow: column;
-    width: clamp(10rem, 12vw, 40rem);
+    width: min(100%, 18rem);
     border: 2px solid #202020;
     border-radius: var(--mii-card-radius);
     background-color: var(--layer-2-um);
@@ -476,7 +481,7 @@ footer ul li a:hover {
 }
 
 .mii-card h3 {
-    font-size: clamp(0.78rem, calc((100% - 0.5rem) / 10), 18px);
+    font-size: clamp(0.9rem, 0.82rem + 0.2vw, 1rem);
     font-weight: 400;
     margin: 0;
     display: block;
@@ -785,12 +790,6 @@ footer ul li a:hover {
 
 .tag-admin-delete:hover {
     background: color-mix(in oklab, #a1324a 62%, var(--layer-2-um) 38%);
-}
-
-@media (max-width: 1300px) {
-    #browse-miis.browse-miis-balanced {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
 }
 
 @media (max-width: 600px) {
@@ -1150,7 +1149,7 @@ fieldset a:hover {
 /* Responsive design */
 @media (max-width: 1200px) {
     .content {
-        grid-template-columns: 280px 1fr 280px;
+        grid-template-columns: minmax(210px, 250px) minmax(0, 1fr) minmax(210px, 250px);
     }
 }
 
@@ -1311,7 +1310,7 @@ fieldset a:hover {
     }
     
     .mii-card {
-        width: 160px;
+        width: min(100%, 18rem);
         padding: 1rem;
     }
     

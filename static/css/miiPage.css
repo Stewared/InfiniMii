@@ -6,7 +6,9 @@
     background: linear-gradient(145deg, var(--layer-2-um) 0%, var(--layer-3-um) 100%);
     border: 3px solid var(--brand-color);
     border-radius: var(--mii-id-card-radius);
+    width: min(100%, 900px);
     max-width: 900px;
+    min-width: 0;
     margin: 0 auto;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     overflow: visible;
@@ -49,7 +51,7 @@
 /* Card Body */
 .id-card-body {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
     gap: 2rem;
     padding: 2rem;
     background-color: var(--layer-2-um);
@@ -114,6 +116,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    min-width: 0;
 }
 
 .mii-name {
@@ -660,6 +663,25 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1240px) {
+    .id-card-body {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .id-card-photo {
+        margin: 0 auto;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mii-name {
+        font-size: 36px;
+    }
+}
+
 @media (max-width: 992px) {
     .id-card-body {
         grid-template-columns: 1fr;
@@ -1286,7 +1308,7 @@
 }
 
 .mii-seo-sections {
-    display: grid;
+    display: hidden;
     gap: 1rem;
     padding: 0 2rem 2rem;
     background-color: var(--layer-2-um);
