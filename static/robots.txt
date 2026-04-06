@@ -15,5 +15,5 @@ Disallow: /privateMiiQRs
 Sitemap: https://infinimii.com/sitemap.xml
 
 # LLM-friendly summary files
-# https://infinimii.com/llms.txt
-# https://infinimii.com/llms-full.txt
+https://infinimii.com/llms.txt
+https://infinimii.com/llms-full.txt

@@ -1,9 +1,11 @@
 /* Mii ID Card Styles */
 
 .mii-id-card {
+    --mii-id-card-radius: 20px;
+    --mii-id-card-inner-radius: calc(var(--mii-id-card-radius) - 3px);
     background: linear-gradient(145deg, var(--layer-2-um) 0%, var(--layer-3-um) 100%);
     border: 3px solid var(--brand-color);
-    border-radius: 20px;
+    border-radius: var(--mii-id-card-radius);
     max-width: 900px;
     margin: 0 auto;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
@@ -17,7 +19,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius:15px 15px 0px 0px;
+    border-radius: var(--mii-id-card-inner-radius) var(--mii-id-card-inner-radius) 0 0;
 }
 
 .id-card-header h2 {
@@ -258,7 +260,7 @@
     flex-wrap: wrap;
     position: relative;
     overflow: visible;
-    border-radius:0px 0px 15px 15px;
+    border-radius: 0 0 var(--mii-id-card-inner-radius) var(--mii-id-card-inner-radius);
 }
 
 .export-form {
@@ -728,7 +730,9 @@
 
 @media (max-width: 480px) {
     .mii-id-card {
-        border-radius: 10px;
+        --mii-id-card-radius: 12px;
+        --mii-id-card-inner-radius: calc(var(--mii-id-card-radius) - 3px);
+        border-radius: var(--mii-id-card-radius);
     }
 
     .id-card-header {

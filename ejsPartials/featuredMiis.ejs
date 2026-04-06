@@ -19,17 +19,33 @@
             <input type="text" placeholder="New Highlighted Mii ID?" id="highlightedMiiID"> <input type="button" onclick="highlightedMiiChange()" value="Change Highlighted Mii">
         <% } %>
         <% if (highlightedMiiData) { %>
+        <%
+            const highlightedUserVotedFor = Array.isArray(user?.votedFor) ? user.votedFor : [];
+            const highlightedIsLikeLocked = Boolean(
+                user?.username &&
+                (highlightedMiiData.uploader === user.username || highlightedMiiData.contributor === user.username)
+            );
+            const highlightedHasLikedMii = highlightedUserVotedFor.includes(highlightedMii) || highlightedIsLikeLocked;
+        %>
         <a href='/mii/<%= highlightedMii %>'><img src="/miiImgs/<%= highlightedMii %>.png"></a>
         <div class="flex">
             <div>
                 <h3><%= highlightedMiiData.meta.name %></h3>
                 <a><%= highlightedMiiData.uploader %></a>
             </div>
-            <% if(!user?.votedFor.includes(highlightedMii) && highlightedMiiData.uploader !== user?.username){ %>
-                <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 96 960 960" width="36px" height="36px" class="like" viewBox="0 0 24 24" fill="#000000"><path d="m480 935-41-37q-105.768-97.121-174.884-167.561Q195 660 154 604.5T96.5 504Q80 459 80 413q0-90.155 60.5-150.577Q201 202 290 202q57 0 105.5 27t84.5 78q42-54 89-79.5T670 202q89 0 149.5 60.423Q880 322.845 880 413q0 46-16.5 91T806 604.5Q765 660 695.884 730.439 626.768 800.879 521 898l-41 37Zm0-79q101.236-92.995 166.618-159.498Q712 630 750.5 580t54-89.135q15.5-39.136 15.5-77.72Q820 347 778 304.5T670.225 262q-51.524 0-95.375 31.5Q531 325 504 382h-49q-26-56-69.85-88-43.851-32-95.375-32Q224 262 182 304.5t-42 108.816Q140 452 155.5 491.5t54 90Q248 632 314 698t166 158Zm0-297Z"/></svg>
-            <% } else { %>
-                <svg class="like" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M13.35 20.13c-.76.69-1.93.69-2.69-.01l-.11-.1C5.3 15.27 1.87 12.16 2 8.28c.06-1.7.93-3.33 2.34-4.29 2.64-1.8 5.9-.96 7.66 1.1 1.76-2.06 5.02-2.91 7.66-1.1 1.41.96 2.28 2.59 2.34 4.29.14 3.88-3.3 6.99-8.55 11.76l-.1.09z"/></svg>
-            <% } %>
+            <button
+                type="button"
+                onclick="likeMii(this,'<%= highlightedMii %>')"
+                class="featured-like-button like-button <%= highlightedHasLikedMii ? 'is-liked' : 'is-unliked' %><%= highlightedIsLikeLocked ? ' is-like-locked' : '' %>"
+                data-mii-id="<%= highlightedMii %>"
+                data-liked="<%= highlightedHasLikedMii ? 'true' : 'false' %>"
+                data-like-locked="<%= highlightedIsLikeLocked ? 'true' : 'false' %>"
+                aria-pressed="<%= highlightedHasLikedMii ? 'true' : 'false' %>"
+                aria-label="<%= highlightedIsLikeLocked ? 'You permanently like Miis you upload' : (highlightedHasLikedMii ? 'Unlike this Mii' : 'Like this Mii') %>"
+            >
+                <%- include('icon', { name: 'heart', size: 20, class: 'like-icon' }) %>
+                <span class="vote-count"><%= highlightedMiiData.votes || 0 %></span>
+            </button>
         </div>
         <p><%= highlightedMiiData.desc.length>75?highlightedMiiData.desc.slice(0,73)+"...":highlightedMiiData.desc %></p>
         <% } %>
@@ -42,7 +58,7 @@
     </div>
     <div class="mii-card" style="--favorite-color: <%= averageMiiData ? decodeColor(averageMiiData.general?.favoriteColor) || decodeColor(0) : decodeColor(0) %>;">
         <% if (averageMiiData) { %>
-        <a href='/mii/average'><img src="/miiImgs/average.png"></a>
+        <a href='/mii/average'><img src="/miiImgs/average.png?v=<%= encodeURIComponent(averageMiiData.updatedAt ? new Date(averageMiiData.updatedAt).getTime() : (averageMiiData.uploadedOn || Date.now())) %>"></a>
         <div class="flex">
             <div>
                 <h3><%= averageMiiData.general.gender>0?"Jane":"John" %> Doe</h3>

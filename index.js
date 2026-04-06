@@ -1,4 +1,5 @@
 import "./setEnvs.js";
+import { rawConsoleError, scheduleDailyWebhookReminder, sendWebhookPayload } from "./monitoring.js";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
@@ -14,8 +15,6 @@ import nodemailer from "nodemailer";
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import multer from 'multer';
-import FormData from 'form-data';
-import https from 'https';
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
 import { doubleMetaphone } from 'double-metaphone';
 import validator from 'validator';
@@ -35,6 +34,7 @@ const profileMiisPerPage = 18;
 const HOME_PREVIEW_COUNT = 6;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
 const baseUrl = process.env.baseUrl;
+const AVERAGE_MII_REFRESH_WINDOW_MS = ms("10m");
 
 const EXPORT_FORMAT_LABELS = {
     qr: "QR Code (PNG)",
@@ -683,6 +683,10 @@ function normalizeSettingsRecord(settings) {
         normalized.defaultUserPfpMii = DEFAULT_USER_PFP_MII_ID;
     }
 
+    if (typeof normalized.highlightedMiiReminderSentOn !== "string" || !normalized.highlightedMiiReminderSentOn.trim()) {
+        normalized.highlightedMiiReminderSentOn = null;
+    }
+
     return normalized;
 }
 
@@ -707,6 +711,7 @@ async function loadSettingsFromDatabase() {
             highlightedMii: null,
             defaultUserPfpMii: DEFAULT_USER_PFP_MII_ID,
             highlightedMiiChangeDay: null,
+            highlightedMiiReminderSentOn: null,
             bannedIPs: [],
             officialCategories: { categories: [] },
             officialCompanySources: [DEFAULT_OFFICIAL_COMPANY_SOURCE],
@@ -2145,66 +2150,39 @@ async function sendEmail(to, subj, cont) {
         });
     });
 }
-function normalizeReportAttachmentData(data) {
-    if (Buffer.isBuffer(data)) return data;
-    if (data instanceof Uint8Array) return Buffer.from(data);
-    if (data instanceof ArrayBuffer) return Buffer.from(new Uint8Array(data));
-    return data;
-}
 
 function makeReport(content, attachments = []) {
-    try {
-        const formData = new FormData();
-        
-        // Add the JSON payload
-        formData.append('payload_json', content);
-        
-        // Add any file attachments
-        attachments.forEach((attachment, index) => {
-            try {
-                const normalizedData = normalizeReportAttachmentData(attachment?.data);
-                const isReadableStream = normalizedData && typeof normalizedData.pipe === 'function' && typeof normalizedData.on === 'function';
-                const isAcceptableData = Buffer.isBuffer(normalizedData) || typeof normalizedData === 'string' || isReadableStream;
-
-                if (!isAcceptableData) {
-                    console.warn(`Skipping Discord attachment at index ${index}: unsupported data type`);
-                    return;
-                }
-
-                formData.append(`files[${index}]`, normalizedData, {
-                    filename: attachment?.filename || `attachment-${index}.bin`,
-                    contentType: attachment?.contentType || 'application/octet-stream'
-                });
-            } catch (attachmentError) {
-                console.error(`Error adding Discord attachment at index ${index}:`, attachmentError);
-            }
-        });
-        
-        // Send using form-data instead of JSON
-        const url = new URL(process.env.hookUrl);
-        
-        const options = {
-            hostname: url.hostname,
-            path: url.pathname + url.search,
-            method: 'POST',
-            headers: formData.getHeaders()
-        };
-        
-        const req = https.request(options, (res) => {
-            if (res.statusCode !== 200 && res.statusCode !== 204) {
-                console.error(`Discord webhook returned status ${res.statusCode}`);
-            }
-        });
-        
-        req.on('error', (error) => {
-            console.error('Error sending to Discord:', error);
-        });
-        
-        formData.pipe(req);
-    } catch (error) {
+    return sendWebhookPayload(content, attachments).catch((error) => {
         // Reports should never block user actions (uploads, moderation actions, etc.).
-        console.error('Error preparing Discord report:', error);
+        rawConsoleError('Error sending webhook report:', error);
+    });
+}
+
+function getUtcDateKey(date = new Date()) {
+    return date.toISOString().slice(0, 10);
+}
+
+async function sendHighlightedMiiReminderIfDue(date = new Date()) {
+    const currentDateKey = getUtcDateKey(date);
+    const settings = await getSettings();
+
+    if (settings.highlightedMiiReminderSentOn === currentDateKey) {
+        return false;
     }
+
+    const didSendReminder = await sendWebhookPayload(JSON.stringify({
+        content: "Remember to update the Highlighted Mii"
+    }));
+
+    if (!didSendReminder) {
+        return false;
+    }
+
+    await updateSettings({
+        highlightedMiiReminderSentOn: currentDateKey
+    });
+
+    return true;
 }
 
 
@@ -2416,6 +2394,41 @@ async function setAverageMii(){
     return avg;
 }
 
+async function syncAverageMiiAssets(avgMii) {
+    if (avgMii) {
+        const renderedAverageMii = await miijs.renderMii(avgMii);
+        await Promise.all([
+            fs.promises.writeFile("./static/miiImgs/average.png", renderedAverageMii),
+            writeQrPng(avgMii, "./static/miiQRs/average.png")
+        ]);
+        return;
+    }
+
+    await Promise.allSettled([
+        fs.promises.unlink("./static/miiImgs/average.png"),
+        fs.promises.unlink("./static/miiQRs/average.png")
+    ]);
+}
+
+async function refreshAverageMiiAssets() {
+    await setAverageMii();
+    const avgMii = await getMiiById("average");
+    await syncAverageMiiAssets(avgMii);
+    return avgMii;
+}
+
+async function hasRecentAverageAffectingUpload(windowMs = AVERAGE_MII_REFRESH_WINDOW_MS) {
+    const cutoff = Date.now() - windowMs;
+    const recentUpload = await Miis.exists({
+        published: true,
+        private: false,
+        id: { $ne: "average" },
+        uploadedOn: { $gte: cutoff }
+    });
+
+    return Boolean(recentUpload);
+}
+
 // Sitemap generation functions
 function generateSitemapXML(urls) {
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -2550,7 +2563,13 @@ const site = express();
 site.set("trust proxy", "loopback");
 site.use(express.json());
 site.use(express.urlencoded({ extended: true }));
-site.use(express.static(path.join(__dirname + '/static')));
+site.use(express.static(path.join(__dirname + '/static'), {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith(path.join('static', 'miiImgs', 'average.png'))) {
+            applyNoCacheHeaders(res);
+        }
+    }
+}));
 site.use(express.static(path.join(__dirname + '/static/css')));
 site.use(express.static(path.join(__dirname + '/static/js')));
 site.use(express.static(path.join(__dirname + '/static/assets')));
@@ -2914,8 +2933,11 @@ site.use('/miiImgs', async (req, res, next) => {
     if (!miiId) return next();
 
     const imgPath = getMiiAssetPath('miiImgs', miiId);
+    const shouldDisableCache = miiId === "average";
     if (await fileExists(imgPath)) {
-        return res.sendFile(imgPath);
+        return shouldDisableCache
+            ? sendFileWithoutCache(res, imgPath)
+            : res.sendFile(imgPath);
     }
 
     try {
@@ -2927,8 +2949,11 @@ site.use('/miiImgs', async (req, res, next) => {
         });
 
         if (generated) {
-            return res.sendFile(imgPath);
+            return shouldDisableCache
+                ? sendFileWithoutCache(res, imgPath)
+                : res.sendFile(imgPath);
         }
+        applyNoCacheHeaders(res);
         return next();
     } catch (e) {
         return next(e);
@@ -3024,6 +3049,15 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
         await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
         console.log("Settings initialized");
 
+        scheduleDailyWebhookReminder({
+            hourUtc: 12,
+            minuteUtc: 0,
+            label: "Highlighted Mii reminder",
+            task: async (currentDate) => {
+                await sendHighlightedMiiReminderIfDue(currentDate);
+            }
+        });
+
         // For Quickly Uploading Batches of Miis
         if (fs.existsSync('./quickUploads')) {
             const quickUploadMetadata = getQuickUploadMetadata("./quickUploads");
@@ -3066,20 +3100,17 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
         }
 
         console.log(`Generating new average Mii...`);
-        await setAverageMii();
-        setInterval(async () => await setAverageMii(), 1800000);//30 Mins
-        // TODO: it's passing it without all the fields
-        const avgMii = await getMiiById("average");
-
-        if (avgMii) {
-            fs.promises.writeFile(`./static/miiImgs/average.png`, await miijs.renderMii(avgMii)).catch(() => console.log);
-            await writeQrPng(avgMii, `./static/miiQRs/average.png`).catch(() => console.log);
-        } else {
-            await Promise.allSettled([
-                fs.promises.unlink(`./static/miiImgs/average.png`),
-                fs.promises.unlink(`./static/miiQRs/average.png`)
-            ]);
-        }
+        await refreshAverageMiiAssets();
+        setInterval(async () => {
+            try {
+                if (await hasRecentAverageAffectingUpload()) {
+                    console.log("[average] Recent public upload detected. Regenerating average Mii.");
+                    await refreshAverageMiiAssets();
+                }
+            } catch (error) {
+                console.error("[average] Failed to refresh average Mii:", error);
+            }
+        }, AVERAGE_MII_REFRESH_WINDOW_MS);
 
         fs.readdirSync("./uploads").forEach(failedUploadFile=>{
             fs.unlinkSync(`./uploads/${failedUploadFile}`);
@@ -3422,9 +3453,25 @@ function applyLegacyResponseCompatibilityHeaders(res) {
     res.removeHeader("X-Content-Security-Policy");
     res.removeHeader("X-WebKit-CSP");
     res.removeHeader("X-Frame-Options");
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
+    applyNoCacheHeaders(res);
+}
+
+const NO_CACHE_RESPONSE_HEADERS = Object.freeze({
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    "Pragma": "no-cache",
+    "Expires": "0"
+});
+
+function applyNoCacheHeaders(res) {
+    for (const [headerName, headerValue] of Object.entries(NO_CACHE_RESPONSE_HEADERS)) {
+        res.setHeader(headerName, headerValue);
+    }
+}
+
+function sendFileWithoutCache(res, filePath) {
+    return res.sendFile(filePath, {
+        headers: NO_CACHE_RESPONSE_HEADERS
+    });
 }
 
 async function renderLegacyUploadPage(req, res, options = {}) {
@@ -3665,6 +3712,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
             embeds: [{
                 type: "rich",
                 title: `Legacy Browser Upload (${wantsPublic ? "Published" : "Private"})`,
+                url: `https://infinimii.com/mii/${mii.id}`,
                 description: mii.desc,
                 color: 0x00aaff,
                 fields: [
@@ -4166,12 +4214,12 @@ site.post('/addUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
                     },
                     {
                         name: 'Role Added',
-                        value: ROLE_DISPLAY[role],
+                        value: role,
                         inline: true
                     },
                     {
                         name: 'Current Roles',
-                        value: getUserRoles(targetUser).map(r => ROLE_DISPLAY[r]).join(', '),
+                        value: getUserRoles(targetUser).map(r => r).join(', '),
                         inline: false
                     }
                 ]
@@ -4218,12 +4266,12 @@ site.post('/removeUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), asyn
                     },
                     {
                         name: 'Role Removed',
-                        value: ROLE_DISPLAY[role],
+                        value: role,
                         inline: true
                     },
                     {
                         name: 'Current Roles',
-                        value: getUserRoles(targetUser).map(r => ROLE_DISPLAY[r]).join(', '),
+                        value: getUserRoles(targetUser).map(r => r).join(', '),
                         inline: false
                     }
                 ]
@@ -7851,18 +7899,10 @@ site.use(async (err, req, res, next) => {
     }
 });
 
-process.on('unhandledRejection', (reason, rejectedPromise) => console.log(reason));
+process.on('unhandledRejection', (reason) => console.error('Unhandled promise rejection:', reason));
 
-process.on('uncaughtException', (error) => console.log(error));
+process.on('uncaughtException', (error) => console.error('Uncaught exception:', error));
 
-
-setInterval(async () => {
-    var curTime = new Date();
-    const settings = await getSettings();
-    if (curTime.getHours() === 22 && settings.highlightedMiiChangeDay !== curTime.getDay()) {
-        makeReport("**Don't forget to set a new Highlighted Mii!**");
-    }
-}, ms("1h"));
 
 // TODO: reset password functionality which should increase token version
 

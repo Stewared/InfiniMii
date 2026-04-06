@@ -13,9 +13,71 @@ function setLikeButtonVisualState(button, liked, locked = false) {
     button.setAttribute('aria-label', label);
 }
 
+function getLikeButtonsForMii(miiId, fallbackButton = null) {
+    const normalizedMiiId = String(miiId || '');
+    if (!normalizedMiiId) return fallbackButton ? [fallbackButton] : [];
+
+    const buttons = Array.from(document.querySelectorAll('.like-button'))
+        .filter((candidate) => candidate?.dataset?.miiId === normalizedMiiId);
+
+    return buttons.length > 0 ? buttons : (fallbackButton ? [fallbackButton] : []);
+}
+
+function getLikeButtonVoteCount(buttons) {
+    for (const button of buttons) {
+        const countEl = button?.querySelector?.('.vote-count');
+        if (!countEl) continue;
+
+        const schemaCount = countEl.querySelector?.('[itemprop="userInteractionCount"]');
+        const schemaValue = parseInt(schemaCount?.getAttribute?.('content') || '', 10);
+        if (!Number.isNaN(schemaValue)) return schemaValue;
+
+        const parsedCount = parseInt(countEl.textContent, 10);
+        if (!Number.isNaN(parsedCount)) return parsedCount;
+    }
+
+    return 0;
+}
+
+function setLikeButtonVoteCount(buttons, nextCount) {
+    buttons.forEach((button) => {
+        const countEl = button?.querySelector?.('.vote-count');
+        if (!countEl) return;
+
+        const nextText = String(nextCount);
+        const schemaCount = countEl.querySelector?.('[itemprop="userInteractionCount"]');
+        if (schemaCount) {
+            schemaCount.setAttribute('content', nextText);
+        }
+
+        const visibleTextNode = Array.from(countEl.childNodes || [])
+            .find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0);
+
+        if (visibleTextNode) {
+            visibleTextNode.textContent = nextText;
+            return;
+        }
+
+        countEl.appendChild(document.createTextNode(nextText));
+    });
+}
+
 function likeMii(el,id,highlightedMii,mod){
     const button = el?.closest?.('.like-button') || el;
-    fetch("/voteMii?id="+encodeURIComponent(id), { method: 'POST' }).then(d=>d.text()).then(d=>{
+    const syncedButtons = getLikeButtonsForMii(id, button);
+
+    fetch("/voteMii?id="+encodeURIComponent(id), { method: 'POST' }).then(async (response) => {
+        if (response.redirected) {
+            window.location.href = "/login?next=" + encodeURIComponent(
+                window.location.pathname + window.location.search + window.location.hash
+            );
+            return null;
+        }
+
+        return response.text();
+    }).then(d=>{
+        if (d === null) return;
+
         let parsed;
         try { parsed = JSON.parse(d); } catch (e) {}
         if (parsed?.error) {
@@ -23,24 +85,25 @@ function likeMii(el,id,highlightedMii,mod){
             return;
         }
 
-        const countEl = button?.querySelector('.vote-count');
-        const currentCount = countEl ? parseInt(countEl.textContent, 10) || 0 : 0;
+        const currentCount = getLikeButtonVoteCount(syncedButtons);
 
         if(d==="Liked"){
-            setLikeButtonVisualState(button, true, false);
-            if (countEl) countEl.textContent = currentCount + 1;
+            syncedButtons.forEach((candidate) => setLikeButtonVisualState(candidate, true, false));
+            setLikeButtonVoteCount(syncedButtons, currentCount + 1);
             return;
         }
         if(d==="Unliked"){
-            setLikeButtonVisualState(button, false, false);
-            if (countEl) countEl.textContent = Math.max(0, currentCount - 1);
+            syncedButtons.forEach((candidate) => setLikeButtonVisualState(candidate, false, false));
+            setLikeButtonVoteCount(syncedButtons, Math.max(0, currentCount - 1));
             return;
         }
         if (d === "LockedLiked") {
-            setLikeButtonVisualState(button, true, true);
-            if (countEl && currentCount < 1) countEl.textContent = '1';
+            syncedButtons.forEach((candidate) => setLikeButtonVisualState(candidate, true, true));
+            setLikeButtonVoteCount(syncedButtons, Math.max(1, currentCount));
             return;
         }
+    }).catch(() => {
+        if (typeof showAlert === 'function') showAlert('Failed to update like', 5000, { title: 'Error', type: 'error' });
     });
 }
 

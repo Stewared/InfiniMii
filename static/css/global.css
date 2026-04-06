@@ -371,11 +371,13 @@ footer ul li a:hover {
 }
 
 .mii-card {
+    --mii-card-radius: 25px;
+    --mii-card-inner-radius: calc(var(--mii-card-radius) - 2px);
     display: flex;
     flex-flow: column;
     width: clamp(10rem, 12vw, 40rem);
     border: 2px solid #202020;
-    border-radius: 25px;
+    border-radius: var(--mii-card-radius);
     background-color: var(--layer-2-um);
     --lighter-color: color-mix(in oklab, var(--layer-3) 10%, var(--derivative-mii-color) 90%);
     --darker-color: color-mix(in oklab, var(--layer-1) 97%, var(--derivative-mii-color) 3%);
@@ -386,6 +388,7 @@ footer ul li a:hover {
         radial-gradient(ellipse at bottom, var(--darker-color), var(--lighter-color) 80%);
     background-attachment: fixed;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
 }
 
 .mii-card:hover {
@@ -400,6 +403,8 @@ footer ul li a:hover {
     position: relative;
     display: block;
     isolation: isolate;
+    overflow: hidden;
+    border-radius: var(--mii-card-inner-radius) var(--mii-card-inner-radius) 0 0;
 }
 .mii-card > a:has(img)::before {
     z-index: -1;
@@ -409,7 +414,7 @@ footer ul li a:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    border-radius: 25px 25px 0 0;
+    border-radius: inherit;
     --darker-color: color-mix(in oklab, #222 60%, var(--favorite-color) 30%);
     --lighter-color: color-mix(in oklab, #555 90%, var(--favorite-color) 60%);
     background: radial-gradient(circle, var(--lighter-color) 26%, var(--darker-color) 100%);
@@ -420,7 +425,7 @@ footer ul li a:hover {
     height: auto;
     aspect-ratio: 1;
     display: block;
-    border-radius: 30px;
+    border-radius: inherit;
     /* margin-bottom: 1rem; */
     transition: 585ms;
     transform-origin: bottom;
@@ -809,6 +814,7 @@ footer ul li a:hover {
 
 /* Featured Miis (right sidebar) */
 .browse-featured-miis {
+    --featured-control-radius: 8px;
     display: flex;
     flex-flow: column;
 }
@@ -822,12 +828,16 @@ footer ul li a:hover {
 }
 
 .browse-featured-miis input[type="button"] {
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
     margin-top: 10px;
-    padding: 8px 12px;
+    padding: 10px 12px;
     background-color: var(--brand-color);
     color: white;
-    border: none;
-    border-radius: 5px;
+    border: 2px solid transparent;
+    border-radius: var(--featured-control-radius);
     cursor: pointer;
     font-family: Poppins, sans-serif;
 }
@@ -838,13 +848,103 @@ footer ul li a:hover {
 
 .browse-featured-miis input[type="text"] {
     width: 100%;
-    padding: 8px;
+    min-height: 42px;
+    box-sizing: border-box;
+    padding: 10px 12px;
     margin-bottom: 8px;
     border: 2px solid var(--layer-3-um);
-    border-radius: 5px;
+    border-radius: var(--featured-control-radius);
     background-color: var(--layer-1-um);
     color: white;
     font-family: Poppins, sans-serif;
+}
+
+.browse-featured-miis .like-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0.38rem 0.72rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-4, #7f8b9f) 55%, #7f8b9f 45%);
+    background: color-mix(in oklab, var(--layer-2-um) 72%, #2a3342 28%);
+    color: #d9e1ed;
+    box-shadow: none;
+    flex-shrink: 0;
+    font-size: 0.94rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.browse-featured-miis .featured-like-button {
+    min-height: 2.1rem;
+    padding-inline: 0.65rem;
+}
+
+.browse-featured-miis .like-button .icon {
+    margin-right: 0;
+}
+
+.browse-featured-miis .like-button:hover,
+.browse-featured-miis .like-button:focus-visible {
+    transform: translateY(-1px);
+    background: color-mix(in oklab, var(--layer-2-um) 64%, #334056 36%);
+    border-color: color-mix(in oklab, var(--brand-color) 48%, #77839a 52%);
+    box-shadow: none;
+}
+
+.browse-featured-miis .like-button.is-liked {
+    background: color-mix(in oklab, #341923 76%, var(--layer-2-um) 24%);
+    border-color: color-mix(in oklab, #ff6f97 70%, #8b6a73 30%);
+    color: #ff82a5;
+}
+
+.browse-featured-miis .like-button.is-liked:hover,
+.browse-featured-miis .like-button.is-liked:focus-visible {
+    background: color-mix(in oklab, #3f1d2a 74%, var(--layer-2-um) 26%);
+    border-color: #ff95b3;
+}
+
+.browse-featured-miis .like-button.is-like-locked {
+    border-color: color-mix(in oklab, #f5d372 74%, #9d8f62 26%);
+    box-shadow: inset 0 0 0 1px rgba(245, 211, 114, 0.25);
+}
+
+.browse-featured-miis .like-button .icon:hover {
+    transform: none;
+}
+
+.browse-featured-miis .like-button .like-icon {
+    width: 20px;
+    height: 20px;
+    color: currentColor;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: transform 0.2s ease, fill 0.2s ease, color 0.2s ease;
+}
+
+.browse-featured-miis .like-button:hover .like-icon,
+.browse-featured-miis .like-button:focus-visible .like-icon {
+    transform: scale(1.08);
+}
+
+.browse-featured-miis .like-button.is-liked .like-icon {
+    fill: currentColor;
+}
+
+.browse-featured-miis .like-button .vote-count {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    color: currentColor;
+    min-width: 1ch;
+    text-align: center;
 }
 
 .crown {
@@ -1229,10 +1329,7 @@ fieldset a:hover {
 }
 
 .footer-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    max-width: 1200px;
+    width: min(100%, 950px);
     margin: 0 auto 2rem;
 }
 
@@ -1336,30 +1433,25 @@ fieldset a:hover {
 
 /* --- Strong, predictable grid columns --- */
 .site-footer .footer-content {
-    /* fallback/default: 4 equal columns on wide screens */
+    /* Keep the visible sections content-sized and centered as a group. */
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(220px, 250px));
+    justify-content: center;
+    align-items: start;
     gap: 2rem;
-}
-
-/* Large tablets / small laptops: 3 columns */
-@media (max-width: 1100px) {
-    .site-footer .footer-content {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
 }
 
 /* Tablets: 2 columns */
 @media (max-width: 800px) {
     .site-footer .footer-content {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(220px, 250px));
     }
 }
 
 /* Phones: 1 column */
 @media (max-width: 520px) {
     .site-footer .footer-content {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 

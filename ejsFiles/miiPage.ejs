@@ -20,7 +20,20 @@
         const pageTitle = `${miiName} Mii QR Code & Download${mii.official ? ` | ${officialSourceLabel}` : ''} - InfiniMii`;
         const pageDesc = seo.metaDescription || mii.desc || `Download ${miiName} Mii character${mii.official ? ` from ${officialSourceLabel}` : ''} for Wii, 3DS, Wii U, and Switch. Get QR code access and convert to supported formats.`;
         const canonicalUrl = `${baseUrl}/mii/${mii.id}`;
-        const ogImage = `${baseUrl}/miiImgs/${mii.id}.png`;
+        const imgPath = isPrivate ? 'privateMiiImgs' : 'miiImgs';
+        const qrPath = isPrivate ? 'privateMiiQRs' : 'miiQRs';
+        const previewAssetVersionSource = mii?.updatedAt || pageUpdatedAt || mii?.uploadedOn || Date.now();
+        const previewAssetVersionRaw = typeof previewAssetVersionSource === 'number'
+            ? previewAssetVersionSource
+            : new Date(previewAssetVersionSource).getTime();
+        const previewAssetVersion = Number.isFinite(previewAssetVersionRaw)
+            ? previewAssetVersionRaw
+            : Date.now();
+        const previewImagePath = `/${imgPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
+        const previewQrPath = `/${qrPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
+        const ogImage = isPrivate
+            ? `${baseUrl}/miiImgs/00000.png`
+            : `${baseUrl}${previewImagePath}`;
         const ogImageAlt = `${miiName} Mii character preview`;
         const ogType = 'article';
         const keywords = keywordList.length > 0
@@ -91,14 +104,10 @@
         <link rel="stylesheet" href="/miiPage.css">
         
         <!-- Preload hero image -->
-        <link rel="preload" as="image" href="/miiImgs/<%= mii.id %>.png">
+        <link rel="preload" as="image" href="<%= previewImagePath %>">
     </head>
     <body>
         <%- include('globalStyle') %>
-        <% 
-            const imgPath = isPrivate ? 'privateMiiImgs' : 'miiImgs';
-            const qrPath = isPrivate ? 'privateMiiQRs' : 'miiQRs';
-        %>
         <%- include('header') %>
         <%- include('accountDisplay') %>
 
@@ -116,17 +125,17 @@
                 <div class="id-card-body">
                     <!-- Left side: Mii Image -->
                     <figure class="id-card-photo">
-                        <img src="/<%= imgPath %>/<%= mii.id %>.png" 
-                            onerror="this.src='/<%= imgPath %>/<%= mii.id %>.png'"
+                        <img src="<%= previewImagePath %>" 
+                            onerror="this.src='<%= previewImagePath %>'"
                             alt="<%= miiName %> Mii character face"
                             itemprop="image"
                             width="400" 
                             height="400"
                             fetchpriority="high">
                         <figcaption class="qr-code">
-                            <a href="/<%= qrPath %>/<%= mii.id %>.png" target="_blank" rel="noopener noreferrer">
-                                <img src="/<%= qrPath %>/<%= mii.id %>.png" 
-                                    onerror="this.src='/<%= qrPath %>/<%= mii.id %>.png'"
+                            <a href="<%= previewQrPath %>" target="_blank" rel="noopener noreferrer">
+                                <img src="<%= previewQrPath %>" 
+                                    onerror="this.src='<%= previewQrPath %>'"
                                     alt="QR Code for <%= miiName %> - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo" 
                                     width="200" 
                                     height="200"
@@ -583,6 +592,7 @@
                         <button
                             onclick="likeMii(this,'<%= mii.id %>','<%= highlightedMii %>','<%= isModerator %>')"
                             class="like-button <%= hasLikedMii ? 'is-liked' : 'is-unliked' %><%= isLikeLocked ? ' is-like-locked' : '' %>"
+                            data-mii-id="<%= mii.id %>"
                             data-liked="<%= hasLikedMii ? 'true' : 'false' %>"
                             data-like-locked="<%= isLikeLocked ? 'true' : 'false' %>"
                             aria-pressed="<%= hasLikedMii ? 'true' : 'false' %>"

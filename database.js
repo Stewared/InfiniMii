@@ -83,6 +83,7 @@ const settingsSchema = new mongoose.Schema({
     highlightedMii: { type: String, default: "00000" },
     defaultUserPfpMii: { type: String, default: "QfK19" },
     highlightedMiiChangeDay: { type: Number, default: ()=>Date.now() },
+    highlightedMiiReminderSentOn: { type: String, default: null },
     bannedIPs: { type: [String], default: [] },
     officialCategories: { type: mongoose.Schema.Types.Mixed, default: { categories: [] } },
     officialCompanySources: { type: [String], default: ["Nintendo"] },
