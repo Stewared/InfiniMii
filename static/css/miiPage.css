@@ -263,7 +263,6 @@
     flex-wrap: wrap;
     position: relative;
     overflow: visible;
-    border-radius: 0 0 var(--mii-id-card-inner-radius) var(--mii-id-card-inner-radius);
 }
 
 .export-form {
@@ -1308,7 +1307,7 @@
 }
 
 .mii-seo-sections {
-    display: hidden;
+    display: grid;
     gap: 1rem;
     padding: 0 2rem 2rem;
     background-color: var(--layer-2-um);

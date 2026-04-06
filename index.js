@@ -4675,7 +4675,7 @@ site.get('/sitemap-pages.xml', async (req, res) => {
         },
         {
             loc: `${resolvedBaseUrl}/official`,
-            changefreq: 'weekly',
+            changefreq: 'daily',
             priority: '0.9'
         },
         {
@@ -4774,7 +4774,7 @@ site.get('/sitemap-miis.xml', async (req, res) => {
         urls.push({
             loc: `${resolvedBaseUrl}/mii/${miiId}`,
             lastmod: lastmod,
-            changefreq: 'weekly',
+            changefreq: 'daily',
             priority: mii.official ? '0.9' : '0.7',
             images: [
                 {
@@ -4820,7 +4820,7 @@ site.get('/sitemap-users.xml', async (req, res) => {
         lastmod: summary.lastUploaded
             ? new Date(summary.lastUploaded).toISOString().split('T')[0]
             : undefined,
-        changefreq: 'weekly',
+        changefreq: 'daily',
         priority: '0.6'
     }));
 

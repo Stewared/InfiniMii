@@ -74,7 +74,7 @@
 - [ ] Check for crawl errors
 - [ ] Monitor Core Web Vitals report
 
-## Post-Launch Monitoring (Weekly)
+## Post-Launch Monitoring (Daily)
 
 ### Week 1-4
 - [ ] Check Google Search Console for errors

@@ -153,9 +153,6 @@
                                 <div>
                                     <h3><%= miiItemName %></h3>
                                     <a href="<%= '/user/' + encodeURIComponent(miiItem.uploader) %>"><%= miiItem.uploader %></a>
-                                    <% if (miiItem.official && miiItem.contributor) { %>
-                                        <small class="uploader-subtext">Uploaded by <a href="/user/<%= encodeURIComponent(miiItem.contributor) %>"><%= miiItem.contributor %></a></small>
-                                    <% } %>
                                     <p><%= miiItemDesc.length > 75 ? miiItemDesc.slice(0, 73) + "..." : miiItemDesc %></p>
                                     <% if (miiItem.tags && miiItem.tags.length > 0) { %>
                                         <div class="mii-card-tags">

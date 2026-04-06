@@ -13,3 +13,9 @@ Cleared all failed uploads
 
 All setup finished.
 Online
+Starting, do not stop...
+Settings initialized
+Finished Checking Quick Uploads Folder
+Generating new average Mii...
+Warning: maxDynamicUniformBuffersPerPipelineLayout artificially reduced from 500000 to 16 to fit dynamic offset allocation limit.
+Warning: maxDynamicStorageBuffersPerPipelineLayout artificially reduced from 500000 to 16 to fit dynamic offset allocation limit.
