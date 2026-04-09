@@ -230,6 +230,16 @@
                     return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                 }
 
+                function escapeHtml(value) {
+                    return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#39;'
+                    }[character]));
+                }
+
                 async function loadOfficialCategories() {
                     try {
                         const response = await fetch('/getOfficialCategories', {
@@ -273,6 +283,8 @@
                         const indent = level * 20;
                         const nodeColor = node.color || '#999999';
                         const escapedPath = escapeForSingleQuote(node.path);
+                        const escapedPathForHtml = escapeHtml(node.path);
+                        const escapedName = escapeHtml(node.name);
 
                         html += `
                             <div class="tree-node-upload" style="--tree-indent: ${indent}px; --node-color: ${nodeColor};">
@@ -287,13 +299,13 @@
                                         <label class="category-label-upload">
                                             <input type="checkbox"
                                                 name="categories"
-                                                value="${node.path}"
+                                                value="${escapedPathForHtml}"
                                                 ${isSelected ? 'checked' : ''}
                                                 onchange="updateOfficialUploadSelection('${escapedPath}', this.checked)">
-                                            <span class="category-label-upload-name">${node.name}</span>
+                                            <span class="category-label-upload-name">${escapedName}</span>
                                         </label>
                                     ` : `
-                                        <span class="parent-name">${node.name}</span>
+                                        <span class="parent-name">${escapedName}</span>
                                     `}
                                 </div>
 

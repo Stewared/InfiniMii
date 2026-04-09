@@ -63,6 +63,20 @@
                 trash: '<svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>'
             };
 
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[character]));
+            }
+
+            function escapeForSingleQuote(value) {
+                return String(value ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            }
+
             async function loadCategories() {
                 try {
                     const response = await fetch('/getOfficialCategories', {
@@ -103,31 +117,34 @@
                     const isExpanded = expandedNodes.has(node.path);
                     const indent = level * 20;
                     const nodeColor = node.color || '#999999';
+                    const escapedPathForJs = escapeForSingleQuote(node.path);
+                    const escapedPathForHtml = escapeHtml(node.path);
+                    const escapedName = escapeHtml(node.name);
                     
                     html += `
-                        <li class="tree-node" style="--tree-indent: ${indent}px; --node-color: ${nodeColor};" data-path="${node.path}">
+                        <li class="tree-node" style="--tree-indent: ${indent}px; --node-color: ${nodeColor};" data-path="${escapedPathForHtml}">
                             <div class="node-content">
                                 ${hasChildren ? `
-                                    <span class="toggle-btn" onclick="toggleNode('${node.path}')">
+                                    <span class="toggle-btn" onclick="toggleNode('${escapedPathForJs}')">
                                         ${isExpanded ? '▼' : '▶'}
                                     </span>
                                 ` : '<span class="no-toggle">•</span>'}
                                 
-                                <span class="node-name">${node.name}</span>
+                                <span class="node-name">${escapedName}</span>
                                 
                                 ${hasChildren ? `<span class="child-count">(${node.children.length})</span>` : ''}
                                 
                                 <div class="node-actions">
-                                    <button onclick="addChildCategory('${node.path}')" class="btn-icon" title="Add Child">
+                                    <button onclick="addChildCategory('${escapedPathForJs}')" class="btn-icon" title="Add Child">
                                         ${icons.plus}
                                     </button>
-                                    <button onclick="renameCategory('${node.path}')" class="btn-icon" title="Rename">
+                                    <button onclick="renameCategory('${escapedPathForJs}')" class="btn-icon" title="Rename">
                                         ${icons.edit}
                                     </button>
-                                    <button onclick="moveCategory('${node.path}')" class="btn-icon" title="Move">
+                                    <button onclick="moveCategory('${escapedPathForJs}')" class="btn-icon" title="Move">
                                         ${icons.move}
                                     </button>
-                                    <button onclick="deleteCategory('${node.path}')" class="btn-icon btn-delete-icon" title="Delete">
+                                    <button onclick="deleteCategory('${escapedPathForJs}')" class="btn-icon btn-delete-icon" title="Delete">
                                         ${icons.trash}
                                     </button>
                                 </div>

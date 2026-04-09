@@ -174,13 +174,21 @@ const breadcrumbSchema = breadcrumbItems.length > 0
 const extraSchemaGraphs = typeof schemaGraphs !== 'undefined' && Array.isArray(schemaGraphs)
     ? schemaGraphs.filter(Boolean)
     : [];
+const scriptJson = typeof toScriptJson === 'function'
+    ? toScriptJson
+    : ((value, space = 0) => JSON.stringify(value, null, space)
+        .replace(/</g, '\\u003C')
+        .replace(/>/g, '\\u003E')
+        .replace(/&/g, '\\u0026')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029'));
 %>
 <% if (!shouldSuppressSchema) { %>
-<script type="application/ld+json"><%- JSON.stringify(websiteSchema, null, 2) %></script>
-<script type="application/ld+json"><%- JSON.stringify(organizationSchema, null, 2) %></script>
-<script type="application/ld+json"><%- JSON.stringify(pageSchema, null, 2) %></script>
-<% if (breadcrumbSchema) { %><script type="application/ld+json"><%- JSON.stringify(breadcrumbSchema, null, 2) %></script><% } %>
+<script type="application/ld+json"><%- scriptJson(websiteSchema, 2) %></script>
+<script type="application/ld+json"><%- scriptJson(organizationSchema, 2) %></script>
+<script type="application/ld+json"><%- scriptJson(pageSchema, 2) %></script>
+<% if (breadcrumbSchema) { %><script type="application/ld+json"><%- scriptJson(breadcrumbSchema, 2) %></script><% } %>
 <% extraSchemaGraphs.forEach((schemaGraph) => { %>
-<script type="application/ld+json"><%- JSON.stringify(schemaGraph, null, 2) %></script>
+<script type="application/ld+json"><%- scriptJson(schemaGraph, 2) %></script>
 <% }); %>
 <% } %>

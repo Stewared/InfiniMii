@@ -522,9 +522,9 @@
         <%- include('footer') %>
 
         <% if(isModerator) { %>
-            <script id="target-user-roles" type="application/json"><%- JSON.stringify(targetUser.roles || ['basic']) %></script>
+            <script id="target-user-roles" type="application/json"><%- toScriptJson(targetUser.roles || ['basic']) %></script>
             <script>
-                const targetUsername = '<%= targetUser.username %>';
+                const targetUsername = <%- toScriptJson(targetUser.username) %>;
 
                 function toggleModTools() {
                     const content = document.getElementById('modToolsContent');

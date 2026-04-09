@@ -57,7 +57,7 @@
                     const password = formData.get('pass');
                     return new URLSearchParams({ username, pass: password });
                 },
-                next: "<%= next %>"
+                next: <%- toScriptJson(next || '/') %>
             });
         });
     </script>

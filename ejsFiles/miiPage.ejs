@@ -235,9 +235,23 @@
                             </div>
                             <% } %>
                                 <script>
-                                const currentCategories = <%- JSON.stringify(mii.officialCategories || []) %>;
-                                const currentMiiTags = <%- JSON.stringify(mii.tags || []) %>;
-                                const availableMiiTags = <%- JSON.stringify(availableTags || []) %>;
+                                const currentCategories = <%- toScriptJson(mii.officialCategories || []) %>;
+                                const currentMiiTags = <%- toScriptJson(mii.tags || []) %>;
+                                const availableMiiTags = <%- toScriptJson(availableTags || []) %>;
+                                function escapeHtml(value) {
+                                    return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+                                        '&': '&amp;',
+                                        '<': '&lt;',
+                                        '>': '&gt;',
+                                        '"': '&quot;',
+                                        "'": '&#39;'
+                                    }[character]));
+                                }
+
+                                function escapeForSingleQuote(value) {
+                                    return String(value ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                                }
+
                                 let selectedMiiTags = new Set(currentMiiTags);
                                 let officialCategories = [];
                                 let selectedPaths = new Set(currentCategories);
@@ -332,12 +346,15 @@
                                         const isSelected = selectedPaths.has(node.path);
                                         const indent = level * 20;
                                         const nodeColor = node.color || '#999999';
+                                        const escapedPathForJs = escapeForSingleQuote(node.path);
+                                        const escapedPathForHtml = escapeHtml(node.path);
+                                        const escapedName = escapeHtml(node.name);
                                         
                                         html += `
                                             <div class="modal-category-node" style="--tree-indent: ${indent}px; --node-color: ${nodeColor};">
                                                 <div class="modal-category-line">
                                                     ${hasChildren ? `
-                                                        <span class="modal-category-toggle" onclick="toggleModalNode('${node.path}')">
+                                                        <span class="modal-category-toggle" onclick="toggleModalNode('${escapedPathForJs}')">
                                                             ${isExpanded ? '▼' : '▶'}
                                                         </span>
                                                     ` : '<span class="modal-category-leaf-marker">•</span>'}
@@ -346,14 +363,14 @@
                                                         <label class="modal-category-label">
                                                             <input type="checkbox" 
                                                                 class="category-selector"
-                                                                value="${node.path}"
+                                                                value="${escapedPathForHtml}"
                                                                 ${isSelected ? 'checked' : ''}
-                                                                onchange="updateModalSelection('${node.path}', this.checked)">
-                                                            <span class="modal-category-label-name">${node.name}</span>
-                                                            <span class="modal-category-path">${node.path}</span>
+                                                                onchange="updateModalSelection('${escapedPathForJs}', this.checked)">
+                                                            <span class="modal-category-label-name">${escapedName}</span>
+                                                            <span class="modal-category-path">${escapedPathForHtml}</span>
                                                         </label>
                                                     ` : `
-                                                        <span class="modal-category-parent-name">${node.name}</span>
+                                                        <span class="modal-category-parent-name">${escapedName}</span>
                                                     `}
                                                 </div>
                                                 
@@ -992,7 +1009,7 @@
                 }, {
                     title: "Recreation Instructions",
                     defaultConsole: "3DS",
-                    miiName: <%- JSON.stringify(mii.meta.name || "Mii") %>
+                    miiName: <%- toScriptJson(mii.meta.name || "Mii") %>
                 });
             }
 
@@ -1224,7 +1241,7 @@
                 }
 
                 async function confirmDeleteMii() {
-                    const miiName = '<%= mii.meta.name %>';
+                    const miiName = <%- toScriptJson(mii.meta.name || "") %>;
                     showConfirm(`Are you ABSOLUTELY SURE you want to DELETE the Mii "${miiName}"?\n\nThis action CANNOT be undone!`, () => {
                         const doubleCheck = prompt(`Type "DELETE" to confirm deletion of ${miiName}:`);
                         if (doubleCheck !== 'DELETE') {

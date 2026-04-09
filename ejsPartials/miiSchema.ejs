@@ -122,9 +122,17 @@ const miiQrSchema = {
   "contentUrl": miiQrUrl,
   "caption": `QR code for ${miiName}. Scan with compatible Nintendo systems to import the Mii.`
 };
+const scriptJson = typeof toScriptJson === 'function'
+  ? toScriptJson
+  : ((value, space = 0) => JSON.stringify(value, null, space)
+      .replace(/</g, '\\u003C')
+      .replace(/>/g, '\\u003E')
+      .replace(/&/g, '\\u0026')
+      .replace(/\u2028/g, '\\u2028')
+      .replace(/\u2029/g, '\\u2029'));
 %>
-<script type="application/ld+json"><%- JSON.stringify(characterSchema, null, 2) %></script>
-<script type="application/ld+json"><%- JSON.stringify(miiCreativeWorkSchema, null, 2) %></script>
-<script type="application/ld+json"><%- JSON.stringify(miiPreviewSchema, null, 2) %></script>
-<script type="application/ld+json"><%- JSON.stringify(miiQrSchema, null, 2) %></script>
+<script type="application/ld+json"><%- scriptJson(characterSchema, 2) %></script>
+<script type="application/ld+json"><%- scriptJson(miiCreativeWorkSchema, 2) %></script>
+<script type="application/ld+json"><%- scriptJson(miiPreviewSchema, 2) %></script>
+<script type="application/ld+json"><%- scriptJson(miiQrSchema, 2) %></script>
 <% } %>

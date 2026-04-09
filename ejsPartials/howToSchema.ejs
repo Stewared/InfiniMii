@@ -14,6 +14,14 @@ const toAbsoluteUrl = (value, fallbackPath = '/banner.png') => {
         : `${resolvedBaseUrl}/${trimmed.replace(/^\/+/, '')}`;
 };
 const shouldRenderHowTo = typeof howToTitle === 'string' && howToTitle.trim() && howToTitle !== 'How To' && Array.isArray(howToSteps) && howToSteps.length > 0;
+const scriptJson = typeof toScriptJson === 'function'
+    ? toScriptJson
+    : ((value, space = 0) => JSON.stringify(value, null, space)
+        .replace(/</g, '\\u003C')
+        .replace(/>/g, '\\u003E')
+        .replace(/&/g, '\\u0026')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029'));
 %>
 <% if (shouldRenderHowTo) { %>
 <%
@@ -34,5 +42,5 @@ const howToSchema = {
     "step": howToSteps
 };
 %>
-<script type="application/ld+json"><%- JSON.stringify(howToSchema, null, 2) %></script>
+<script type="application/ld+json"><%- scriptJson(howToSchema, 2) %></script>
 <% } %>

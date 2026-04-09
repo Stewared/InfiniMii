@@ -219,6 +219,75 @@ function parseBooleanLike(value) {
     return cleaned === "true" || cleaned === "1" || cleaned === "yes" || cleaned === "on";
 }
 
+const CONTROL_CHARACTER_REGEX = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]+/g;
+
+function sanitizeUserText(value, { preserveNewlines = false, maxLength } = {}) {
+    let text = value === null || typeof value === "undefined"
+        ? ""
+        : String(value);
+
+    text = text.replace(/\r\n?/g, "\n");
+
+    if (preserveNewlines) {
+        text = text
+            .replace(CONTROL_CHARACTER_REGEX, " ")
+            .split("\n")
+            .map(line => line.replace(/\s+/g, " ").trim())
+            .join("\n")
+            .replace(/\n{3,}/g, "\n\n");
+    } else {
+        text = text
+            .replace(CONTROL_CHARACTER_REGEX, " ")
+            .replace(/\s+/g, " ");
+    }
+
+    text = text
+        .replace(/[<>]/g, "")
+        .trim();
+
+    if (Number.isInteger(maxLength) && maxLength >= 0 && text.length > maxLength) {
+        text = text.slice(0, maxLength).trim();
+    }
+
+    return text;
+}
+
+function sanitizeSingleLineText(value, options = {}) {
+    return sanitizeUserText(value, {
+        ...options,
+        preserveNewlines: false
+    });
+}
+
+function sanitizeMultilineText(value, options = {}) {
+    return sanitizeUserText(value, {
+        ...options,
+        preserveNewlines: true
+    });
+}
+
+function sanitizeCategoryName(value) {
+    return sanitizeSingleLineText(value, { maxLength: 80 });
+}
+
+function sanitizeReasonText(value) {
+    return sanitizeMultilineText(value, { maxLength: 250 });
+}
+
+function toSafeInlineScriptJson(value, space = 0) {
+    const json = JSON.stringify(value, null, space);
+    if (typeof json !== "string") {
+        return "null";
+    }
+
+    return json
+        .replace(/</g, "\\u003C")
+        .replace(/>/g, "\\u003E")
+        .replace(/&/g, "\\u0026")
+        .replace(/\u2028/g, "\\u2028")
+        .replace(/\u2029/g, "\\u2029");
+}
+
 function getSafeRedirectPath(target, fallback = "/") {
     const fallbackPath = typeof fallback === "string" && fallback.startsWith("/")
         ? fallback
@@ -397,13 +466,13 @@ async function createMiiData(input, debug) {
     const parsedInput = isQrImageInput(input) ? await decodeQrImageInput(input) : input;
     try {
         const mii = await miijs.Mii.create(parsedInput, debug);
-        return mii.fields;
+        return sanitizeMiiPresentationFields(mii.fields);
     } catch (originalError) {
         const fallbacks = buildMiiStringFallbackCandidates(parsedInput);
         for (const fallbackInput of fallbacks) {
             try {
                 const mii = await miijs.Mii.create(fallbackInput, debug);
-                return mii.fields;
+                return sanitizeMiiPresentationFields(mii.fields);
             } catch (e) { }
         }
         throw originalError;
@@ -1081,7 +1150,8 @@ function getMiiAttribution(mii) {
 const ejsFunctions = {
     "decodeColor": (colorIndex) => (["Red", "#dd5e17", "#e2cd5e", "Lime", "Green", "Blue", "Cyan", "#e65ba1", "Purple", "Brown", "White", "Black"][colorIndex] || colorIndex),
     buildSeoKeywordList,
-    getMiiAttribution
+    getMiiAttribution,
+    toScriptJson: (value, space = 0) => toSafeInlineScriptJson(value, space)
 }
 
 /** Build EJS variables for the page. `user` is assumed to be the logged in user */
@@ -1569,11 +1639,7 @@ function buildCuratedMiiCollections(collections, limitPerCollection = 4) {
 }
 
 function normalizeTagValue(tag) {
-    if (typeof tag !== "string") return "";
-    return tag
-        .replace(/\s+/g, " ")
-        .replace(/[<>]/g, "")
-        .trim();
+    return sanitizeSingleLineText(tag);
 }
 
 function normalizeTagList(rawTags) {
@@ -1602,11 +1668,49 @@ function normalizeTagList(rawTags) {
 }
 
 function normalizeCompanySourceName(source) {
-    if (typeof source !== "string") return "";
-    return source
-        .replace(/\s+/g, " ")
-        .replace(/[<>]/g, "")
-        .trim();
+    return sanitizeSingleLineText(source, { maxLength: MAX_COMPANY_SOURCE_NAME_LENGTH });
+}
+
+function sanitizeMiiPresentationFields(miiData) {
+    if (!miiData || typeof miiData !== "object") return miiData;
+
+    if (!miiData.meta || typeof miiData.meta !== "object") {
+        miiData.meta = {};
+    }
+
+    if (typeof miiData.meta.name !== "undefined") {
+        miiData.meta.name = sanitizeSingleLineText(miiData.meta.name, { maxLength: 80 });
+    }
+
+    if (typeof miiData.meta.creatorName !== "undefined") {
+        miiData.meta.creatorName = sanitizeSingleLineText(miiData.meta.creatorName, { maxLength: 80 });
+    }
+
+    if (typeof miiData.desc !== "undefined") {
+        miiData.desc = sanitizeMultilineText(miiData.desc, { maxLength: 250 });
+    }
+
+    if (typeof miiData.uploader === "string") {
+        miiData.uploader = sanitizeSingleLineText(miiData.uploader);
+    }
+
+    if (typeof miiData.contributor === "string") {
+        miiData.contributor = sanitizeSingleLineText(miiData.contributor);
+    }
+
+    if (typeof miiData.officialSource === "string") {
+        miiData.officialSource = normalizeCompanySourceName(miiData.officialSource);
+    }
+
+    if (Array.isArray(miiData.tags)) {
+        miiData.tags = normalizeTagList(miiData.tags);
+    }
+
+    if (Array.isArray(miiData.officialCategories)) {
+        miiData.officialCategories = normalizeCategoryPaths(miiData.officialCategories);
+    }
+
+    return miiData;
 }
 
 function normalizeOfficialCompanySourceList(rawSources) {
@@ -2105,6 +2209,53 @@ function getStableRecencySort() {
     return { uploadedOn: -1, _id: -1 };
 }
 
+async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date.now()) {
+    const pipeline = [
+        { $match: query },
+        {
+            $addFields: {
+                ageHours: {
+                    $divide: [
+                        { $subtract: [now, "$uploadedOn"] },
+                        1000 * 60 * 60
+                    ]
+                }
+            }
+        },
+        {
+            $addFields: {
+                hotness: {
+                    $divide: [
+                        "$votes",
+                        {
+                            $pow: [
+                                { $add: ["$ageHours", 2] },
+                                1.5
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        { $sort: { hotness: -1, uploadedOn: -1, _id: -1 } },
+        { $skip: skip },
+        { $limit: perPage }
+    ];
+
+    const [items, total] = await Promise.all([
+        Miis.aggregate(pipeline),
+        Miis.countDocuments(query)
+    ]);
+
+    return {
+        items,
+        total,
+        page,
+        perPage,
+        totalPages: Math.ceil(total / perPage)
+    };
+}
+
 // Paginated API that queries database directly with skip/limit
 async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter = null) {
     const skip = (page - 1) * perPage;
@@ -2163,53 +2314,16 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
             };
         }
         
-        case "trending": {// TODO: rebrand to "trending"
-            const now = Date.now();
+        case "trending": { // TODO: rebrand to "trending"
+            return getTrendingPaginatedResult(query, page, perPage, skip);
+        }
 
-            const pipeline = [
-                { $match: query },
-                {
-                    $addFields: {
-                        ageHours: {
-                            $divide: [
-                                { $subtract: [now, "$uploadedOn"] },
-                                1000 * 60 * 60
-                            ]
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        hotness: {
-                            $divide: [
-                                "$votes",
-                                {
-                                    $pow: [
-                                        { $add: ["$ageHours", 2] },
-                                        1.5
-                                    ]
-                                }
-                            ]
-                }
-                    }
-                },
-                { $sort: { hotness: -1, uploadedOn: -1, _id: -1 } },
-                { $skip: skip },
-                { $limit: perPage }
-            ];
-
-            const [items, total] = await Promise.all([
-                Miis.aggregate(pipeline),
-                Miis.countDocuments(query)
-            ]);
-
-            return {
-                items,
-                total,
-                page,
-                perPage,
-                totalPages: Math.ceil(total / perPage)
-            };
+        case "officialTrending": {
+            query.official = true;
+            if (filter) {
+                query.officialCategories = filter;
+            }
+            return getTrendingPaginatedResult(query, page, perPage, skip);
         }
 
         case "top":
@@ -3650,7 +3764,7 @@ site.get('/', highGeneralRatelimit, async (req, res) => {
         "Trending": { miis: (await paginatedApi("trending", 1, HOME_PREVIEW_COUNT)).items, link: "./trending" },
         "Top": { miis: (await paginatedApi("top", 1, HOME_PREVIEW_COUNT)).items, link: "./top" },
         "Recent": { miis: (await paginatedApi("recent", 1, HOME_PREVIEW_COUNT)).items, link: "./recent" },
-        "Official": { miis: (await paginatedApi("official", 1, HOME_PREVIEW_COUNT)).items, link: "./official" }
+        "Official": { miis: (await paginatedApi("officialTrending", 1, HOME_PREVIEW_COUNT)).items, link: "./official" }
     };
     
     ejs.renderFile('./ejsFiles/index.ejs', toSend, {}, function (err, str) {
@@ -4130,7 +4244,7 @@ site.get('/legacy-upload', async (req, res) => {
 site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
     const formValues = {
         username: String(req.body.username || "").trim(),
-        desc: String(req.body.desc || "").trim(),
+        desc: sanitizeMultilineText(req.body.desc, { maxLength: 250 }),
         visibility: String(req.body.visibility || "private").toLowerCase() === "published" ? "published" : "private"
     };
 
@@ -4233,12 +4347,13 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
         mii.id = await genId();
         mii.uploadedOn = Date.now();
         mii.uploader = user.username;
-        mii.desc = formValues.desc.slice(0, 250);
+        mii.desc = formValues.desc;
         mii.votes = 1;
         mii.official = false;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
         ensureUploadMiiPermissions(mii);
+        sanitizeMiiPresentationFields(mii);
 
         const miiImageData = await miijs.renderMii(mii);
         if (wantsPublic) {
@@ -4625,33 +4740,38 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
         // Store old value for logging
         let oldValue;
         let updates = {};
+        let normalizedValue;
 
         // Update the appropriate field
         switch (field) {
             case 'name':
                 oldValue = mii.meta.name;
-                updates['meta.name'] = value;
+                normalizedValue = sanitizeSingleLineText(value, { maxLength: 80 });
+                updates['meta.name'] = normalizedValue;
                 break;
             case 'desc':
                 oldValue = mii.desc;
-                updates.desc = value;
+                normalizedValue = sanitizeMultilineText(value, { maxLength: 250 });
+                updates.desc = normalizedValue;
                 break;
             case 'creatorName':
                 oldValue = mii.meta.creatorName;
-                updates['meta.creatorName'] = value;
+                normalizedValue = sanitizeSingleLineText(value, { maxLength: 80 });
+                updates['meta.creatorName'] = normalizedValue;
                 break;
             case 'uploader':
+                normalizedValue = sanitizeSingleLineText(value, { maxLength: 15 });
                 // Validate new uploader exists
-                const newUploader = await getUserByUsername(value);
+                const newUploader = await getUserByUsername(normalizedValue);
                 if (!newUploader) {
                     return res.json({ error: 'User does not exist' });
                 }
                 
                 oldValue = mii.uploader;
                 
-                updates.uploader = value;
+                updates.uploader = normalizedValue;
                 if (mii.official) {
-                    updates.officialSource = value;
+                    updates.officialSource = normalizedValue;
                 }
                 break;
             default:
@@ -4689,7 +4809,7 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                     },
                     {
                         name: 'New Value',
-                        value: value,
+                        value: normalizedValue,
                         inline: false
                     }
                 ],
@@ -4702,7 +4822,7 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
         if (!mii.private && mii.published !== false) {
             const updatedMii = {
                 ...mii,
-                uploader: field === "uploader" ? value : mii.uploader
+                uploader: field === "uploader" ? normalizedValue : mii.uploader
             };
             const extraUrls = field === "uploader"
                 ? [getUserProfileUrl(resolvedBaseUrl, oldValue)]
@@ -4864,7 +4984,8 @@ site.post('/removeUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), asyn
 // Temporary Ban User (Moderator+)
 site.post('/tempBanUser', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
-        const { username, hours, reason } = req.body;
+        const { username, hours } = req.body;
+        const reason = sanitizeReasonText(req.body?.reason);
         const targetUser = await getUserByUsername(username);
         const normalizedHours = Number(hours);
 
@@ -4931,7 +5052,8 @@ site.post('/tempBanUser', requireAuth, requireRole(ROLES.MODERATOR), async (req,
 // Permanent Ban User (Admin only)
 site.post('/permBanUser', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (req, res) => {
     try {
-        const { username, reason } = req.body;
+        const { username } = req.body;
+        const reason = sanitizeReasonText(req.body?.reason);
         const targetUser = await getUserByUsername(username);
 
         if (!targetUser) {
@@ -5068,7 +5190,8 @@ site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async
 // Change Username (Moderator+)
 site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
-        const { oldUsername, newUsername } = req.body;
+        const { oldUsername } = req.body;
+        const newUsername = sanitizeSingleLineText(req.body?.newUsername, { maxLength: 15 });
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
 
         if (!validate(newUsername)) {
@@ -6526,7 +6649,7 @@ site.post('/changePfp', requireAuth, async (req, res) => {
     }
 });
 site.post('/changeUser', requireAuth, async (req, res) => {   // change username  
-    const newUsername = req.body.newUser;
+    const newUsername = sanitizeSingleLineText(req.body?.newUser, { maxLength: 15 });
     const oldUsername = req.user.username;
     const existingUser = await getUserByUsername(newUsername);
     
@@ -6654,11 +6777,12 @@ site.post('/changeHighlightedMii', requireAuth, requireRole(ROLES.MODERATOR), as
 });
 site.post('/reportMii', async (req,res)=>{
     const mii = await getMiiById(req.body.id, false);
+    const reportReason = sanitizeReasonText(req.body?.what);
     makeReport(JSON.stringify({
         embeds: [{
             "type": "rich",
             "title": (mii.official ? "Official " : "") + `Mii has been reported`,
-            "description": req.body.what,
+            "description": reportReason,
             "color": 0xff0000,
             "fields": [
                 {
@@ -6868,7 +6992,9 @@ site.post('/changePassword', requireAuth, async (req, res) => {
 
 // Reset Password (User)
 site.post('/resetPassword', async (req, res) => {
-    const { username, token, newPassword } = req.body;
+    const username = sanitizeSingleLineText(req.body?.username, { maxLength: 15 });
+    const token = typeof req.body?.token === "string" ? req.body.token : "";
+    const newPassword = typeof req.body?.newPassword === "string" ? req.body.newPassword : "";
     
     if (!username || !token || !newPassword) {
         return res.json({ error: 'Missing required fields' });
@@ -6971,7 +7097,8 @@ site.post('/requestPasswordReset', async (req, res) => {
 // User Self-Service Username Change
 site.post('/changeSelfUsername', requireAuth, async (req, res) => {
     try {
-        const { newUsername, password } = req.body;
+        const newUsername = sanitizeSingleLineText(req.body?.newUsername, { maxLength: 15 });
+        const password = typeof req.body?.password === "string" ? req.body.password : "";
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         
         // Verify password
@@ -7299,7 +7426,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         let officialSettings = null;
         const rawMiiDataInput = typeof req.body.miiData === "string" ? req.body.miiData : "";
         const normalizedRawMiiData = rawMiiDataInput.replace(/\s+/g, "");
-        const providedMiiName = typeof req.body.miiName === "string" ? req.body.miiName.trim() : "";
+        const providedMiiName = sanitizeSingleLineText(req.body?.miiName, { maxLength: 80 });
         const isNinetyTwoCharCode = normalizedRawMiiData.length === 92;
 
         // Check if trying to upload official Mii without permission
@@ -7418,12 +7545,13 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         mii.uploader = isOfficialUpload ? officialSource : uploader;
         mii.contributor = isOfficialUpload ? uploader : undefined;
         mii.officialSource = isOfficialUpload ? officialSource : undefined;
-        mii.desc = req.body.desc;
+        mii.desc = sanitizeMultilineText(req.body?.desc, { maxLength: 250 });
         mii.votes = 1;
         mii.official = isOfficialUpload;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
         ensureUploadMiiPermissions(mii);
+        sanitizeMiiPresentationFields(mii);
         
         // Save to correct folders
         const miiImageData = await miijs.renderMii(mii);
@@ -7800,11 +7928,12 @@ site.post('/addCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (req
     try {
         const { name, color, parentPath } = req.body;
 
-        if (!name || !name.trim()) {
+        const categoryName = sanitizeCategoryName(name);
+
+        if (!categoryName) {
             return res.json({ error: 'Category name required' });
         }
 
-        const categoryName = name.trim();
         if (categoryName.includes('/')) {
             return res.json({ error: 'Category names cannot include "/"' });
         }
@@ -7894,7 +8023,7 @@ site.post('/renameCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (
     try {
         const { path, newName } = req.body;
         const normalizedPath = typeof path === "string" ? path.trim() : "";
-        const newNameTrimmed = typeof newName === "string" ? newName.trim() : "";
+        const newNameTrimmed = sanitizeCategoryName(newName);
 
         if (!normalizedPath || !newNameTrimmed) {
             return res.json({ error: 'Path and new name required' });
@@ -8286,7 +8415,7 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
 site.post('/blockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
         const miiId = String(req.body?.miiId || "").trim();
-        const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
+        const reason = sanitizeReasonText(req.body?.reason);
         if (!miiId) {
             return res.json({ error: 'Mii ID required' });
         }
@@ -8443,7 +8572,7 @@ site.post('/makeMiiChild', defaultRatelimiter, upload.fields([
 
         const options = {};
 
-        const childName = typeof req.body.childName === "string" ? req.body.childName.trim() : "";
+        const childName = sanitizeSingleLineText(req.body?.childName, { maxLength: 80 });
         if (childName) {
             options.name = childName;
         }
@@ -8517,6 +8646,7 @@ site.post('/makeMiiChild', defaultRatelimiter, upload.fields([
 });
 site.post('/signup', async (req, res) => {
     // TODO: JWT model
+    const requestedUsername = sanitizeSingleLineText(req.body?.username, { maxLength: 15 });
 
     // Field validation
     if (!validator.isEmail(req.body.email)) {
@@ -8526,20 +8656,20 @@ site.post('/signup', async (req, res) => {
     const cleanEmail = validator.normalizeEmail(req.body.email);
 
     // Validate username
-    const existingUsername = await getUserByUsername(req.body.username);
+    const existingUsername = await getUserByUsername(requestedUsername);
     if (existingUsername) {
         res.json({ error: "Username already taken" });
         return;
     }
     
     // Check if username is reserved
-    const reserved = await ReservedUsername.findOne({ username: req.body.username });
+    const reserved = await ReservedUsername.findOne({ username: requestedUsername });
     if (reserved) {
         res.json({ error: "This username is temporarily unavailable. Please try again later or choose a different username." });
         return;
     }
     
-    if (isBad(req.body.username) || existingUsername || !validate(req.body.username)) {
+    if (isBad(requestedUsername) || existingUsername || !validate(requestedUsername)) {
         res.json({ error: "Username invalid" });
         return;
     }
@@ -8564,7 +8694,7 @@ site.post('/signup', async (req, res) => {
     var token = genToken();
     
     await Users.create({
-        username: req.body.username,
+        username: requestedUsername,
         salt: hashedPassword.salt,
         pass: hashedPassword.hash,
         verificationToken: hashPassword(token, hashedPassword.salt).hash,
@@ -8574,14 +8704,15 @@ site.post('/signup', async (req, res) => {
         roles: [ ROLES.BASIC ],
     });
     
-    let link = "https://infinimii.com/verify?user=" + encodeURIComponent(req.body.username) + "&token=" + encodeURIComponent(token);
+    let link = "https://infinimii.com/verify?user=" + encodeURIComponent(requestedUsername) + "&token=" + encodeURIComponent(token);
     sendEmail(cleanEmail, "InfiniMii Verification", 
         "Welcome to InfiniMii! If you initiated this message, verify your email by clicking this link: " + link
     );
     res.json({ message: "Check your email to verify your account!" });
 });
 site.post('/login', async (req, res) => {
-    const user = await getUserByUsername(req.body.username);
+    const requestedUsername = sanitizeSingleLineText(req.body?.username, { maxLength: 15 });
+    const user = await getUserByUsername(requestedUsername);
     if (!user) {
         res.json({ error: "Invalid username or password" });
         return;
@@ -8598,7 +8729,7 @@ site.post('/login', async (req, res) => {
                 secure: process.env.NODE_ENV === 'production', // HTTPS only in production
                 sameSite: 'lax' // CSRF protection
             });
-            res.cookie('username', req.body.username, { 
+            res.cookie('username', user.username, {
                 maxAge: ms("30 days"),
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax'
