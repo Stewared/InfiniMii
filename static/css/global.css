@@ -143,8 +143,14 @@ header {
     text-align: center;
     padding: 0 var(--gutter-size);
 }
-header img{
-    width:40%;
+header img {
+    width:60%;
+}
+
+.site-banner-image {
+    --banner-shift-x: 0px;
+    transform: translateX(var(--banner-shift-x));
+    transition: transform 0.18s ease;
 }
 
 #banner {
@@ -157,7 +163,7 @@ header img{
 .account {
     position: absolute;
     top: 10px;
-    right: 10px;
+    right: 30px;
     border-radius: 8px;
     background-color: var(--brand-color);
     padding: 8px 12px;
@@ -516,6 +522,120 @@ footer ul li a:hover {
     font-size: 14px;
 }
 
+.mii-card-byline {
+    display: flex;
+    align-items: center;
+    gap: 0.28rem;
+    min-width: 0;
+    margin: 0.18rem 0 0.45rem;
+    color: var(--text-2);
+    font-size: 0.78rem;
+    line-height: 1.25;
+}
+
+.mii-card .flex .mii-card-byline span {
+    display: inline;
+}
+
+.mii-card-byline a {
+    min-width: 0;
+    max-width: 100%;
+    color: var(--brand-color);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mii-card-byline a:hover {
+    text-decoration: underline;
+}
+
+.mii-card-like-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 2.1rem;
+    margin: 0;
+    padding: 0.38rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-4, #7f8b9f) 55%, #7f8b9f 45%);
+    background: color-mix(in oklab, var(--layer-2-um) 72%, #2a3342 28%);
+    color: #d9e1ed;
+    box-shadow: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    font: inherit;
+    font-size: 0.94rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.mii-card-like-button:hover,
+.mii-card-like-button:focus-visible {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 48%, #77839a 52%);
+    background: color-mix(in oklab, var(--layer-2-um) 64%, #334056 36%);
+    box-shadow: none;
+}
+
+.mii-card-like-button.is-liked {
+    border-color: color-mix(in oklab, #ff6f97 70%, #8b6a73 30%);
+    background: color-mix(in oklab, #341923 76%, var(--layer-2-um) 24%);
+    color: #ff82a5;
+}
+
+.mii-card-like-button.is-liked:hover,
+.mii-card-like-button.is-liked:focus-visible {
+    border-color: #ff95b3;
+    background: color-mix(in oklab, #3f1d2a 74%, var(--layer-2-um) 26%);
+}
+
+.mii-card-like-button.is-like-locked {
+    border-color: color-mix(in oklab, #f5d372 74%, #9d8f62 26%);
+    box-shadow: inset 0 0 0 1px rgba(245, 211, 114, 0.25);
+}
+
+.mii-card-like-button .icon,
+.mii-card-like-button .like-icon {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    color: currentColor;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: transform 0.2s ease, fill 0.2s ease, color 0.2s ease;
+}
+
+.mii-card-like-button .icon:hover {
+    transform: none;
+}
+
+.mii-card-like-button:hover .like-icon,
+.mii-card-like-button:focus-visible .like-icon {
+    transform: scale(1.08);
+}
+
+.mii-card-like-button.is-liked .like-icon {
+    fill: currentColor;
+}
+
+.mii-card-like-button .vote-count {
+    display: block;
+    min-width: 1ch;
+    color: currentColor;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+}
+
 .mii-card-tags {
     display: flex;
     flex-wrap: wrap;
@@ -578,6 +698,31 @@ footer ul li a:hover {
 
 .search-results-tag-summary {
     margin-left: 0.35rem;
+}
+
+.browse-empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-2);
+}
+
+.browse-empty-state svg {
+    width: 80px;
+    height: 80px;
+    fill: var(--text-2);
+    opacity: 0.5;
+    margin-bottom: 1rem;
+}
+
+.browse-empty-state h3 {
+    font-size: 24px;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-1);
+}
+
+.browse-empty-state p {
+    font-size: 16px;
+    margin: 0;
 }
 
 .search-fields-panel {
@@ -816,10 +961,17 @@ footer ul li a:hover {
     --featured-control-radius: 8px;
     display: flex;
     flex-flow: column;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.browse-featured-miis > * {
+    flex: 0 0 auto;
 }
 
 .browse-featured-miis .mii-card {
     width: 100%;
+    min-width: 0;
 }
 
 .browse-featured-miis .mii-card img {
@@ -955,6 +1107,7 @@ footer ul li a:hover {
 .title-container {
     position: relative;
     margin-bottom: 20px;
+    overflow: hidden;
 }
 
 .title-container h2 {
@@ -1214,14 +1367,17 @@ fieldset a:hover {
         top: 0;
         bottom: 0;
         width: min(86vw, 340px);
+        box-sizing: border-box;
         padding: calc(env(safe-area-inset-top, 0px) + 95px) 12px 18px;
         margin: 0;
         overflow-y: auto;
+        overflow-x: hidden;
         background: color-mix(in oklab, var(--layer-1-um) 85%, black 15%);
         backdrop-filter: blur(6px);
         z-index: 1190;
         transition: transform 0.24s ease;
         will-change: transform;
+        overscroll-behavior: contain;
     }
 
     .mobile-drawer-left {
@@ -1302,11 +1458,50 @@ fieldset a:hover {
         max-width: none;
         margin: 0;
     }
+
+    .browse-featured-miis {
+        gap: 1rem;
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+    }
+
+    .browse-featured-miis .title-container {
+        margin-bottom: 0;
+        padding-bottom: 0.35rem;
+    }
+
+    .browse-featured-miis .title-container img {
+        transform: none;
+    }
+
+    .browse-featured-miis br {
+        display: none;
+    }
+
+    .browse-featured-miis .mii-card {
+        width: 100%;
+        padding: 0;
+        box-sizing: border-box;
+        background-attachment: scroll;
+    }
+
+    .browse-featured-miis .mii-card .flex {
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .browse-featured-miis .mii-card > .flex,
+    .browse-featured-miis .mii-card > p {
+        padding: 1rem;
+    }
 }
 
 @media (max-width: 768px) {
     :root {
         --gutter-size: 20px;
+    }
+
+    header img {
+        width: 40%;
     }
     
     .mii-card {

@@ -56,9 +56,9 @@
 
                 <section aria-labelledby="browse-sections-heading">
                     <h2 id="browse-sections-heading">Browse Popular Mii Collections</h2>
-                    <div id="browse-miis">
+                    <div id="browse-miis" class="homepage-preview-grid">
                         <% Object.keys(miiCategories).forEach(cat=>{ %>
-                            <section class="miiCategory" aria-labelledby="section-<%= cat.toLowerCase() %>">
+                            <section class="miiCategory" data-home-preview-row aria-labelledby="section-<%= cat.toLowerCase() %>">
                                 <h1 id="section-<%= cat.toLowerCase() %>"><a href="<%= miiCategories[cat].link %>"><%= cat %></a></h1>
                                 <% miiCategories[cat].miis.forEach(mii=>{ %>
                                     <%
@@ -66,11 +66,27 @@
                                             return;
                                         }
                                         const miiName = mii?.meta?.name || mii?.name || "Unknown Mii";
+                                        const miiAttribution = getMiiAttribution(mii);
                                     %>
-                                    <a class="miiThumb" href="/mii/<%= mii.id %>">
-                                        <img src="/miiImgs/<%= mii.id %>.png" alt="<%= miiName %>">
-                                        <h4><%= miiName %></h4>
-                                    </a>
+                                    <article class="miiThumb">
+                                        <a class="miiThumb-image" href="/mii/<%= mii.id %>">
+                                            <img src="/miiImgs/<%= mii.id %>.png" alt="<%= miiName %>">
+                                        </a>
+                                        <div class="miiThumb-body">
+                                            <h4><a href="/mii/<%= mii.id %>"><%= miiName %></a></h4>
+                                            <div class="miiThumb-meta">
+                                                <p class="mii-card-byline">
+                                                    <span><%= miiAttribution.prefix %></span>
+                                                    <% if (miiAttribution.url) { %>
+                                                        <a href="<%= miiAttribution.url %>"><%= miiAttribution.label %></a>
+                                                    <% } else { %>
+                                                        <span><%= miiAttribution.label %></span>
+                                                    <% } %>
+                                                </p>
+                                                <%- include('miiCardLikeButton', { mii, user }) %>
+                                            </div>
+                                        </div>
+                                    </article>
                                 <% }); %>
                             </section>
                         <% }); %>

@@ -1473,6 +1473,20 @@
     overflow-wrap: anywhere;
 }
 
+.related-mii-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    min-width: 0;
+}
+
+.related-mii-meta .mii-card-byline {
+    flex: 1 1 auto;
+    margin: 0;
+    overflow: hidden;
+}
+
 .related-mii-body h3 a:hover {
     color: var(--brand-color);
 }

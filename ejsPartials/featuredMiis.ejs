@@ -26,12 +26,17 @@
                 (highlightedMiiData.uploader === user.username || highlightedMiiData.contributor === user.username)
             );
             const highlightedHasLikedMii = highlightedUserVotedFor.includes(highlightedMii) || highlightedIsLikeLocked;
+            const highlightedAttribution = getMiiAttribution(highlightedMiiData);
         %>
         <a href='/mii/<%= highlightedMii %>'><img src="/miiImgs/<%= highlightedMii %>.png"></a>
         <div class="flex">
             <div>
                 <h3><%= highlightedMiiData.meta.name %></h3>
-                <a><%= highlightedMiiData.uploader %></a>
+                <% if (highlightedAttribution.url) { %>
+                    <a href="<%= highlightedAttribution.url %>"><%= highlightedAttribution.label %></a>
+                <% } else { %>
+                    <a><%= highlightedAttribution.label %></a>
+                <% } %>
             </div>
             <button
                 type="button"

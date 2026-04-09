@@ -1,0 +1,29 @@
+<%
+const cardMii = typeof mii !== 'undefined' ? mii : null;
+if (cardMii && cardMii.id) {
+    const cardMiiName = cardMii?.meta?.name || cardMii?.name || 'this Mii';
+    const userVotedFor = Array.isArray(user?.votedFor) ? user.votedFor : [];
+    const isLikeLocked = Boolean(
+        user?.username &&
+        (cardMii.uploader === user.username || cardMii.contributor === user.username)
+    );
+    const hasLikedMii = userVotedFor.includes(cardMii.id) || isLikeLocked;
+    const extraButtonClass = typeof buttonClass === 'string' ? buttonClass : '';
+    const resolvedIconSize = typeof iconSize !== 'undefined' && Number.isFinite(Number(iconSize))
+        ? Number(iconSize)
+        : 20;
+%>
+<button
+    type="button"
+    onclick="likeMii(this,'<%= cardMii.id %>')"
+    class="mii-card-like-button like-button <%= extraButtonClass %> <%= hasLikedMii ? 'is-liked' : 'is-unliked' %><%= isLikeLocked ? ' is-like-locked' : '' %>"
+    data-mii-id="<%= cardMii.id %>"
+    data-liked="<%= hasLikedMii ? 'true' : 'false' %>"
+    data-like-locked="<%= isLikeLocked ? 'true' : 'false' %>"
+    aria-pressed="<%= hasLikedMii ? 'true' : 'false' %>"
+    aria-label="<%= isLikeLocked ? `You permanently like ${cardMiiName}` : (hasLikedMii ? `Unlike ${cardMiiName}` : `Like ${cardMiiName}`) %>"
+>
+    <%- include('icon', { name: 'heart', size: resolvedIconSize, class: 'like-icon' }) %>
+    <span class="vote-count"><%= cardMii.votes || 0 %></span>
+</button>
+<% } %>

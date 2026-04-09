@@ -99,6 +99,10 @@
                 <% if(displayedMiis.length > 0) { %>
                     <div id="browse-miis" class="browse-miis-balanced">
                         <% for(var i=0; i<displayedMiis.length; i++){ %>
+                            <%
+                                const officialMii = displayedMiis[i];
+                                const officialMiiAttribution = getMiiAttribution(officialMii);
+                            %>
                             <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                 <a href="<%= '/mii/'+displayedMiis[i].id %>">
                                     <img src="miiImgs/<%= displayedMiis[i].id %>.png" 
@@ -108,6 +112,14 @@
                                     <div>
                                         <h3><%= displayedMiis[i].meta?.name || displayedMiis[i].name %></h3>
                                         <div class="official-badge"><%- include('icon', { name: 'star-filled', size: 12, class: 'icon-gold' }) %> Official</div>
+                                        <p class="mii-card-byline">
+                                            <span><%= officialMiiAttribution.prefix %></span>
+                                            <% if (officialMiiAttribution.url) { %>
+                                                <a href="<%= officialMiiAttribution.url %>"><%= officialMiiAttribution.label %></a>
+                                            <% } else { %>
+                                                <span><%= officialMiiAttribution.label %></span>
+                                            <% } %>
+                                        </p>
                                         <% if(displayedMiis[i].officialCategories && displayedMiis[i].officialCategories.length > 0) { %>
                                             <div class="mii-categories">
                                                 <% displayedMiis[i].officialCategories.slice(0, 3).forEach(cat => { %>
@@ -119,6 +131,7 @@
                                             </div>
                                         <% } %>
                                     </div>
+                                    <%- include('miiCardLikeButton', { mii: officialMii, user }) %>
                                 </div>
                                 <p>
                                     <%= displayedMiis[i].desc && displayedMiis[i].desc.length > 75 ? 

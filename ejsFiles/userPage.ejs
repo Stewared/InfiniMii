@@ -31,6 +31,7 @@
             const creatorNames = Array.isArray(profileHighlights?.creatorNames) ? profileHighlights.creatorNames : [];
             const profileFeaturedMiis = Array.isArray(profileHighlights?.featuredMiis) ? profileHighlights.featuredMiis : [];
             const featuredNames = Array.isArray(profileHighlights?.featuredNames) ? profileHighlights.featuredNames : [];
+            const selectedProfileSort = profileSort === 'popular' ? 'popular' : 'latest';
             const currentPageNumber = pagination?.currentPage || 1;
             const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
             const memberSinceLabel = memberSince
@@ -42,7 +43,15 @@
             const firstUploadLabel = firstUploadOn
                 ? new Date(firstUploadOn).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
                 : '';
-            const pageTitle = `${targetUser.username} Mii Profile${pageSuffix} - InfiniMii`;
+            const canonicalParams = new URLSearchParams();
+            if (selectedProfileSort === 'popular') {
+                canonicalParams.set('sort', 'popular');
+            }
+            if (currentPageNumber > 1) {
+                canonicalParams.set('page', String(currentPageNumber));
+            }
+            const canonicalQuery = canonicalParams.toString();
+            const pageTitle = `${targetUser.username} Mii Profile${selectedProfileSort === 'popular' ? ' - Popular' : ''}${pageSuffix} - InfiniMii`;
             const profileLead = totalUploaded > 0
                 ? `${targetUser.username} has published ${totalUploaded} public Mii character${totalUploaded === 1 ? '' : 's'} on InfiniMii with ${totalLikes} total likes.`
                 : `${targetUser.username} has a public InfiniMii creator profile.`;
@@ -61,7 +70,7 @@
             const pageDesc = totalUploaded > 0
                 ? `${profileLead} ${profileArchiveSummary} ${themeSummary} ${categorySummary} ${featuredSummary}`.replace(/\s+/g, ' ').trim()
                 : `Public profile for ${targetUser.username} on InfiniMii.`;
-            const canonicalUrl = `${baseUrl}/user/${encodeURIComponent(targetUser.username)}${currentPageNumber > 1 ? `?page=${currentPageNumber}` : ''}`;
+            const canonicalUrl = `${baseUrl}/user/${encodeURIComponent(targetUser.username)}${canonicalQuery ? `?${canonicalQuery}` : ''}`;
             const ogImage = `${baseUrl}/miiImgs/${targetUser.miiPfp || '00000'}.png`;
             const keywords = normalizeKeywordList([
                 targetUser.username,
@@ -176,7 +185,20 @@
         <div class="content">
             <%- include('sidebar') %>
             <div class="profile-container">
-                <% const profileBasePath = '/user/' + encodeURIComponent(targetUser.username); %>
+                <%
+                    const profileBasePath = '/user/' + encodeURIComponent(targetUser.username);
+                    const buildProfilePageUrl = (pageNumber = 1, sortName = selectedProfileSort) => {
+                        const params = new URLSearchParams();
+                        if (sortName === 'popular') {
+                            params.set('sort', 'popular');
+                        }
+                        if (pageNumber > 1) {
+                            params.set('page', String(pageNumber));
+                        }
+                        const queryString = params.toString();
+                        return queryString ? `${profileBasePath}?${queryString}` : profileBasePath;
+                    };
+                %>
                 <!-- Profile Header -->
                 <div class="profile-header">
                     <a class="profile-avatar-link" href="/mii/<%= targetUser.miiPfp || '00000' %>" title="View <%= targetUser.username %>'s profile Mii">
@@ -396,15 +418,38 @@
                 <!-- Profile Content -->
                 <div class="profile-content">
                     <h2 class="profile-section-title">
-                        Latest Uploads From <%= targetUser.username %>
+                        <form class="profile-sort-form" method="GET" action="<%= profileBasePath %>">
+                            <label class="sr-only" for="profile-sort-select">Sort uploads</label>
+                            <select
+                                id="profile-sort-select"
+                                class="profile-sort-select"
+                                name="sort"
+                                aria-label="Sort uploads"
+                                onchange="if (this.form) { if (this.form.requestSubmit) { this.form.requestSubmit(); } else { this.form.submit(); } }"
+                            >
+                                <option value="latest" <%= selectedProfileSort === 'latest' ? 'selected' : '' %>>Latest</option>
+                                <option value="popular" <%= selectedProfileSort === 'popular' ? 'selected' : '' %>>Popular</option>
+                            </select>
+                        </form>
+                        Uploads From <%= targetUser.username %>
                     </h2>
                     <% if(totalUploaded > 0) { %>
-                        <p class="profile-section-copy" hidden>This grid lists the public Miis on <%= targetUser.username %>'s profile in reverse chronological order, with older uploads available through pagination.</p>
+                        <p class="profile-section-copy" hidden>
+                            <% if (selectedProfileSort === 'popular') { %>
+                                This grid lists the public Miis on <%= targetUser.username %>'s profile by like count, with newer uploads breaking ties.
+                            <% } else { %>
+                                This grid lists the public Miis on <%= targetUser.username %>'s profile in reverse chronological order, with older uploads available through pagination.
+                            <% } %>
+                        </p>
                     <% } %>
 
                     <% if(displayedMiis.length> 0) { %>
                         <div id="browse-miis">
                             <% for(var i=0; i<displayedMiis.length; i++){ %>
+                                <%
+                                    const profileMii = displayedMiis[i];
+                                    const profileMiiAttribution = getMiiAttribution(profileMii);
+                                %>
                                 <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                     <a href="<%= '/mii/'+displayedMiis[i].id %>">
                                         <img src="/miiImgs/<%= displayedMiis[i].id %>.png" alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %>">
@@ -414,8 +459,16 @@
                                             <h3>
                                                 <%= displayedMiis[i].meta?.name || displayedMiis[i].name %>
                                             </h3>
-                                            <a href="<%= '/user/'+encodeURIComponent(displayedMiis[i].uploader) %>"><%= displayedMiis[i].uploader %></a>
+                                            <p class="mii-card-byline">
+                                                <span><%= profileMiiAttribution.prefix %></span>
+                                                <% if (profileMiiAttribution.url) { %>
+                                                    <a href="<%= profileMiiAttribution.url %>"><%= profileMiiAttribution.label %></a>
+                                                <% } else { %>
+                                                    <span><%= profileMiiAttribution.label %></span>
+                                                <% } %>
+                                            </p>
                                         </div>
+                                        <%- include('miiCardLikeButton', { mii: profileMii, user }) %>
                                     </div>
                                     <p>
                                         <%= displayedMiis[i].desc && displayedMiis[i].desc.length> 75 ? displayedMiis[i].desc.slice(0,73) + "..." : displayedMiis[i].desc %>
@@ -427,7 +480,7 @@
                         <% if (pagination && pagination.totalPages > 1) { %>
                             <div class="pagination">
                                 <% if (pagination.currentPage > 1) { %>
-                                    <a href="<%= profileBasePath %>?page=<%= pagination.currentPage - 1 %>" class="pagination-btn">&larr; Previous</a>
+                                    <a href="<%= buildProfilePageUrl(pagination.currentPage - 1) %>" class="pagination-btn">&larr; Previous</a>
                                 <% } %>
 
                                 <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
@@ -449,7 +502,7 @@
                                 </span>
 
                                 <% if (pagination.currentPage < pagination.totalPages) { %>
-                                    <a href="<%= profileBasePath %>?page=<%= pagination.currentPage + 1 %>" class="pagination-btn">Next &rarr;</a>
+                                    <a href="<%= buildProfilePageUrl(pagination.currentPage + 1) %>" class="pagination-btn">Next &rarr;</a>
                                 <% } %>
                             </div>
                         <% } %>

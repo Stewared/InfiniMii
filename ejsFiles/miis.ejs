@@ -8,6 +8,8 @@
             const hasSelectedTags = Array.isArray(selectedTags) && selectedTags.length > 0;
             const tagSummary = hasSelectedTags ? selectedTags.join(', ') : '';
             const safeSearchQuery = typeof searchQuery === 'string' ? searchQuery.trim() : '';
+            const isLikedMiisPage = currentPathName === '/myLikedMiis';
+            const likedMiisSort = query.sort === 'likes' ? 'likes' : 'latest';
             const canonicalUrl = `${baseUrl}${currentPath}`;
             const breadcrumbs = [{ name: 'Home', url: '/' }];
             let pageTitle = title || 'Browse Mii Characters - InfiniMii';
@@ -46,6 +48,16 @@
                 introHeading = 'Random Mii Characters';
                 introBody = 'A random roll from the InfiniMii archive for quick discovery and inspiration.';
                 breadcrumbs.push({ name: 'Random', url: '/random' });
+            } else if (isLikedMiisPage) {
+                pageTitle = `My Liked Miis${likedMiisSort === 'likes' ? ' - Most Likes' : ''}${pageSuffix} - InfiniMii`;
+                pageDesc = 'Browse the public Miis you have liked on InfiniMii.';
+                keywords = 'liked miis, favorite miis, saved likes';
+                pageRobots = 'noindex, follow, noarchive';
+                introHeading = 'My Liked Miis';
+                introBody = likedMiisSort === 'likes'
+                    ? 'Browse the public Miis you have liked on InfiniMii, sorted by like count.'
+                    : 'Browse the public Miis you have liked on InfiniMii, sorted by newest uploads.';
+                breadcrumbs.push({ name: 'My Liked Miis', url: '/myLikedMiis' });
             } else if (currentPathName === '/searchResults') {
                 pageTitle = safeSearchQuery
                     ? `Search Results for ${safeSearchQuery}${pageSuffix} - InfiniMii`
@@ -101,6 +113,7 @@
                     const selectedTagParams = Array.isArray(selectedTags) ? selectedTags : [];
                     const encodedTagQuery = selectedTagParams.map(tag => '&tags=' + encodeURIComponent(tag)).join('');
                     const selectedSearchFieldParams = Array.isArray(selectedSearchFields) ? selectedSearchFields : [];
+                    const encodedSortQuery = query.sort ? '&sort=' + encodeURIComponent(query.sort) : '';
                     const encodedSearchFieldQuery = currentPath.startsWith('/searchResults')
                         ? '&searchFieldsConfigured=1' + selectedSearchFieldParams.map(field => '&searchIn=' + encodeURIComponent(field)).join('')
                         : '';
@@ -135,45 +148,82 @@
                             </p>
                         <% } %>
                     </section>
+                <% } else if (isLikedMiisPage) { %>
+                    <section class="search-results-search" aria-label="Sort liked Miis">
+                        <form method="GET" action="/myLikedMiis">
+                            <label for="liked-miis-sort" class="sr-only">Sort liked Miis</label>
+                            <select
+                                id="liked-miis-sort"
+                                name="sort"
+                                aria-label="Sort liked Miis"
+                                onchange="if (this.form) { if (this.form.requestSubmit) { this.form.requestSubmit(); } else { this.form.submit(); } }"
+                            >
+                                <option value="latest" <%= likedMiisSort === 'latest' ? 'selected' : '' %>>Latest</option>
+                                <option value="likes" <%= likedMiisSort === 'likes' ? 'selected' : '' %>>Most Likes</option>
+                            </select>
+                        </form>
+                        <p class="search-results-summary">
+                            <%= pagination?.total ?? displayedMiis.length %> liked Mii<%= (pagination?.total ?? displayedMiis.length) === 1 ? '' : 's' %>
+                        </p>
+                    </section>
                 <% } %>
 
-                <div id="browse-miis" class="browse-miis-balanced">
-                    <% for (var i = 0; i < displayedMiis.length; i++) { %>
-                        <%
-                            const miiItem = displayedMiis[i];
-                            if (!miiItem || !miiItem.id) {
-                                continue;
-                            }
-                            const miiItemName = miiItem?.meta?.name || miiItem?.name || 'Unknown Mii';
-                            const miiItemDesc = typeof miiItem?.desc === 'string' ? miiItem.desc : '';
-                        %>
-                        <div class="mii-card" style="--favorite-color: <%= decodeColor(miiItem.general?.favoriteColor) || decodeColor(0) %>;" id="<%= miiItem.id %>">
-                            <a href="<%= '/mii/' + miiItem.id %>"><img src="miiImgs/<%= miiItem.id %>.png" alt="<%= miiItemName %>"></a>
-                            <div class="flex">
-                                <div>
-                                    <h3><%= miiItemName %></h3>
-                                    <a href="<%= '/user/' + encodeURIComponent(miiItem.uploader) %>"><%= miiItem.uploader %></a>
-                                    <p><%= miiItemDesc.length > 75 ? miiItemDesc.slice(0, 73) + "..." : miiItemDesc %></p>
-                                    <% if (miiItem.tags && miiItem.tags.length > 0) { %>
-                                        <div class="mii-card-tags">
-                                            <% miiItem.tags.slice(0, 3).forEach(tag => { %>
-                                                <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
-                                            <% }) %>
-                                            <% if (miiItem.tags.length > 3) { %>
-                                                <span class="mii-card-tag mii-card-tag-more">+<%= miiItem.tags.length - 3 %></span>
+                <% if (displayedMiis.length > 0) { %>
+                    <div id="browse-miis" class="browse-miis-balanced">
+                        <% for (var i = 0; i < displayedMiis.length; i++) { %>
+                            <%
+                                const miiItem = displayedMiis[i];
+                                if (!miiItem || !miiItem.id) {
+                                    continue;
+                                }
+                                const miiItemName = miiItem?.meta?.name || miiItem?.name || 'Unknown Mii';
+                                const miiItemDesc = typeof miiItem?.desc === 'string' ? miiItem.desc : '';
+                                const miiItemAttribution = getMiiAttribution(miiItem);
+                            %>
+                            <div class="mii-card" style="--favorite-color: <%= decodeColor(miiItem.general?.favoriteColor) || decodeColor(0) %>;" id="<%= miiItem.id %>">
+                                <a href="<%= '/mii/' + miiItem.id %>"><img src="miiImgs/<%= miiItem.id %>.png" alt="<%= miiItemName %>"></a>
+                                <div class="flex">
+                                    <div>
+                                        <h3><%= miiItemName %></h3>
+                                        <p class="mii-card-byline">
+                                            <span><%= miiItemAttribution.prefix %></span>
+                                            <% if (miiItemAttribution.url) { %>
+                                                <a href="<%= miiItemAttribution.url %>"><%= miiItemAttribution.label %></a>
+                                            <% } else { %>
+                                                <span><%= miiItemAttribution.label %></span>
                                             <% } %>
-                                        </div>
-                                    <% } %>
+                                        </p>
+                                        <p><%= miiItemDesc.length > 75 ? miiItemDesc.slice(0, 73) + "..." : miiItemDesc %></p>
+                                        <% if (miiItem.tags && miiItem.tags.length > 0) { %>
+                                            <div class="mii-card-tags">
+                                                <% miiItem.tags.slice(0, 3).forEach(tag => { %>
+                                                    <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                                                <% }) %>
+                                                <% if (miiItem.tags.length > 3) { %>
+                                                    <span class="mii-card-tag mii-card-tag-more">+<%= miiItem.tags.length - 3 %></span>
+                                                <% } %>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                    <%- include('miiCardLikeButton', { mii: miiItem, user }) %>
                                 </div>
                             </div>
-                        </div>
-                    <% } %>
-                </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state browse-empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 96 960 960">
+                            <path d="m479.82 976-56.46-50.15Q311 824.46 235.5 749.5 160 674.54 114.5 608.77q-45.5-65.77-62-120.85Q36 432.85 36 385.15q0-96 64.5-160.58Q165 160 260 160q54 0 102 24.5t82 70.5q34-46 82-70.5t102-24.5q95 0 159.5 64.57Q852 288.15 852 384.15q0 48.7-16.5 104-16.5 55.31-62 121.08-45.5 65.77-121.12 140.88-75.61 75.12-188.1 175.74L479.82 976Z" />
+                        </svg>
+                        <h3>No Liked Miis Yet</h3>
+                        <p>Like a few Miis and they will show up here.</p>
+                    </div>
+                <% } %>
 
                 <% if (pagination && pagination.totalPages > 1 && !pageTitle.toLowerCase().includes("random")) { %>
                     <div class="pagination">
                         <% if (pagination.currentPage > 1) { %>
-                            <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %>" class="pagination-btn">&larr; Previous</a>
+                            <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>" class="pagination-btn">&larr; Previous</a>
                         <% } %>
 
                         <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
@@ -195,7 +245,7 @@
                         </span>
 
                         <% if (pagination.currentPage < pagination.totalPages) { %>
-                            <a href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %>" class="pagination-btn">Next &rarr;</a>
+                            <a href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>" class="pagination-btn">Next &rarr;</a>
                         <% } %>
                     </div>
                 <% } %>

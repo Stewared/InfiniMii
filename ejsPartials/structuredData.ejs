@@ -75,6 +75,28 @@ const pageRobotsValue = String(
 const shouldSuppressSchema = pageRobotsValue.includes('noindex') || Boolean(
     typeof structuredDataDisabled !== 'undefined' ? structuredDataDisabled : false
 );
+const splitKeywordText = (value) => String(value || '')
+    .split(',')
+    .map((keyword) => keyword.trim())
+    .filter(Boolean);
+const basePageKeywords = firstNonEmpty(
+    typeof keywords !== 'undefined' ? keywords : undefined,
+    'mii, mii characters, nintendo'
+);
+const websiteKeywordList = typeof buildSeoKeywordList === 'function'
+    ? buildSeoKeywordList('infinimii, mii characters, nintendo miis, mii converter, mii qr codes, mii transfer guide', {
+        context: ['InfiniMii', 'Mii database', 'Mii QR codes', 'Mii converter', 'Nintendo Mii tools'],
+        limit: 36,
+        asArray: true
+    })
+    : splitKeywordText('infinimii, mii characters, nintendo miis, mii converter, mii qr codes, mii transfer guide');
+const pageKeywordList = typeof buildSeoKeywordList === 'function'
+    ? buildSeoKeywordList(basePageKeywords, {
+        context: [resolvedPageTitle, resolvedPageDesc, currentPathWithoutHash],
+        limit: 36,
+        asArray: true
+    })
+    : splitKeywordText(basePageKeywords);
 
 const websiteSchema = {
     "@context": "https://schema.org",
@@ -83,6 +105,7 @@ const websiteSchema = {
     "url": resolvedBaseUrl,
     "name": "InfiniMii",
     "description": "InfiniMii is a searchable Mii character database and toolkit for converting, sharing, and downloading Miis across Nintendo systems.",
+    "keywords": websiteKeywordList,
     "publisher": { "@id": `${resolvedBaseUrl}/#organization` },
     "potentialAction": {
         "@type": "SearchAction",
@@ -114,6 +137,7 @@ const pageSchema = {
     "url": resolvedPageUrl,
     "name": resolvedPageTitle,
     "description": resolvedPageDesc,
+    "keywords": pageKeywordList,
     "image": resolvedPageImage,
     "isPartOf": { "@id": `${resolvedBaseUrl}/#website` },
     "about": {

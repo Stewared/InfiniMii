@@ -760,12 +760,24 @@
                                 <% } %>
                                 <div class="related-mii-grid">
                                     <% collection.items.forEach((relatedMii) => { %>
+                                        <% const relatedMiiAttribution = getMiiAttribution(relatedMii); %>
                                         <article class="related-mii-card" style="--favorite-color: <%= decodeColor(relatedMii.general?.favoriteColor) || decodeColor(0) %>;">
                                             <a class="related-mii-image" href="/mii/<%= relatedMii.id %>">
                                                 <img src="/miiImgs/<%= relatedMii.id %>.png" alt="<%= relatedMii.meta?.name || relatedMii.name %> Mii character">
                                             </a>
                                             <div class="related-mii-body">
                                                 <h3><a href="/mii/<%= relatedMii.id %>"><%= relatedMii.meta?.name || relatedMii.name %></a></h3>
+                                                <div class="related-mii-meta">
+                                                    <p class="mii-card-byline">
+                                                        <span><%= relatedMiiAttribution.prefix %></span>
+                                                        <% if (relatedMiiAttribution.url) { %>
+                                                            <a href="<%= relatedMiiAttribution.url %>"><%= relatedMiiAttribution.label %></a>
+                                                        <% } else { %>
+                                                            <span><%= relatedMiiAttribution.label %></span>
+                                                        <% } %>
+                                                    </p>
+                                                    <%- include('miiCardLikeButton', { mii: relatedMii, user }) %>
+                                                </div>
                                                 <p><%= relatedMii.desc && relatedMii.desc.length > 96 ? `${relatedMii.desc.slice(0, 93)}...` : (relatedMii.desc || `${relatedMii.meta?.name || relatedMii.name} Mii character`) %></p>
                                             </div>
                                         </article>

@@ -40,6 +40,9 @@
             </li>
         </a>
         <a href="/myPrivateMiis"><li><%- include('icon', { name: 'lock', class: 'sidebar-icon' }) %> My Private Miis</li></a>
+        <% if (thisUser !== "Default") { %>
+            <a href="/myLikedMiis"><li><%- include('icon', { name: 'heart', class: 'sidebar-icon' }) %> My Liked Miis</li></a>
+        <% } %>
         <a href="/upload"><li><%- include('icon', { name: 'upload', class: 'sidebar-icon' }) %> Upload</li></a>
         <a href="/settings"><li><%- include('icon', { name: 'settings', class: 'sidebar-icon' }) %> Settings</li></a>
         <a href="/convert"><li><%- include('icon', { name: 'arrow-right', class: 'sidebar-icon' }) %> Convert</li></a>

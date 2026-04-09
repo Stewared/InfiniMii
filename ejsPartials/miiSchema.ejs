@@ -19,7 +19,7 @@ const miiImageUrl = `${resolvedBaseUrl}/miiImgs/${mii.id}.png`;
 const miiQrUrl = `${resolvedBaseUrl}/miiQRs/${mii.id}.png`;
 const miiDescription = seo.metaDescription || mii.desc || `${miiName} Mii character${mii.official ? ` from ${officialSourceName}` : ''} for Nintendo systems.`;
 const creatorName = seo.creatorName || "";
-const keywordList = Array.isArray(seo.keywordList) && seo.keywordList.length > 0
+const baseKeywordList = Array.isArray(seo.keywordList) && seo.keywordList.length > 0
   ? seo.keywordList
   : [
       miiName,
@@ -27,6 +27,20 @@ const keywordList = Array.isArray(seo.keywordList) && seo.keywordList.length > 0
       "Nintendo Mii",
       mii.official ? "Official Mii" : "Community Mii"
     ];
+const keywordList = typeof buildSeoKeywordList === "function"
+  ? buildSeoKeywordList(baseKeywordList, {
+      context: [
+        miiName,
+        miiDescription,
+        Array.isArray(seo.searchTopicPhrases) ? seo.searchTopicPhrases : [],
+        Array.isArray(seo.tagList) ? seo.tagList : [],
+        Array.isArray(seo.categoryNames) ? seo.categoryNames : []
+      ],
+      limit: 36,
+      asArray: true,
+      fallbackToGeneral: false
+    })
+  : baseKeywordList;
 const relatedTopicThings = [
   ...(Array.isArray(seo.tagList) ? seo.tagList : []),
   ...(Array.isArray(seo.categoryNames) ? seo.categoryNames : [])

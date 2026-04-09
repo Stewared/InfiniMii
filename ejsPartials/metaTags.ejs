@@ -83,10 +83,16 @@ const resolvedPageType = firstNonEmpty(
     'website'
 );
 const siteName = 'InfiniMii';
-const resolvedPageKeywords = firstNonEmpty(
+const basePageKeywords = firstNonEmpty(
     typeof keywords !== 'undefined' ? keywords : undefined,
     'mii, mii characters, nintendo'
 );
+const resolvedPageKeywords = typeof buildSeoKeywordList === 'function'
+    ? buildSeoKeywordList(basePageKeywords, {
+        context: [resolvedPageTitle, resolvedPageDesc, currentPathname],
+        limit: 48
+    })
+    : basePageKeywords;
 const resolvedPageImageAlt = firstNonEmpty(
     typeof ogImageAlt !== 'undefined' ? ogImageAlt : undefined,
     resolvedPageTitle
@@ -114,6 +120,7 @@ const resolvedPrevUrl = typeof prevUrl !== 'undefined' ? toAbsoluteUrl(prevUrl) 
 const resolvedNextUrl = typeof nextUrl !== 'undefined' ? toAbsoluteUrl(nextUrl) : '';
 const resolvedTwitterSite = toTrimmedString(typeof twitterSite !== 'undefined' ? twitterSite : '');
 const openSearchUrl = `${resolvedBaseUrl}/opensearch.xml`;
+const rssFeedUrl = `${resolvedBaseUrl}/feed.xml`;
 %>
 
 <!-- Primary Meta Tags -->
@@ -130,6 +137,7 @@ const openSearchUrl = `${resolvedBaseUrl}/opensearch.xml`;
 <!-- Canonical URL -->
 <link rel="canonical" href="<%= resolvedPageUrl %>">
 <link rel="search" type="application/opensearchdescription+xml" title="InfiniMii Search" href="<%= openSearchUrl %>">
+<link rel="alternate" type="application/rss+xml" title="InfiniMii Recent Mii Uploads" href="<%= rssFeedUrl %>">
 <link rel="alternate" type="text/plain" href="/humans.txt" title="InfiniMii Humans">
 <link rel="alternate" type="text/markdown" href="/llms.txt" title="InfiniMii LLM Guide">
 <link rel="manifest" href="/site.webmanifest">

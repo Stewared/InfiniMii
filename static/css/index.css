@@ -41,6 +41,17 @@
     align-items: center;
 }
 
+.miiThumb[hidden] {
+    display: none !important;
+}
+
+.miiThumb-image {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
 .miiThumb img{
     width: 100%;
     height: auto;
@@ -66,6 +77,40 @@
     text-overflow: ellipsis;
     font-size: clamp(0.85rem, 0.78rem + 0.2vw, 1rem);
     line-height: 1.25;
+}
+
+.miiThumb h4 a {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.miiThumb-body {
+    display: grid;
+    gap: 0.38rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.miiThumb-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.miiThumb .mii-card-byline {
+    flex: 1 1 auto;
+    margin: 0;
+    overflow: hidden;
+}
+
+.miiThumb .mii-card-byline a {
+    display: block;
 }
 
 /* Responsive breakpoints */

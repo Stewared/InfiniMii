@@ -112,6 +112,10 @@
 }
 
 .profile-section-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
     font-size: 24px;
     font-weight: 600;
     margin: 0 0 1.5rem 0;
@@ -130,6 +134,27 @@
     width: 60px;
     height: 3px;
     background: linear-gradient(90deg, var(--brand-color) 0%, transparent 100%);
+}
+
+.profile-sort-select {
+    width: auto;
+    min-width: 108px;
+    margin: 0;
+    padding: 0.3rem 2rem 0.3rem 0.7rem;
+    border-width: 1px;
+    border-radius: 8px;
+    background-color: var(--layer-1-um);
+    color: var(--text-1);
+    font: inherit;
+    line-height: 1.2;
+    letter-spacing: inherit;
+    text-transform: inherit;
+}
+
+.profile-sort-form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
 }
 
 .profile-section-copy {
@@ -375,6 +400,21 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+#browse-miis .mii-card .mii-card-byline {
+    display: flex;
+    align-items: center;
+    gap: 0.28rem;
+    margin: 0.18rem 0 0;
+    line-clamp: unset;
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: initial;
+    overflow: hidden;
+}
+
+#browse-miis .mii-card .mii-card-byline span {
+    display: inline;
 }
 
 #browse-miis .mii-card .flex span {

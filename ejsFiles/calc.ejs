@@ -49,13 +49,31 @@
                     
                     <div class="input-row">
                         <label for="miiHeight">Mii Height</label>
-                        <input type="range" min="0" max="127" value="64" id="miiHeight" name="miiHeight" onchange="updateCalcs(this)">
+                        <div class="calc-range-wrap">
+                            <input class="calc-range" type="range" min="0" max="127" value="64" id="miiHeight" name="miiHeight" onchange="updateCalcs(this)">
+                            <span class="calc-range-ticks" aria-hidden="true">
+                                <span class="calc-range-tick"></span>
+                                <span class="calc-range-tick"></span>
+                                <span class="calc-range-tick calc-range-tick-major"></span>
+                                <span class="calc-range-tick"></span>
+                                <span class="calc-range-tick"></span>
+                            </span>
+                        </div>
                         <input type="number" value="64" id="miiHeightDisplay" min="0" max="127" onchange="updateCalcs(this)">
                     </div>
                     
                     <div class="input-row">
                         <label for="miiWeight">Mii Weight</label>
-                        <input type="range" min="0" max="127" value="64" id="miiWeight" name="miiWeight" onchange="updateCalcs(this)">
+                        <div class="calc-range-wrap">
+                            <input class="calc-range" type="range" min="0" max="127" value="64" id="miiWeight" name="miiWeight" onchange="updateCalcs(this)">
+                            <span class="calc-range-ticks" aria-hidden="true">
+                                <span class="calc-range-tick"></span>
+                                <span class="calc-range-tick"></span>
+                                <span class="calc-range-tick calc-range-tick-major"></span>
+                                <span class="calc-range-tick"></span>
+                                <span class="calc-range-tick"></span>
+                            </span>
+                        </div>
                         <input type="number" value="64" id="miiWeightDisplay" name="miiWeightDisplay" min="0" max="127" onchange="updateCalcs(this)">
                     </div>
                 </div>

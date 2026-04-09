@@ -107,6 +107,76 @@ function likeMii(el,id,highlightedMii,mod){
     });
 }
 
+function initializeHomepagePreviewRows() {
+    const categories = Array.from(document.querySelectorAll('[data-home-preview-row]'));
+    if (categories.length === 0) return;
+
+    let frameId = 0;
+
+    const syncCategory = (category) => {
+        const cards = Array.from(category.querySelectorAll('.miiThumb'));
+        if (cards.length === 0) return;
+
+        cards.forEach((card) => {
+            card.hidden = false;
+        });
+
+        const firstRowTop = cards[0].offsetTop;
+        const visibleCount = cards.findIndex((card) => Math.abs(card.offsetTop - firstRowTop) > 1);
+        const cardsToShow = visibleCount === -1 ? cards.length : visibleCount;
+
+        cards.forEach((card, index) => {
+            card.hidden = index >= cardsToShow;
+        });
+    };
+
+    const syncAllCategories = () => {
+        frameId = 0;
+        categories.forEach(syncCategory);
+    };
+
+    const requestSync = () => {
+        if (frameId) {
+            cancelAnimationFrame(frameId);
+        }
+
+        frameId = requestAnimationFrame(syncAllCategories);
+    };
+
+    requestSync();
+    window.addEventListener('load', requestSync, { once: true });
+    window.addEventListener('resize', requestSync, { passive: true });
+
+    if ('ResizeObserver' in window) {
+        const observedWidths = new WeakMap();
+        const observer = new ResizeObserver((entries) => {
+            const widthChanged = entries.some((entry) => {
+                const nextWidth = Math.round(entry.contentRect.width);
+                const previousWidth = observedWidths.get(entry.target);
+                observedWidths.set(entry.target, nextWidth);
+                return typeof previousWidth === 'undefined' || previousWidth !== nextWidth;
+            });
+
+            if (widthChanged) {
+                requestSync();
+            }
+        });
+
+        categories.forEach((category) => {
+            observedWidths.set(category, Math.round(category.getBoundingClientRect().width));
+            observer.observe(category);
+        });
+
+        window.__homepagePreviewResizeObserver = observer;
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHomepagePreviewRows, { once: true });
+} else {
+    initializeHomepagePreviewRows();
+}
+
 // Custom Modal System
 let modalOverlay = null;
 
@@ -711,6 +781,77 @@ window.showMiiInstructionsModal = function(loader, options = {}) {
 
 function bytesToHexString(bytes) {
     return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function updateHeaderBannerShift() {
+    const header = document.querySelector('header');
+    const bannerImage = header?.querySelector?.('.site-banner-image');
+    const signedInAccount = document.querySelector('.account:not(.account-guest)');
+
+    if (!bannerImage) return;
+
+    bannerImage.style.setProperty('--banner-shift-x', '0px');
+
+    if (!header || !signedInAccount) return;
+
+    const headerRect = header.getBoundingClientRect();
+    const bannerRect = bannerImage.getBoundingClientRect();
+    const accountRect = signedInAccount.getBoundingClientRect();
+    const minimumGap = 12;
+
+    const verticalOverlap = Math.min(bannerRect.bottom, accountRect.bottom) - Math.max(bannerRect.top, accountRect.top);
+    if (verticalOverlap <= 0) return;
+
+    const horizontalOverlap = bannerRect.right - (accountRect.left - minimumGap);
+    if (horizontalOverlap <= 0) return;
+
+    const maxShift = Math.max(0, bannerRect.left - (headerRect.left + minimumGap));
+    const shift = Math.min(Math.ceil(horizontalOverlap), Math.ceil(maxShift));
+    if (shift <= 0) return;
+
+    bannerImage.style.setProperty('--banner-shift-x', `${-shift}px`);
+}
+
+function initHeaderBannerShift() {
+    const header = document.querySelector('header');
+    const bannerImage = header?.querySelector?.('.site-banner-image');
+    const signedInAccount = document.querySelector('.account:not(.account-guest)');
+
+    if (!header || !bannerImage || !signedInAccount) return;
+
+    let frameId = null;
+    const scheduleUpdate = () => {
+        if (frameId !== null) cancelAnimationFrame(frameId);
+        frameId = requestAnimationFrame(() => {
+            frameId = null;
+            updateHeaderBannerShift();
+        });
+    };
+
+    scheduleUpdate();
+    window.addEventListener('resize', scheduleUpdate, { passive: true });
+    window.addEventListener('load', scheduleUpdate);
+
+    if (!bannerImage.complete) {
+        bannerImage.addEventListener('load', scheduleUpdate, { once: true });
+    }
+
+    if (document.fonts?.ready) {
+        document.fonts.ready.then(scheduleUpdate).catch(() => { });
+    }
+
+    if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(scheduleUpdate);
+        observer.observe(header);
+        observer.observe(bannerImage);
+        observer.observe(signedInAccount);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeaderBannerShift, { once: true });
+} else {
+    initHeaderBannerShift();
 }
 
 function bytesToBase64String(bytes) {

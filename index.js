@@ -31,10 +31,58 @@ dns.setServers(['1.1.1.1', '8.8.8.8']);
 
 const defaultMiisPerPage = 16;
 const profileMiisPerPage = 18;
-const HOME_PREVIEW_COUNT = 6;
+// Fetch enough cards for the homepage so the client can keep each section to
+// a single fitted row across a range of viewport widths.
+const HOME_PREVIEW_COUNT = 16;
+const RSS_FEED_MII_LIMIT = 50;
+const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
+const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
 const baseUrl = process.env.baseUrl;
 const AVERAGE_MII_REFRESH_WINDOW_MS = ms("10m");
+const SEO_KEYWORDS_CSV_PATH = path.join(__dirname, "seoKeywords.csv");
+const SEO_KEYWORD_META_LIMIT = 48;
+const SEO_KEYWORD_MAX_LENGTH = 80;
+
+let cachedSeoKeywords = null;
+let loggedSeoKeywordLoadError = false;
+let cachedIndexNowKey = null;
+let loggedIndexNowConfigError = false;
+
+const SEO_KEYWORD_STOPWORDS = new Set([
+    "and",
+    "app",
+    "are",
+    "browse",
+    "character",
+    "characters",
+    "community",
+    "download",
+    "for",
+    "from",
+    "guide",
+    "infini",
+    "infinimii",
+    "latest",
+    "mii",
+    "miis",
+    "nintendo",
+    "official",
+    "page",
+    "search",
+    "share",
+    "the",
+    "tool",
+    "tools",
+    "upload",
+    "with"
+]);
+
+const SEO_KEYWORD_SHORT_TOKENS = new Set([
+    "ds",
+    "mt",
+    "qr"
+]);
 
 const EXPORT_FORMAT_LABELS = {
     qr: "QR Code (PNG)",
@@ -128,6 +176,7 @@ const INSTRUCTION_CONSOLE_VALUES = new Set(["DS", "WII", "3DS", "WIIU", "SWITCH"
 const MAX_MII_TAG_LENGTH = 40;
 const MAX_COMPANY_SOURCE_NAME_LENGTH = 15;
 const DEFAULT_OFFICIAL_COMPANY_SOURCE = "Nintendo";
+const AVERAGE_MII_EXCLUDED_TAGS = ["Face Art"];
 
 function normalizeExportFormat(input) {
     if (!input) return null;
@@ -859,10 +908,180 @@ async function ensureUploaderAutoLike(username, miiId, minimumVotes = 1) {
     }
 }
 
+function parseCsvKeywordContent(content) {
+    const values = [];
+    let current = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < content.length; i++) {
+        const char = content[i];
+
+        if (char === '"') {
+            if (inQuotes && content[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+            continue;
+        }
+
+        if (!inQuotes && (char === "," || char === "\n" || char === "\r")) {
+            values.push(current);
+            current = "";
+            continue;
+        }
+
+        current += char;
+    }
+
+    values.push(current);
+    return values;
+}
+
+function normalizeSeoKeyword(keyword) {
+    const normalized = String(keyword || "")
+        .replace(/[\u0000-\u001f\u007f]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    if (normalized.length < 2 || normalized.length > SEO_KEYWORD_MAX_LENGTH) return "";
+    return normalized;
+}
+
+function uniqueSeoKeywords(keywords) {
+    const seen = new Set();
+    const uniqueKeywords = [];
+
+    keywords
+        .map(normalizeSeoKeyword)
+        .filter(Boolean)
+        .forEach((keyword) => {
+            const key = keyword.toLowerCase();
+            if (seen.has(key)) return;
+            seen.add(key);
+            uniqueKeywords.push(keyword);
+        });
+
+    return uniqueKeywords;
+}
+
+function parseKeywordInput(input) {
+    if (Array.isArray(input)) {
+        return input.flatMap(parseKeywordInput);
+    }
+
+    if (typeof input === "undefined" || input === null) return [];
+    return parseCsvKeywordContent(String(input));
+}
+
+function getSeoKeywordCatalog() {
+    if (cachedSeoKeywords) return cachedSeoKeywords;
+
+    try {
+        const csv = fs.readFileSync(SEO_KEYWORDS_CSV_PATH, "utf8");
+        cachedSeoKeywords = uniqueSeoKeywords(parseCsvKeywordContent(csv));
+    } catch (error) {
+        cachedSeoKeywords = [];
+        if (!loggedSeoKeywordLoadError) {
+            loggedSeoKeywordLoadError = true;
+            console.warn(`[seo] Could not load seoKeywords.csv: ${error.message}`);
+        }
+    }
+
+    return cachedSeoKeywords;
+}
+
+function getSeoKeywordTokens(values) {
+    return new Set(
+        parseKeywordInput(values)
+            .join(" ")
+            .toLowerCase()
+            .split(/[^a-z0-9.]+/g)
+            .map(token => token.trim())
+            .filter(token => (token.length > 2 || SEO_KEYWORD_SHORT_TOKENS.has(token)) && !SEO_KEYWORD_STOPWORDS.has(token))
+    );
+}
+
+function scoreSeoKeyword(keyword, tokens) {
+    const normalized = keyword.toLowerCase();
+    let score = 0;
+
+    tokens.forEach((token) => {
+        if (normalized === token) {
+            score += 8;
+        } else if (normalized.startsWith(`${token} `) || normalized.endsWith(` ${token}`)) {
+            score += 4;
+        } else if (normalized.includes(token)) {
+            score += token.length > 4 ? 3 : 1;
+        }
+    });
+
+    if (normalized.includes("mii")) score += 1;
+    return score;
+}
+
+function clampSeoKeywordLimit(limit, fallbackLimit) {
+    const numericLimit = Number(limit);
+    if (!Number.isFinite(numericLimit) || numericLimit <= 0) return fallbackLimit;
+    return Math.min(Math.floor(numericLimit), SEO_KEYWORD_META_LIMIT);
+}
+
+function buildSeoKeywordList(seedValues = [], options = {}) {
+    const limit = clampSeoKeywordLimit(options.limit, SEO_KEYWORD_META_LIMIT);
+    const seedKeywords = uniqueSeoKeywords(parseKeywordInput(seedValues));
+    const tokens = getSeoKeywordTokens([
+        seedKeywords,
+        options.context || [],
+        options.contextValues || []
+    ]);
+    const seen = new Set(seedKeywords.map(keyword => keyword.toLowerCase()));
+    const catalog = getSeoKeywordCatalog();
+    const rankedCatalogKeywords = catalog
+        .filter(keyword => !seen.has(keyword.toLowerCase()))
+        .map(keyword => ({
+            keyword,
+            score: scoreSeoKeyword(keyword, tokens)
+        }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score || a.keyword.length - b.keyword.length)
+        .map(item => item.keyword);
+    const combined = uniqueSeoKeywords([
+        ...seedKeywords,
+        ...rankedCatalogKeywords
+    ]);
+
+    if (combined.length < limit && options.fallbackToGeneral !== false) {
+        combined.push(
+            ...catalog.filter(keyword => !combined.some(existing => existing.toLowerCase() === keyword.toLowerCase()))
+        );
+    }
+
+    const output = uniqueSeoKeywords(combined).slice(0, limit);
+    return options.asArray ? output : output.join(", ");
+}
+
+function getMiiAttribution(mii) {
+    const uploaderName = String(mii?.uploader || "").trim();
+    const sourceName = mii?.official
+        ? (normalizeCompanySourceName(mii?.officialSource || uploaderName) || DEFAULT_OFFICIAL_COMPANY_SOURCE)
+        : uploaderName;
+    const label = sourceName || "Unknown";
+
+    return {
+        label,
+        prefix: mii?.official ? "Source" : "By",
+        url: label && label !== "Unknown" ? `/user/${encodeURIComponent(label)}` : "",
+        isOfficialSource: Boolean(mii?.official)
+    };
+}
+
 //#endregion
 
 const ejsFunctions = {
-    "decodeColor": (colorIndex) => (["Red", "#dd5e17", "#e2cd5e", "Lime", "Green", "Blue", "Cyan", "#e65ba1", "Purple", "Brown", "White", "Black"][colorIndex] || colorIndex)
+    "decodeColor": (colorIndex) => (["Red", "#dd5e17", "#e2cd5e", "Lime", "Green", "Blue", "Cyan", "#e65ba1", "Purple", "Brown", "White", "Black"][colorIndex] || colorIndex),
+    buildSeoKeywordList,
+    getMiiAttribution
 }
 
 /** Build EJS variables for the page. `user` is assumed to be the logged in user */
@@ -1612,6 +1831,27 @@ function escapeRegex(input) {
     return String(input).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function getAverageMiiCandidateMatch(extraMatch = {}) {
+    const excludedTagPattern = new RegExp(
+        `^(${AVERAGE_MII_EXCLUDED_TAGS.map(escapeRegex).join("|")})$`,
+        "i"
+    );
+
+    return {
+        published: true,
+        private: false,
+        id: { $ne: "average" },
+        tags: {
+            $not: {
+                $elemMatch: {
+                    $regex: excludedTagPattern
+                }
+            }
+        },
+        ...extraMatch
+    };
+}
+
 // Get all categories (including parents) as flat array with paths
 function getAllCategoriesFlat(tree, result = []) {
     if (!tree) return result;
@@ -1857,6 +2097,14 @@ function wilsonMethod(upvotes, uploadedOn) {
     return hotness;
 }
 
+function getStablePopularitySort() {
+    return { votes: -1, uploadedOn: -1, _id: -1 };
+}
+
+function getStableRecencySort() {
+    return { uploadedOn: -1, _id: -1 };
+}
+
 // Paginated API that queries database directly with skip/limit
 async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter = null) {
     const skip = (page - 1) * perPage;
@@ -1942,10 +2190,10 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
                                     ]
                                 }
                             ]
-                        }
+                }
                     }
                 },
-                { $sort: { hotness: -1 } },
+                { $sort: { hotness: -1, uploadedOn: -1, _id: -1 } },
                 { $skip: skip },
                 { $limit: perPage }
             ];
@@ -1965,11 +2213,11 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
         }
 
         case "top":
-            sort = { votes: -1 };
+            sort = getStablePopularitySort();
             break;
         
         case "recent":
-            sort = { uploadedOn: -1 };
+            sort = getStableRecencySort();
             break;
         
         case "official":
@@ -1977,7 +2225,7 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
             if (filter) {
                 query.officialCategories = filter;
             }
-            sort = { votes: -1 };
+            sort = getStablePopularitySort();
             break;
         
         case "search": {
@@ -2018,7 +2266,7 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
                 }
             }
 
-            sort = { votes: -1 };
+            sort = getStablePopularitySort();
             break;
         }
         
@@ -2338,11 +2586,7 @@ function averageObjectWithPairs(node, parentKey = "") {
 async function setAverageMii(){
     const pipeline = [
         {
-            $match: {
-                published: true,
-                private: false,
-                id: { $ne: "average" }
-            }
+            $match: getAverageMiiCandidateMatch()
         },
         {
             $project: {
@@ -2419,12 +2663,9 @@ async function refreshAverageMiiAssets() {
 
 async function hasRecentAverageAffectingUpload(windowMs = AVERAGE_MII_REFRESH_WINDOW_MS) {
     const cutoff = Date.now() - windowMs;
-    const recentUpload = await Miis.exists({
-        published: true,
-        private: false,
-        id: { $ne: "average" },
+    const recentUpload = await Miis.exists(getAverageMiiCandidateMatch({
         uploadedOn: { $gte: cutoff }
-    });
+    }));
 
     return Boolean(recentUpload);
 }
@@ -2472,8 +2713,206 @@ function escapeXml(unsafe) {
     });
 }
 
+function toRssDate(value, fallback = new Date()) {
+    const date = value ? new Date(value) : fallback;
+    return Number.isNaN(date.getTime()) ? fallback.toUTCString() : date.toUTCString();
+}
+
+function getMiiFeedName(mii) {
+    return mii?.meta?.name || mii?.name || "Unknown Mii";
+}
+
+function getMiiFeedDescription(mii) {
+    const name = getMiiFeedName(mii);
+    const description = typeof mii?.desc === "string" && mii.desc.trim()
+        ? mii.desc.trim()
+        : `${name} Mii character uploaded to InfiniMii.`;
+    const uploader = typeof mii?.uploader === "string" && mii.uploader.trim()
+        ? mii.uploader.trim()
+        : "Unknown uploader";
+
+    return `${description} Uploaded by ${uploader}. View, download, scan a QR code, or convert this Mii on InfiniMii.`;
+}
+
 function getResolvedBaseUrlFromRequest(req) {
     return (baseUrl || `${req.protocol}://${req.get("host")}`).replace(/\/+$/, "");
+}
+
+function isValidIndexNowKey(key) {
+    return /^[A-Za-z0-9-]{8,128}$/.test(String(key || "").trim());
+}
+
+function getIndexNowKey() {
+    if (cachedIndexNowKey !== null) return cachedIndexNowKey;
+
+    const envKey = String(process.env.INDEXNOW_KEY || "").trim();
+    if (isValidIndexNowKey(envKey)) {
+        cachedIndexNowKey = envKey;
+        return cachedIndexNowKey;
+    }
+
+    if (!loggedIndexNowConfigError) {
+        loggedIndexNowConfigError = true;
+        console.warn("[indexnow] Missing or invalid INDEXNOW_KEY in env.json; IndexNow submissions are disabled.");
+    }
+
+    cachedIndexNowKey = "";
+    return cachedIndexNowKey;
+}
+
+function getIndexNowKeyLocation(resolvedBaseUrl) {
+    const key = getIndexNowKey();
+    if (!key) return "";
+    return `${resolvedBaseUrl}/${encodeURIComponent(key)}.txt`;
+}
+
+function isPublicSubmissionHost(hostname) {
+    const normalizedHost = String(hostname || "").trim().toLowerCase();
+    if (!normalizedHost) return false;
+    if (normalizedHost === "localhost" || normalizedHost === "127.0.0.1" || normalizedHost === "::1") {
+        return false;
+    }
+    return !normalizedHost.endsWith(".local");
+}
+
+function normalizeIndexNowUrl(url, resolvedBaseUrl) {
+    if (!url) return "";
+
+    try {
+        const base = new URL(resolvedBaseUrl);
+        const resolvedUrl = new URL(url, resolvedBaseUrl);
+        if (!["http:", "https:"].includes(resolvedUrl.protocol)) return "";
+        if (resolvedUrl.host !== base.host) return "";
+        resolvedUrl.hash = "";
+        return resolvedUrl.toString();
+    } catch {
+        return "";
+    }
+}
+
+function uniqueIndexNowUrls(urls, resolvedBaseUrl) {
+    const seen = new Set();
+    const uniqueUrls = [];
+
+    (Array.isArray(urls) ? urls : [urls])
+        .flatMap((value) => Array.isArray(value) ? value : [value])
+        .map((value) => normalizeIndexNowUrl(value, resolvedBaseUrl))
+        .filter(Boolean)
+        .forEach((value) => {
+            if (seen.has(value)) return;
+            seen.add(value);
+            uniqueUrls.push(value);
+        });
+
+    return uniqueUrls;
+}
+
+function getIndexNowCollectionUrls(resolvedBaseUrl) {
+    return [
+        `${resolvedBaseUrl}/`,
+        `${resolvedBaseUrl}/recent`,
+        `${resolvedBaseUrl}/top`,
+        `${resolvedBaseUrl}/trending`
+    ];
+}
+
+function getUserProfileUrl(resolvedBaseUrl, username) {
+    const normalizedUsername = String(username || "").trim();
+    return normalizedUsername
+        ? `${resolvedBaseUrl}/user/${encodeURIComponent(normalizedUsername)}`
+        : "";
+}
+
+function getMiiPageUrl(resolvedBaseUrl, miiId) {
+    const normalizedMiiId = String(miiId || "").trim();
+    return normalizedMiiId
+        ? `${resolvedBaseUrl}/mii/${encodeURIComponent(normalizedMiiId)}`
+        : "";
+}
+
+function buildIndexNowUrlsForMiis(resolvedBaseUrl, miis, options = {}) {
+    const urls = [];
+
+    if (options.includeCollectionPages !== false) {
+        urls.push(...getIndexNowCollectionUrls(resolvedBaseUrl));
+    }
+
+    if (Array.isArray(options.extraUrls)) {
+        urls.push(...options.extraUrls);
+    }
+
+    (Array.isArray(miis) ? miis : [miis]).forEach((mii) => {
+        if (!mii || !mii.id) return;
+        if (mii.private || mii.published === false) return;
+
+        urls.push(getMiiPageUrl(resolvedBaseUrl, mii.id));
+        urls.push(getUserProfileUrl(resolvedBaseUrl, mii.uploader));
+
+        if (mii.official || options.includeOfficialListing) {
+            urls.push(`${resolvedBaseUrl}/official`);
+        }
+    });
+
+    return uniqueIndexNowUrls(urls, resolvedBaseUrl);
+}
+
+async function submitIndexNowUrls(urls, resolvedBaseUrl, reason = "update") {
+    const normalizedBaseUrl = String(resolvedBaseUrl || "").trim().replace(/\/+$/, "");
+    if (!normalizedBaseUrl) {
+        return { submitted: 0, skipped: true, reason: "missing-base-url" };
+    }
+
+    const base = new URL(normalizedBaseUrl);
+    if (!isPublicSubmissionHost(base.hostname)) {
+        return { submitted: 0, skipped: true, reason: "non-public-host" };
+    }
+
+    const key = getIndexNowKey();
+    if (!key) {
+        return { submitted: 0, skipped: true, reason: "missing-key" };
+    }
+
+    const urlList = uniqueIndexNowUrls(urls, normalizedBaseUrl);
+    if (urlList.length === 0) {
+        return { submitted: 0, skipped: true, reason: "no-urls" };
+    }
+
+    const keyLocation = getIndexNowKeyLocation(normalizedBaseUrl);
+    let submittedCount = 0;
+
+    for (let offset = 0; offset < urlList.length; offset += INDEXNOW_MAX_URLS_PER_REQUEST) {
+        const chunk = urlList.slice(offset, offset + INDEXNOW_MAX_URLS_PER_REQUEST);
+        const response = await fetch(INDEXNOW_API_ENDPOINT, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify({
+                host: base.host,
+                key,
+                keyLocation,
+                urlList: chunk
+            }),
+            signal: AbortSignal.timeout(8000)
+        });
+
+        if (!response.ok && response.status !== 202) {
+            const responseBody = (await response.text().catch(() => "")).trim();
+            throw new Error(
+                `IndexNow ${reason} submission failed with ${response.status}${responseBody ? `: ${responseBody}` : ""}`
+            );
+        }
+
+        submittedCount += chunk.length;
+    }
+
+    return { submitted: submittedCount, skipped: false };
+}
+
+function notifyIndexNow(urls, resolvedBaseUrl, reason = "update") {
+    void submitIndexNowUrls(urls, resolvedBaseUrl, reason).catch((error) => {
+        console.warn(`[indexnow] ${reason} failed: ${error.message}`);
+    });
 }
 
 function toAbsoluteSiteUrl(req, value = "/") {
@@ -2538,6 +2977,88 @@ function getNewestUploadedOn(items) {
 
     if (timestamps.length === 0) return undefined;
     return new Date(Math.max(...timestamps)).toISOString();
+}
+
+function getNewestRssDate(items) {
+    if (!Array.isArray(items) || items.length === 0) return new Date();
+
+    const timestamps = items
+        .map(item => Number(item?.uploadedOn))
+        .filter(timestamp => Number.isFinite(timestamp) && timestamp > 0);
+
+    return timestamps.length > 0
+        ? new Date(Math.max(...timestamps))
+        : new Date();
+}
+
+function generateMiiUploadRssXML(miis, req) {
+    const feedMiis = Array.isArray(miis) ? miis : [];
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+    const recentUrl = `${resolvedBaseUrl}/recent`;
+    const feedUrl = `${resolvedBaseUrl}/feed.xml`;
+    const lastBuildDate = getNewestRssDate(feedMiis);
+
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/">\n';
+    xml += '  <channel>\n';
+    xml += '    <title>InfiniMii Recent Mii Uploads</title>\n';
+    xml += `    <link>${escapeXml(recentUrl)}</link>\n`;
+    xml += `    <atom:link href="${escapeXml(feedUrl)}" rel="self" type="application/rss+xml" />\n`;
+    xml += '    <description>Recently uploaded public Mii characters on InfiniMii.</description>\n';
+    xml += '    <language>en-us</language>\n';
+    xml += '    <generator>InfiniMii</generator>\n';
+    xml += `    <lastBuildDate>${escapeXml(lastBuildDate.toUTCString())}</lastBuildDate>\n`;
+    xml += '    <ttl>60</ttl>\n';
+    xml += '    <image>\n';
+    xml += `      <url>${escapeXml(`${resolvedBaseUrl}/banner.png`)}</url>\n`;
+    xml += '      <title>InfiniMii</title>\n';
+    xml += `      <link>${escapeXml(resolvedBaseUrl || "/")}</link>\n`;
+    xml += '    </image>\n';
+
+    feedMiis.forEach((mii) => {
+        const miiId = mii?.id;
+        if (!miiId) return;
+
+        const name = getMiiFeedName(mii);
+        const encodedMiiId = encodeURIComponent(miiId);
+        const itemUrl = `${resolvedBaseUrl}/mii/${encodedMiiId}`;
+        const imageUrl = `${resolvedBaseUrl}/miiImgs/${encodedMiiId}.png`;
+        const title = `${name} Mii${mii.official ? " (Official)" : ""}`;
+        const creator = typeof mii?.uploader === "string" && mii.uploader.trim()
+            ? mii.uploader.trim()
+            : "Unknown uploader";
+
+        xml += '    <item>\n';
+        xml += `      <title>${escapeXml(title)}</title>\n`;
+        xml += `      <link>${escapeXml(itemUrl)}</link>\n`;
+        xml += `      <guid isPermaLink="true">${escapeXml(itemUrl)}</guid>\n`;
+        xml += `      <pubDate>${escapeXml(toRssDate(mii.uploadedOn, lastBuildDate))}</pubDate>\n`;
+        xml += `      <dc:creator>${escapeXml(creator)}</dc:creator>\n`;
+        xml += `      <description>${escapeXml(getMiiFeedDescription(mii))}</description>\n`;
+        xml += `      <media:thumbnail url="${escapeXml(imageUrl)}" />\n`;
+        xml += `      <media:content url="${escapeXml(imageUrl)}" medium="image" type="image/png" />\n`;
+
+        if (mii.official) {
+            xml += '      <category>Official Miis</category>\n';
+        }
+
+        const categories = [
+            ...(Array.isArray(mii.officialCategories) ? mii.officialCategories : []),
+            ...(Array.isArray(mii.tags) ? mii.tags : [])
+        ];
+        [...new Set(categories)]
+            .filter(category => typeof category === "string" && category.trim())
+            .slice(0, 8)
+            .forEach(category => {
+                xml += `      <category>${escapeXml(category.trim())}</category>\n`;
+            });
+
+        xml += '    </item>\n';
+    });
+
+    xml += '  </channel>\n';
+    xml += '</rss>';
+    return xml;
 }
 
 function generateSitemapIndexXML(sitemaps) {
@@ -3048,6 +3569,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
         }
         await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
         console.log("Settings initialized");
+        getIndexNowKey();
 
         scheduleDailyWebhookReminder({
             hourUtc: 12,
@@ -3355,7 +3877,7 @@ site.get('/search', async (req, res) => {
     });
 });
 site.get('/opensearch.xml', (req, res) => {
-    const resolvedBaseUrl = (baseUrl || `${req.protocol}://${req.get("host")}`).replace(/\/+$/, "");
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
   <ShortName>InfiniMii</ShortName>
@@ -3366,6 +3888,32 @@ site.get('/opensearch.xml', (req, res) => {
 
     res.header('Content-Type', 'application/opensearchdescription+xml; charset=UTF-8');
     res.send(xml);
+});
+site.get('/:indexNowKey.txt', (req, res, next) => {
+    const requestedKey = String(req.params.indexNowKey || "").trim();
+    const configuredKey = getIndexNowKey();
+
+    if (!configuredKey || requestedKey !== configuredKey) {
+        return next();
+    }
+
+    res.type('text/plain; charset=UTF-8');
+    res.send(configuredKey);
+});
+site.get('/feed.xml', async (req, res) => {
+    const recentMiis = await Miis.find({
+        private: false,
+        id: { $ne: "average" }
+    })
+        .sort({ uploadedOn: -1, _id: -1 })
+        .limit(RSS_FEED_MII_LIMIT)
+        .lean();
+
+    res.header('Content-Type', 'application/rss+xml; charset=UTF-8');
+    res.send(generateMiiUploadRssXML(recentMiis, req));
+});
+site.get('/rss.xml', (req, res) => {
+    res.redirect(301, '/feed.xml');
 });
 site.get('/transferInstructions', async (req, res) => {
     res.redirect(301, '/guides/transfer');
@@ -3946,6 +4494,7 @@ site.post('/deleteMii', async (req, res) => { // TODO: csrf here, make post
             return res.json({ error: "Not logged in" });
         }
 
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const actorUsername = req.user.username;
         const isModerator = canModerate(req.user);
         const miiId = String(req.body?.id || req.body?.miiId || req.query?.id || "").trim();
@@ -4023,6 +4572,14 @@ site.post('/deleteMii', async (req, res) => { // TODO: csrf here, make post
         const redirect = mii.private ? "/myPrivateMiis" : `/user/${encodeURIComponent(mii.uploader)}`;
         res.json({ okay: true, redirect });
 
+        if (!mii.private && mii.published !== false) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, mii),
+                resolvedBaseUrl,
+                "delete-mii"
+            );
+        }
+
         if (isModerator && !isOwner) {
             const uploader = await getUserByUsername(mii.uploader);
             if (uploader?.email) {
@@ -4042,6 +4599,7 @@ site.post('/deleteMii', async (req, res) => { // TODO: csrf here, make post
 site.post('/updateMiiField', requireAuth, async (req, res) => {
     try {
         const { id, field, value } = req.body;
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
 
         if (!id || !field || value === undefined) {
             return res.json({ error: 'Missing parameters' });
@@ -4140,6 +4698,24 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                 }
             }]
         }));
+
+        if (!mii.private && mii.published !== false) {
+            const updatedMii = {
+                ...mii,
+                uploader: field === "uploader" ? value : mii.uploader
+            };
+            const extraUrls = field === "uploader"
+                ? [getUserProfileUrl(resolvedBaseUrl, oldValue)]
+                : [];
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedMii, {
+                    extraUrls,
+                    includeOfficialListing: Boolean(mii.official)
+                }),
+                resolvedBaseUrl,
+                `update-mii-${field}`
+            );
+        }
 
         res.json({ okay: true });
     } catch (e) {
@@ -4429,13 +5005,15 @@ site.post('/permBanUser', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
 site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
         const { username } = req.body;
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const targetUser = await getUserByUsername(username);
 
         if (!targetUser) {
             return res.json({ error: 'User not found' });
         }
 
-        const userMiis = await Miis.find({ uploader: targetUser.username }).select('id private').lean();
+        const userMiis = await Miis.find({ uploader: targetUser.username }).select('id private published official uploader').lean();
+        const publicUserMiis = userMiis.filter((mii) => !mii.private && mii.published !== false);
         let deletedCount = 0;
 
         for (const mii of userMiis) {
@@ -4471,6 +5049,16 @@ site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async
         //There is very very little reason this will not precede a ban, so we're not going to bother emailing the user for this one.
 
         res.json({ deletedCount });
+
+        if (publicUserMiis.length > 0) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, publicUserMiis, {
+                    extraUrls: [getUserProfileUrl(resolvedBaseUrl, targetUser.username)]
+                }),
+                resolvedBaseUrl,
+                "delete-all-user-miis"
+            );
+        }
     } catch (e) {
         console.error('Error deleting all user Miis:', e);
         res.json({ error: 'Server error' });
@@ -4481,6 +5069,7 @@ site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async
 site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
         const { oldUsername, newUsername } = req.body;
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
 
         if (!validate(newUsername)) {
             return res.json({ error: 'Invalid username format' });
@@ -4501,6 +5090,12 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
         if (!user) {
             return res.json({ error: 'User not found' });
         }
+
+        const publicUserMiis = await Miis.find({
+            uploader: oldUsername,
+            private: false,
+            published: true
+        }).select('id official private published').lean();
         
         // Reserve the old username for 30 days (JWT expiry period)
         const reserveUntil = new Date(Date.now() + ms('30 days'));
@@ -4555,6 +5150,29 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
         }));
         sendEmail(user.email,`Username Changed - InfiniMii`,`Hi ${oldUsername}, a moderator has changed your username to ${newUsername}. This will be what you login with moving forward. You can reply to this email to receive support.`);
 
+        if (publicUserMiis.length > 0) {
+            const updatedMiis = publicUserMiis.map((mii) => ({ ...mii, uploader: newUsername }));
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedMiis, {
+                    extraUrls: [
+                        getUserProfileUrl(resolvedBaseUrl, oldUsername),
+                        getUserProfileUrl(resolvedBaseUrl, newUsername)
+                    ]
+                }),
+                resolvedBaseUrl,
+                "change-username"
+            );
+        } else {
+            notifyIndexNow(
+                [
+                    getUserProfileUrl(resolvedBaseUrl, oldUsername),
+                    getUserProfileUrl(resolvedBaseUrl, newUsername)
+                ],
+                resolvedBaseUrl,
+                "change-username"
+            );
+        }
+
         res.json({ okay: true });
     } catch (e) {
         console.error('Error changing username:', e);
@@ -4566,6 +5184,7 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
 site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
         const { id, official } = req.body;
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const officialInput = typeof official === "string" ? official.trim().toLowerCase() : official;
         const validOfficialInput =
             typeof officialInput === "boolean" ||
@@ -4626,6 +5245,16 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
                 }
             }]
         }));
+
+        if (!mii.private && mii.published !== false) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, { ...mii, official: normalizedOfficial }, {
+                    includeOfficialListing: oldStatus || normalizedOfficial
+                }),
+                resolvedBaseUrl,
+                "toggle-official"
+            );
+        }
 
         res.json({ okay: true });
     } catch (e) {
@@ -5515,6 +6144,7 @@ site.get('/user/:username', async (req, res) => {
     }
     let inp = await getSendables(req);
     inp.targetUser = targetUser;
+    const selectedProfileSort = req.query.sort === "popular" ? "popular" : "latest";
     const requestedPage = Number.parseInt(req.query.page, 10);
     const currentPageCandidate = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
@@ -5523,6 +6153,9 @@ site.get('/user/:username', async (req, res) => {
         private: false,
         published: true
     };
+    const profileListSort = selectedProfileSort === "popular"
+        ? getStablePopularitySort()
+        : getStableRecencySort();
 
     const [profileSummaryRows, topTagsRows, topCategoryRows, topCreatorRows, featuredMiis] = await Promise.all([
         Miis.aggregate([
@@ -5568,7 +6201,7 @@ site.get('/user/:username', async (req, res) => {
             { $limit: 8 }
         ]),
         Miis.find(profileFilter)
-            .sort({ votes: -1, uploadedOn: -1 })
+            .sort(getStablePopularitySort())
             .limit(4)
             .lean()
     ]);
@@ -5586,7 +6219,7 @@ site.get('/user/:username', async (req, res) => {
     const skip = (currentPage - 1) * profileMiisPerPage;
 
     inp.displayedMiis = await Miis.find(profileFilter)
-        .sort({ uploadedOn: -1, _id: -1 })
+        .sort(profileListSort)
         .skip(skip)
         .limit(profileMiisPerPage)
         .lean();
@@ -5610,6 +6243,7 @@ site.get('/user/:username', async (req, res) => {
         featuredMiis,
         featuredNames: uniqueTextValues(featuredMiis.map(getDisplayMiiName)).slice(0, 6)
     };
+    inp.profileSort = selectedProfileSort;
     inp.pagination = {
         currentPage,
         totalPages,
@@ -5799,6 +6433,59 @@ site.get('/myPrivateMiis', requireAuth, async (req, res) => {
     toSend.privateLimit = PRIVATE_MII_LIMIT;
     
     ejs.renderFile('./ejsFiles/myPrivateMiis.ejs', toSend, {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
+site.get('/myLikedMiis', requireAuth, async (req, res) => {
+    let toSend = await getSendables(req, undefined, req.user);
+    const requestedPage = Number.parseInt(req.query.page, 10);
+    const currentPageCandidate = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const likedSort = req.query.sort === "likes" ? "likes" : "latest";
+    const likedMiiIds = Array.isArray(req.user?.votedFor)
+        ? req.user.votedFor.map(id => String(id || "").trim()).filter(Boolean)
+        : [];
+    const likedMiisQuery = {
+        private: false,
+        published: true,
+        id: {
+            $in: likedMiiIds,
+            $ne: "average"
+        },
+        uploader: { $ne: req.user.username },
+        contributor: { $ne: req.user.username }
+    };
+    const sort = likedSort === "likes"
+        ? getStablePopularitySort()
+        : getStableRecencySort();
+    const totalLikedMiis = likedMiiIds.length > 0
+        ? await Miis.countDocuments(likedMiisQuery)
+        : 0;
+    const totalPages = Math.max(1, Math.ceil(totalLikedMiis / defaultMiisPerPage));
+    const currentPage = Math.min(currentPageCandidate, totalPages);
+    const skip = (currentPage - 1) * defaultMiisPerPage;
+
+    toSend.displayedMiis = likedMiiIds.length > 0
+        ? await Miis.find(likedMiisQuery)
+            .sort(sort)
+            .skip(skip)
+            .limit(defaultMiisPerPage)
+            .lean()
+        : [];
+    toSend.pagination = {
+        currentPage,
+        totalPages,
+        total: totalLikedMiis,
+        perPage: defaultMiisPerPage
+    };
+    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
+
+    ejs.renderFile('./ejsFiles/miis.ejs', toSend, {}, function(err, str) {
         if (err) {
             res.send(err);
             console.log(err);
@@ -6285,6 +6972,7 @@ site.post('/requestPasswordReset', async (req, res) => {
 site.post('/changeSelfUsername', requireAuth, async (req, res) => {
     try {
         const { newUsername, password } = req.body;
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         
         // Verify password
         if (!validatePassword(password, req.user.salt, req.user.pass)) {
@@ -6325,6 +7013,11 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
         
         // All checks fine, swap usernames
         const oldUsername = req.user.username;
+        const publicUserMiis = await Miis.find({
+            uploader: oldUsername,
+            private: false,
+            published: true
+        }).select('id official private published').lean();
         
         // Reserve the old username for 30 days (JWT expiry period)
         const reserveUntil = new Date(Date.now() + ms("30 days"));
@@ -6393,6 +7086,29 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
                 ]
             }]
         }));
+
+        if (publicUserMiis.length > 0) {
+            const updatedMiis = publicUserMiis.map((mii) => ({ ...mii, uploader: newUsername }));
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedMiis, {
+                    extraUrls: [
+                        getUserProfileUrl(resolvedBaseUrl, oldUsername),
+                        getUserProfileUrl(resolvedBaseUrl, newUsername)
+                    ]
+                }),
+                resolvedBaseUrl,
+                "change-self-username"
+            );
+        } else {
+            notifyIndexNow(
+                [
+                    getUserProfileUrl(resolvedBaseUrl, oldUsername),
+                    getUserProfileUrl(resolvedBaseUrl, newUsername)
+                ],
+                resolvedBaseUrl,
+                "change-self-username"
+            );
+        }
         
         res.json({ message: 'Username changed successfully!', redirect: '/settings' });
     } catch (e) {
@@ -6406,6 +7122,7 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
 site.post('/deleteAllMyMiis', requireAuth, async (req, res) => {
     try {
         const currentUsername = req.user.username;
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const miis = await Miis.find({ uploader: req.user.username, private: false, published: true }).lean();
         const miiIds = miis.map(m => m.id);
         let deletedCount = 0;
@@ -6449,6 +7166,16 @@ site.post('/deleteAllMyMiis', requireAuth, async (req, res) => {
         }));
         sendEmail(req.user.email,`All Miis Deleted - InfiniMii`,`Hi ${currentUsername}, we received a request to delete all of your Miis. If this wasn't you, reply to this email to receive support.`);
         res.json({ deletedCount });
+
+        if (miis.length > 0) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, miis, {
+                    extraUrls: [getUserProfileUrl(resolvedBaseUrl, currentUsername)]
+                }),
+                resolvedBaseUrl,
+                "delete-all-my-miis"
+            );
+        }
     } catch (e) {
         console.error('Error deleting all user Miis:', e);
         res.json({ error: 'Server error' });
@@ -6564,6 +7291,7 @@ site.post('/getInstructions', upload.single('mii'), async (req, res) => {
 site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
     try {
         const uploader = req.user.username;
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const isOfficialUpload = parseBooleanLike(req.body.official);
         let wantsPublic = req.body.makePublic === 'on' || req.body.makePublic === true || req.body.makePublic === 'true';
         let officialSource = null;
@@ -6780,13 +7508,23 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         
         setTimeout(() => {
             const responsePayload = {
-                redirect: isOfficialUpload ? "/official" : "/myPrivateMiis"
+                redirect: !isOfficialUpload && wantsPublic
+                    ? `/mii/${mii.id}`
+                    : (isOfficialUpload ? "/official" : "/myPrivateMiis")
             };
             if (officialSourceNotice) {
                 responsePayload.notice = officialSourceNotice;
             }
             res.json(responsePayload);
         }, 2000); // TODO: jank
+
+        if (wantsPublic) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, { ...mii, private: false, published: true }),
+                resolvedBaseUrl,
+                "upload-mii"
+            );
+        }
 
         // TODO: does rendering lag this? If so, 
 
@@ -7450,6 +8188,7 @@ site.post('/moveCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (re
 // Publish a private Mii
 site.post('/publishMii', requireAuth,  async (req, res) => {
     try {
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const miiId = String(req.body?.miiId || "").trim();
         if (!miiId) {
             return res.json({ error: 'Mii ID required' });
@@ -7532,6 +8271,12 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
         }), attachments);
 
         res.json({ okay: true });
+
+        notifyIndexNow(
+            buildIndexNowUrlsForMiis(resolvedBaseUrl, { ...mii, private: false, published: true }),
+            resolvedBaseUrl,
+            "publish-mii"
+        );
     } catch (e) {
         console.error('Error publishing Mii:', e);
         res.json({ error: 'Server error' });
