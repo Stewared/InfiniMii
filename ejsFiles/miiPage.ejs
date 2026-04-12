@@ -157,8 +157,8 @@
                                 </label>
                                 <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center;">
                                     <button type="submit" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;">Download QR</button>
-                                    <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyMiiExportText('miiQrExportForm', 'hex')">Copy Hex</button>
-                                    <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyMiiExportText('miiQrExportForm', 'base64')">Copy Base64</button>
+                                    <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyQrPreviewMnmsText('hex')">Copy Hex</button>
+                                    <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyQrPreviewMnmsText('base64')">Copy Base64</button>
                                 </div>
                             </form>
                         </figcaption>
@@ -173,13 +173,6 @@
                             <div class="info-item">
                                 <span class="info-label">Creator Name</span>
                                 <span class="info-value" itemprop="creator"><%= creatorName %></span>
-                            </div>
-                            <% } %>
-
-                            <% if(consoleLabel) { %>
-                            <div class="info-item">
-                                <span class="info-label">Original Console</span>
-                                <span class="info-value"><%= consoleLabel %></span>
                             </div>
                             <% } %>
 
@@ -252,10 +245,54 @@
                                     return String(value ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
                                 }
 
+                                const originalMiiEditorState = Object.freeze({
+                                    name: <%- toScriptJson(mii.meta?.name || '') %>,
+                                    desc: <%- toScriptJson(mii.desc || '') %>,
+                                    creatorName: <%- toScriptJson(mii.meta?.creatorName || '') %>,
+                                    uploader: <%- toScriptJson(mii.uploader || '') %>,
+                                    official: <%- toScriptJson(Boolean(mii.official)) %>,
+                                    categories: [...currentCategories].map((value) => String(value ?? '')).sort(),
+                                    tags: [...currentMiiTags].map((value) => String(value ?? '')).sort()
+                                });
                                 let selectedMiiTags = new Set(currentMiiTags);
                                 let officialCategories = [];
                                 let selectedPaths = new Set(currentCategories);
                                 let expandedNodes = new Set();
+                                let modalSelectedPaths = null;
+
+                                function sortComparableValues(values) {
+                                    return [...new Set((values || []).map((value) => String(value ?? '')))].sort();
+                                }
+
+                                function arraysEqualAsSets(a, b) {
+                                    const left = sortComparableValues(a);
+                                    const right = sortComparableValues(b);
+                                    if (left.length !== right.length) return false;
+                                    return left.every((value, index) => value === right[index]);
+                                }
+
+                                function updateCategoryEditorTriggers() {
+                                    const selectedCount = sortComparableValues(Array.from(selectedPaths)).length;
+                                    const summary = selectedCount > 0
+                                        ? `(${selectedCount} selected)`
+                                        : '(none selected)';
+                                    document.querySelectorAll('.category-trigger-summary').forEach((el) => {
+                                        el.textContent = summary;
+                                    });
+                                }
+
+                                function updateOfficialCheckboxLabel() {
+                                    const checkbox = document.getElementById('officialCheckbox');
+                                    const icon = document.getElementById('officialCheckboxIcon');
+                                    const label = document.getElementById('officialCheckboxLabel');
+                                    if (!checkbox || !label) return;
+                                    if (icon) {
+                                        icon.textContent = checkbox.checked ? '✅' : '❌';
+                                    }
+                                    label.textContent = checkbox.checked
+                                        ? 'This is an Official Mii'
+                                        : 'Not an Official Mii';
+                                }
 
                                 async function loadCategoriesForEditor() {
                                     try {
@@ -267,7 +304,7 @@
                                         if (!data.error) {
                                             officialCategories = data.categories?.categories || data.categories || [];
                                             // Auto-expand paths that contain selected categories
-                                            currentCategories.forEach(path => {
+                                            Array.from(selectedPaths).forEach(path => {
                                                 const parts = path.split('/');
                                                 let currentPath = '';
                                                 parts.forEach((part, index) => {
@@ -301,6 +338,8 @@
                                     const modalContent = document.createElement('div');
                                     modalContent.className = 'category-modal-panel';
                                     
+                                    modalSelectedPaths = new Set(selectedPaths);
+
                                     modalContent.innerHTML = `
                                         <h3 class="category-modal-title">Select Categories</h3>
                                         <p class="category-modal-help">Check all categories that apply. Only leaf categories (without children) can be selected.</p>
@@ -312,7 +351,7 @@
                                                 Cancel
                                             </button>
                                             <button onclick="saveCategoriesFromModal()" class="category-modal-btn category-modal-btn-save">
-                                                Save Categories
+                                                Apply Categories
                                             </button>
                                         </div>
                                     `;
@@ -324,7 +363,7 @@
                                     
                                     modal.addEventListener('click', (e) => {
                                         if (e.target === modal) {
-                                            modal.remove();
+                                            closeCategoryModal();
                                         }
                                     });
                                 }
@@ -343,7 +382,8 @@
                                         const hasChildren = node.children && node.children.length > 0;
                                         const isExpanded = expandedNodes.has(node.path);
                                         const isLeaf = !hasChildren;
-                                        const isSelected = selectedPaths.has(node.path);
+                                        const activeSelectedPaths = modalSelectedPaths || selectedPaths;
+                                        const isSelected = activeSelectedPaths.has(node.path);
                                         const indent = level * 20;
                                         const nodeColor = node.color || '#999999';
                                         const escapedPathForJs = escapeForSingleQuote(node.path);
@@ -396,21 +436,24 @@
                                 }
 
                                 function updateModalSelection(path, checked) {
+                                    if (!modalSelectedPaths) {
+                                        modalSelectedPaths = new Set(selectedPaths);
+                                    }
                                     if (checked) {
-                                        selectedPaths.add(path);
+                                        modalSelectedPaths.add(path);
                                     } else {
-                                        selectedPaths.delete(path);
+                                        modalSelectedPaths.delete(path);
                                     }
                                 }
 
                                 function closeCategoryModal() {
+                                    modalSelectedPaths = null;
                                     document.getElementById('categoryModal')?.remove();
                                 }
 
                                 async function saveCategoriesFromModal() {
-                                    const categories = Array.from(selectedPaths);
-                                    
-                                    await updateCategories(categories);
+                                    selectedPaths = new Set(modalSelectedPaths || selectedPaths);
+                                    updateCategoryEditorTriggers();
                                     closeCategoryModal();
                                 }
 
@@ -425,17 +468,10 @@
                                             })
                                         });
                                         
-                                        const data = await response.json();
-                                        
-                                        if (!data.error) {
-                                            showAlert('Categories updated successfully!', 3000, { title: 'Success', type: 'success' });
-                                            setTimeout(() => window.location.reload(), 3000);
-                                        } else {
-                                            showAlert('Error: ' + (data.error || 'Failed to update categories'), 5000, { title: 'Error', type: 'error' });
-                                        }
+                                        return await response.json();
                                     } catch (error) {
                                         console.error('Error:', error);
-                                        showAlert('Error updating categories', 5000, { title: 'Error', type: 'error' });
+                                        return { error: 'Error updating categories' };
                                     }
                                 }
                                 </script>
@@ -690,12 +726,6 @@
                                     <dd><%= mii.contributor %></dd>
                                 </div>
                             <% } %>
-                            <% if(consoleLabel) { %>
-                                <div class="mii-fact">
-                                    <dt>Original Console</dt>
-                                    <dd><%= consoleLabel %></dd>
-                                </div>
-                            <% } %>
                             <% if(genderLabel) { %>
                                 <div class="mii-fact">
                                     <dt>Gender</dt>
@@ -818,29 +848,25 @@
                                 <!-- Edit Mii Name -->
                                 <div class="mod-tool-item">
                                     <label>Mii Name:</label>
-                                    <input type="text" id="editMiiName" value="<%= mii.meta.name %>" placeholder="Mii Name">
-                                    <button onclick="updateMiiField('name', document.getElementById('editMiiName').value)">Update Name</button>
+                                    <input type="text" id="editMiiName" value="<%= mii.meta.name %>" placeholder="Mii Name" maxLength="10">
                                 </div>
 
                                 <!-- Edit Description -->
                                 <div class="mod-tool-item">
                                     <label>Description:</label>
                                     <textarea id="editDesc" rows="3" placeholder="Description"><%= mii.desc %></textarea>
-                                    <button onclick="updateMiiField('desc', document.getElementById('editDesc').value)">Update Description</button>
                                 </div>
 
                                 <!-- Edit Creator Name -->
                                 <div class="mod-tool-item">
                                     <label>Creator Name (in Mii file):</label>
                                     <input type="text" id="editCreatorName" value="<%= mii.meta.creatorName || '' %>" placeholder="Creator Name">
-                                    <button onclick="updateMiiField('creatorName', document.getElementById('editCreatorName').value)">Update Creator</button>
                                 </div>
 
                                 <!-- Switch Uploader -->
                                 <div class="mod-tool-item">
                                     <label>Change Uploader:</label>
                                     <input type="text" id="editUploader" value="<%= mii.uploader %>" placeholder="Username">
-                                    <button onclick="updateMiiField('uploader', document.getElementById('editUploader').value)">Change Uploader</button>
                                 </div>
 
                                 <!-- Edit Tags -->
@@ -848,14 +874,13 @@
                                     <label>Mii Tags:</label>
                                     <div id="modMiiTagList" class="mod-tag-list"></div>
                                     <p class="mod-tag-hint">Only existing tags can be assigned. Create or delete tags from the Search page.</p>
-                                    <button onclick="saveMiiTags()">Update Tags</button>
                                 </div>
 
                                 <% if(canManageOfficialCategories) { %>
                                 <div class="mod-tool-item">
                                     <label>Official Categories:</label>
                                     <p class="mod-tag-hint">Assign and update leaf categories for this official entry.</p>
-                                    <button onclick="openCategoryEditor()">Edit Categories</button>
+                                    <button type="button" class="category-editor-trigger" onclick="openCategoryEditor()">Edit Categories <span class="category-trigger-summary"></span></button>
                                 </div>
                                 <% } %>
 
@@ -865,14 +890,15 @@
                                     <div class="toggle-container">
                                         <input type="checkbox" id="officialCheckbox" <%= mii.official ? 'checked' : '' %>>
                                         <label for="officialCheckbox">
-                                            <% if(mii.official) { %>
-                                                ✅ This is an Official Mii
-                                            <% } else { %>
-                                                ❌ Not an Official Mii
-                                            <% } %>
+                                            <span id="officialCheckboxIcon" aria-hidden="true"><%= mii.official ? '✅' : '❌' %></span>
+                                            <span id="officialCheckboxLabel"><%= mii.official ? 'This is an Official Mii' : 'Not an Official Mii' %></span>
                                         </label>
                                     </div>
-                                    <button onclick="toggleOfficial()">Update Official Status</button>
+                                </div>
+
+                                <div class="mod-tool-item">
+                                    <label>Save Changes:</label>
+                                    <button id="saveModeratorEditsButton" class="btn-primary" onclick="saveModeratorEdits()"><%- include('icon', { name: 'check', size: 16 }) %> Save Changes</button>
                                 </div>
 
                                 <!-- Regenerate QR Code -->
@@ -886,7 +912,9 @@
                                         </select>
                                     </label>
                                     <button onclick="regenerateQR()"><%- include('icon', { name: 'refresh', size: 16 }) %> Regenerate QR</button>
+                                    <button onclick="regenerateRender()"><%- include('icon', { name: 'refresh', size: 16 }) %> Regenerate Render</button>
                                     <span id="qrStatus"></span>
+                                    <span id="renderStatus"></span>
                                 </div>
 
                                 <!-- Delete Mii -->
@@ -910,25 +938,27 @@
                                 <div class="mod-tool-item">
                                     <label>Mii Name:</label>
                                     <input type="text" id="researcherEditMiiName" value="<%= mii.meta.name %>" placeholder="Mii Name">
-                                    <button onclick="updateMiiField('name', document.getElementById('researcherEditMiiName').value)">Update Name</button>
                                 </div>
 
                                 <div class="mod-tool-item">
                                     <label>Description:</label>
                                     <textarea id="researcherEditDesc" rows="3" placeholder="Description"><%= mii.desc %></textarea>
-                                    <button onclick="updateMiiField('desc', document.getElementById('researcherEditDesc').value)">Update Description</button>
                                 </div>
 
                                 <div class="mod-tool-item">
                                     <label>Creator Name (in Mii file):</label>
                                     <input type="text" id="researcherEditCreatorName" value="<%= mii.meta.creatorName || '' %>" placeholder="Creator Name">
-                                    <button onclick="updateMiiField('creatorName', document.getElementById('researcherEditCreatorName').value)">Update Creator</button>
                                 </div>
 
                                 <div class="mod-tool-item">
                                     <label>Official Categories:</label>
                                     <p class="mod-tag-hint">Assign and update leaf categories for this official entry.</p>
-                                    <button onclick="openCategoryEditor()">Edit Categories</button>
+                                    <button type="button" class="category-editor-trigger" onclick="openCategoryEditor()">Edit Categories <span class="category-trigger-summary"></span></button>
+                                </div>
+
+                                <div class="mod-tool-item">
+                                    <label>Save Changes:</label>
+                                    <button id="saveOfficialEditorButton" class="btn-primary" onclick="saveOfficialEditorChanges()"><%- include('icon', { name: 'check', size: 16 }) %> Save Changes</button>
                                 </div>
                             </div>
                         </div>
@@ -1024,6 +1054,49 @@
                 await copyExportHexFromForm(form);
             }
 
+            function buildQrPreviewMnmsCopyForm() {
+                const sourceForm = document.getElementById('miiQrExportForm');
+                if (!sourceForm) return null;
+
+                const copyForm = document.createElement('form');
+                copyForm.method = 'GET';
+                copyForm.action = '/exportMii';
+
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = sourceForm.querySelector('input[name="id"]')?.value || '<%= mii.id %>';
+                copyForm.appendChild(idInput);
+
+                const formatInput = document.createElement('input');
+                formatInput.type = 'hidden';
+                formatInput.name = 'format';
+                formatInput.value = 'mnms';
+                copyForm.appendChild(formatInput);
+
+                const specialCheckbox = sourceForm.querySelector('input[name="special"]');
+                if (specialCheckbox?.checked) {
+                    const specialInput = document.createElement('input');
+                    specialInput.type = 'hidden';
+                    specialInput.name = 'special';
+                    specialInput.value = specialCheckbox.value || 'on';
+                    copyForm.appendChild(specialInput);
+                }
+
+                return copyForm;
+            }
+
+            async function copyQrPreviewMnmsText(encoding) {
+                const form = buildQrPreviewMnmsCopyForm();
+                if (!form) return;
+                const normalizedEncoding = String(encoding || '').trim().toLowerCase();
+                if (normalizedEncoding === 'base64') {
+                    await copyExportBase64FromForm(form);
+                    return;
+                }
+                await copyExportHexFromForm(form);
+            }
+
             function toggleOfficialEditorTools() {
                 const content = document.getElementById('officialEditorToolsContent');
                 const arrow = document.getElementById('officialEditorToolsArrow');
@@ -1033,39 +1106,212 @@
                 arrow.classList.toggle('rotated');
             }
 
-            async function updateMiiField(field, value) {
-                if (!value || value.trim() === '') {
-                    showAlert('Please enter a valid value', 5000, { title: 'Error', type: 'error' });
+            async function submitMiiFieldUpdate(field, value) {
+                const response = await fetch('/updateMiiField', {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        id: '<%= mii.id %>',
+                        field,
+                        value
+                    })
+                });
+
+                return await response.json();
+            }
+
+            function setSaveButtonBusy(button, isBusy) {
+                if (!button) return;
+                if (!button.dataset.defaultLabel) {
+                    button.dataset.defaultLabel = button.innerHTML;
+                }
+
+                button.disabled = isBusy;
+                button.innerHTML = isBusy
+                    ? 'Saving...'
+                    : button.dataset.defaultLabel;
+            }
+
+            async function saveStagedEditorChanges(changes, button, title = 'Save Changes') {
+                if (changes.length === 0) {
+                    showAlert('No changes to save.', 3000, { title: 'Nothing to Save' });
                     return;
                 }
 
-                showConfirm(`Are you sure you want to update the ${field}?`, async () => {
+                showConfirm(`Save ${changes.length} change${changes.length === 1 ? '' : 's'}?`, async () => {
+                    setSaveButtonBusy(button, true);
                     try {
-                        const response = await fetch('/updateMiiField', {
-                            method: 'POST',
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                id: '<%= mii.id %>',
-                                field: field,
-                                value: value
-                            })
-                        });
-
-                        const result = await response.json();
-
-                        if (!result.error) {
-                            showAlert(`Successfully updated ${field}!`, 3000, { title: 'Success', type: 'success' });
-                            setTimeout(() => location.reload(), 3000);
+                        for (const change of changes) {
+                            const result = await change.run();
+                            if (result?.error) {
+                                showAlert(`Error saving ${change.label}: ${result.error}`, 6000, { title: 'Error', type: 'error' });
+                                return;
+                            }
                         }
-                        else {
-                            showAlert(`Error: ${result.error || 'Unknown error'}`, 5000, { title: 'Error', type: 'error' });
-                        }
+
+                        showAlert('Changes saved successfully!', 3000, { title: 'Success', type: 'success' });
+                        setTimeout(() => location.reload(), 1500);
+                    } catch (error) {
+                        console.error('Error saving changes:', error);
+                        showAlert('Failed to save changes. Some updates may not have been applied.', 6000, { title: 'Error', type: 'error' });
+                    } finally {
+                        setSaveButtonBusy(button, false);
                     }
-                    catch (error) {
-                        console.error('Error:', error);
-                        showAlert('Failed to update. Please try again.', 5000, { title: 'Error', type: 'error' });
-                    }
-                }, null, { title: 'Update Field', confirmText: 'Update' });
+                }, null, { title, confirmText: 'Save' });
+            }
+
+            async function submitMiiTagsUpdate(tags) {
+                const response = await fetch('/updateMiiTags', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        miiId: '<%= mii.id %>',
+                        tags
+                    })
+                });
+
+                return await response.json();
+            }
+
+            async function submitOfficialStatusUpdate(official) {
+                const response = await fetch('/toggleMiiOfficial', {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        id: '<%= mii.id %>',
+                        official
+                    })
+                });
+
+                return await response.json();
+            }
+
+            function validateEditorValue(value, label) {
+                if (String(value ?? '').trim() !== '') return true;
+                showAlert(`Please enter a valid ${label}.`, 5000, { title: 'Error', type: 'error' });
+                return false;
+            }
+
+            async function saveModeratorEdits() {
+                const button = document.getElementById('saveModeratorEditsButton');
+                const changes = [];
+
+                const name = document.getElementById('editMiiName')?.value ?? '';
+                if (name !== originalMiiEditorState.name) {
+                    if (!validateEditorValue(name, 'name')) return;
+                    changes.push({
+                        label: 'name',
+                        run: () => submitMiiFieldUpdate('name', name)
+                    });
+                }
+
+                const desc = document.getElementById('editDesc')?.value ?? '';
+                if (desc !== originalMiiEditorState.desc) {
+                    if (!validateEditorValue(desc, 'description')) return;
+                    changes.push({
+                        label: 'description',
+                        run: () => submitMiiFieldUpdate('desc', desc)
+                    });
+                }
+
+                const creatorName = document.getElementById('editCreatorName')?.value ?? '';
+                if (creatorName !== originalMiiEditorState.creatorName) {
+                    if (!validateEditorValue(creatorName, 'creator name')) return;
+                    changes.push({
+                        label: 'creator name',
+                        run: () => submitMiiFieldUpdate('creatorName', creatorName)
+                    });
+                }
+
+                const uploader = document.getElementById('editUploader')?.value ?? '';
+                if (uploader !== originalMiiEditorState.uploader) {
+                    if (!validateEditorValue(uploader, 'uploader')) return;
+                    changes.push({
+                        label: 'uploader',
+                        run: () => submitMiiFieldUpdate('uploader', uploader)
+                    });
+                }
+
+                const tags = Array.from(selectedMiiTags);
+                if (!arraysEqualAsSets(tags, originalMiiEditorState.tags)) {
+                    changes.push({
+                        label: 'tags',
+                        run: () => submitMiiTagsUpdate(tags)
+                    });
+                }
+
+                const categories = Array.from(selectedPaths);
+                if (!arraysEqualAsSets(categories, originalMiiEditorState.categories) && document.querySelector('.category-trigger-summary')) {
+                    changes.push({
+                        label: 'official categories',
+                        run: () => updateCategories(categories)
+                    });
+                }
+
+                const officialCheckbox = document.getElementById('officialCheckbox');
+                if (officialCheckbox && officialCheckbox.checked !== originalMiiEditorState.official) {
+                    changes.push({
+                        label: 'official status',
+                        run: () => submitOfficialStatusUpdate(officialCheckbox.checked)
+                    });
+                }
+
+                await saveStagedEditorChanges(changes, button, 'Save Moderator Changes');
+            }
+
+            async function saveOfficialEditorChanges() {
+                const button = document.getElementById('saveOfficialEditorButton');
+                const changes = [];
+
+                const name = document.getElementById('researcherEditMiiName')?.value ?? '';
+                if (name !== originalMiiEditorState.name) {
+                    if (!validateEditorValue(name, 'name')) return;
+                    changes.push({
+                        label: 'name',
+                        run: () => submitMiiFieldUpdate('name', name)
+                    });
+                }
+
+                const desc = document.getElementById('researcherEditDesc')?.value ?? '';
+                if (desc !== originalMiiEditorState.desc) {
+                    if (!validateEditorValue(desc, 'description')) return;
+                    changes.push({
+                        label: 'description',
+                        run: () => submitMiiFieldUpdate('desc', desc)
+                    });
+                }
+
+                const creatorName = document.getElementById('researcherEditCreatorName')?.value ?? '';
+                if (creatorName !== originalMiiEditorState.creatorName) {
+                    if (!validateEditorValue(creatorName, 'creator name')) return;
+                    changes.push({
+                        label: 'creator name',
+                        run: () => submitMiiFieldUpdate('creatorName', creatorName)
+                    });
+                }
+
+                const categories = Array.from(selectedPaths);
+                if (!arraysEqualAsSets(categories, originalMiiEditorState.categories)) {
+                    changes.push({
+                        label: 'official categories',
+                        run: () => updateCategories(categories)
+                    });
+                }
+
+                await saveStagedEditorChanges(changes, button, 'Save Changes');
+            }
+
+            function initializeMiiPageEditorState() {
+                updateCategoryEditorTriggers();
+                updateOfficialCheckboxLabel();
+                const officialCheckbox = document.getElementById('officialCheckbox');
+                officialCheckbox?.addEventListener('change', updateOfficialCheckboxLabel);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeMiiPageEditorState);
+            } else {
+                initializeMiiPageEditorState();
             }
         </script>
 
@@ -1166,39 +1412,6 @@
                     });
                 }
 
-                async function saveMiiTags() {
-                    if (!Array.isArray(availableMiiTags) || availableMiiTags.length === 0) {
-                        showAlert('Create at least one tag on the Search page first.', 5000, { title: 'Error', type: 'error' });
-                        return;
-                    }
-
-                    const tags = Array.from(selectedMiiTags);
-
-                    showConfirm('Update tags for this Mii?', async () => {
-                        try {
-                            const response = await fetch('/updateMiiTags', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    miiId: '<%= mii.id %>',
-                                    tags
-                                })
-                            });
-
-                            const result = await response.json();
-                            if (!result.error) {
-                                showAlert('Tags updated successfully!', 3000, { title: 'Success', type: 'success' });
-                                setTimeout(() => location.reload(), 3000);
-                            } else {
-                                showAlert(`Error: ${result.error || 'Failed to update tags'}`, 5000, { title: 'Error', type: 'error' });
-                            }
-                        } catch (error) {
-                            console.error('Error updating tags:', error);
-                            showAlert('Failed to update tags', 5000, { title: 'Error', type: 'error' });
-                        }
-                    }, null, { title: 'Update Mii Tags', confirmText: 'Update' });
-                }
-
                 if (document.readyState === 'loading') {
                     document.addEventListener('DOMContentLoaded', renderModMiiTagList);
                 } else {
@@ -1240,6 +1453,40 @@
                     }, null, { title: 'Regenerate QR Code', confirmText: 'Regenerate' });
                 }
 
+                async function regenerateRender() {
+                    showConfirm('Are you sure you want to regenerate the render image?', async () => {
+                        const statusEl = document.getElementById('renderStatus');
+                        statusEl.textContent = 'Regenerating...';
+                        statusEl.style.color = '#FFA500';
+
+                        try {
+                            const response = await fetch('/regenerateRender', {
+                                method: "POST",
+                                body: JSON.stringify({ id: "<%= mii.id %>" }),
+                                headers: { "Content-Type": "application/json" },
+                            });
+                            const result = await response.json();
+
+                            if (!result.error) {
+                                statusEl.textContent = '✓ Done!';
+                                statusEl.style.color = '#4CAF50';
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1000);
+                            }
+                            else {
+                                statusEl.textContent = `Error: ${result.error}`;
+                                statusEl.style.color = '#f44336';
+                            }
+                        }
+                        catch (error) {
+                            console.error('Error:', error);
+                            statusEl.textContent = '✗ Failed';
+                            statusEl.style.color = '#f44336';
+                        }
+                    }, null, { title: 'Regenerate Render', confirmText: 'Regenerate' });
+                }
+
                 async function confirmDeleteMii() {
                     const miiName = <%- toScriptJson(mii.meta.name || "") %>;
                     showConfirm(`Are you ABSOLUTELY SURE you want to DELETE the Mii "${miiName}"?\n\nThis action CANNOT be undone!`, () => {
@@ -1274,36 +1521,6 @@
                     }, null, { title: 'Delete Mii', confirmText: 'Continue' });
                 }
 
-                async function toggleOfficial() {
-                    const isOfficial = document.getElementById('officialCheckbox').checked;
-                    
-                    showConfirm(`Are you sure you want to mark this Mii as ${isOfficial ? 'OFFICIAL' : 'NOT OFFICIAL'}?\n\nOfficial Miis are shown with a special badge.`, async () => {
-                        try {
-                            const response = await fetch('/toggleMiiOfficial', {
-                                method: 'POST',
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    id: '<%= mii.id %>',
-                                    official: isOfficial
-                                })
-                            });
-
-                            const result = await response.json();
-                            
-                            if (!result.error) {
-                                showAlert(`Mii official status updated!`, 3000, { title: 'Success', type: 'success' });
-                                setTimeout(() => location.reload(), 3000);
-                            }
-                            else {
-                                showAlert(`Error: ${result.error || 'Unknown error'}`, 5000, { title: 'Error', type: 'error' });
-                            }
-                        } 
-                        catch (error) {
-                            console.error('Error:', error);
-                            showAlert('Failed to update official status', 5000, { title: 'Error', type: 'error' });
-                        }
-                    }, null, { title: 'Toggle Official Status', confirmText: 'Update' });
-            }
             </script>
         <% } %>
     </body>

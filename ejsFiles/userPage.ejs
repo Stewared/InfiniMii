@@ -202,7 +202,7 @@
                 <!-- Profile Header -->
                 <div class="profile-header">
                     <a class="profile-avatar-link" href="/mii/<%= targetUser.miiPfp || '00000' %>" title="View <%= targetUser.username %>'s profile Mii">
-                        <img src="/miiImgs/<%= targetUser.miiPfp || '00000' %>.png" alt="<%= targetUser.username %>" class="profile-avatar" onerror="this.src='/miiImgs/00000.png'">
+                        <img src="/miiImgs/<%= targetUser.miiPfp || '00000' %>.png" alt="<%= targetUser.username %> Mii character profile" class="profile-avatar" onerror="this.src='/miiImgs/00000.png'">
                     </a>
                     <div class="profile-info">
                         <div class="profile-name">
@@ -452,7 +452,7 @@
                                 %>
                                 <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                     <a href="<%= '/mii/'+displayedMiis[i].id %>">
-                                        <img src="/miiImgs/<%= displayedMiis[i].id %>.png" alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %>">
+                                        <img src="/miiImgs/<%= displayedMiis[i].id %>.png" alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %> Mii: <%= displayedMiis[i]?.description %>">
                                     </a>
                                     <div class="flex">
                                         <div>

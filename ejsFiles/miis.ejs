@@ -181,7 +181,7 @@
                                 const miiItemAttribution = getMiiAttribution(miiItem);
                             %>
                             <div class="mii-card" style="--favorite-color: <%= decodeColor(miiItem.general?.favoriteColor) || decodeColor(0) %>;" id="<%= miiItem.id %>">
-                                <a href="<%= '/mii/' + miiItem.id %>"><img src="miiImgs/<%= miiItem.id %>.png" alt="<%= miiItemName %>"></a>
+                                <a href="<%= '/mii/' + miiItem.id %>"><img src="miiImgs/<%= miiItem.id %>.png" alt="<%= miiItemName %> Mii: <%= miiItemDesc %>"></a>
                                 <div class="flex">
                                     <div>
                                         <h3><%= miiItemName %></h3>

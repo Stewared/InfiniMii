@@ -82,12 +82,11 @@
                         <% if (!fromAmiibo) { %>
                             <div id="codeTab" class="tab-content">
                                 <label for="upload-miiData">Paste raw Mii data (base64 or hex):</label>
-                                <textarea id="upload-miiData" name="miiData" rows="4" placeholder="Paste base64 or hex string (hex may contain spaces)"></textarea>
-                                <small class="code-length-hint">A 92-character code is treated as a Mii Studio code.</small>
+                                <textarea id="upload-miiData" name="miiData" rows="4" placeholder="Paste Base64 or Hex string..."></textarea>
 
                                 <div id="upload-miiName-group" class="studio-name-field" style="display: none;">
                                     <label for="upload-miiName">Mii Name:</label>
-                                    <input type="text" id="upload-miiName" name="miiName" maxlength="40" placeholder="Enter the Mii name">
+                                    <input type="text" id="upload-miiName" name="miiName" maxlength="10" placeholder="Enter the Mii name">
                                 </div>
                             </div>
                         <% } %>
@@ -163,8 +162,8 @@
                                 <div class="official-upload-input-card">
                                     <label for="official-miiData">Or paste raw Mii data (base64 or hex):</label>
                                     <textarea id="official-miiData" name="miiData" rows="4" placeholder="Paste base64 or hex string (hex may contain spaces)"></textarea>
-                                    <label for="official-miiName">Mii Name (required for 92-character Mii Studio codes):</label>
-                                    <input type="text" id="official-miiName" name="miiName" maxlength="40" placeholder="Enter the Mii name if needed">
+                                    <label for="official-miiName">Mii Name (required for Mii Studio codes):</label>
+                                    <input type="text" id="official-miiName" name="miiName" maxlength="10" placeholder="Enter the Mii name if needed">
                                 </div>
                             </div>
 

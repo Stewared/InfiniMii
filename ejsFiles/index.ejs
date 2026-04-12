@@ -67,10 +67,11 @@
                                         }
                                         const miiName = mii?.meta?.name || mii?.name || "Unknown Mii";
                                         const miiAttribution = getMiiAttribution(mii);
+                                        const miiFavoriteColor = decodeColor(mii.general?.favoriteColor) || decodeColor(0);
                                     %>
-                                    <article class="miiThumb">
+                                    <article class="miiThumb" style="--favorite-color: <%= miiFavoriteColor %>;">
                                         <a class="miiThumb-image" href="/mii/<%= mii.id %>">
-                                            <img src="/miiImgs/<%= mii.id %>.png" alt="<%= miiName %>">
+                                            <img src="/miiImgs/<%= mii.id %>.png" alt="<%= miiName %> Mii: <%= mii.description %>">
                                         </a>
                                         <div class="miiThumb-body">
                                             <h4><a href="/mii/<%= mii.id %>"><%= miiName %></a></h4>

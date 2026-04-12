@@ -46,10 +46,25 @@
 }
 
 .miiThumb-image {
+    position: relative;
     display: block;
     width: 100%;
     min-width: 0;
     overflow: hidden;
+    isolation: isolate;
+    border-radius: 18px;
+    margin-bottom: 0.5rem;
+}
+
+.miiThumb-image::before {
+    z-index: -1;
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    --darker-color: color-mix(in oklab, #222 60%, var(--favorite-color) 30%);
+    --lighter-color: color-mix(in oklab, #555 90%, var(--favorite-color) 60%);
+    background: radial-gradient(circle, var(--lighter-color) 26%, var(--darker-color) 100%);
 }
 
 .miiThumb img{
@@ -57,7 +72,8 @@
     height: auto;
     flex-grow: 1;
     object-fit: contain;
-    margin-bottom: 0.5rem;
+    display: block;
+    border-radius: inherit;
     transition:1s;
 }
 

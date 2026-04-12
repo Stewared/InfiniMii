@@ -47,7 +47,7 @@
         <%- include('structuredData') %>
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/utilityPages.css">
-        <link rel="stylesheet" href="/official.css">
+        <link rel="stylesheet" href="/official.css?v=20260411-mobile-fix">
     </head>
     <body>
         <%- include('globalStyle') %>
@@ -106,10 +106,10 @@
                             <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                 <a href="<%= '/mii/'+displayedMiis[i].id %>">
                                     <img src="miiImgs/<%= displayedMiis[i].id %>.png" 
-                                         alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %>">
+                                         alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %> Mii: <%= displayedMiis[i]?.description %>">
                                 </a>
-                                <div class="flex">
-                                    <div>
+                                <div class="flex official-card-meta-row">
+                                    <div class="official-card-meta">
                                         <h3><%= displayedMiis[i].meta?.name || displayedMiis[i].name %></h3>
                                         <div class="official-badge"><%- include('icon', { name: 'star-filled', size: 12, class: 'icon-gold' }) %> Official</div>
                                         <p class="mii-card-byline">
@@ -131,7 +131,7 @@
                                             </div>
                                         <% } %>
                                     </div>
-                                    <%- include('miiCardLikeButton', { mii: officialMii, user }) %>
+                                    <%- include('miiCardLikeButton', { mii: officialMii, user, buttonClass: 'official-card-like-button', iconSize: 18 }) %>
                                 </div>
                                 <p>
                                     <%= displayedMiis[i].desc && displayedMiis[i].desc.length > 75 ? 

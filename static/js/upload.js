@@ -30,7 +30,7 @@ function updateStudioNameFieldVisibility() {
         return;
     }
 
-    const needsName = normalizeCodeLength(codeInput.value) === 92;
+    const needsName = normalizeCodeLength(codeInput.value) === 92||normalizeCodeLength(codeInput.value)===64;
     const isCodeTabActive = codeTab.classList.contains("active");
     const shouldShow = needsName && isCodeTabActive;
 
