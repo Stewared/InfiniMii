@@ -40,6 +40,9 @@ const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
 const baseUrl = process.env.baseUrl;
 const AVERAGE_MII_REFRESH_WINDOW_MS = ms("10m");
+const ERRORING_FILES_DIR = path.join(__dirname, "erroringFiles");
+const ERRORING_FILE_SIZE_LIMIT_BYTES = 100 * 1024 * 1024;
+const ERRORING_FILE_KEEP_COUNT = 10;
 const SEO_KEYWORDS_CSV_PATH = path.join(__dirname, "seoKeywords.csv");
 const SEO_KEYWORD_META_LIMIT = 48;
 const SEO_KEYWORD_MAX_LENGTH = 80;
@@ -890,6 +893,85 @@ async function resolveMiiInputForInstructions(req, { allowFile = false } = {}) {
     }
 
     return null;
+}
+
+function sanitizeErroringFilePart(value, fallback = "upload") {
+    const normalized = String(value || "")
+        .trim()
+        .replace(/[^a-zA-Z0-9_-]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+
+    if (!normalized) return fallback;
+    return normalized.slice(0, 64);
+}
+
+function getSafeErroringExtension(reqFile) {
+    const originalExt = path.extname(reqFile?.originalname || "") || path.extname(reqFile?.path || "");
+    if (!originalExt) return ".bin";
+
+    const normalized = originalExt
+        .toLowerCase()
+        .replace(/[^a-z0-9.]/g, "");
+
+    if (!normalized.startsWith(".")) return ".bin";
+    if (normalized.length > 12) return ".bin";
+    return normalized;
+}
+
+async function trimErroringFilesDir() {
+    try {
+        const entries = await fs.promises.readdir(ERRORING_FILES_DIR, { withFileTypes: true });
+        const filesWithStats = await Promise.all(entries
+            .filter(entry => entry.isFile())
+            .map(async entry => {
+                const fullPath = path.join(ERRORING_FILES_DIR, entry.name);
+                const stats = await fs.promises.stat(fullPath);
+                return {
+                    fullPath,
+                    mtimeMs: stats.mtimeMs
+                };
+            }));
+
+        filesWithStats.sort((a, b) => b.mtimeMs - a.mtimeMs);
+        const filesToDelete = filesWithStats.slice(ERRORING_FILE_KEEP_COUNT);
+
+        await Promise.all(filesToDelete.map(file => fs.promises.unlink(file.fullPath).catch(() => {})));
+    } catch (e) {
+        console.error("Error trimming erroringFiles directory:", e);
+    }
+}
+
+async function dumpFailingUploadFile(reqFile, error, context = "upload") {
+    if (!reqFile?.path) return;
+
+    try {
+        const sourcePath = reqFile.path;
+        const sourceStats = await fs.promises.stat(sourcePath);
+        if (!sourceStats.isFile()) return;
+
+        if (sourceStats.size > ERRORING_FILE_SIZE_LIMIT_BYTES) {
+            console.warn(`Skipping failing file dump (over 100MB): ${reqFile.originalname || path.basename(sourcePath)} (${sourceStats.size} bytes)`);
+            return;
+        }
+
+        await fs.promises.mkdir(ERRORING_FILES_DIR, { recursive: true });
+
+        const timestamp = new Date().toISOString().replace(/[.:]/g, "-");
+        const safeContext = sanitizeErroringFilePart(context, "upload");
+        const sourceBaseName = sanitizeErroringFilePart(path.basename(reqFile.originalname || sourcePath, path.extname(reqFile.originalname || sourcePath)), "file");
+        const safeExt = getSafeErroringExtension(reqFile);
+        const uniqueSuffix = crypto.randomBytes(4).toString("hex");
+        const destinationName = `${timestamp}_${safeContext}_${sourceBaseName}_${uniqueSuffix}${safeExt}`;
+        const destinationPath = path.join(ERRORING_FILES_DIR, destinationName);
+
+        await fs.promises.copyFile(sourcePath, destinationPath);
+        await trimErroringFilesDir();
+
+        const errorMessage = typeof error?.message === "string" ? error.message : String(error || "Unknown error");
+        console.warn(`Saved failing upload to ${destinationPath}: ${errorMessage}`);
+    } catch (dumpError) {
+        console.error("Failed to save failing upload file:", dumpError);
+    }
 }
 
 async function getUserByUsername(username, lean=true) {
@@ -7330,6 +7412,9 @@ async function handleGetInstructionsRequest(req, res, { allowFile = false } = {}
             console: instructionConsole
         });
     } catch (e) {
+        if (allowFile && req.file?.path) {
+            await dumpFailingUploadFile(req.file, e, "getInstructions");
+        }
         console.error('Error generating instructions:', e);
         res.json({ error: 'Failed to generate instructions: ' + e.message });
     } finally {
@@ -7439,6 +7524,9 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                 }
             }
         } catch (e) {
+            if (req.file?.path) {
+                await dumpFailingUploadFile(req.file, e, "uploadMii");
+            }
             console.error('Error processing Mii file:', e);
             res.json({error: `Failed to process file. Please double-check that you selected the correct file. ${e.message || ''}`});
             return;
