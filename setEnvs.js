@@ -59,35 +59,67 @@ const envTemplate = readEnvs(
 
 
 const isBeta = Boolean(envs.beta);
+const optionalEnvs = new Set([
+    "INDEXNOW_KEY"
+]);
 let compiledEnvs = structuredClone(envs); // Start with all defined so ones missing from example are still defined
 const missingEnvs = [];
+const optionalEnvPathsToDelete = [];
 
-function validateEnvTemplate(template, envs, parentKey = "") {
+function trackMissingOptionalEnv(fullKey, envPath) {
+    if (!missingEnvs.includes(fullKey)) missingEnvs.push(fullKey);
+    if (envPath && !optionalEnvPathsToDelete.includes(envPath)) optionalEnvPathsToDelete.push(envPath);
+}
+
+function deleteCompiledEnvValue(target, path) {
+    const keys = String(path || "").split(".").filter(Boolean);
+    if (!keys.length) return;
+
+    const lastKey = keys.pop();
+    let current = target;
+
+    for (const key of keys) {
+        if (!current || typeof current !== "object") return;
+        current = current[key];
+    }
+
+    if (current && typeof current === "object" && lastKey in current) {
+        delete current[lastKey];
+    }
+}
+
+function validateEnvTemplate(template, envs, parentKey = "", parentEnvPath = "") {
+    const scopedEnvs = envs && typeof envs === "object" ? envs : {};
     let levelsCompiledEnvs = {};
     for (const [key, value] of Object.entries(template)) {
         const fullKey = parentKey ? `${parentKey}.${key}` : key;
 
         const betaReplacementKey = `beta${key[0].toUpperCase() + key.slice(1)}`;
-        const isBetaReplacementSet = betaReplacementKey in envs;
+        const isBetaReplacementSet = betaReplacementKey in scopedEnvs;
         const keyToUse = isBeta && isBetaReplacementSet ? betaReplacementKey : key;
+        const envPath = parentEnvPath ? `${parentEnvPath}.${keyToUse}` : keyToUse;
 
         // Recurse if looking at object
         if (value && typeof value === "object" && !Array.isArray(value)) {
-            levelsCompiledEnvs[key] = validateEnvTemplate(value, envs[keyToUse], fullKey);
+            levelsCompiledEnvs[key] = validateEnvTemplate(value, scopedEnvs[keyToUse], fullKey, envPath);
             continue;
         }
 
-        const isSet = keyToUse in envs;
-        const envWasLeftAsDefault = isSet && envs[keyToUse] === value;
+        const isSet = keyToUse in scopedEnvs;
+        const envWasLeftAsDefault = isSet && scopedEnvs[keyToUse] === value;
 
         if (!skipValidateEnvs && (!isSet || envWasLeftAsDefault)) {
+            if (optionalEnvs.has(fullKey)) {
+                trackMissingOptionalEnv(fullKey, envPath);
+                continue;
+            }
             console.log(chalk.red(`${envWasLeftAsDefault ? "Unchanged" : "Missing required"} environment variable ${chalk.yellow.bold(fullKey)} in ${chalk.bold("env.json")}.`));
             console.log(chalk.red("Field description:"), chalk.yellow(value));
             console.log(chalk.red("Cannot start without this, please add it."));
             process.exit(1);
         }
         else {
-            levelsCompiledEnvs[key] = envs[keyToUse];
+            levelsCompiledEnvs[key] = scopedEnvs[keyToUse];
         }
     }
     return levelsCompiledEnvs;
@@ -97,6 +129,10 @@ function validateEnvTemplate(template, envs, parentKey = "") {
 if (!skipValidateEnvs) {
     const validatedEnvs = validateEnvTemplate(envTemplate, envs);
     compiledEnvs = { ...compiledEnvs, ...validatedEnvs };
+
+    for (const envPath of optionalEnvPathsToDelete) {
+        deleteCompiledEnvValue(compiledEnvs, envPath);
+    }
 }
 
 // Apply compiledEnvs to process.env
