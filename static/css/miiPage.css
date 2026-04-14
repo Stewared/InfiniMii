@@ -598,6 +598,20 @@
     box-shadow: none;
 }
 
+.report-button {
+    padding: 0.45rem 0.8rem;
+    font-family: Poppins, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.report-button-label {
+    display: inline-flex;
+    align-items: center;
+}
+
 /* .vote-section > span {
     display: flex;
     align-items: center;
@@ -661,6 +675,136 @@
     transition: transform 0.2s ease;
 }
 
+.custom-modal-report .custom-modal {
+    max-width: 640px;
+}
+
+.report-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    white-space: normal;
+}
+
+.report-modal-intro {
+    margin: 0;
+    color: var(--text-1);
+    line-height: 1.6;
+}
+
+.report-modal-support {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 14px;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 35%, var(--layer-3) 65%);
+    background: linear-gradient(
+        145deg,
+        color-mix(in oklab, var(--layer-2-um) 82%, var(--brand-color) 18%) 0%,
+        color-mix(in oklab, var(--layer-1-um) 88%, var(--brand-color) 12%) 100%
+    );
+}
+
+.report-modal-support[hidden] {
+    display: none;
+}
+
+.report-modal-support-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.report-modal-support-copy p {
+    margin: 0;
+}
+
+.report-modal-support-title {
+    color: var(--text-1);
+    font-weight: 600;
+}
+
+.report-modal-support-copy p:last-child {
+    color: var(--text-2);
+}
+
+.report-modal-discord-link {
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.report-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.report-modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.report-modal-field span {
+    color: var(--text-1);
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.report-modal-field select,
+.report-modal-field input,
+.report-modal-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.78rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid var(--layer-3);
+    background: var(--layer-1);
+    color: var(--text-1);
+    font: inherit;
+}
+
+.report-modal-field select:focus,
+.report-modal-field input:focus,
+.report-modal-field textarea:focus {
+    outline: none;
+    border-color: var(--brand-color);
+    box-shadow: 0 0 0 3px rgba(222, 67, 98, 0.18);
+}
+
+.report-modal-field textarea {
+    min-height: 150px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.report-modal-field small {
+    color: var(--text-2);
+    line-height: 1.45;
+}
+
+.report-modal-status {
+    margin: 0;
+    padding: 0.85rem 0.95rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, #ff748a 45%, var(--layer-3) 55%);
+    background: color-mix(in oklab, #4a1822 40%, var(--layer-1) 60%);
+    color: #ffd9df;
+    line-height: 1.5;
+}
+
+.report-modal-submit:disabled,
+.report-modal-submit:disabled:hover,
+.report-modal-submit:disabled:focus-visible {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    background: var(--brand-color);
+}
+
 /* Responsive Design */
 @media (max-width: 1240px) {
     .id-card-body {
@@ -697,6 +841,15 @@
 
     .mii-name {
         font-size: 36px;
+    }
+
+    .report-modal-support {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .report-modal-discord-link {
+        width: 100%;
     }
 }
 

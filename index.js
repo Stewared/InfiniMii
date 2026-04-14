@@ -46,6 +46,17 @@ const ERRORING_FILE_KEEP_COUNT = 10;
 const SEO_KEYWORDS_CSV_PATH = path.join(__dirname, "seoKeywords.csv");
 const SEO_KEYWORD_META_LIMIT = 48;
 const SEO_KEYWORD_MAX_LENGTH = 80;
+const REPORT_MII_CATEGORIES = Object.freeze([
+    "Rendered Incorrectly",
+    "Inappropriate",
+    "Disrespectful",
+    "I Made This Mii",
+    "Someone Else Made This Mii",
+    "I Did Not Give Permission To Make This Mii Of Me",
+    "Other"
+]);
+const REPORT_MII_CATEGORY_SET = new Set(REPORT_MII_CATEGORIES);
+const REPORT_MII_DETAILS_MAX_LENGTH = 4000;
 
 let cachedSeoKeywords = null;
 let loggedSeoKeywordLoadError = false;
@@ -2482,6 +2493,67 @@ function genToken(length = 15) {
     return token;
 }
 
+function truncateText(value, maxLength = 1024) {
+    const normalized = String(value ?? "");
+    if (normalized.length <= maxLength) {
+        return normalized;
+    }
+
+    return normalized.slice(0, Math.max(0, maxLength - 1)).trimEnd() + "…";
+}
+
+function normalizeReportText(value, maxLength = REPORT_MII_DETAILS_MAX_LENGTH) {
+    const normalized = String(value ?? "")
+        .replace(/\r\n/g, "\n")
+        .replace(/\u0000/g, "")
+        .trim();
+
+    if (!normalized) {
+        return "";
+    }
+
+    return truncateText(normalized, maxLength);
+}
+
+function escapeHtmlText(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+    }[character]));
+}
+
+function formatHtmlMultilineText(value) {
+    return escapeHtmlText(value).replace(/\n/g, "<br>");
+}
+
+function buildMiiReportReference(date = new Date()) {
+    return `MII-${date.toISOString().slice(0, 10).replace(/-/g, "")}-${genToken(6).toUpperCase()}`;
+}
+
+function buildMiiReportFollowUpEmail({ reportReference, reporterName, category, details, miiName, miiUrl }) {
+    const normalizedReporterName = normalizeReportText(reporterName, 80);
+    const greetingName = normalizedReporterName && normalizedReporterName !== "Anonymous"
+        ? normalizedReporterName
+        : "there";
+    const safeMiiUrl = escapeHtmlText(miiUrl);
+    const safeDiscordInvite = process.env.discordInvite ? escapeHtmlText(process.env.discordInvite) : "";
+
+    return `
+        <p>Hi ${escapeHtmlText(greetingName)},</p>
+        <p>Thanks for reporting an issue with <strong>${escapeHtmlText(miiName)}</strong> on InfiniMii.</p>
+        <p>Your reference code is <strong>${escapeHtmlText(reportReference)}</strong>.</p>
+        <p>We opened this email thread so you can reply directly if you want to add more context or corrections.</p>
+        <p><strong>Category:</strong> ${escapeHtmlText(category)}</p>
+        <p><strong>Mii page:</strong> <a href="${safeMiiUrl}">${safeMiiUrl}</a></p>
+        <p><strong>Details:</strong><br>${formatHtmlMultilineText(details)}</p>
+        ${safeDiscordInvite ? `<p>If you prefer, you can also reach the team in Discord: <a href="${safeDiscordInvite}">${safeDiscordInvite}</a></p>` : ""}
+        <p>InfiniMii</p>
+    `;
+}
+
 async function sendEmail(to, subj, cont) {
     return new Promise((resolve, reject) => {
         nodemailer.createTransport({
@@ -2525,8 +2597,16 @@ async function sendHighlightedMiiReminderIfDue(date = new Date()) {
         return false;
     }
 
+    const reminderUrl = `${baseUrl || "https://infinimii.com"}/`;
     const didSendReminder = await sendWebhookPayload(JSON.stringify({
-        content: "Remember to update the Highlighted Mii"
+        embeds: [{
+            type: "rich",
+            title: "Remember to update the Highlighted Mii",
+            description: "Daily reminder to rotate the highlighted Mii.",
+            color: 0xffcc00,
+            url: reminderUrl,
+            timestamp: date.toISOString()
+        }]
     }));
 
     if (!didSendReminder) {
@@ -6178,6 +6258,7 @@ site.get('/mii/:id', async (req, res) => {
     inp.miiSeo = buildMiiSeoDetails(mii, inp.officialCategories, {
         officialSourceName: inp.officialSourceName
     });
+    inp.reportMiiCategories = REPORT_MII_CATEGORIES;
 
     const relatedVisibilityFilter = {
         private: false,
@@ -6793,48 +6874,144 @@ site.post('/changeHighlightedMii', requireAuth, requireRole(ROLES.MODERATOR), as
         res.json({error: "Invalid Mii ID"});
     }
 });
-site.post('/reportMii', async (req,res)=>{
-    const mii = await getMiiById(req.body.id, false);
-    makeReport(JSON.stringify({
-        embeds: [{
-            "type": "rich",
-            "title": (mii.official ? "Official " : "") + `Mii has been reported`,
-            "description": req.body.what,
-            "color": 0xff0000,
-            "fields": [
-                {
-                    "name": `Mii Name`,
-                    "value": mii.meta.name,
-                    "inline": true
+site.post('/reportMii', defaultRatelimiter, async (req,res)=>{
+    const miiId = String(req.body?.id ?? "").trim();
+    const category = String(req.body?.category ?? "").trim();
+    const details = normalizeReportText(req.body?.details, REPORT_MII_DETAILS_MAX_LENGTH);
+    const rawEmail = String(req.body?.email ?? "").trim();
+    let reporterEmail = "";
+
+    if (!miiId) {
+        return res.status(400).json({ error: "Missing Mii ID" });
+    }
+
+    if (!REPORT_MII_CATEGORY_SET.has(category)) {
+        return res.status(400).json({ error: "Please choose a valid report category." });
+    }
+
+    if (!details) {
+        return res.status(400).json({ error: "Please include extra details about the issue." });
+    }
+
+    if (rawEmail) {
+        if (!validator.isEmail(rawEmail)) {
+            return res.status(400).json({ error: "Invalid email address" });
+        }
+
+        const normalizedEmail = validator.normalizeEmail(rawEmail);
+        if (!normalizedEmail || typeof normalizedEmail !== "string") {
+            return res.status(400).json({ error: "Invalid email address" });
+        }
+
+        reporterEmail = normalizedEmail;
+    }
+
+    const mii = await getMiiById(miiId, false);
+    if (!mii) {
+        return res.status(404).json({ error: "Mii not found" });
+    }
+
+    const publicBaseUrl = baseUrl || "https://infinimii.com";
+    const reportReference = buildMiiReportReference();
+    const reporterName = normalizeReportText(req.user?.username, 80) || "Anonymous";
+    const miiName = normalizeReportText(mii?.meta?.name || mii?.name || "Unknown Mii", 128) || "Unknown Mii";
+    const uploaderName = normalizeReportText(mii?.uploader, 128) || "Unknown uploader";
+    const creatorName = normalizeReportText(mii?.meta?.creatorName, 256) || "Not set";
+    const miiDescription = normalizeReportText(mii?.desc, 1000) || "No description provided";
+    const miiUrl = `${publicBaseUrl}/mii/${encodeURIComponent(mii.id)}`;
+    const uploaderUrl = `${publicBaseUrl}/user/${encodeURIComponent(uploaderName)}`;
+
+    try {
+        const webhookSent = await sendWebhookPayload(JSON.stringify({
+            embeds: [{
+                type: "rich",
+                title: (mii.official ? "Official " : "") + "Mii problem reported",
+                description: truncateText(details, 4096),
+                color: 0xff0000,
+                fields: [
+                    {
+                        name: "Category",
+                        value: truncateText(category, 1024),
+                        inline: true
+                    },
+                    {
+                        name: "Reported by",
+                        value: truncateText(reporterName, 1024),
+                        inline: true
+                    },
+                    {
+                        name: "Reporter Email",
+                        value: truncateText(reporterEmail || "Not provided", 1024),
+                        inline: true
+                    },
+                    {
+                        name: "Mii Name",
+                        value: truncateText(miiName, 1024),
+                        inline: true
+                    },
+                    {
+                        name: "Uploaded by",
+                        value: `[${truncateText(uploaderName, 256)}](${uploaderUrl})`,
+                        inline: true
+                    },
+                    {
+                        name: "Mii Creator Name (embedded in Mii file)",
+                        value: truncateText(creatorName, 1024),
+                        inline: true
+                    },
+                    {
+                        name: "Description",
+                        value: truncateText(miiDescription, 1024),
+                        inline: false
+                    }
+                ],
+                thumbnail: {
+                    url: `${publicBaseUrl}/miiImgs/${encodeURIComponent(mii.id)}.png`,
+                    height: 0,
+                    width: 0
                 },
-                {
-                    "name":"Description",
-                    "value":mii.desc,
-                    "inline":true
+                footer: {
+                    text: `Report ${reportReference}${reporterEmail ? " • Follow-up email requested" : ""}`
                 },
-                {
-                    "name": `Uploaded by`,
-                    "value": `[${mii.uploader}](https://infinimii.com/user/${encodeURIComponent(mii.uploader)})`,
-                    "inline": true
-                },
-                {
-                    "name": `Mii Creator Name (embedded in Mii file)`,
-                    "value": mii.meta.creatorName,
-                    "inline": true
-                }
-            ],
-            "thumbnail": {
-                "url": `https://infinimii.com/miiImgs/${mii.id}.png`,
-                "height": 0,
-                "width": 0
-            },
-            "footer": {
-                "text": `Mii has been reported by ${req.cookies.username?req.cookies.username:"Anonymous"}`
-            },
-            "url": `https://infinimii.com/mii/` + mii.id
-        }]
-    }));
-    res.json({ okay: true });
+                timestamp: new Date().toISOString(),
+                url: miiUrl
+            }]
+        }));
+
+        if (!webhookSent) {
+            rawConsoleError("Mii report webhook skipped because hookUrl is not configured.");
+            return res.status(503).json({ error: "Reports are temporarily unavailable. Please try again later." });
+        }
+
+        let followUpEmailSent = false;
+        let warning = "";
+
+        if (reporterEmail) {
+            try {
+                await sendEmail(
+                    reporterEmail,
+                    `InfiniMii report received [${reportReference}]`,
+                    buildMiiReportFollowUpEmail({
+                        reportReference,
+                        reporterName,
+                        category,
+                        details,
+                        miiName,
+                        miiUrl
+                    })
+                );
+                followUpEmailSent = true;
+            } catch (emailError) {
+                rawConsoleError("Error sending Mii report follow-up email:", emailError);
+                warning = "Your report was sent, but we could not start the follow-up email thread.";
+            }
+        }
+
+        return res.json({ okay: true, reportReference, followUpEmailSent, warning });
+    } catch (error) {
+        rawConsoleError("Error processing Mii report:", error);
+        return res.status(500).json({ error: "Failed to submit report. Please try again in a moment." });
+    }
 });
 site.get('/miiWii',async (req,res)=>{
     const fetchedMii = await getMiiById(req.query.id, false);
@@ -7054,7 +7231,14 @@ site.post('/resetPassword', async (req, res) => {
             type: 'rich',
             title: `Password Reset Complete`,
             description: `User ${username} successfully reset their password`,
-            color: 0x00FF00
+            color: 0x00FF00,
+            fields: [
+                {
+                    name: 'User',
+                    value: username,
+                    inline: true
+                }
+            ]
         }]
     }));
     

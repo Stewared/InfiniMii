@@ -14,6 +14,7 @@ globalThis.__infinimiiMonitoringState = monitoringState;
 
 const rawConsoleError = monitoringState.rawConsoleError;
 const rawConsoleWarn = monitoringState.rawConsoleWarn;
+const DEFAULT_SITE_ORIGIN = "https://infinimii.com";
 
 function truncate(text, maxLength) {
     const stringValue = String(text ?? "");
@@ -38,6 +39,353 @@ function getWebhookUrl() {
             rawConsoleError("[monitoring] Invalid hookUrl. Webhook notifications are disabled.", error);
         }
         return null;
+    }
+}
+
+function getResolvedSiteBaseUrl() {
+    const configuredBaseUrl = typeof process.env.baseUrl === "string"
+        ? process.env.baseUrl.trim()
+        : "";
+
+    try {
+        return new URL(configuredBaseUrl || DEFAULT_SITE_ORIGIN);
+    } catch {
+        return new URL(DEFAULT_SITE_ORIGIN);
+    }
+}
+
+function buildSitePageUrl(pathname = "/") {
+    return new URL(pathname, getResolvedSiteBaseUrl()).toString();
+}
+
+function buildUserPageUrl(username) {
+    const normalizedUsername = String(username ?? "").trim();
+    if (!normalizedUsername) return null;
+    return buildSitePageUrl(`/user/${encodeURIComponent(normalizedUsername)}`);
+}
+
+function buildMiiPageUrl(miiId) {
+    const normalizedMiiId = String(miiId ?? "").trim();
+    if (!normalizedMiiId) return null;
+    return buildSitePageUrl(`/mii/${encodeURIComponent(normalizedMiiId)}`);
+}
+
+function isRelevantSitePagePath(pathname) {
+    const normalizedPath = String(pathname ?? "").trim().toLowerCase();
+    if (!normalizedPath.startsWith("/")) return false;
+    if (normalizedPath === "/") return true;
+
+    if (
+        normalizedPath.startsWith("/miiimgs/")
+        || normalizedPath.startsWith("/privatemiiimgs/")
+        || normalizedPath.startsWith("/miiqrs/")
+        || normalizedPath.startsWith("/privatemiiqrs/")
+        || normalizedPath.startsWith("/static/")
+        || normalizedPath === "/favicon.ico"
+    ) {
+        return false;
+    }
+
+    return !/\.(png|jpe?g|gif|webp|svg|ico|txt|xml|json|css|js|woff2?|map)$/i.test(normalizedPath);
+}
+
+function normalizeSitePageUrl(urlLike) {
+    if (!urlLike) return null;
+
+    const baseUrl = getResolvedSiteBaseUrl();
+    const candidateValue = String(urlLike).trim();
+    if (!candidateValue || candidateValue.startsWith("attachment://")) {
+        return null;
+    }
+
+    try {
+        const parsed = new URL(candidateValue, baseUrl);
+        const canTreatAsSiteUrl = candidateValue.startsWith("/")
+            || parsed.origin === baseUrl.origin
+            || parsed.origin === DEFAULT_SITE_ORIGIN;
+
+        if (!canTreatAsSiteUrl || !isRelevantSitePagePath(parsed.pathname)) {
+            return null;
+        }
+
+        return new URL(parsed.pathname + parsed.search + parsed.hash, baseUrl).toString();
+    } catch {
+        return null;
+    }
+}
+
+function extractMarkdownUrls(text) {
+    const matches = [];
+    const normalizedText = String(text ?? "");
+    const regex = /\[[^\]]+\]\((https?:\/\/[^)\s]+|\/[^)\s]+)\)/g;
+
+    let match;
+    while ((match = regex.exec(normalizedText)) !== null) {
+        matches.push(match[1]);
+    }
+
+    return matches;
+}
+
+function extractBareUrls(text) {
+    const matches = [];
+    const normalizedText = String(text ?? "");
+    const regex = /https?:\/\/[^\s<>()]+/g;
+
+    let match;
+    while ((match = regex.exec(normalizedText)) !== null) {
+        matches.push(match[0]);
+    }
+
+    return matches;
+}
+
+function extractEndpointUrlFromText(text) {
+    const normalizedText = String(text ?? "");
+    const endpointMatch = normalizedText.match(/(?:^|\n)Endpoint:\s*(\/[^\s\n]+)/);
+    return endpointMatch ? endpointMatch[1] : null;
+}
+
+function extractMiiIdFromAssetUrl(urlLike) {
+    const normalized = String(urlLike ?? "").trim();
+    if (!normalized) return null;
+
+    let match = normalized.match(/^attachment:\/\/([^/.]+)\.(?:png|jpe?g|gif|webp)$/i);
+    if (match) return match[1];
+
+    match = normalized.match(/\/(?:miiImgs|privateMiiImgs|miiQRs|privateMiiQRs)\/([^/.]+)\.(?:png|jpe?g|gif|webp)$/i);
+    if (match) {
+        try {
+            return decodeURIComponent(match[1]);
+        } catch {
+            return match[1];
+        }
+    }
+
+    return null;
+}
+
+function extractPlainFieldValue(value) {
+    const normalizedValue = String(value ?? "").trim();
+    if (!normalizedValue) return "";
+
+    const markdownMatch = normalizedValue.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (markdownMatch) {
+        return markdownMatch[1].trim();
+    }
+
+    return normalizedValue.replace(/`/g, "").trim();
+}
+
+function scoreWebhookPageUrl(url, { source = "unknown", fieldName = "", title = "" } = {}) {
+    let score = 0;
+
+    try {
+        const pathname = new URL(url).pathname.toLowerCase();
+        if (pathname.startsWith("/mii/")) {
+            score += 100;
+        } else if (pathname.startsWith("/user/")) {
+            score += 90;
+        } else if (pathname.startsWith("/managecategories")) {
+            score += 80;
+        } else if (pathname.startsWith("/search")) {
+            score += 75;
+        } else if (pathname.startsWith("/official")) {
+            score += 70;
+        } else if (pathname.startsWith("/settings")) {
+            score += 65;
+        } else {
+            score += 50;
+        }
+    } catch {
+        score += 10;
+    }
+
+    if (source === "existing") score += 1000;
+    if (source === "footer") score += 45;
+    if (source === "field") score += 25;
+    if (source === "description") score += 20;
+    if (source === "fallback") score += 10;
+
+    const normalizedFieldName = String(fieldName ?? "").trim().toLowerCase();
+    const normalizedTitle = String(title ?? "").trim().toLowerCase();
+    if (normalizedFieldName === "mii") score += 25;
+    if (normalizedFieldName === "mii name") score += 15;
+    if (normalizedFieldName === "new username") score += 22;
+    if (normalizedFieldName === "user" || normalizedFieldName === "username") score += 20;
+    if (normalizedFieldName === "uploader" || normalizedFieldName === "uploaded by" || normalizedFieldName === "published by") score += 12;
+
+    const isUserCentricTitle = [
+        "user",
+        "username",
+        "password",
+        "email",
+        "account",
+        "ban",
+        "role",
+        "pfp"
+    ].some((token) => normalizedTitle.includes(token));
+    const isUserField = [
+        "new username",
+        "user",
+        "username",
+        "existing account",
+        "uploader",
+        "uploaded by",
+        "published by",
+        "official source",
+        "contributed by"
+    ].includes(normalizedFieldName);
+
+    if (isUserCentricTitle && isUserField) {
+        score += 40;
+    }
+
+    return score;
+}
+
+function getTitleMappedWebhookUrl(title, description = "") {
+    const normalizedTitle = String(title ?? "").trim().toLowerCase();
+    const normalizedDescription = String(description ?? "");
+
+    if (!normalizedTitle) return null;
+
+    if (normalizedTitle.includes("mii tag")) {
+        return buildSitePageUrl("/search");
+    }
+
+    if (normalizedTitle.includes("category") || normalizedTitle.includes("categories")) {
+        return buildSitePageUrl("/manageCategories");
+    }
+
+    if (normalizedTitle === "server console error") {
+        return buildSitePageUrl("/");
+    }
+
+    if (normalizedTitle === "password reset complete") {
+        const resetUserMatch = normalizedDescription.match(/^User\s+(.+?)\s+successfully reset their password$/i);
+        if (resetUserMatch) {
+            return buildUserPageUrl(resetUserMatch[1]);
+        }
+    }
+
+    return null;
+}
+
+function resolveRelevantEmbedUrl(embed) {
+    if (!embed || typeof embed !== "object") return null;
+
+    const candidates = [];
+    const addCandidate = (urlLike, options = {}) => {
+        const normalizedUrl = normalizeSitePageUrl(urlLike);
+        if (!normalizedUrl) return;
+        candidates.push({
+            url: normalizedUrl,
+            score: scoreWebhookPageUrl(normalizedUrl, {
+                ...options,
+                title: embed.title
+            })
+        });
+    };
+
+    if (embed.url) {
+        addCandidate(embed.url, { source: "existing" });
+    }
+
+    const fields = Array.isArray(embed.fields) ? embed.fields : [];
+    for (const field of fields) {
+        const fieldName = String(field?.name ?? "");
+        const fieldValue = String(field?.value ?? "");
+
+        for (const markdownUrl of extractMarkdownUrls(fieldValue)) {
+            addCandidate(markdownUrl, { source: "field", fieldName });
+        }
+
+        for (const bareUrl of extractBareUrls(fieldValue)) {
+            addCandidate(bareUrl, { source: "field", fieldName });
+        }
+    }
+
+    const description = String(embed.description ?? "");
+    for (const markdownUrl of extractMarkdownUrls(description)) {
+        addCandidate(markdownUrl, { source: "description" });
+    }
+    for (const bareUrl of extractBareUrls(description)) {
+        addCandidate(bareUrl, { source: "description" });
+    }
+    addCandidate(extractEndpointUrlFromText(description), { source: "description" });
+
+    const footerText = String(embed.footer?.text ?? "");
+    for (const markdownUrl of extractMarkdownUrls(footerText)) {
+        addCandidate(markdownUrl, { source: "footer" });
+    }
+    for (const bareUrl of extractBareUrls(footerText)) {
+        addCandidate(bareUrl, { source: "footer" });
+    }
+
+    const prioritizedUserFieldNames = [
+        "New Username",
+        "User",
+        "Username",
+        "Existing Account",
+        "Uploader",
+        "Uploaded by",
+        "Published by",
+        "Official Source",
+        "Contributed by"
+    ];
+
+    for (const prioritizedFieldName of prioritizedUserFieldNames) {
+        const matchingField = fields.find((field) => String(field?.name ?? "").trim().toLowerCase() === prioritizedFieldName.toLowerCase());
+        if (!matchingField) continue;
+
+        const userUrl = buildUserPageUrl(extractPlainFieldValue(matchingField.value));
+        addCandidate(userUrl, { source: "fallback", fieldName: prioritizedFieldName });
+        if (userUrl) break;
+    }
+
+    const miiImageSources = [
+        embed.image?.url,
+        embed.thumbnail?.url
+    ];
+
+    for (const source of miiImageSources) {
+        const inferredMiiUrl = buildMiiPageUrl(extractMiiIdFromAssetUrl(source));
+        addCandidate(inferredMiiUrl, { source: "fallback", fieldName: "Mii" });
+    }
+
+    addCandidate(getTitleMappedWebhookUrl(embed.title, description), { source: "fallback" });
+
+    if (candidates.length === 0) {
+        return null;
+    }
+
+    candidates.sort((left, right) => right.score - left.score);
+    return candidates[0].url;
+}
+
+function normalizeWebhookPayloadJson(payloadJson) {
+    try {
+        const payload = JSON.parse(payloadJson);
+        if (!payload || typeof payload !== "object" || !Array.isArray(payload.embeds)) {
+            return payloadJson;
+        }
+
+        payload.embeds = payload.embeds.map((embed) => {
+            if (!embed || typeof embed !== "object") return embed;
+
+            const normalizedEmbed = { ...embed };
+            const resolvedUrl = resolveRelevantEmbedUrl(normalizedEmbed);
+            if (resolvedUrl) {
+                normalizedEmbed.url = resolvedUrl;
+            }
+
+            return normalizedEmbed;
+        });
+
+        return JSON.stringify(payload);
+    } catch {
+        return payloadJson;
     }
 }
 
@@ -162,8 +510,9 @@ function sendWebhookPayload(payloadJson, attachments = []) {
 
     return new Promise((resolve, reject) => {
         try {
+            const normalizedPayloadJson = normalizeWebhookPayloadJson(payloadJson);
             const formData = new FormData();
-            formData.append("payload_json", payloadJson);
+            formData.append("payload_json", normalizedPayloadJson);
             appendAttachments(formData, attachments);
 
             const req = https.request({

@@ -231,6 +231,12 @@
                                 const currentCategories = <%- toScriptJson(mii.officialCategories || []) %>;
                                 const currentMiiTags = <%- toScriptJson(mii.tags || []) %>;
                                 const availableMiiTags = <%- toScriptJson(availableTags || []) %>;
+                                const reportMiiCategories = <%- toScriptJson(reportMiiCategories || []) %>;
+                                const reportProblemContext = Object.freeze({
+                                    miiId: <%- toScriptJson(mii.id) %>,
+                                    miiName: <%- toScriptJson(mii.meta?.name || mii.name || "Mii") %>,
+                                    discordInvite: <%- toScriptJson(discordInvite || "") %>
+                                });
                                 function escapeHtml(value) {
                                     return String(value ?? '').replace(/[&<>"']/g, (character) => ({
                                         '&': '&amp;',
@@ -665,13 +671,13 @@
                                     <path d="M261 936q-24.75 0-42.375-17.625T201 876V306h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438V306ZM367 790h60V391h-60v399Zm166 0h60V391h-60v399ZM261 306v570-570Z"/>
                                 </svg>
                             </button>
-                        <% } else { %>
-                            <button class="report-button" onclick="report()">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="report-icon" viewBox="0 -960 960 960" fill="currentColor">
-                                    <path d="M200-120v-680h360l16 80h224v400H520l-16-80H280v280h-80Zm300-440Zm86 160h134v-240H510l-16-80H280v240h290l16 80Z"/>
-                                </svg>
-                            </button>
                         <% } %>
+                        <button type="button" class="report-button" onclick="openReportProblemModal(event, this)" aria-label="Report a problem with this Mii">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="report-icon" viewBox="0 -960 960 960" fill="currentColor">
+                                <path d="M200-120v-680h360l16 80h224v400H520l-16-80H280v280h-80Zm300-440Zm86 160h134v-240H510l-16-80H280v240h290l16 80Z"/>
+                            </svg>
+                            <span class="report-button-label">Report Problem</span>
+                        </button>
                     </div>
                 </div>
 
@@ -989,16 +995,227 @@
                     }
                 });
             }
-            function report(){
-                var what=prompt("What would you like to report this Mii for?");
-                fetch("/reportMii", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        id: "<%= mii.id %>",
-                        what: what
-                    }),
-                    headers: { "Content-Type": "application/json" },
+            function openReportProblemModal(event, triggerButton = null) {
+                event?.preventDefault?.();
+
+                if (typeof createModalOverlay !== 'function' || typeof closeModal !== 'function') {
+                    showAlert('Report modal is unavailable on this page.', 4000, { title: 'Error', type: 'error' });
+                    return;
+                }
+
+                const overlay = createModalOverlay();
+                overlay.className = 'custom-modal-overlay custom-modal-report';
+
+                const restoreFocusTarget = triggerButton instanceof HTMLElement
+                    ? triggerButton
+                    : (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+
+                const modal = document.createElement('div');
+                modal.className = 'custom-modal report-problem-modal';
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-modal', 'true');
+                modal.setAttribute('aria-labelledby', 'reportProblemTitle');
+
+                const header = document.createElement('div');
+                header.className = 'custom-modal-header';
+                header.innerHTML = `
+                    <h3 id="reportProblemTitle">Report Problem</h3>
+                    <button class="custom-modal-close" aria-label="Close">&times;</button>
+                `;
+
+                const body = document.createElement('div');
+                body.className = 'custom-modal-body report-modal-body';
+                body.innerHTML = `
+                    <p class="report-modal-intro">Tell us what is wrong with <strong>${escapeHtml(reportProblemContext.miiName)}</strong>. Reports go straight to the InfiniMii admins.</p>
+                    <div class="report-modal-support" id="reportProblemSupport">
+                        <div class="report-modal-support-copy">
+                            <p class="report-modal-support-title">Need faster follow-up?</p>
+                            <p>You can also bring the issue to the team in Discord.</p>
+                        </div>
+                        <a class="btn-secondary report-modal-discord-link" id="reportProblemDiscordLink" target="_blank" rel="noopener noreferrer">Join Discord</a>
+                    </div>
+                    <form id="reportProblemForm" class="report-modal-form">
+                        <label class="report-modal-field" for="reportProblemCategory">
+                            <span>Issue Category</span>
+                            <select id="reportProblemCategory" name="category" required>
+                                <option value="">Select a category</option>
+                                ${reportMiiCategories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('')}
+                            </select>
+                        </label>
+                        <label class="report-modal-field" for="reportProblemEmail">
+                            <span>Email</span>
+                            <input
+                                id="reportProblemEmail"
+                                name="email"
+                                type="email"
+                                autocomplete="email"
+                                placeholder="Optional email for follow-up"
+                            >
+                            <small>Email is optional, but it allows InfiniMii to follow up with you.</small>
+                        </label>
+                        <label class="report-modal-field" for="reportProblemDetails">
+                            <span>Extra Details</span>
+                            <textarea
+                                id="reportProblemDetails"
+                                name="details"
+                                rows="7"
+                                maxlength="4000"
+                                required
+                                placeholder="Please explain what is wrong with this Mii."
+                            ></textarea>
+                            <small>This box is required so the admins know what to look for.</small>
+                        </label>
+                    </form>
+                    <p class="report-modal-status" id="reportProblemStatus" hidden></p>
+                `;
+
+                const footer = document.createElement('div');
+                footer.className = 'custom-modal-footer';
+                footer.innerHTML = `
+                    <button type="button" class="custom-modal-btn custom-modal-btn-secondary" data-action="cancel">Cancel</button>
+                    <button type="submit" class="custom-modal-btn custom-modal-btn-primary report-modal-submit" data-action="submit" form="reportProblemForm">Send Report</button>
+                `;
+
+                modal.appendChild(header);
+                modal.appendChild(body);
+                modal.appendChild(footer);
+                overlay.innerHTML = '';
+                overlay.appendChild(modal);
+
+                const closeBtn = modal.querySelector('.custom-modal-close');
+                const cancelBtn = modal.querySelector('[data-action="cancel"]');
+                const submitBtn = modal.querySelector('[data-action="submit"]');
+                const form = modal.querySelector('#reportProblemForm');
+                const supportPanel = modal.querySelector('#reportProblemSupport');
+                const discordLink = modal.querySelector('#reportProblemDiscordLink');
+                const categorySelect = modal.querySelector('#reportProblemCategory');
+                const emailInput = modal.querySelector('#reportProblemEmail');
+                const detailsInput = modal.querySelector('#reportProblemDetails');
+                const statusEl = modal.querySelector('#reportProblemStatus');
+
+                let isSubmitting = false;
+
+                if (discordLink && reportProblemContext.discordInvite) {
+                    discordLink.href = reportProblemContext.discordInvite;
+                } else if (supportPanel) {
+                    supportPanel.hidden = true;
+                }
+
+                const syncDetailsValidity = () => {
+                    const hasDetails = Boolean(detailsInput?.value?.trim());
+                    if (detailsInput) {
+                        detailsInput.setCustomValidity(hasDetails ? '' : 'Please include extra details about the issue.');
+                    }
+                    return hasDetails;
+                };
+
+                const setStatus = (message = '', type = 'info') => {
+                    if (!statusEl) return;
+                    statusEl.textContent = message;
+                    statusEl.hidden = !message;
+                    statusEl.dataset.type = message ? type : '';
+                };
+
+                const setSubmitting = (nextSubmitting) => {
+                    isSubmitting = Boolean(nextSubmitting);
+                    const hasDetails = syncDetailsValidity();
+
+                    if (submitBtn) {
+                        submitBtn.disabled = isSubmitting || !hasDetails;
+                        submitBtn.textContent = isSubmitting ? 'Sending...' : 'Send Report';
+                    }
+
+                    [closeBtn, cancelBtn, categorySelect, emailInput, detailsInput].forEach((element) => {
+                        if (element) {
+                            element.disabled = isSubmitting;
+                        }
+                    });
+                };
+
+                const handleClose = () => {
+                    if (isSubmitting) return;
+                    closeModal(overlay);
+                    document.removeEventListener('keydown', handleEscape);
+                    if (restoreFocusTarget) {
+                        setTimeout(() => restoreFocusTarget.focus(), 0);
+                    }
+                };
+
+                const handleEscape = (e) => {
+                    if (e.key === 'Escape') {
+                        handleClose();
+                    }
+                };
+
+                detailsInput?.addEventListener('input', () => {
+                    setSubmitting(false);
                 });
+                form?.addEventListener('input', () => setStatus(''));
+                form?.addEventListener('change', () => setStatus(''));
+
+                closeBtn?.addEventListener('click', handleClose);
+                cancelBtn?.addEventListener('click', handleClose);
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        handleClose();
+                    }
+                });
+
+                form?.addEventListener('submit', async (submitEvent) => {
+                    submitEvent.preventDefault();
+                    syncDetailsValidity();
+
+                    if (!form.reportValidity()) {
+                        return;
+                    }
+
+                    const payload = {
+                        id: reportProblemContext.miiId,
+                        category: categorySelect.value,
+                        email: emailInput.value.trim(),
+                        details: detailsInput.value.trim()
+                    };
+
+                    try {
+                        setStatus('');
+                        setSubmitting(true);
+
+                        const response = await fetch('/reportMii', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await response.json().catch(() => ({}));
+
+                        if (!response.ok || result.error) {
+                            throw new Error(result.error || 'Failed to submit report');
+                        }
+
+                        isSubmitting = false;
+                        handleClose();
+
+                        const successMessage = result.warning
+                            ? `Report ${result.reportReference || ''} was sent. ${result.warning}`.trim()
+                            : `Report ${result.reportReference || ''} sent successfully.${result.followUpEmailSent ? ' We started a follow-up email thread.' : ''}`;
+
+                        showAlert(successMessage, result.warning ? 7000 : 5000, {
+                            title: result.warning ? 'Report Sent With Warning' : 'Report Sent',
+                            type: result.warning ? 'info' : 'success'
+                        });
+                    } catch (error) {
+                        console.error('Error submitting Mii report:', error);
+                        setStatus(error.message || 'Failed to submit report', 'error');
+                        setSubmitting(false);
+                    }
+                });
+
+                document.addEventListener('keydown', handleEscape);
+                setSubmitting(false);
+                setTimeout(() => overlay.classList.add('active'), 10);
+                categorySelect?.focus();
             }
             async function publishThisMii() {
                 showConfirm('Are you sure you want to publish this Mii? It will become visible to everyone.', async () => {
