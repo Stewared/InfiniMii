@@ -16,6 +16,7 @@ temp/*
 feedback.txt
 serveFeedback.js
 migrate.js
+erroringFiles/*
 
-nonGitIgnoredTestFiles
+nonGitIgnoredTestFile
 deprecatedStorage.json
