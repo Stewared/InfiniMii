@@ -39,9 +39,11 @@ const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
 const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
 const baseUrl = process.env.baseUrl;
+const PAYPAL_DONATE_URL = "https://www.paypal.com/donate?business=kestron@kestron.com&no_recurring=0&item_name=Stewared&item_number=InfiniMii";
 const AVERAGE_MII_REFRESH_WINDOW_MS = ms("10m");
 const ERRORING_FILES_DIR = path.join(__dirname, "erroringFiles");
 const ERRORING_FILE_SIZE_LIMIT_BYTES = 100 * 1024 * 1024;
+const WEBHOOK_ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
 const ERRORING_FILE_KEEP_COUNT = 10;
 const SEO_KEYWORDS_CSV_PATH = path.join(__dirname, "seoKeywords.csv");
 const SEO_KEYWORD_META_LIMIT = 48;
@@ -953,16 +955,16 @@ async function trimErroringFilesDir() {
 }
 
 async function dumpFailingUploadFile(reqFile, error, context = "upload") {
-    if (!reqFile?.path) return;
+    if (!reqFile?.path) return null;
 
     try {
         const sourcePath = reqFile.path;
         const sourceStats = await fs.promises.stat(sourcePath);
-        if (!sourceStats.isFile()) return;
+        if (!sourceStats.isFile()) return null;
 
         if (sourceStats.size > ERRORING_FILE_SIZE_LIMIT_BYTES) {
             console.warn(`Skipping failing file dump (over 100MB): ${reqFile.originalname || path.basename(sourcePath)} (${sourceStats.size} bytes)`);
-            return;
+            return null;
         }
 
         await fs.promises.mkdir(ERRORING_FILES_DIR, { recursive: true });
@@ -980,8 +982,283 @@ async function dumpFailingUploadFile(reqFile, error, context = "upload") {
 
         const errorMessage = typeof error?.message === "string" ? error.message : String(error || "Unknown error");
         console.warn(`Saved failing upload to ${destinationPath}: ${errorMessage}`);
+        return {
+            destinationPath,
+            originalName: reqFile.originalname || path.basename(sourcePath),
+            contentType: reqFile.mimetype || "application/octet-stream",
+            size: Math.trunc(sourceStats.size)
+        };
     } catch (dumpError) {
         console.error("Failed to save failing upload file:", dumpError);
+        return null;
+    }
+}
+
+function estimateRawMiiPayloadSizeBytes(rawInput) {
+    const normalizedInput = typeof rawInput === "string" ? rawInput.trim() : "";
+    if (!normalizedInput) return 0;
+
+    const collapsed = normalizedInput.replace(/\s+/g, "");
+    if (collapsed && /^[0-9a-fA-F]+$/.test(collapsed) && collapsed.length % 2 === 0) {
+        return collapsed.length / 2;
+    }
+
+    if (collapsed && /^[A-Za-z0-9+/=_-]+$/.test(collapsed)) {
+        try {
+            const base64Normalized = collapsed.replace(/-/g, "+").replace(/_/g, "/");
+            const paddingLength = (4 - (base64Normalized.length % 4 || 4)) % 4;
+            const decoded = Buffer.from(base64Normalized + "=".repeat(paddingLength), "base64");
+            if (decoded.length > 0) {
+                return decoded.length;
+            }
+        } catch (e) { }
+    }
+
+    return Buffer.byteLength(normalizedInput, "utf8");
+}
+
+async function getSubmittedMiiSizeBytes({ reqFile = null, rawInput = "", filePath = "" } = {}) {
+    if (Number.isFinite(reqFile?.size) && reqFile.size >= 0) {
+        return Math.trunc(reqFile.size);
+    }
+
+    const normalizedPath = typeof filePath === "string" ? filePath.trim() : "";
+    if (normalizedPath) {
+        try {
+            const stats = await fs.promises.stat(normalizedPath);
+            if (stats.isFile()) {
+                return Math.trunc(stats.size);
+            }
+        } catch (e) { }
+    }
+
+    return estimateRawMiiPayloadSizeBytes(rawInput);
+}
+
+function isInvalidMiiTypeError(error) {
+    const errorMessage = typeof error?.message === "string"
+        ? error.message
+        : String(error || "");
+
+    return /Could not find any decod(?:e|a)ble formats/i.test(errorMessage);
+}
+
+async function buildInvalidMiiTypeErrorPayload({ reqFile = null, rawInput = "", filePath = "" } = {}) {
+    const sizeBytes = await getSubmittedMiiSizeBytes({ reqFile, rawInput, filePath });
+    const normalizedSize = Number.isFinite(sizeBytes) && sizeBytes >= 0 ? Math.trunc(sizeBytes) : 0;
+
+    return {
+        error: `This is not a valid Mii type. Filesize: ${normalizedSize} bytes. For support, contact Stewared.`,
+        errorHtml: `This is not a valid Mii type. Filesize: ${normalizedSize} bytes. For support, <a href="/contact">contact Stewared</a>.`
+    };
+}
+
+async function buildInvalidMiiWebhookAttachment({ reqFile = null, rawInput = "", filePath = "" } = {}) {
+    const normalizedPath = typeof filePath === "string" ? filePath.trim() : "";
+    if (normalizedPath) {
+        try {
+            const stats = await fs.promises.stat(normalizedPath);
+            if (stats.isFile()) {
+                if (stats.size > WEBHOOK_ATTACHMENT_MAX_BYTES) {
+                    return {
+                        skippedReason: `Attachment skipped because the file is ${stats.size} bytes, over the Discord upload limit.`
+                    };
+                }
+
+                return {
+                    attachment: {
+                        data: await fs.promises.readFile(normalizedPath),
+                        filename: reqFile?.originalname || path.basename(normalizedPath),
+                        contentType: reqFile?.mimetype || "application/octet-stream"
+                    }
+                };
+            }
+        } catch (e) { }
+    }
+
+    const normalizedRawInput = typeof rawInput === "string" ? rawInput.trim() : "";
+    if (normalizedRawInput) {
+        const rawBuffer = Buffer.from(normalizedRawInput, "utf8");
+        if (rawBuffer.length > WEBHOOK_ATTACHMENT_MAX_BYTES) {
+            return {
+                skippedReason: `Attachment skipped because the raw input is ${rawBuffer.length} bytes, over the Discord upload limit.`
+            };
+        }
+
+        return {
+            attachment: {
+                data: rawBuffer,
+                filename: "submitted-mii-data.txt",
+                contentType: "text/plain; charset=utf-8"
+            }
+        };
+    }
+
+    return { skippedReason: "No file payload was available to attach." };
+}
+
+async function sendInvalidMiiInputToWebhook({
+    req,
+    error,
+    context = "upload",
+    reqFile = null,
+    rawInput = "",
+    filePath = ""
+} = {}) {
+    try {
+        const sizeBytes = await getSubmittedMiiSizeBytes({ reqFile, rawInput, filePath });
+        const normalizedSize = Number.isFinite(sizeBytes) && sizeBytes >= 0 ? Math.trunc(sizeBytes) : 0;
+        const attachmentInfo = await buildInvalidMiiWebhookAttachment({ reqFile, rawInput, filePath });
+        const userLabel = normalizeReportText(req?.user?.username, 80) || "Anonymous";
+        const endpoint = String(req?.originalUrl || req?.path || "Unknown").trim() || "Unknown";
+        const errorMessage = normalizeReportText(error?.message || error, 3000) || "Unknown error";
+        const sourceType = reqFile?.path
+            ? "Uploaded file"
+            : (rawInput ? "Raw code input" : (filePath ? "Temporary file" : "Unknown"));
+        const filename = reqFile?.originalname
+            || (typeof filePath === "string" && filePath.trim() ? path.basename(filePath.trim()) : "");
+
+        const fields = [
+            {
+                name: "Context",
+                value: truncateText(context, 1024),
+                inline: true
+            },
+            {
+                name: "User",
+                value: truncateText(userLabel, 1024),
+                inline: true
+            },
+            {
+                name: "Input Type",
+                value: truncateText(sourceType, 1024),
+                inline: true
+            },
+            {
+                name: "Endpoint",
+                value: truncateText(endpoint, 1024),
+                inline: false
+            },
+            {
+                name: "Filesize",
+                value: `${normalizedSize} bytes`,
+                inline: true
+            }
+        ];
+
+        if (filename) {
+            fields.push({
+                name: "Filename",
+                value: truncateText(filename, 1024),
+                inline: true
+            });
+        }
+
+        if (attachmentInfo?.skippedReason) {
+            fields.push({
+                name: "Attachment",
+                value: truncateText(attachmentInfo.skippedReason, 1024),
+                inline: false
+            });
+        }
+
+        const webhookSent = await sendWebhookPayload(JSON.stringify({
+            embeds: [{
+                type: "rich",
+                title: "Invalid Mii input received",
+                description: truncateText(errorMessage, 4096),
+                color: 0xff8844,
+                fields,
+                timestamp: new Date().toISOString()
+            }]
+        }), attachmentInfo?.attachment ? [attachmentInfo.attachment] : []);
+
+        if (!webhookSent) {
+            rawConsoleError("Invalid Mii input webhook skipped because hookUrl is not configured.");
+        }
+    } catch (webhookError) {
+        rawConsoleError("Failed to upload invalid Mii input to the webhook:", webhookError);
+    }
+}
+
+async function sendSavedFailingUploadToWebhook({
+    req,
+    error,
+    context = "upload",
+    dumpedUpload = null
+} = {}) {
+    if (!dumpedUpload?.destinationPath) return;
+
+    try {
+        const attachmentInfo = await buildInvalidMiiWebhookAttachment({
+            reqFile: {
+                originalname: dumpedUpload.originalName,
+                mimetype: dumpedUpload.contentType
+            },
+            filePath: dumpedUpload.destinationPath
+        });
+        const userLabel = normalizeReportText(req?.user?.username, 80) || "Anonymous";
+        const endpoint = String(req?.originalUrl || req?.path || "Unknown").trim() || "Unknown";
+        const errorMessage = normalizeReportText(error?.message || error, 3000) || "Unknown error";
+        const relativeSavedPath = path.relative(__dirname, dumpedUpload.destinationPath).replace(/\\/g, "/");
+
+        const fields = [
+            {
+                name: "Context",
+                value: truncateText(context, 1024),
+                inline: true
+            },
+            {
+                name: "User",
+                value: truncateText(userLabel, 1024),
+                inline: true
+            },
+            {
+                name: "Endpoint",
+                value: truncateText(endpoint, 1024),
+                inline: false
+            },
+            {
+                name: "Saved File",
+                value: truncateText(relativeSavedPath || path.basename(dumpedUpload.destinationPath), 1024),
+                inline: false
+            },
+            {
+                name: "Original Filename",
+                value: truncateText(dumpedUpload.originalName || path.basename(dumpedUpload.destinationPath), 1024),
+                inline: true
+            },
+            {
+                name: "Filesize",
+                value: `${Math.trunc(dumpedUpload.size || 0)} bytes`,
+                inline: true
+            }
+        ];
+
+        if (attachmentInfo?.skippedReason) {
+            fields.push({
+                name: "Attachment",
+                value: truncateText(attachmentInfo.skippedReason, 1024),
+                inline: false
+            });
+        }
+
+        const webhookSent = await sendWebhookPayload(JSON.stringify({
+            embeds: [{
+                type: "rich",
+                title: "Saved failing upload captured",
+                description: truncateText(errorMessage, 4096),
+                color: 0xff8844,
+                fields,
+                timestamp: new Date().toISOString()
+            }]
+        }), attachmentInfo?.attachment ? [attachmentInfo.attachment] : []);
+
+        if (!webhookSent) {
+            rawConsoleError("Failing upload webhook skipped because hookUrl is not configured.");
+        }
+    } catch (webhookError) {
+        rawConsoleError("Failed to upload saved failing file to the webhook:", webhookError);
     }
 }
 
@@ -1247,6 +1524,7 @@ async function getSendables(req, title, user) {
         query: req.query,
         discordInvite: process.env.discordInvite,
         githubLink: process.env.githubLink,
+        paypalDonateUrl: PAYPAL_DONATE_URL,
         baseUrl: resolvedBaseUrl,
         title: title,
         exportFormats: EXPORT_FORMATS,
@@ -2533,6 +2811,10 @@ function buildMiiReportReference(date = new Date()) {
     return `MII-${date.toISOString().slice(0, 10).replace(/-/g, "")}-${genToken(6).toUpperCase()}`;
 }
 
+function buildContactReference(date = new Date()) {
+    return `CONTACT-${date.toISOString().slice(0, 10).replace(/-/g, "")}-${genToken(6).toUpperCase()}`;
+}
+
 function buildMiiReportFollowUpEmail({ reportReference, reporterName, category, details, miiName, miiUrl }) {
     const normalizedReporterName = normalizeReportText(reporterName, 80);
     const greetingName = normalizedReporterName && normalizedReporterName !== "Anonymous"
@@ -2554,7 +2836,53 @@ function buildMiiReportFollowUpEmail({ reportReference, reporterName, category, 
     `;
 }
 
-async function sendEmail(to, subj, cont) {
+function buildContactSupportEmail({
+    contactReference,
+    reporterName,
+    reporterEmail,
+    subject,
+    details,
+    loggedInUsername = "",
+    sourceUrl = ""
+}) {
+    const safeSourceUrl = sourceUrl ? escapeHtmlText(sourceUrl) : "";
+
+    return `
+        <p>A new contact request was submitted through InfiniMii.</p>
+        <p><strong>Reference:</strong> ${escapeHtmlText(contactReference)}</p>
+        <p><strong>Name:</strong> ${escapeHtmlText(reporterName || "Not provided")}</p>
+        <p><strong>Email:</strong> ${reporterEmail ? `<a href="mailto:${escapeHtmlText(reporterEmail)}">${escapeHtmlText(reporterEmail)}</a>` : "Not provided"}</p>
+        ${loggedInUsername ? `<p><strong>Logged-in user:</strong> ${escapeHtmlText(loggedInUsername)}</p>` : ""}
+        <p><strong>Subject:</strong> ${escapeHtmlText(subject)}</p>
+        <p><strong>Message:</strong><br>${formatHtmlMultilineText(details)}</p>
+        ${safeSourceUrl ? `<p><strong>Submitted from:</strong> <a href="${safeSourceUrl}">${safeSourceUrl}</a></p>` : ""}
+        <p>InfiniMii</p>
+    `;
+}
+
+function buildContactFollowUpEmail({
+    contactReference,
+    reporterName,
+    subject,
+    details
+}) {
+    const safeDiscordInvite = process.env.discordInvite ? escapeHtmlText(process.env.discordInvite) : "";
+
+    return `
+        <p>Hi ${escapeHtmlText(reporterName || "there")},</p>
+        <p>Thanks for contacting Stewared about InfiniMii.</p>
+        <p>Your reference code is <strong>${escapeHtmlText(contactReference)}</strong>.</p>
+        <p>We opened this email thread so you can reply directly if you want to add more context.</p>
+        <p><strong>Subject:</strong> ${escapeHtmlText(subject)}</p>
+        <p><strong>Message:</strong><br>${formatHtmlMultilineText(details)}</p>
+        ${safeDiscordInvite ? `<p>If you want faster back-and-forth, you can also reach the team in Discord: <a href="${safeDiscordInvite}">${safeDiscordInvite}</a></p>` : ""}
+        <p>InfiniMii</p>
+    `;
+}
+
+async function sendEmail(to, subj, cont, extraMailOptions = {}) {
+    const mailOptions = extraMailOptions && typeof extraMailOptions === "object" ? extraMailOptions : {};
+
     return new Promise((resolve, reject) => {
         nodemailer.createTransport({
             host: 'smtp.zoho.com',
@@ -2568,7 +2896,8 @@ async function sendEmail(to, subj, cont) {
             from: process.env.email,
             to: to,
             subject: subj,
-            html: cont
+            html: cont,
+            ...mailOptions
         }).catch(err => {
             reject("Error sending email");
             console.error('Error sending email:', err);
@@ -2576,6 +2905,70 @@ async function sendEmail(to, subj, cont) {
             resolve("Email sent");
         });
     });
+}
+
+async function sendContactWebhookNotification({
+    contactReference,
+    reporterName,
+    reporterEmail,
+    subject,
+    details,
+    loggedInUsername = "",
+    sourceUrl = ""
+}) {
+    try {
+        const webhookSent = await sendWebhookPayload(JSON.stringify({
+            content: "New InfiniMii contact form submission",
+            allowed_mentions: {
+                parse: ["everyone"]
+            },
+            embeds: [{
+                type: "rich",
+                title: `Contact form submitted [${contactReference}]`,
+                description: truncateText(details, 4096),
+                color: 0x4f9cff,
+                fields: [
+                    {
+                        name: "Name",
+                        value: truncateText(reporterName || "Anonymous", 1024),
+                        inline: true
+                    },
+                    {
+                        name: "Email",
+                        value: truncateText(reporterEmail || "Not provided", 1024),
+                        inline: true
+                    },
+                    {
+                        name: "Follow-up available",
+                        value: reporterEmail ? "Yes" : "No email provided",
+                        inline: true
+                    },
+                    {
+                        name: "Subject",
+                        value: truncateText(subject, 1024),
+                        inline: false
+                    },
+                    ...(loggedInUsername ? [{
+                        name: "Logged-in user",
+                        value: truncateText(loggedInUsername, 1024),
+                        inline: true
+                    }] : []),
+                    ...(sourceUrl ? [{
+                        name: "Source",
+                        value: truncateText(sourceUrl, 1024),
+                        inline: false
+                    }] : [])
+                ],
+                timestamp: new Date().toISOString()
+            }]
+        }));
+
+        if (!webhookSent) {
+            rawConsoleError("Contact webhook skipped because hookUrl is not configured.");
+        }
+    } catch (webhookError) {
+        rawConsoleError("Error sending contact webhook notification:", webhookError);
+    }
 }
 
 function makeReport(content, attachments = []) {
@@ -4399,9 +4792,33 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
         try {
             mii = await createMiiData(req.file.path);
         } catch (e) {
+            const dumpedUpload = await dumpFailingUploadFile(req.file, e, "legacy-upload");
+            if (dumpedUpload) {
+                await sendSavedFailingUploadToWebhook({
+                    req,
+                    error: e,
+                    context: "legacy-upload",
+                    dumpedUpload
+                });
+            }
+            const invalidMiiTypeError = isInvalidMiiTypeError(e)
+                ? await buildInvalidMiiTypeErrorPayload({
+                    reqFile: req.file,
+                    filePath: dumpedUpload?.destinationPath || req.file?.path
+                })
+                : null;
+            if (invalidMiiTypeError && !dumpedUpload) {
+                await sendInvalidMiiInputToWebhook({
+                    req,
+                    error: e,
+                    context: "legacy-upload",
+                    reqFile: req.file,
+                    filePath: req.file?.path
+                });
+            }
             cleanupUpload();
             await renderLegacyUploadPage(req, res, {
-                error: `Failed to read this file as a Mii. ${e.message || ""}`.trim(),
+                error: invalidMiiTypeError?.error || `Failed to read this file as a Mii. ${e.message || ""}`.trim(),
                 formValues
             });
             return;
@@ -5589,6 +6006,11 @@ site.get('/sitemap-pages.xml', async (req, res) => {
             priority: '0.5'
         },
         {
+            loc: `${resolvedBaseUrl}/contact`,
+            changefreq: 'monthly',
+            priority: '0.5'
+        },
+        {
             loc: `${resolvedBaseUrl}/privacy`,
             changefreq: 'yearly',
             priority: '0.3'
@@ -6102,6 +6524,37 @@ site.post('/exportMii', upload.single('mii'), async (req, res) => {
         await sendExportResponse(res, miiData, normalized, miiName, getExportOptionsFromRequest(req));
     } catch (e) {
         console.error("Error exporting Mii:", e);
+        const dumpedUpload = req.file?.path
+            ? await dumpFailingUploadFile(req.file, e, "exportMii")
+            : null;
+        if (dumpedUpload) {
+            await sendSavedFailingUploadToWebhook({
+                req,
+                error: e,
+                context: "exportMii",
+                dumpedUpload
+            });
+        }
+        if (isInvalidMiiTypeError(e)) {
+            if (!dumpedUpload) {
+                await sendInvalidMiiInputToWebhook({
+                    req,
+                    error: e,
+                    context: "exportMii",
+                    reqFile: req.file,
+                    rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
+                    filePath: req.file?.path
+                });
+            }
+            const invalidMiiTypeError = await buildInvalidMiiTypeErrorPayload({
+                reqFile: req.file,
+                rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
+                filePath: dumpedUpload?.destinationPath || req.file?.path
+            });
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
+            res.json(invalidMiiTypeError);
+            return;
+        }
         try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
         res.json({ error: "Failed to export Mii: " + e.message });
     }
@@ -6488,6 +6941,16 @@ site.get('/user/:username', async (req, res) => {
 });
 site.get('/about', async (req, res) => {
     ejs.renderFile('./ejsFiles/about.ejs', await getSendables(req), {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
+site.get('/contact', async (req, res) => {
+    ejs.renderFile('./ejsFiles/contact.ejs', await getSendables(req), {}, function(err, str) {
         if (err) {
             res.send(err);
             console.log(err);
@@ -7011,6 +7474,94 @@ site.post('/reportMii', defaultRatelimiter, async (req,res)=>{
     } catch (error) {
         rawConsoleError("Error processing Mii report:", error);
         return res.status(500).json({ error: "Failed to submit report. Please try again in a moment." });
+    }
+});
+site.post('/contact', defaultRatelimiter, upload.none(), async (req, res) => {
+    const rawName = String(req.body?.name ?? "").trim();
+    const rawEmail = String(req.body?.email ?? "").trim();
+    const subject = normalizeReportText(req.body?.subject, 160);
+    const details = normalizeReportText(req.body?.details, 4000);
+    const reporterName = normalizeReportText(rawName || req.user?.username, 80) || "Anonymous";
+    let reporterEmail = "";
+
+    if (rawEmail) {
+        if (!validator.isEmail(rawEmail)) {
+            return res.status(400).json({ error: "Please enter a valid email address." });
+        }
+
+        const normalizedEmail = validator.normalizeEmail(rawEmail);
+        if (!normalizedEmail || typeof normalizedEmail !== "string") {
+            return res.status(400).json({ error: "Please enter a valid email address." });
+        }
+
+        reporterEmail = normalizedEmail;
+    }
+
+    if (!subject) {
+        return res.status(400).json({ error: "Please include a subject." });
+    }
+
+    if (!details) {
+        return res.status(400).json({ error: "Please include details in your message." });
+    }
+
+    const contactReference = buildContactReference();
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+    const sourceUrl = `${resolvedBaseUrl}/contact`;
+    const loggedInUsername = normalizeReportText(req.user?.username, 80);
+
+    try {
+        await sendContactWebhookNotification({
+            contactReference,
+            reporterName,
+            reporterEmail,
+            subject,
+            details,
+            loggedInUsername,
+            sourceUrl
+        });
+
+        await sendEmail(
+            process.env.email,
+            `InfiniMii contact request [${contactReference}] ${subject}`,
+            buildContactSupportEmail({
+                contactReference,
+                reporterName,
+                reporterEmail,
+                subject,
+                details,
+                loggedInUsername,
+                sourceUrl
+            }),
+            reporterEmail ? { replyTo: reporterEmail } : {}
+        );
+
+        let followUpEmailSent = false;
+        let warning = "";
+
+        if (reporterEmail) {
+            try {
+                await sendEmail(
+                    reporterEmail,
+                    `InfiniMii contact received [${contactReference}]`,
+                    buildContactFollowUpEmail({
+                        contactReference,
+                        reporterName,
+                        subject,
+                        details
+                    })
+                );
+                followUpEmailSent = true;
+            } catch (emailError) {
+                rawConsoleError("Error sending contact follow-up email:", emailError);
+                warning = "Your message was sent, but we could not start the follow-up email thread.";
+            }
+        }
+
+        return res.json({ okay: true, contactReference, followUpEmailSent, warning });
+    } catch (error) {
+        rawConsoleError("Error sending contact request:", error);
+        return res.status(500).json({ error: "Failed to send your message. Please try again in a moment." });
     }
 });
 site.get('/miiWii',async (req,res)=>{
@@ -7597,7 +8148,15 @@ async function handleGetInstructionsRequest(req, res, { allowFile = false } = {}
         });
     } catch (e) {
         if (allowFile && req.file?.path) {
-            await dumpFailingUploadFile(req.file, e, "getInstructions");
+            const dumpedUpload = await dumpFailingUploadFile(req.file, e, "getInstructions");
+            if (dumpedUpload) {
+                await sendSavedFailingUploadToWebhook({
+                    req,
+                    error: e,
+                    context: "getInstructions",
+                    dumpedUpload
+                });
+            }
         }
         console.error('Error generating instructions:', e);
         res.json({ error: 'Failed to generate instructions: ' + e.message });
@@ -7670,13 +8229,14 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         // TODO: catch errors here and request that they make sure they selected the right upload type
 
         let mii;
+        let tempBinPath = "";
         try {
             const fromAmiiboId = typeof req.body.fromAmiibo === "string" ? req.body.fromAmiibo.trim() : "";
 
             if (fromAmiiboId && !req.file && !req.body.miiData) {
                 // Uploading from Amiibo extraction
                 const tempMiiId = fromAmiiboId;
-                const tempBinPath = `./static/temp/${tempMiiId}.bin`;
+                tempBinPath = `./static/temp/${tempMiiId}.bin`;
 
                 if (!fs.existsSync(tempBinPath)) {
                     res.json({ error: 'Amiibo Mii data not found. Please extract again.' });
@@ -7692,6 +8252,18 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                     try { fs.unlinkSync(`./static/miiQRs/${tempMiiId}.png`); } catch (e) { }
                 } catch (e) {
                     console.error('Error reading Amiibo Mii:', e);
+                    if (isInvalidMiiTypeError(e)) {
+                        await sendInvalidMiiInputToWebhook({
+                            req,
+                            error: e,
+                            context: "uploadMii-amiibo",
+                            filePath: tempBinPath
+                        });
+                        res.json(await buildInvalidMiiTypeErrorPayload({
+                            filePath: tempBinPath
+                        }));
+                        return;
+                    }
                     res.json({ error: `Invalid Amiibo Mii data: ${e.message}` });
                     return;
                 }
@@ -7708,10 +8280,36 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                 }
             }
         } catch (e) {
-            if (req.file?.path) {
-                await dumpFailingUploadFile(req.file, e, "uploadMii");
+            const dumpedUpload = req.file?.path
+                ? await dumpFailingUploadFile(req.file, e, "uploadMii")
+                : null;
+            if (dumpedUpload) {
+                await sendSavedFailingUploadToWebhook({
+                    req,
+                    error: e,
+                    context: "uploadMii",
+                    dumpedUpload
+                });
             }
             console.error('Error processing Mii file:', e);
+            if (isInvalidMiiTypeError(e)) {
+                if (!dumpedUpload) {
+                    await sendInvalidMiiInputToWebhook({
+                        req,
+                        error: e,
+                        context: "uploadMii",
+                        reqFile: req.file,
+                        rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
+                        filePath: req.file?.path || tempBinPath
+                    });
+                }
+                res.json(await buildInvalidMiiTypeErrorPayload({
+                    reqFile: req.file,
+                    rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
+                    filePath: dumpedUpload?.destinationPath || req.file?.path || tempBinPath
+                }));
+                return;
+            }
             res.json({error: `Failed to process file. Please double-check that you selected the correct file. ${e.message || ''}`});
             return;
         } finally {
@@ -8750,6 +9348,37 @@ site.post('/convertMii', upload.single('mii'), async (req, res) => {
         await sendExportResponse(res, miiData, normalized, miiName, getExportOptionsFromRequest(req));
     } catch (e) {
         console.error("Error converting Mii:", e);
+        const dumpedUpload = req.file?.path
+            ? await dumpFailingUploadFile(req.file, e, "convertMii")
+            : null;
+        if (dumpedUpload) {
+            await sendSavedFailingUploadToWebhook({
+                req,
+                error: e,
+                context: "convertMii",
+                dumpedUpload
+            });
+        }
+        if (isInvalidMiiTypeError(e)) {
+            if (!dumpedUpload) {
+                await sendInvalidMiiInputToWebhook({
+                    req,
+                    error: e,
+                    context: "convertMii",
+                    reqFile: req.file,
+                    rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
+                    filePath: req.file?.path
+                });
+            }
+            const invalidMiiTypeError = await buildInvalidMiiTypeErrorPayload({
+                reqFile: req.file,
+                rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
+                filePath: dumpedUpload?.destinationPath || req.file?.path
+            });
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
+            res.json(invalidMiiTypeError);
+            return;
+        }
         try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
         res.json({error: "Conversion failed. Please verify you selected the right format and uploaded the right file."});
     }

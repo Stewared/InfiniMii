@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%
+    const pageTitle = 'Contact Stewared - InfiniMii Support';
+    const pageDesc = 'Contact Stewared for InfiniMii support, upload issues, account help, or general questions.';
+    const canonicalUrl = `${baseUrl}/contact`;
+    %>
+    <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl }) %>
+    <%- include('structuredData') %>
+    <link rel="stylesheet" href="/global.css">
+    <link rel="stylesheet" href="/utilityPages.css">
+    <link rel="stylesheet" href="/upload.css">
+    <link rel="stylesheet" href="/contact.css">
+</head>
+<body>
+    <%- include('globalStyle') %>
+    <%- include('header') %>
+    <%- include('accountDisplay') %>
+
+    <main class="content" role="main">
+        <%- include('sidebar') %>
+
+        <article class="utility-container contact-page">
+            <fieldset>
+                <legend>Contact Stewared</legend>
+
+                <div class="contact-intro-card">
+                    <h1>Contact Stewared</h1>
+                    <p>Use this form for support, upload issues, account problems, or anything else related to InfiniMii.</p>
+                    <p>If you are reporting an invalid Mii upload, include the file size and what you were trying to do so the issue is easier to trace. Email is optional, but it must be filled in if you want a follow-up.</p>
+                </div>
+
+                <div class="contact-support-grid">
+                    <% if (discordInvite) { %>
+                        <a href="<%= discordInvite %>" target="_blank" rel="noopener noreferrer" class="contact-support-card">
+                            <strong>Join the Discord</strong>
+                            <span>Talk to the Stewared community and get faster back-and-forth help.</span>
+                        </a>
+                    <% } %>
+
+                    <a href="<%= paypalDonateUrl %>" target="_blank" rel="noopener noreferrer" class="contact-support-card">
+                        <strong>Support on PayPal</strong>
+                        <span>Help fund InfiniMii and the rest of Stewared's Mii preservation work.</span>
+                    </a>
+                </div>
+
+                <form id="contactForm" class="upload-form-panel contact-form-panel" method="post" action="/contact">
+                    <div id="contact-message" class="form-message" style="display: none;"></div>
+
+                    <label for="contact-email">Email (optional):</label>
+                    <input
+                        type="email"
+                        id="contact-email"
+                        name="email"
+                        maxlength="320"
+                        placeholder="Optional email for follow-up"
+                        autocomplete="email"
+                    >
+                    <p class="contact-field-note">Leave this blank if you do not need a reply. Fill it in if you would like follow-up.</p>
+
+                    <label for="contact-subject">Subject:</label>
+                    <input
+                        type="text"
+                        id="contact-subject"
+                        name="subject"
+                        maxlength="160"
+                        placeholder="How can we help?"
+                        required
+                        aria-required="true"
+                    >
+
+                    <label for="contact-details">Message:</label>
+                    <textarea
+                        id="contact-details"
+                        name="details"
+                        rows="8"
+                        maxlength="4000"
+                        placeholder="Explain the issue or question here..."
+                        required
+                        aria-required="true"
+                    ></textarea>
+
+                    <p class="contact-form-note">Follow-up email is only available if you include your email address.</p>
+
+                    <input type="submit" value="Send Message">
+                </form>
+            </fieldset>
+        </article>
+
+        <%- include('featuredMiis') %>
+    </main>
+
+    <%- include('footer') %>
+    <script>
+        const contactForm = document.getElementById('contactForm');
+
+        contactForm.addEventListener('submit', function(e) {
+            handleFormSubmit(e, '/contact', 'Sending...', 'contact-message', {
+                onSuccess: (result, messageDiv) => {
+                    const message = result.warning
+                        ? `Message ${result.contactReference || ''} was sent. ${result.warning}`.trim()
+                        : `Message ${result.contactReference || ''} sent successfully.${result.followUpEmailSent ? ' We started a follow-up email thread.' : ''}`;
+
+                    messageDiv.textContent = message;
+                    messageDiv.className = `form-message ${result.warning ? 'warning' : 'success'}`;
+                    messageDiv.style.display = 'block';
+
+                    contactForm.reset();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

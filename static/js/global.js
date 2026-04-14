@@ -485,11 +485,20 @@ async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
     const submitBtn = form.querySelector('input[type="submit"], button[type="submit"]');
     const originalText = submitBtn.value || submitBtn.textContent;
     const messageDiv = document.getElementById(errorDivId);
+
+    const setMessage = (content = '', type = '', html = '') => {
+        if (!messageDiv) return;
+        messageDiv.className = type ? `form-message ${type}` : 'form-message';
+        messageDiv.style.display = content || html ? 'block' : 'none';
+        if (html) {
+            messageDiv.innerHTML = html;
+            return;
+        }
+        messageDiv.textContent = content;
+    };
     
     // Clear any previous messages
-    messageDiv.style.display = 'none';
-    messageDiv.textContent = '';
-    messageDiv.className = 'form-message';
+    setMessage('', '');
     
     // Update button state
     if (submitBtn.tagName === 'INPUT') {
@@ -542,9 +551,7 @@ async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
         const result = await response.json();
         
         if (result.error) {
-            messageDiv.textContent = result.error;
-            messageDiv.className = 'form-message error';
-            messageDiv.style.display = 'block';
+            setMessage(result.error, 'error', result.errorHtml || '');
         } else {
             // Success
             if (options.onSuccess) {
@@ -552,16 +559,12 @@ async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
             } else if (result.redirect) {
                 window.location.href = getSafeClientRedirectTarget(options?.next || result.redirect, '/');
             } else if (result.message) {
-                messageDiv.textContent = result.message;
-                messageDiv.className = 'form-message success';
-                messageDiv.style.display = 'block';
+                setMessage(result.message, 'success', result.messageHtml || '');
             }
         }
     } catch (error) {
         console.error('Form submission error:', error);
-        messageDiv.textContent = 'An error occurred. Please try again.';
-        messageDiv.className = 'form-message error';
-        messageDiv.style.display = 'block';
+        setMessage('An error occurred. Please try again.', 'error');
     } finally {
         // Reset button if not redirecting
         if (submitBtn.tagName === 'INPUT') {
