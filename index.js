@@ -2881,10 +2881,18 @@ function buildContactFollowUpEmail({
 }
 
 async function sendEmail(to, subj, cont, extraMailOptions = {}) {
-    const mailOptions = extraMailOptions && typeof extraMailOptions === "object" ? extraMailOptions : {};
+    const mailOptions = {};
 
-    return new Promise((resolve, reject) => {
-        nodemailer.createTransport({
+    if (extraMailOptions && typeof extraMailOptions === "object" && !Array.isArray(extraMailOptions)) {
+        for (const key of ["replyTo", "text", "attachments", "cc", "bcc"]) {
+            if (key in extraMailOptions) {
+                mailOptions[key] = extraMailOptions[key];
+            }
+        }
+    }
+
+    try {
+        await nodemailer.createTransport({
             host: 'smtp.zoho.com',
             port: 465,
             secure: true,
@@ -2898,13 +2906,13 @@ async function sendEmail(to, subj, cont, extraMailOptions = {}) {
             subject: subj,
             html: cont,
             ...mailOptions
-        }).catch(err => {
-            reject("Error sending email");
-            console.error('Error sending email:', err);
-        }).then(info => {
-            resolve("Email sent");
         });
-    });
+
+        return "Email sent";
+    } catch (err) {
+        console.error('Error sending email:', err);
+        throw new Error("Error sending email");
+    }
 }
 
 async function sendContactWebhookNotification({
@@ -9537,7 +9545,7 @@ site.post('/signup', async (req, res) => {
     });
     
     let link = "https://infinimii.com/verify?user=" + encodeURIComponent(req.body.username) + "&token=" + encodeURIComponent(token);
-    sendEmail(cleanEmail, "InfiniMii Verification", 
+    await sendEmail(cleanEmail, "InfiniMii Verification", 
         "Welcome to InfiniMii! If you initiated this message, verify your email by clicking this link: " + link
     );
     res.json({ message: "Check your email to verify your account!" });
