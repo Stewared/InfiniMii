@@ -298,10 +298,18 @@
                             <h2 id="profile-featured-heading">Popular Uploads From <%= targetUser.username %></h2>
                             <p>These uploads are currently the strongest search and discovery signals on this profile.</p>
                             <div class="profile-featured-grid">
-                                <% profileFeaturedMiis.forEach((featuredMii) => { %>
+                                <% profileFeaturedMiis.forEach((featuredMii, featuredIndex) => { %>
                                     <article class="profile-featured-card" style="--favorite-color: <%= decodeColor(featuredMii.general?.favoriteColor) || decodeColor(0) %>;">
                                         <a class="profile-featured-image" href="/mii/<%= featuredMii.id %>">
-                                            <img src="/miiImgs/<%= featuredMii.id %>.png" alt="<%= featuredMii.meta?.name || featuredMii.name %> Mii character">
+                                            <img
+                                                src="/miiImgs/<%= featuredMii.id %>.png"
+                                                alt="<%= featuredMii.meta?.name || featuredMii.name %> Mii character"
+                                                width="256"
+                                                height="256"
+                                                loading="<%= featuredIndex < 4 ? 'eager' : 'lazy' %>"
+                                                decoding="async"
+                                                fetchpriority="<%= featuredIndex < 2 ? 'high' : (featuredIndex < 4 ? 'auto' : 'low') %>"
+                                            >
                                         </a>
                                         <div class="profile-featured-body">
                                             <h3><a href="/mii/<%= featuredMii.id %>"><%= featuredMii.meta?.name || featuredMii.name %></a></h3>
@@ -449,10 +457,20 @@
                                 <%
                                     const profileMii = displayedMiis[i];
                                     const profileMiiAttribution = getMiiAttribution(profileMii);
+                                    const shouldEagerLoadImage = i < 6;
+                                    const shouldPrioritizeImage = i < 3;
                                 %>
                                 <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                     <a href="<%= '/mii/'+displayedMiis[i].id %>">
-                                        <img src="/miiImgs/<%= displayedMiis[i].id %>.png" alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %> Mii: <%= displayedMiis[i]?.description %>">
+                                        <img
+                                            src="/miiImgs/<%= displayedMiis[i].id %>.png"
+                                            alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %> Mii: <%= displayedMiis[i]?.description %>"
+                                            width="256"
+                                            height="256"
+                                            loading="<%= shouldEagerLoadImage ? 'eager' : 'lazy' %>"
+                                            decoding="async"
+                                            fetchpriority="<%= shouldPrioritizeImage ? 'high' : (shouldEagerLoadImage ? 'auto' : 'low') %>"
+                                        >
                                     </a>
                                     <div class="flex">
                                         <div>

@@ -30,12 +30,17 @@
                 <% if(privateMiis.length > 0) { %>
                     <div id="private-miis-grid">
                         <% for(var i=0; i<privateMiis.length; i++){ %>
+                            <% const shouldEagerLoadImage = i < 4; const shouldPrioritizeImage = i < 2; %>
                             <article class="private-mii-card" data-mii-id="<%= privateMiis[i].id %>" style="--favorite-color: <%= decodeColor(privateMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                 <a href="<%= '/mii/'+privateMiis[i].id %>" aria-label="View <%= privateMiis[i].meta?.name || privateMiis[i].name %>">
                                     <img src="/privateMiiImgs/<%= privateMiis[i].id %>.png" 
                                          onerror="this.src='/privateMiiImgs/<%= privateMiis[i].id %>.png'"
                                          alt="<%= privateMiis[i].meta?.name || privateMiis[i].name %>"
-                                         loading="lazy">
+                                         width="256"
+                                         height="256"
+                                         loading="<%= shouldEagerLoadImage ? 'eager' : 'lazy' %>"
+                                         decoding="async"
+                                         fetchpriority="<%= shouldPrioritizeImage ? 'high' : (shouldEagerLoadImage ? 'auto' : 'low') %>">
                                 </a>
                                 <div class="mii-info">
                                     <h3><%= privateMiis[i].meta?.name || privateMiis[i].name %></h3>

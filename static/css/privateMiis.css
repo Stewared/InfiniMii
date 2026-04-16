@@ -46,7 +46,9 @@
 
 #private-miis-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
+    justify-content: center;
+    align-items: stretch;
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -59,6 +61,8 @@
     border: 2px solid transparent;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: var(--mii-card-max-width);
 }
 
 .private-mii-card:hover {
@@ -83,7 +87,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .private-mii-card:hover img {

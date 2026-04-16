@@ -116,6 +116,9 @@ button .icon,
     --layer-1-um: color-mix(in oklab, var(--layer-1) 90%, var(--derivative-mii-color) 10%);
     --layer-2-um: color-mix(in oklab, var(--layer-2) 95%, var(--derivative-mii-color) 5%);
     --layer-3-um: color-mix(in oklab, var(--layer-3) 95%, var(--derivative-mii-color) 5%);
+
+    --mii-card-min-width: 12rem;
+    --mii-card-max-width: 15rem;
 }
 
 * {
@@ -370,14 +373,15 @@ footer ul li a:hover {
 
 #browse-miis.browse-miis-balanced {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.5rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
     align-items: stretch;
+    justify-content: center;
     justify-items: stretch;
 }
 
 #browse-miis.browse-miis-balanced .mii-card {
     width: 100%;
-    max-width: none;
+    max-width: var(--mii-card-max-width);
     min-width: 0;
 }
 
@@ -386,7 +390,7 @@ footer ul li a:hover {
     --mii-card-inner-radius: calc(var(--mii-card-radius) - 2px);
     display: flex;
     flex-flow: column;
-    width: min(100%, 18rem);
+    width: min(100%, var(--mii-card-max-width));
     border: 2px solid #202020;
     border-radius: var(--mii-card-radius);
     background-color: var(--layer-2-um);
@@ -410,6 +414,7 @@ footer ul li a:hover {
     padding: 1.5rem;
 }
 
+.mii-card > a,
 .mii-card > a:has(img) {
     position: relative;
     display: block;
@@ -417,6 +422,7 @@ footer ul li a:hover {
     overflow: hidden;
     border-radius: var(--mii-card-inner-radius) var(--mii-card-inner-radius) 0 0;
 }
+.mii-card > a::before,
 .mii-card > a:has(img)::before {
     z-index: -1;
     content: "";
@@ -440,6 +446,46 @@ footer ul li a:hover {
     /* margin-bottom: 1rem; */
     transition: 585ms;
     transform-origin: bottom;
+}
+
+.mii-card > a::after,
+.mii-card > a:has(img)::after,
+.private-mii-card a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0) 26%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 74%);
+    background-size: 220% 100%;
+    transition: opacity 0.24s ease;
+}
+
+.mii-card > a.mii-image-is-loading img,
+.private-mii-card a.mii-image-is-loading img {
+    opacity: 0;
+}
+
+.mii-card > a.mii-image-is-loading::after,
+.private-mii-card a.mii-image-is-loading::after {
+    opacity: 1;
+    animation: mii-image-loading-shimmer 1.05s linear infinite;
+}
+
+.mii-card > a.mii-image-is-loaded::after,
+.private-mii-card a.mii-image-is-loaded::after {
+    opacity: 0;
+    animation: none;
+}
+
+@keyframes mii-image-loading-shimmer {
+    from {
+        background-position: 130% 0;
+    }
+    to {
+        background-position: -100% 0;
+    }
 }
 
 .mii-card img:hover {
@@ -940,6 +986,7 @@ footer ul li a:hover {
 @media (max-width: 600px) {
     #browse-miis.browse-miis-balanced {
         grid-template-columns: 1fr;
+        justify-items: center;
     }
 
     .search-field-options {
@@ -1505,7 +1552,7 @@ fieldset a:hover {
     }
     
     .mii-card {
-        width: min(100%, 18rem);
+        width: min(100%, var(--mii-card-max-width));
         padding: 1rem;
     }
     

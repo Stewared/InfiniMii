@@ -4,19 +4,24 @@
     width: 100%;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
     align-items: stretch;
+    justify-content: center;
+    justify-items: stretch;
     gap: clamp(0.75rem, 1.2vw, 1rem);
     border-style:solid;
     border-color:#202020;
 }
 
-.miiCategory a{
+.miiCategory > h1 > a,
+.miiCategory > h3 > a {
     color:white;
     text-decoration:none;
     transition:1s;
 }
-.miiCategory a:hover{
+
+.miiCategory > h1 > a:hover,
+.miiCategory > h3 > a:hover {
     color:white;
     text-decoration:underline;
     transition:750ms;
@@ -28,105 +33,20 @@
     margin: 0 0 1rem 0;
 }
 
-.miiThumb{
-    background-color: #252525;
-    padding: 1rem;
-    border-radius: 20px;
-    width: auto;
+.miiCategory .mii-card {
+    width: 100%;
+    max-width: var(--mii-card-max-width);
     min-width: 0;
-    text-align: center;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    margin: 0;
 }
 
-.miiThumb[hidden] {
+.miiCategory .mii-card[hidden] {
     display: none !important;
 }
 
-.miiThumb-image {
-    position: relative;
-    display: block;
-    width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    isolation: isolate;
-    border-radius: 18px;
-    margin-bottom: 0.5rem;
-}
-
-.miiThumb-image::before {
-    z-index: -1;
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    --darker-color: color-mix(in oklab, #222 60%, var(--favorite-color) 30%);
-    --lighter-color: color-mix(in oklab, #555 90%, var(--favorite-color) 60%);
-    background: radial-gradient(circle, var(--lighter-color) 26%, var(--darker-color) 100%);
-}
-
-.miiThumb img{
-    width: 100%;
-    height: auto;
-    flex-grow: 1;
-    object-fit: contain;
-    display: block;
-    border-radius: inherit;
-    transition:1s;
-}
-
-.miiThumb img:hover{
-    transition: 750ms cubic-bezier(.46,.22,.14,1.34);
-    transform: scale(1.25);
-    transform-origin: bottom;
-}
-
-.miiThumb h3,
-.miiThumb h4{
-    margin: 0;
-    width: 100%;
-    min-width: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: clamp(0.85rem, 0.78rem + 0.2vw, 1rem);
-    line-height: 1.25;
-}
-
-.miiThumb h4 a {
-    display: block;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.miiThumb-body {
-    display: grid;
-    gap: 0.38rem;
-    width: 100%;
-    min-width: 0;
-}
-
-.miiThumb-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    width: 100%;
-    min-width: 0;
-}
-
-.miiThumb .mii-card-byline {
-    flex: 1 1 auto;
-    margin: 0;
-    overflow: hidden;
-}
-
-.miiThumb .mii-card-byline a {
-    display: block;
+.miiCategory .mii-card > .flex,
+.miiCategory .mii-card > p {
+    padding: 1rem;
 }
 
 /* Responsive breakpoints */
@@ -135,7 +55,8 @@
         padding: 1rem;
     }
 
-    .miiThumb {
+    .miiCategory .mii-card > .flex,
+    .miiCategory .mii-card > p {
         padding: 0.85rem;
     }
 }
@@ -143,5 +64,6 @@
 @media (max-width: 400px) {
     .miiCategory {
         grid-template-columns: 1fr;
+        justify-items: center;
     }
 }

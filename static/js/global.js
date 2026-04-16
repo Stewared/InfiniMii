@@ -114,7 +114,7 @@ function initializeHomepagePreviewRows() {
     let frameId = 0;
 
     const syncCategory = (category) => {
-        const cards = Array.from(category.querySelectorAll('.miiThumb'));
+        const cards = Array.from(category.querySelectorAll('.mii-card'));
         if (cards.length === 0) return;
 
         cards.forEach((card) => {
@@ -171,10 +171,47 @@ function initializeHomepagePreviewRows() {
     }
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeHomepagePreviewRows, { once: true });
-} else {
+function initializeMiiCardImageLoading() {
+    const cardImages = Array.from(document.querySelectorAll('.mii-card > a > img, .private-mii-card > a > img'));
+    if (cardImages.length === 0) return;
+
+    const markLoaded = (img) => {
+        const link = img.closest('a');
+        if (!link) return;
+        link.classList.remove('mii-image-is-loading');
+        link.classList.add('mii-image-is-loaded');
+    };
+
+    cardImages.forEach((img) => {
+        const link = img.closest('a');
+        if (!link) return;
+
+        if (!img.getAttribute('decoding')) {
+            img.setAttribute('decoding', 'async');
+        }
+
+        if (img.complete && img.naturalWidth > 0) {
+            markLoaded(img);
+            return;
+        }
+
+        link.classList.add('mii-image-is-loading');
+        img.addEventListener('load', () => markLoaded(img), { once: true });
+        img.addEventListener('error', () => {
+            link.classList.remove('mii-image-is-loading');
+        }, { once: true });
+    });
+}
+
+function initializePageFeatures() {
     initializeHomepagePreviewRows();
+    initializeMiiCardImageLoading();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePageFeatures, { once: true });
+} else {
+    initializePageFeatures();
 }
 
 // Custom Modal System

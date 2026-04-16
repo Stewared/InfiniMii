@@ -102,11 +102,20 @@
                             <%
                                 const officialMii = displayedMiis[i];
                                 const officialMiiAttribution = getMiiAttribution(officialMii);
+                                const shouldEagerLoadImage = i < 6;
+                                const shouldPrioritizeImage = i < 3;
                             %>
                             <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
                                 <a href="<%= '/mii/'+displayedMiis[i].id %>">
-                                    <img src="miiImgs/<%= displayedMiis[i].id %>.png" 
-                                         alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %> Mii: <%= displayedMiis[i]?.description %>">
+                                    <img
+                                        src="miiImgs/<%= displayedMiis[i].id %>.png"
+                                        alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %> Mii: <%= displayedMiis[i]?.description %>"
+                                        width="256"
+                                        height="256"
+                                        loading="<%= shouldEagerLoadImage ? 'eager' : 'lazy' %>"
+                                        decoding="async"
+                                        fetchpriority="<%= shouldPrioritizeImage ? 'high' : (shouldEagerLoadImage ? 'auto' : 'low') %>"
+                                    >
                                 </a>
                                 <div class="flex official-card-meta-row">
                                     <div class="official-card-meta">

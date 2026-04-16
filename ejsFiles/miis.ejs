@@ -179,9 +179,21 @@
                                 const miiItemName = miiItem?.meta?.name || miiItem?.name || 'Unknown Mii';
                                 const miiItemDesc = typeof miiItem?.desc === 'string' ? miiItem.desc : '';
                                 const miiItemAttribution = getMiiAttribution(miiItem);
+                                const shouldEagerLoadImage = i < 6;
+                                const shouldPrioritizeImage = i < 3;
                             %>
                             <div class="mii-card" style="--favorite-color: <%= decodeColor(miiItem.general?.favoriteColor) || decodeColor(0) %>;" id="<%= miiItem.id %>">
-                                <a href="<%= '/mii/' + miiItem.id %>"><img src="miiImgs/<%= miiItem.id %>.png" alt="<%= miiItemName %> Mii: <%= miiItemDesc %>"></a>
+                                <a href="<%= '/mii/' + miiItem.id %>">
+                                    <img
+                                        src="miiImgs/<%= miiItem.id %>.png"
+                                        alt="<%= miiItemName %> Mii: <%= miiItemDesc %>"
+                                        width="256"
+                                        height="256"
+                                        loading="<%= shouldEagerLoadImage ? 'eager' : 'lazy' %>"
+                                        decoding="async"
+                                        fetchpriority="<%= shouldPrioritizeImage ? 'high' : (shouldEagerLoadImage ? 'auto' : 'low') %>"
+                                    >
+                                </a>
                                 <div class="flex">
                                     <div>
                                         <h3><%= miiItemName %></h3>

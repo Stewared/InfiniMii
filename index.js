@@ -21,13 +21,17 @@ import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import { STATUS_CODES } from 'http';
 import { isDeepStrictEqual } from 'node:util';
-import { rateLimit } from 'express-rate-limit';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import ms from 'ms';
 import dns from "dns";
 import { connectionPromise, Miis, Users, Settings, ReservedUsername } from "./database.js";
 import { renderIcon, icons } from "./icons.js";
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
+fs.mkdirSync(path.join(__dirname, "static", "miiImgs"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "static", "miiQRs"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "static", "privateMiiImgs"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRs"), { recursive: true });
 
 const defaultMiisPerPage = 16;
 const profileMiisPerPage = 18;
@@ -677,14 +681,52 @@ const upload = multer({
     }
 });
 
+function getClientIpAddress(req) {
+    const directIp = typeof req?.ip === 'string' ? req.ip.trim() : '';
+    if (directIp) return directIp;
+
+    if (Array.isArray(req?.ips)) {
+        const forwardedIp = req.ips.find((ip) => typeof ip === 'string' && ip.trim());
+        if (forwardedIp) return forwardedIp.trim();
+    }
+
+    const forwardedFor = typeof req?.headers?.['x-forwarded-for'] === 'string'
+        ? req.headers['x-forwarded-for'].split(',').map((ip) => ip.trim()).find(Boolean)
+        : '';
+    if (forwardedFor) return forwardedFor;
+
+    const realIp = typeof req?.headers?.['x-real-ip'] === 'string' ? req.headers['x-real-ip'].trim() : '';
+    if (realIp) return realIp;
+
+    const socketIp = typeof req?.socket?.remoteAddress === 'string' ? req.socket.remoteAddress.trim() : '';
+    if (socketIp) return socketIp;
+
+    const connectionIp = typeof req?.connection?.remoteAddress === 'string' ? req.connection.remoteAddress.trim() : '';
+    if (connectionIp) return connectionIp;
+
+    return 'unknown';
+}
+
+function rateLimitKeyGenerator(req) {
+    const clientIp = getClientIpAddress(req);
+    if (clientIp !== 'unknown') return ipKeyGenerator(clientIp, 56);
+
+    // Keep unknown-IP requests isolated enough to avoid broad collateral limits.
+    const ua = typeof req?.headers?.['user-agent'] === 'string' ? req.headers['user-agent'] : 'unknown-ua';
+    const method = typeof req?.method === 'string' ? req.method : 'UNKNOWN';
+    const route = typeof req?.originalUrl === 'string' ? req.originalUrl : (typeof req?.url === 'string' ? req.url : '/');
+    return `unknown:${method}:${route}:${ua}`;
+}
+
 // TODO: consider splitting lightening ratelimits if you have an account, say an extra allotment per account in addition to normal ones.
 const ratelimitOptions = {
 	standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
 	legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-	ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
+    keyGenerator: rateLimitKeyGenerator,
     message: async function(req, res) {
         const count = req.rateLimit.used;
         const limitWas = req.rateLimit.limit;
+        const clientIp = getClientIpAddress(req);
         if (count-limitWas === 1 || count % 5 === 0) {
             // For the first while, post into discord for every ratelimit request to track abuse and make sure we don't need to lighten limits
             await makeReport(JSON.stringify({
@@ -692,7 +734,7 @@ const ratelimitOptions = {
                     type: "rich",
                     title: "Ratelimit Triggered",
                     description: 
-                        `Triggered by IP: ${req.ip}\n` + // This is here for better protection, and so we can block people, and check if it's a VPN first.
+                        `Triggered by IP: ${clientIp}\n` + // This is here for better protection, and so we can block people, and check if it's a VPN first.
                         `Endpoint: ${req.originalUrl}\n` +
                         `Method: ${req.method}\n` +
                         `User Agent: ${req.headers['user-agent']}\n` +

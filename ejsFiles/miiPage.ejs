@@ -816,7 +816,7 @@
                                         <% const relatedMiiAttribution = getMiiAttribution(relatedMii); %>
                                         <article class="related-mii-card" style="--favorite-color: <%= decodeColor(relatedMii.general?.favoriteColor) || decodeColor(0) %>;">
                                             <a class="related-mii-image" href="/mii/<%= relatedMii.id %>">
-                                                <img src="/miiImgs/<%= relatedMii.id %>.png" alt="<%= relatedMii.meta?.name || relatedMii.name %> Mii character">
+                                                <img src="/miiImgs/<%= relatedMii.id %>.png" alt="<%= relatedMii.meta?.name || relatedMii.name %> Mii character" width="256" height="256" loading="lazy" decoding="async" fetchpriority="low">
                                             </a>
                                             <div class="related-mii-body">
                                                 <h3><a href="/mii/<%= relatedMii.id %>"><%= relatedMii.meta?.name || relatedMii.name %></a></h3>

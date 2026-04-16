@@ -28,7 +28,7 @@
             const highlightedHasLikedMii = highlightedUserVotedFor.includes(highlightedMii) || highlightedIsLikeLocked;
             const highlightedAttribution = getMiiAttribution(highlightedMiiData);
         %>
-        <a href='/mii/<%= highlightedMii %>'><img src="/miiImgs/<%= highlightedMii %>.png" alt="<%= highlightedMiiData.name %> Mii: <%= highlightedMiiData.description %>"></a>
+        <a href='/mii/<%= highlightedMii %>'><img src="/miiImgs/<%= highlightedMii %>.png" alt="<%= highlightedMiiData.name %> Mii: <%= highlightedMiiData.description %>" width="256" height="256" loading="eager" decoding="async" fetchpriority="high"></a>
         <div class="flex">
             <div>
                 <h3><%= highlightedMiiData.meta.name %></h3>
@@ -63,7 +63,7 @@
     </div>
     <div class="mii-card" style="--favorite-color: <%= averageMiiData ? decodeColor(averageMiiData.general?.favoriteColor) || decodeColor(0) : decodeColor(0) %>;">
         <% if (averageMiiData) { %>
-        <a href='/mii/average'><img src="/miiImgs/average.png?v=<%= encodeURIComponent(averageMiiData.updatedAt ? new Date(averageMiiData.updatedAt).getTime() : (averageMiiData.uploadedOn || Date.now())) %>" alt="The average face of all Miis in the InfiniMii database."></a>
+        <a href='/mii/average'><img src="/miiImgs/average.png?v=<%= encodeURIComponent(averageMiiData.updatedAt ? new Date(averageMiiData.updatedAt).getTime() : (averageMiiData.uploadedOn || Date.now())) %>" alt="The average face of all Miis in the InfiniMii database." width="256" height="256" loading="eager" decoding="async" fetchpriority="high"></a>
         <div class="flex">
             <div>
                 <h3><%= averageMiiData.general.gender>0?"Jane":"John" %> Doe</h3>
