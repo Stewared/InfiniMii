@@ -43,6 +43,8 @@
         const modifiedTime = pageUpdatedAt || publishedTime;
         const pageRobots = isPrivate ? 'noindex, nofollow, noarchive' : undefined;
         const schemaType = 'ItemPage';
+        const canChangeMiiId = Boolean(isModerator && mii.id !== 'average');
+        const canSetMiiIdDirectly = Boolean(isAdmin && mii.id !== 'average');
         const breadcrumbs = [
             { name: 'Home', url: '/' },
             { name: mii.official ? 'Official Miis' : 'Community Miis', url: mii.official ? '/official' : '/top' },
@@ -118,7 +120,22 @@
                 <!-- Card Header -->
                 <header class="id-card-header">
                     <h2 itemprop="name">Mii ID Card</h2>
-                    <div class="card-number" role="button" tabindex="0" onclick="copyMiiId(this, '<%= mii.id %>')" aria-label="Copy Mii ID">ID: <%= mii.id %></div>
+                    <div class="id-card-header-tools">
+                        <div class="card-number" role="button" tabindex="0" onclick="copyMiiId(this, '<%= mii.id %>')" aria-label="Copy Mii ID">ID: <%= mii.id %></div>
+                        <% if (canChangeMiiId) { %>
+                            <button
+                                type="button"
+                                id="headerRegenerateMiiIdButton"
+                                class="mii-id-refresh-button"
+                                onclick="regenerateMiiId(this)"
+                                aria-label="Generate a new Mii ID"
+                                title="Generate a new Mii ID"
+                            >
+                                <%- include('icon', { name: 'refresh', size: 16 }) %>
+                                <span>New ID</span>
+                            </button>
+                        <% } %>
+                    </div>
                 </header>
 
                 <!-- Main Card Body -->
@@ -875,6 +892,15 @@
                                     <input type="text" id="editUploader" value="<%= mii.uploader %>" placeholder="Username">
                                 </div>
 
+                                <% if (canSetMiiIdDirectly) { %>
+                                <div class="mod-tool-item">
+                                    <label>Set Mii ID Directly:</label>
+                                    <input type="text" id="directMiiIdInput" value="<%= mii.id %>" placeholder="New Mii ID" maxlength="10" inputmode="text" autocomplete="off" spellcheck="false">
+                                    <p class="mod-tag-hint mod-id-hint">Admins only. Use 10 alphanumeric characters or fewer.</p>
+                                    <button type="button" id="setMiiIdButton" onclick="setMiiIdDirectly()"><%- include('icon', { name: 'check', size: 16 }) %> Set Mii ID</button>
+                                </div>
+                                <% } %>
+
                                 <!-- Edit Tags -->
                                 <div class="mod-tool-item mod-tag-selector">
                                     <label>Mii Tags:</label>
@@ -1535,6 +1561,84 @@
         <!--Moderator Tools Functions - Because EJS runs server side, and the client only sees the result of the compilation, this prevents unnecessary JS from loading that doesn't need to be sent-->
         <% if (isModerator) { %>
             <script>
+                async function submitMiiIdChange(payload, button, successMessage) {
+                    const targetButton = button instanceof HTMLElement
+                        ? button
+                        : document.getElementById('headerRegenerateMiiIdButton');
+
+                    setSaveButtonBusy(targetButton, true);
+
+                    try {
+                        const response = await fetch('/changeMiiId', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                miiId: '<%= mii.id %>',
+                                ...payload
+                            })
+                        });
+                        const result = await response.json();
+
+                        if (result.error) {
+                            showAlert(`Error: ${result.error}`, 6000, { title: 'Error', type: 'error' });
+                            return;
+                        }
+
+                        showAlert(`${successMessage} New ID: ${result.newId}`, 3500, { title: 'Success', type: 'success' });
+                        const redirectTarget = typeof getSafeClientRedirectTarget === 'function'
+                            ? getSafeClientRedirectTarget(result.redirect, `/mii/${encodeURIComponent(result.newId || '')}`)
+                            : (result.redirect || `/mii/${encodeURIComponent(result.newId || '')}`);
+
+                        setTimeout(() => {
+                            window.location.href = redirectTarget;
+                        }, 1200);
+                    } catch (error) {
+                        console.error('Error changing Mii ID:', error);
+                        showAlert('Failed to change Mii ID', 6000, { title: 'Error', type: 'error' });
+                    } finally {
+                        setSaveButtonBusy(targetButton, false);
+                    }
+                }
+
+                async function regenerateMiiId(button = null) {
+                    showConfirm(
+                        'Generate a brand new ID for this Mii? Every stored reference will be updated automatically.',
+                        async () => {
+                            await submitMiiIdChange({}, button, 'Mii ID regenerated.');
+                        },
+                        null,
+                        { title: 'Generate New Mii ID', confirmText: 'Generate' }
+                    );
+                }
+
+                async function setMiiIdDirectly() {
+                    const input = document.getElementById('directMiiIdInput');
+                    const button = document.getElementById('setMiiIdButton');
+                    const newId = (input?.value || '').trim();
+
+                    if (!newId) {
+                        showAlert('Enter a new Mii ID first.', 5000, { title: 'Error', type: 'error' });
+                        return;
+                    }
+                    if (!/^[A-Za-z0-9]{1,10}$/.test(newId)) {
+                        showAlert('Mii IDs must be alphanumeric and 10 characters or fewer.', 5000, { title: 'Error', type: 'error' });
+                        return;
+                    }
+                    if (newId === '<%= mii.id %>') {
+                        showAlert('That is already the current Mii ID.', 4000, { title: 'Notice' });
+                        return;
+                    }
+
+                    showConfirm(
+                        `Set this Mii ID to "${newId}"? Every stored reference will be updated automatically.`,
+                        async () => {
+                            await submitMiiIdChange({ newId }, button, 'Mii ID updated.');
+                        },
+                        null,
+                        { title: 'Set Mii ID', confirmText: 'Set ID' }
+                    );
+                }
+
                 async function blockMiiFromPublishing() {
                     const reason = prompt('Enter reason for blocking (optional):');
                     if (reason === null) return; // User cancelled

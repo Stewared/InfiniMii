@@ -34,7 +34,7 @@
 <% if (showTagManagement && isModerator) { %>
     <section class="tag-management-panel" id="<%= panelPrefix %>-tag-management" aria-label="Manage tags">
         <h3 class="tag-management-title">Tag Management</h3>
-        <p class="tag-management-help">Create or remove global tags. Removing a tag also removes it from all Miis.</p>
+        <p class="tag-management-help">Create, rename, or remove global tags. Removing a tag also removes it from all Miis.</p>
 
         <div class="tag-management-actions">
             <label class="sr-only" for="<%= panelPrefix %>-new-tag">New tag name</label>
@@ -50,10 +50,29 @@
 
         <% if (safeAvailableTags.length > 0) { %>
             <div class="tag-admin-list">
-                <% safeAvailableTags.forEach(tag => { %>
-                    <div class="tag-admin-item">
-                        <span class="tag-admin-name"><%= tag %></span>
-                        <button type="button" class="tag-admin-delete" data-tag-delete="<%= tag %>">Delete</button>
+                <% safeAvailableTags.forEach((tag, index) => { %>
+                    <div class="tag-admin-item" data-tag-item data-tag-original="<%= tag %>">
+                        <div class="tag-admin-display">
+                            <span class="tag-admin-name" data-tag-name><%= tag %></span>
+                            <div class="tag-admin-actions">
+                                <button type="button" class="tag-admin-edit" data-tag-edit="<%= tag %>">Edit</button>
+                                <button type="button" class="tag-admin-delete" data-tag-delete="<%= tag %>">Delete</button>
+                            </div>
+                        </div>
+                        <div class="tag-admin-editor" data-tag-editor hidden>
+                            <label class="sr-only" for="<%= panelPrefix %>-edit-tag-<%= index %>">Rename tag</label>
+                            <input
+                                type="text"
+                                id="<%= panelPrefix %>-edit-tag-<%= index %>"
+                                data-tag-edit-input
+                                value="<%= tag %>"
+                                maxlength="40"
+                            >
+                            <div class="tag-admin-editor-actions">
+                                <button type="button" class="tag-admin-save" data-tag-save>Save</button>
+                                <button type="button" class="tag-admin-cancel" data-tag-cancel>Cancel</button>
+                            </div>
+                        </div>
                     </div>
                 <% }) %>
             </div>
@@ -69,6 +88,7 @@
 
             const input = root.querySelector('[data-tag-new-input]');
             const addButton = root.querySelector('[data-tag-add]');
+            const getTagItem = (target) => target?.closest?.('[data-tag-item]') || null;
 
             const showMessage = (message, type = 'info') => {
                 if (typeof showAlert === 'function') {
@@ -77,6 +97,50 @@
                     return;
                 }
                 alert(message);
+            };
+
+            const closeEditor = (item, resetValue = true) => {
+                if (!item) return;
+
+                const editor = item.querySelector('[data-tag-editor]');
+                const inputField = item.querySelector('[data-tag-edit-input]');
+                const originalTag = item.getAttribute('data-tag-original') || '';
+
+                item.classList.remove('is-editing');
+                if (editor) {
+                    editor.hidden = true;
+                }
+                if (resetValue && inputField) {
+                    inputField.value = originalTag;
+                }
+            };
+
+            const closeAllEditors = (exceptItem = null) => {
+                root.querySelectorAll('[data-tag-item]').forEach((item) => {
+                    if (item !== exceptItem) {
+                        closeEditor(item);
+                    }
+                });
+            };
+
+            const openEditor = (item) => {
+                if (!item) return;
+
+                closeAllEditors(item);
+
+                const editor = item.querySelector('[data-tag-editor]');
+                const inputField = item.querySelector('[data-tag-edit-input]');
+                const originalTag = item.getAttribute('data-tag-original') || '';
+
+                item.classList.add('is-editing');
+                if (editor) {
+                    editor.hidden = false;
+                }
+                if (inputField) {
+                    inputField.value = originalTag;
+                    inputField.focus();
+                    inputField.select();
+                }
             };
 
             const addTag = async () => {
@@ -104,6 +168,40 @@
                 } catch (error) {
                     console.error('Error adding tag:', error);
                     showMessage('Failed to create tag.', 'error');
+                }
+            };
+
+            const renameTag = async (item) => {
+                if (!item) return;
+
+                const oldTag = item.getAttribute('data-tag-original') || '';
+                const inputField = item.querySelector('[data-tag-edit-input]');
+                const newTag = (inputField?.value || '').trim();
+
+                if (!oldTag) return;
+                if (!newTag) {
+                    showMessage('Please enter a tag name.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/renameMiiTag', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ oldTag, newTag })
+                    });
+                    const result = await response.json();
+
+                    if (result.error) {
+                        showMessage(result.error, 'error');
+                        return;
+                    }
+
+                    showMessage('Tag updated.', 'success');
+                    setTimeout(() => location.reload(), 650);
+                } catch (error) {
+                    console.error('Error renaming tag:', error);
+                    showMessage('Failed to update tag.', 'error');
                 }
             };
 
@@ -156,11 +254,48 @@
             });
 
             root.addEventListener('click', async (event) => {
+                const editButton = event.target.closest('[data-tag-edit]');
+                if (editButton) {
+                    openEditor(getTagItem(editButton));
+                    return;
+                }
+
+                const saveButton = event.target.closest('[data-tag-save]');
+                if (saveButton) {
+                    await renameTag(getTagItem(saveButton));
+                    return;
+                }
+
+                const cancelButton = event.target.closest('[data-tag-cancel]');
+                if (cancelButton) {
+                    closeEditor(getTagItem(cancelButton));
+                    return;
+                }
+
                 const deleteButton = event.target.closest('[data-tag-delete]');
                 if (!deleteButton) return;
 
                 const tag = deleteButton.getAttribute('data-tag-delete') || '';
                 await deleteTag(tag);
+            });
+
+            root.addEventListener('keydown', async (event) => {
+                const inputField = event.target.closest('[data-tag-edit-input]');
+                if (!inputField) return;
+
+                const item = getTagItem(inputField);
+                if (!item) return;
+
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    await renameTag(item);
+                    return;
+                }
+
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeEditor(item);
+                }
             });
         })();
     </script>

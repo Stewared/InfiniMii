@@ -32,6 +32,14 @@
     letter-spacing: 2px;
 }
 
+.id-card-header-tools {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
 .card-number {
     font-family: 'Courier New', monospace;
     font-size: 16px;
@@ -46,6 +54,31 @@
     transition:0.5s;
     background: rgba(255, 255, 255, 0.5);
     cursor:pointer;
+}
+
+.mii-id-refresh-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 8px;
+    background: rgba(17, 18, 28, 0.2);
+    color: #fff;
+    padding: 0.55rem 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.mii-id-refresh-button:hover,
+.mii-id-refresh-button:focus-visible {
+    background: rgba(17, 18, 28, 0.34);
+    border-color: rgba(255, 255, 255, 0.55);
+    transform: translateY(-1px);
+}
+
+.mii-id-refresh-button .icon {
+    flex-shrink: 0;
 }
 
 /* Card Body */
@@ -860,6 +893,11 @@
         text-align: center;
     }
 
+    .id-card-header-tools {
+        width: 100%;
+        justify-content: center;
+    }
+
     .id-card-body {
         padding: 1.5rem;
     }
@@ -919,6 +957,11 @@
 
     .card-number {
         font-size: 14px;
+    }
+
+    .mii-id-refresh-button {
+        width: 100%;
+        justify-content: center;
     }
 
     .mii-name {
@@ -1407,6 +1450,10 @@
     color: var(--text-2);
     font-size: 0.82rem;
     line-height: 1.4;
+}
+
+.mod-id-hint {
+    margin-top: -0.15rem;
 }
 
 .mod-tag-empty {

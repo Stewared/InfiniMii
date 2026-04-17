@@ -192,8 +192,10 @@ const MII_CHILD_STAGE_LABELS = [
     "Adult"
 ];
 const DEFAULT_USER_PFP_MII_ID = "QfK19";
+const BLANK_MII_ID = "00000";
 const INSTRUCTION_CONSOLE_VALUES = new Set(["DS", "WII", "3DS", "WIIU", "SWITCH", "SWITCH2"]);
 const MAX_MII_TAG_LENGTH = 40;
+const MAX_MANUAL_MII_ID_LENGTH = 10;
 const MAX_COMPANY_SOURCE_NAME_LENGTH = 15;
 const DEFAULT_OFFICIAL_COMPANY_SOURCE = "Nintendo";
 const AVERAGE_MII_EXCLUDED_TAGS = ["Face Art"];
@@ -2491,6 +2493,288 @@ async function moveMiiAssets(miiId, fromPrivate, toPrivate) {
     }
 
     return { movedImage, movedQr, ...destinationPaths };
+}
+
+function escapeRegExp(value) {
+    return String(value ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function buildExactCaseInsensitiveRegex(value) {
+    return new RegExp(`^${escapeRegExp(String(value ?? "").trim())}$`, "i");
+}
+
+function normalizeMiiIdInput(rawId) {
+    return typeof rawId === "string" ? rawId.trim() : "";
+}
+
+function isProtectedMiiId(miiId) {
+    return normalizeMiiIdInput(miiId).toLowerCase() === "average";
+}
+
+function isValidManualMiiId(miiId) {
+    const normalizedId = normalizeMiiIdInput(miiId);
+    return Boolean(
+        normalizedId &&
+        normalizedId.length <= MAX_MANUAL_MII_ID_LENGTH &&
+        /^[A-Za-z0-9]+$/.test(normalizedId) &&
+        !isProtectedMiiId(normalizedId)
+    );
+}
+
+function replaceArrayValueUnique(values, oldValue, newValue) {
+    const previousValue = normalizeMiiIdInput(oldValue);
+    const nextValue = normalizeMiiIdInput(newValue);
+    const seen = new Set();
+    const nextValues = [];
+
+    for (const rawValue of Array.isArray(values) ? values : []) {
+        const normalized = normalizeMiiIdInput(rawValue);
+        const candidate = normalized === previousValue ? nextValue : normalized;
+        if (!candidate || seen.has(candidate)) continue;
+        seen.add(candidate);
+        nextValues.push(candidate);
+    }
+
+    return nextValues;
+}
+
+function removeArrayValues(values, valuesToRemove) {
+    const blockedValues = valuesToRemove instanceof Set
+        ? valuesToRemove
+        : new Set((Array.isArray(valuesToRemove) ? valuesToRemove : [valuesToRemove]).map(normalizeMiiIdInput).filter(Boolean));
+
+    const seen = new Set();
+    const nextValues = [];
+
+    for (const rawValue of Array.isArray(values) ? values : []) {
+        const normalized = normalizeMiiIdInput(rawValue);
+        if (!normalized || blockedValues.has(normalized) || seen.has(normalized)) continue;
+        seen.add(normalized);
+        nextValues.push(normalized);
+    }
+
+    return nextValues;
+}
+
+async function renameMiiAssets(oldId, newId, isPrivate) {
+    const sourcePaths = getMiiAssetPaths(oldId, isPrivate);
+    const destinationPaths = getMiiAssetPaths(newId, isPrivate);
+
+    if (fs.existsSync(sourcePaths.imgPath)) {
+        try { await fs.promises.unlink(destinationPaths.imgPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.imgPath, destinationPaths.imgPath);
+    }
+
+    if (fs.existsSync(sourcePaths.qrPath)) {
+        try { await fs.promises.unlink(destinationPaths.qrPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.qrPath, destinationPaths.qrPath);
+    }
+
+    return destinationPaths;
+}
+
+async function ensureStoredMiiAssets(mii) {
+    if (!mii?.id) return;
+
+    const { imgPath, qrPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
+
+    if (!fs.existsSync(imgPath)) {
+        const renderedImage = await miijs.renderMii(mii);
+        await fs.promises.writeFile(imgPath, renderedImage);
+    }
+
+    if (!fs.existsSync(qrPath)) {
+        await writeQrPng(mii, qrPath);
+    }
+}
+
+async function replaceStoredMiiIdReferences(oldId, newId) {
+    const previousId = normalizeMiiIdInput(oldId);
+    const nextId = normalizeMiiIdInput(newId);
+
+    if (!previousId || !nextId || previousId === nextId) {
+        return {
+            updatedVoteUsers: 0,
+            updatedPfpUsers: 0,
+            settingsUpdated: false
+        };
+    }
+
+    const usersWithVotes = await Users.find({ votedFor: previousId })
+        .select("username votedFor")
+        .lean();
+
+    const voteOps = usersWithVotes
+        .map((user) => {
+            const nextVotes = replaceArrayValueUnique(user.votedFor, previousId, nextId);
+            if (JSON.stringify(nextVotes) === JSON.stringify(Array.isArray(user.votedFor) ? user.votedFor : [])) {
+                return null;
+            }
+            return {
+                updateOne: {
+                    filter: { username: user.username },
+                    update: { $set: { votedFor: nextVotes } }
+                }
+            };
+        })
+        .filter(Boolean);
+
+    if (voteOps.length > 0) {
+        await Users.bulkWrite(voteOps);
+    }
+
+    const pfpUpdateResult = await Users.updateMany(
+        { miiPfp: previousId },
+        { $set: { miiPfp: nextId } }
+    );
+
+    const settings = await getSettings();
+    const settingsUpdates = {};
+
+    if (normalizeMiiIdInput(settings?.highlightedMii) === previousId) {
+        settingsUpdates.highlightedMii = nextId;
+    }
+
+    if (normalizeMiiIdInput(settings?.defaultUserPfpMii) === previousId) {
+        settingsUpdates.defaultUserPfpMii = nextId;
+    }
+
+    if (Object.keys(settingsUpdates).length > 0) {
+        await updateSettings(settingsUpdates);
+    }
+
+    return {
+        updatedVoteUsers: voteOps.length,
+        updatedPfpUsers: pfpUpdateResult?.modifiedCount || 0,
+        settingsUpdated: Object.keys(settingsUpdates).length > 0
+    };
+}
+
+async function cleanupDeletedMiiReferences(rawMiiIds, { fallbackProfileMiiId = BLANK_MII_ID } = {}) {
+    const deletedIds = [...new Set(
+        (Array.isArray(rawMiiIds) ? rawMiiIds : [rawMiiIds])
+            .map(normalizeMiiIdInput)
+            .filter(Boolean)
+    )];
+
+    if (deletedIds.length === 0) {
+        return {
+            updatedVoteUsers: 0,
+            updatedPfpUsers: 0,
+            settingsUpdated: false
+        };
+    }
+
+    const deletedIdSet = new Set(deletedIds);
+    const usersWithVotes = await Users.find({ votedFor: { $in: deletedIds } })
+        .select("username votedFor")
+        .lean();
+
+    const voteOps = usersWithVotes
+        .map((user) => {
+            const nextVotes = removeArrayValues(user.votedFor, deletedIdSet);
+            if (JSON.stringify(nextVotes) === JSON.stringify(Array.isArray(user.votedFor) ? user.votedFor : [])) {
+                return null;
+            }
+            return {
+                updateOne: {
+                    filter: { username: user.username },
+                    update: { $set: { votedFor: nextVotes } }
+                }
+            };
+        })
+        .filter(Boolean);
+
+    if (voteOps.length > 0) {
+        await Users.bulkWrite(voteOps);
+    }
+
+    const pfpUpdateResult = await Users.updateMany(
+        { miiPfp: { $in: deletedIds } },
+        { $set: { miiPfp: fallbackProfileMiiId } }
+    );
+
+    const settings = await getSettings();
+    const settingsUpdates = {};
+
+    if (deletedIdSet.has(normalizeMiiIdInput(settings?.highlightedMii))) {
+        settingsUpdates.highlightedMii = fallbackProfileMiiId;
+    }
+
+    if (deletedIdSet.has(normalizeMiiIdInput(settings?.defaultUserPfpMii))) {
+        settingsUpdates.defaultUserPfpMii = fallbackProfileMiiId;
+    }
+
+    if (Object.keys(settingsUpdates).length > 0) {
+        await updateSettings(settingsUpdates);
+    }
+
+    return {
+        updatedVoteUsers: voteOps.length,
+        updatedPfpUsers: pfpUpdateResult?.modifiedCount || 0,
+        settingsUpdated: Object.keys(settingsUpdates).length > 0
+    };
+}
+
+async function updateStoredMiiId(mii, newId) {
+    const previousId = normalizeMiiIdInput(mii?.id);
+    const nextId = normalizeMiiIdInput(newId);
+
+    if (!previousId || !nextId) {
+        throw new Error("Missing Mii ID");
+    }
+    if (previousId === nextId) {
+        throw new Error("New Mii ID matches the current ID");
+    }
+
+    const updatedMii = await Miis.findOneAndUpdate(
+        { id: previousId },
+        { $set: { id: nextId } },
+        { new: true, lean: true }
+    );
+
+    if (!updatedMii) {
+        throw new Error("Mii not found");
+    }
+
+    await renameMiiAssets(previousId, nextId, Boolean(mii?.private));
+    await replaceStoredMiiIdReferences(previousId, nextId);
+    await ensureStoredMiiAssets(updatedMii);
+
+    return updatedMii;
+}
+
+async function deleteStoredMiisAndCleanup(miis, options = {}) {
+    const items = (Array.isArray(miis) ? miis : [miis])
+        .filter((mii) => mii && normalizeMiiIdInput(mii.id))
+        .map((mii) => ({
+            id: normalizeMiiIdInput(mii.id),
+            private: Boolean(mii.private)
+        }));
+
+    const uniqueMiis = items.filter(
+        (mii, index) => items.findIndex((candidate) => candidate.id === mii.id) === index
+    );
+
+    const deletedIds = uniqueMiis.map((mii) => mii.id);
+    if (deletedIds.length === 0) {
+        return {
+            deletedIds: [],
+            deletedCount: 0
+        };
+    }
+
+    for (const mii of uniqueMiis) {
+        deleteMiiAssets(mii.id, mii.private);
+    }
+
+    await Miis.deleteMany({ id: { $in: deletedIds } });
+    await cleanupDeletedMiiReferences(deletedIds, options);
+
+    return {
+        deletedIds,
+        deletedCount: deletedIds.length
+    };
 }
 
 function isVPN(ip) {
@@ -5304,9 +5588,8 @@ site.post('/deleteMii', async (req, res) => { // TODO: csrf here, make post
             }]
         }), attachments);
 
-        // Delete from database and filesystem
-        await Miis.findOneAndDelete({ id: miiId });
-        deleteMiiAssets(mii.id, mii.private);
+        // Delete from database, assets, and stored references
+        await deleteStoredMiisAndCleanup([mii]);
 
         const redirect = mii.private ? "/myPrivateMiis" : `/user/${encodeURIComponent(mii.uploader)}`;
         res.json({ okay: true, redirect });
@@ -5459,6 +5742,106 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
         res.json({ okay: true });
     } catch (e) {
         console.error('Error updating Mii field:', e);
+        res.json({ error: 'Server error' });
+    }
+});
+// Change Mii ID (Moderator+ for generated IDs, Admin for manual IDs)
+site.post('/changeMiiId', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
+    try {
+        const currentId = normalizeMiiIdInput(req.body?.miiId || req.body?.id);
+        const requestedNewId = normalizeMiiIdInput(req.body?.newId);
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+
+        if (!currentId) {
+            return res.json({ error: 'Mii ID required' });
+        }
+        if (isProtectedMiiId(currentId)) {
+            return res.json({ error: 'This Mii ID cannot be changed' });
+        }
+
+        const mii = await getMiiById(currentId, true);
+        if (!mii) {
+            return res.json({ error: 'Mii not found' });
+        }
+
+        let nextId = requestedNewId;
+        let changeMode = 'generated';
+
+        if (requestedNewId) {
+            if (!isAdmin(req.user)) {
+                return res.json({ error: 'Only administrators can set a Mii ID directly' });
+            }
+            if (!isValidManualMiiId(requestedNewId)) {
+                return res.json({ error: `Custom Mii IDs must be alphanumeric and ${MAX_MANUAL_MII_ID_LENGTH} characters or fewer` });
+            }
+            if (soundsBad(requestedNewId)) {
+                return res.json({ error: 'That Mii ID is not allowed' });
+            }
+            changeMode = 'direct';
+        } else {
+            nextId = await genId();
+        }
+
+        if (nextId === currentId) {
+            return res.json({ error: 'New Mii ID matches the current ID' });
+        }
+
+        const idInUse = await Miis.exists({ id: nextId });
+        if (idInUse) {
+            return res.json({ error: 'That Mii ID is already in use' });
+        }
+
+        const updatedMii = await updateStoredMiiId(mii, nextId);
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                type: 'rich',
+                title: changeMode === 'direct' ? 'Mii ID Set Directly' : 'Mii ID Regenerated',
+                description: `${isAdmin(req.user) ? 'Administrator' : 'Moderator'} ${req.cookies.username} changed a Mii ID`,
+                color: 0x00CCFF,
+                fields: [
+                    {
+                        name: 'Mii',
+                        value: `[${updatedMii.meta?.name || 'Unknown'}](https://infinimii.com/mii/${updatedMii.id})`,
+                        inline: true
+                    },
+                    {
+                        name: 'Old ID',
+                        value: currentId,
+                        inline: true
+                    },
+                    {
+                        name: 'New ID',
+                        value: updatedMii.id,
+                        inline: true
+                    },
+                    {
+                        name: 'Mode',
+                        value: changeMode === 'direct' ? 'Direct Set' : 'Generated',
+                        inline: true
+                    }
+                ],
+                thumbnail: {
+                    url: `https://infinimii.com/miiImgs/${updatedMii.id}.png`
+                }
+            }]
+        }));
+
+        const redirect = `/mii/${encodeURIComponent(updatedMii.id)}`;
+        res.json({ okay: true, newId: updatedMii.id, redirect });
+
+        if (!mii.private && mii.published !== false) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedMii, {
+                    extraUrls: [getMiiPageUrl(resolvedBaseUrl, currentId)],
+                    includeOfficialListing: Boolean(updatedMii.official)
+                }),
+                resolvedBaseUrl,
+                changeMode === 'direct' ? 'set-mii-id' : 'regenerate-mii-id'
+            );
+        }
+    } catch (e) {
+        console.error('Error changing Mii ID:', e);
         res.json({ error: 'Server error' });
     }
 });
@@ -5721,16 +6104,9 @@ site.post('/permBanUser', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (
             await updateSettings({ $addToSet: { bannedIPs: { $each: storedIpHashes } } });
         }
 
-        // Delete all user's Miis (public + private)
+        // Delete all user's Miis (public + private) and remove stored references
         const userMiis = await Miis.find({ uploader: targetUser.username }).select('id private').lean();
-        for (const mii of userMiis) {
-            try {
-                deleteMiiAssets(mii.id, Boolean(mii.private));
-            } catch (e) {
-                console.error(`Error deleting Mii ${mii.id}:`, e);
-            }
-        }
-        await Miis.deleteMany({ uploader: targetUser.username });
+        await deleteStoredMiisAndCleanup(userMiis);
 
         // Delete user account
         await Users.findOneAndDelete({ username });
@@ -5787,17 +6163,8 @@ site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async
 
         const userMiis = await Miis.find({ uploader: targetUser.username }).select('id private published official uploader').lean();
         const publicUserMiis = userMiis.filter((mii) => !mii.private && mii.published !== false);
-        let deletedCount = 0;
-
-        for (const mii of userMiis) {
-            try {
-                deleteMiiAssets(mii.id, Boolean(mii.private));
-                deletedCount++;
-            } catch (e) {
-                console.error(`Error deleting Mii ${mii.id}:`, e);
-            }
-        }
-        await Miis.deleteMany({ uploader: targetUser.username });
+        const cleanupResult = await deleteStoredMiisAndCleanup(userMiis);
+        const deletedCount = cleanupResult.deletedCount;
 
         makeReport(JSON.stringify({
             embeds: [{
@@ -8135,25 +8502,8 @@ site.post('/deleteAllMyMiis', requireAuth, async (req, res) => {
         const currentUsername = req.user.username;
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const miis = await Miis.find({ uploader: req.user.username, private: false, published: true }).lean();
-        const miiIds = miis.map(m => m.id);
-        let deletedCount = 0;
-
-        for (const miiId of miiIds) {
-            try {
-                const mii = await getMiiById(miiId, false);
-                if (mii) {
-                    // Delete files
-                    try { fs.unlinkSync(`./static/miiImgs/${miiId}.png`); } catch(e) {}
-                    try { fs.unlinkSync(`./static/miiQRs/${miiId}.png`); } catch(e) {}
-                    
-                    // Delete Mii from database
-                    await Miis.deleteOne({ id: miiId });
-                    deletedCount++;
-                }
-            } catch(e) {
-                console.error(`Error deleting Mii ${miiId}:`, e);
-            }
-        }
+        const cleanupResult = await deleteStoredMiisAndCleanup(miis);
+        const deletedCount = cleanupResult.deletedCount;
 
         makeReport(JSON.stringify({
             embeds: [{
@@ -8727,9 +9077,127 @@ site.post('/addMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req, r
     }
 });
 
+// Rename a global Mii tag and update every Mii that uses it (Moderator+)
+site.post('/renameMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
+    try {
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+        const requestedOldTag = normalizeTagValue(req.body?.oldTag);
+        const nextTag = normalizeTagValue(req.body?.newTag);
+
+        if (!requestedOldTag) {
+            return res.json({ error: 'Existing tag name required' });
+        }
+        if (!nextTag) {
+            return res.json({ error: 'New tag name required' });
+        }
+        if (nextTag.includes(',')) {
+            return res.json({ error: 'Tag names cannot include commas' });
+        }
+        if (nextTag.length > MAX_MII_TAG_LENGTH) {
+            return res.json({ error: `Tag names must be ${MAX_MII_TAG_LENGTH} characters or fewer` });
+        }
+
+        const settings = await getSettings();
+        const tags = getMiiTags(settings);
+        const sourceTag = tags.find((tag) => tag.toLowerCase() === requestedOldTag.toLowerCase());
+
+        if (!sourceTag) {
+            return res.json({ error: 'Tag not found' });
+        }
+        if (sourceTag === nextTag) {
+            return res.json({ error: 'No changes submitted' });
+        }
+
+        const tagKeysToRewrite = new Set([sourceTag.toLowerCase(), nextTag.toLowerCase()]);
+        const nextTags = tags
+            .filter((tag) => !tagKeysToRewrite.has(tag.toLowerCase()))
+            .concat(nextTag)
+            .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+        await updateSettings({ miiTags: nextTags });
+
+        const matchingTagRegexes = [...new Set([sourceTag, nextTag].map((tag) => buildExactCaseInsensitiveRegex(tag)))];
+        const affectedMiis = await Miis.find({
+            tags: { $in: matchingTagRegexes }
+        })
+            .select('id tags private published official uploader')
+            .lean();
+
+        const updatedPublicMiis = [];
+        const tagOps = affectedMiis
+            .map((mii) => {
+                const nextAssignedTags = normalizeTagList(
+                    (Array.isArray(mii.tags) ? mii.tags : []).map((tag) => (
+                        tagKeysToRewrite.has(String(tag || '').toLowerCase()) ? nextTag : tag
+                    ))
+                );
+
+                if (JSON.stringify(nextAssignedTags) === JSON.stringify(Array.isArray(mii.tags) ? mii.tags : [])) {
+                    return null;
+                }
+
+                if (!mii.private && mii.published !== false) {
+                    updatedPublicMiis.push({ ...mii, tags: nextAssignedTags });
+                }
+
+                return {
+                    updateOne: {
+                        filter: { id: mii.id },
+                        update: { $set: { tags: nextAssignedTags } }
+                    }
+                };
+            })
+            .filter(Boolean);
+
+        if (tagOps.length > 0) {
+            await Miis.bulkWrite(tagOps);
+        }
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                type: 'rich',
+                title: 'Mii Tag Renamed',
+                description: `${req.cookies.username} edited a Mii tag`,
+                color: 0x00AAFF,
+                fields: [
+                    {
+                        name: 'Old Tag',
+                        value: sourceTag,
+                        inline: true
+                    },
+                    {
+                        name: 'New Tag',
+                        value: nextTag,
+                        inline: true
+                    },
+                    {
+                        name: 'Miis Updated',
+                        value: String(tagOps.length),
+                        inline: true
+                    }
+                ]
+            }]
+        }));
+
+        res.json({ okay: true, tags: nextTags, updatedMiis: tagOps.length });
+
+        if (updatedPublicMiis.length > 0) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedPublicMiis),
+                resolvedBaseUrl,
+                'rename-mii-tag'
+            );
+        }
+    } catch (e) {
+        console.error('Error renaming Mii tag:', e);
+        res.json({ error: 'Server error' });
+    }
+});
+
 // Delete a global Mii tag and remove it from all Miis (Moderator+)
 site.post('/deleteMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const rawTag = typeof req.body?.tag === "string" ? req.body.tag : "";
         const requestedTag = normalizeTagValue(rawTag);
 
@@ -8748,10 +9216,41 @@ site.post('/deleteMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req
         const nextTags = tags.filter(tag => tag.toLowerCase() !== requestedTag.toLowerCase());
         await updateSettings({ miiTags: nextTags });
 
-        const updateResult = await Miis.updateMany(
-            { tags: tagToDelete },
-            { $pull: { tags: tagToDelete } }
-        );
+        const matchingMiis = await Miis.find({
+            tags: buildExactCaseInsensitiveRegex(tagToDelete)
+        })
+            .select('id tags private published official uploader')
+            .lean();
+
+        const updatedPublicMiis = [];
+        const tagOps = matchingMiis
+            .map((mii) => {
+                const nextAssignedTags = normalizeTagList(
+                    (Array.isArray(mii.tags) ? mii.tags : []).filter(
+                        (tag) => String(tag || '').toLowerCase() !== requestedTag.toLowerCase()
+                    )
+                );
+
+                if (JSON.stringify(nextAssignedTags) === JSON.stringify(Array.isArray(mii.tags) ? mii.tags : [])) {
+                    return null;
+                }
+
+                if (!mii.private && mii.published !== false) {
+                    updatedPublicMiis.push({ ...mii, tags: nextAssignedTags });
+                }
+
+                return {
+                    updateOne: {
+                        filter: { id: mii.id },
+                        update: { $set: { tags: nextAssignedTags } }
+                    }
+                };
+            })
+            .filter(Boolean);
+
+        if (tagOps.length > 0) {
+            await Miis.bulkWrite(tagOps);
+        }
 
         makeReport(JSON.stringify({
             embeds: [{
@@ -8767,14 +9266,22 @@ site.post('/deleteMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req
                     },
                     {
                         name: 'Miis Updated',
-                        value: String(updateResult?.modifiedCount || 0),
+                        value: String(tagOps.length),
                         inline: true
                     }
                 ]
             }]
         }));
 
-        res.json({ okay: true, tags: nextTags, updatedMiis: updateResult?.modifiedCount || 0 });
+        res.json({ okay: true, tags: nextTags, updatedMiis: tagOps.length });
+
+        if (updatedPublicMiis.length > 0) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedPublicMiis),
+                resolvedBaseUrl,
+                'delete-mii-tag'
+            );
+        }
     } catch (e) {
         console.error('Error deleting Mii tag:', e);
         res.json({ error: 'Server error' });

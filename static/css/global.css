@@ -953,13 +953,20 @@ footer ul li a:hover {
 
 .tag-admin-item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
     gap: 0.6rem;
     border-radius: 8px;
     border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7b7b7b 42%);
     background: color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%);
     padding: 0.35rem 0.5rem;
+}
+
+.tag-admin-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    width: 100%;
 }
 
 .tag-admin-name {
@@ -968,15 +975,70 @@ footer ul li a:hover {
     font-weight: 500;
 }
 
+.tag-admin-actions,
+.tag-admin-editor-actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.tag-admin-editor {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.tag-admin-editor input[type="text"] {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+}
+
+.tag-admin-edit,
+.tag-admin-save,
+.tag-admin-cancel,
 .tag-admin-delete {
     margin: 0;
     padding: 0.3rem 0.6rem;
     border-radius: 7px;
-    border: 1px solid color-mix(in oklab, #bd5466 62%, #808080 38%);
-    background: color-mix(in oklab, #8a2a3f 58%, var(--layer-2-um) 42%);
     color: #fff;
     font-size: 0.78rem;
     font-weight: 600;
+    cursor: pointer;
+}
+
+.tag-admin-edit {
+    border: 1px solid color-mix(in oklab, #4f8fd1 62%, #808080 38%);
+    background: color-mix(in oklab, #275b92 58%, var(--layer-2-um) 42%);
+}
+
+.tag-admin-edit:hover {
+    background: color-mix(in oklab, #3271b6 62%, var(--layer-2-um) 38%);
+}
+
+.tag-admin-save {
+    border: 1px solid color-mix(in oklab, #57b372 62%, #808080 38%);
+    background: color-mix(in oklab, #2c7f4a 58%, var(--layer-2-um) 42%);
+}
+
+.tag-admin-save:hover {
+    background: color-mix(in oklab, #38995d 62%, var(--layer-2-um) 38%);
+}
+
+.tag-admin-cancel {
+    border: 1px solid color-mix(in oklab, #8c8f98 62%, #808080 38%);
+    background: color-mix(in oklab, #585c67 58%, var(--layer-2-um) 42%);
+}
+
+.tag-admin-cancel:hover {
+    background: color-mix(in oklab, #6a707d 62%, var(--layer-2-um) 38%);
+}
+
+.tag-admin-delete {
+    border: 1px solid color-mix(in oklab, #bd5466 62%, #808080 38%);
+    background: color-mix(in oklab, #8a2a3f 58%, var(--layer-2-um) 42%);
 }
 
 .tag-admin-delete:hover {
@@ -999,6 +1061,24 @@ footer ul li a:hover {
     }
 
     .tag-management-actions button {
+        width: 100%;
+    }
+
+    .tag-admin-display,
+    .tag-admin-editor {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tag-admin-actions,
+    .tag-admin-editor-actions {
+        justify-content: flex-start;
+    }
+
+    .tag-admin-edit,
+    .tag-admin-save,
+    .tag-admin-cancel,
+    .tag-admin-delete {
         width: 100%;
     }
 }
