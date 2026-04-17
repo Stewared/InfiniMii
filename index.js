@@ -3442,6 +3442,13 @@ function getMiiFeedDescription(mii) {
     return `${description} Uploaded by ${uploader}. View, download, scan a QR code, or convert this Mii on InfiniMii.`;
 }
 
+function getMiiFeedDescriptionHtml(mii, imageUrl) {
+    const description = getMiiFeedDescription(mii);
+    const imageAlt = `${getMiiFeedName(mii)} Mii image`;
+
+    return `<img src="${imageUrl}" title="${description}" alt="${imageAlt}" /><br />${description}`;
+}
+
 function getResolvedBaseUrlFromRequest(req) {
     return (baseUrl || `${req.protocol}://${req.get("host")}`).replace(/\/+$/, "");
 }
@@ -3742,7 +3749,7 @@ function generateMiiUploadRssXML(miis, req) {
         xml += `      <guid isPermaLink="true">${escapeXml(itemUrl)}</guid>\n`;
         xml += `      <pubDate>${escapeXml(toRssDate(mii.uploadedOn, lastBuildDate))}</pubDate>\n`;
         xml += `      <dc:creator>${escapeXml(creator)}</dc:creator>\n`;
-        xml += `      <description>${escapeXml(getMiiFeedDescription(mii))}</description>\n`;
+        xml += `      <description>${escapeXml(getMiiFeedDescriptionHtml(mii, imageUrl))}</description>\n`;
         xml += `      <media:thumbnail url="${escapeXml(imageUrl)}" />\n`;
         xml += `      <media:content url="${escapeXml(imageUrl)}" medium="image" type="image/png" />\n`;
 
