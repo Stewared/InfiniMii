@@ -355,6 +355,83 @@ function buildMiiStringFallbackCandidates(input) {
     return candidates;
 }
 
+function isByteArray(value) {
+    return Array.isArray(value) && value.every(byte => Number.isInteger(byte) && byte >= 0 && byte <= 255);
+}
+
+function normalizeMiiInput(input) {
+    if (typeof input === "string") {
+        const trimmed = input.trim();
+        if (!trimmed) return "";
+
+        if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) {
+            try {
+                return normalizeMiiInput(JSON.parse(trimmed));
+            } catch (e) { }
+        }
+
+        return trimmed;
+    }
+
+    if (Array.isArray(input)) {
+        if (isByteArray(input)) {
+            try {
+                return Buffer.from(input);
+            } catch (e) {
+                return input;
+            }
+        }
+
+        for (const item of input) {
+            const normalized = normalizeMiiInput(item);
+            if (normalized !== "" && normalized !== null && normalized !== undefined) {
+                return normalized;
+            }
+        }
+
+        return input;
+    }
+
+    if (Buffer.isBuffer(input) || input instanceof ArrayBuffer) {
+        return input;
+    }
+
+    if (ArrayBuffer.isView(input)) {
+        return Buffer.from(input.buffer, input.byteOffset, input.byteLength);
+    }
+
+    if (!input || typeof input !== "object") {
+        return input;
+    }
+
+    if (typeof input.toJSON === "function") {
+        try {
+            const serialized = input.toJSON();
+            if (serialized && serialized !== input) {
+                return normalizeMiiInput(serialized);
+            }
+        } catch (e) { }
+    }
+
+    if (input.type === "Buffer" && isByteArray(input.data)) {
+        try {
+            return Buffer.from(input.data);
+        } catch (e) {
+            return input;
+        }
+    }
+
+    if (Object.prototype.hasOwnProperty.call(input, "fields") && input.fields && typeof input.fields === "object") {
+        return normalizeMiiInput(input.fields);
+    }
+
+    if (Object.prototype.hasOwnProperty.call(input, "miiData")) {
+        return normalizeMiiInput(input.miiData);
+    }
+
+    return input;
+}
+
 function getExportOptionsFromRequest(req) {
     const source = req.method === "GET" ? req.query : req.body;
     return {
@@ -428,7 +505,8 @@ async function decodeQrImageInput(input) {
 }
 
 async function createMiiData(input, debug) {
-    const parsedInput = isQrImageInput(input) ? await decodeQrImageInput(input) : input;
+    const normalizedInput = normalizeMiiInput(input);
+    const parsedInput = isQrImageInput(normalizedInput) ? await decodeQrImageInput(normalizedInput) : normalizedInput;
     try {
         const mii = await miijs.Mii.create(parsedInput, debug);
         return mii.fields;
@@ -6869,7 +6947,7 @@ site.get('/user/:username', async (req, res) => {
     }
     let inp = await getSendables(req);
     inp.targetUser = targetUser;
-    const selectedProfileSort = req.query.sort === "popular" ? "popular" : "latest";
+    const selectedProfileSort = req.query.sort === "latest" ? "latest" : "popular";
     const requestedPage = Number.parseInt(req.query.page, 10);
     const currentPageCandidate = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 

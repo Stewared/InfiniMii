@@ -31,7 +31,7 @@
             const creatorNames = Array.isArray(profileHighlights?.creatorNames) ? profileHighlights.creatorNames : [];
             const profileFeaturedMiis = Array.isArray(profileHighlights?.featuredMiis) ? profileHighlights.featuredMiis : [];
             const featuredNames = Array.isArray(profileHighlights?.featuredNames) ? profileHighlights.featuredNames : [];
-            const selectedProfileSort = profileSort === 'popular' ? 'popular' : 'latest';
+            const selectedProfileSort = profileSort === 'latest' ? 'latest' : 'popular';
             const currentPageNumber = pagination?.currentPage || 1;
             const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
             const memberSinceLabel = memberSince
@@ -44,14 +44,14 @@
                 ? new Date(firstUploadOn).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
                 : '';
             const canonicalParams = new URLSearchParams();
-            if (selectedProfileSort === 'popular') {
-                canonicalParams.set('sort', 'popular');
+            if (selectedProfileSort === 'latest') {
+                canonicalParams.set('sort', 'latest');
             }
             if (currentPageNumber > 1) {
                 canonicalParams.set('page', String(currentPageNumber));
             }
             const canonicalQuery = canonicalParams.toString();
-            const pageTitle = `${targetUser.username} Mii Profile${selectedProfileSort === 'popular' ? ' - Popular' : ''}${pageSuffix} - InfiniMii`;
+            const pageTitle = `${targetUser.username} Mii Profile${selectedProfileSort === 'latest' ? ' - Latest' : ''}${pageSuffix} - InfiniMii`;
             const profileLead = totalUploaded > 0
                 ? `${targetUser.username} has published ${totalUploaded} public Mii character${totalUploaded === 1 ? '' : 's'} on InfiniMii with ${totalLikes} total likes.`
                 : `${targetUser.username} has a public InfiniMii creator profile.`;
@@ -189,8 +189,8 @@
                     const profileBasePath = '/user/' + encodeURIComponent(targetUser.username);
                     const buildProfilePageUrl = (pageNumber = 1, sortName = selectedProfileSort) => {
                         const params = new URLSearchParams();
-                        if (sortName === 'popular') {
-                            params.set('sort', 'popular');
+                        if (sortName === 'latest') {
+                            params.set('sort', 'latest');
                         }
                         if (pageNumber > 1) {
                             params.set('page', String(pageNumber));
