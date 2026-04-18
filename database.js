@@ -47,6 +47,8 @@ const miiSchema = new mongoose.Schema({
     beard: mongoose.Schema.Types.Mixed,
     glasses: mongoose.Schema.Types.Mixed,
     mole: mongoose.Schema.Types.Mixed,
+    tl: mongoose.Schema.Types.Mixed,
+    mt: mongoose.Schema.Types.Mixed,
     officialCategories: { type: [String], default: [] },
     tags: { type: [String], default: [], index: true },
     published: { type: Boolean, default: false, index: true },

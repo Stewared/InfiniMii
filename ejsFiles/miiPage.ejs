@@ -8,6 +8,15 @@
         const officialSourceLabel = mii.official ? (seo.officialSourceName || officialSourceName || mii.officialSource || mii.uploader || 'Nintendo') : '';
         const categoryDetails = Array.isArray(seo.categoryDetails) ? seo.categoryDetails : [];
         const tagList = Array.isArray(seo.tagList) ? seo.tagList : [];
+        const hasTomodachiLifeData = (() => {
+            const tlData = mii?.tl;
+            if (tlData === null || tlData === undefined) return false;
+            if (typeof tlData !== 'object') return true;
+            return Object.keys(tlData).length > 0;
+        })();
+        const hasTomodachiLifeTag = [...tagList, ...(Array.isArray(mii?.tags) ? mii.tags : [])]
+            .some(tag => String(tag || '').trim().toLowerCase() === 'tomodachi life');
+        const showTomodachiLifeQrTab = hasTomodachiLifeData || hasTomodachiLifeTag;
         const searchTopics = Array.isArray(seo.searchTopicPhrases) ? seo.searchTopicPhrases : [];
         const creatorName = seo.creatorName || '';
         const consoleLabel = seo.consoleLabel || '';
@@ -47,6 +56,7 @@
         const schemaType = 'ItemPage';
         const canChangeMiiId = Boolean(isModerator && mii.id !== 'average');
         const canSetMiiIdDirectly = Boolean(isAdmin && mii.id !== 'average');
+        const canClearTomodachiLifeData = Boolean(isAdmin);
         const breadcrumbs = [
             { name: 'Home', url: '/' },
             { name: mii.official ? 'Official Miis' : 'Community Miis', url: mii.official ? '/official' : '/top' },
@@ -152,7 +162,7 @@
                             height="400"
                             fetchpriority="high">
                         <figcaption class="qr-code">
-                            <div class="qr-preview-window" data-qr-preview data-qr3ds-src="<%= previewQr3dsPath %>" data-qr-wii-src="<%= previewQrWiiPath %>" data-qr-wiiu-src="<%= previewQrWiiPath %>">
+                            <div class="qr-preview-window is-qr-3ds <%= showTomodachiLifeQrTab ? 'has-tomodachi-life-tab' : '' %>" data-qr-preview data-qr3ds-src="<%= previewQr3dsPath %>" data-qr-wii-src="<%= previewQrWiiPath %>" data-qr-wiiu-src="<%= previewQrWiiPath %>">
                                 <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
                                     <button type="button" class="qr-console-tab is-active" data-qr-tab="3DS" role="tab" aria-selected="true" onclick="setQrPreviewConsole(this)">3DS</button>
                                     <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false" onclick="setQrPreviewConsole(this)">Wii U</button>
@@ -171,6 +181,9 @@
                                         data-qr-console="3DS"
                                     >
                                 </a>
+                                <% if(showTomodachiLifeQrTab) { %>
+                                    <div class="qr-tomodachi-life-tab" role="note">Tomodachi Life</div>
+                                <% } %>
                             </div>
                             <form id="miiQrExportForm" method="GET" action="/exportMii" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center;">
                                 <input type="hidden" name="id" value="<%= mii.id %>">
@@ -1094,6 +1107,14 @@
                                     <span id="renderStatus"></span>
                                 </div>
 
+                                <% if(canClearTomodachiLifeData) { %>
+                                <div class="mod-tool-item mod-tool-danger">
+                                    <label>Tomodachi Life Data:</label>
+                                    <p class="mod-tag-hint">Admins only. Removes stored TL metadata if present, removes the Tomodachi Life tag, and regenerates QR previews.</p>
+                                    <button type="button" id="clearTlDataButton" class="danger-btn" onclick="clearMiiTlData()"><%- include('icon', { name: 'trash', size: 16 }) %> Clear TL Data</button>
+                                </div>
+                                <% } %>
+
                                 <!-- Delete Mii -->
                                 <div class="mod-tool-item mod-tool-danger">
                                     <label>Delete Mii:</label>
@@ -1506,6 +1527,9 @@
                 if (!nextSrc) {
                     return false;
                 }
+
+                preview.classList.toggle('is-qr-3ds', normalizedConsole === '3DS');
+                preview.classList.toggle('is-qr-wiiu', normalizedConsole === 'WIIU');
 
                 tabs.forEach((tab) => {
                     const tabConsole = normalizeQrPreviewConsole(tab.dataset.qrTab || '');
@@ -2154,6 +2178,43 @@
                             statusEl.style.color = '#f44336';
                         }
                     }, null, { title: 'Regenerate Render', confirmText: 'Regenerate' });
+                }
+
+                async function clearMiiTlData() {
+                    const button = document.getElementById('clearTlDataButton');
+                    showConfirm(
+                        'Clear stored Tomodachi Life data for this Mii? This also removes the Tomodachi Life tag and regenerates QR previews.',
+                        async () => {
+                            setSaveButtonBusy(button, true);
+                            try {
+                                const response = await fetch('/clearMiiTlData', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ id: '<%= mii.id %>' })
+                                });
+                                const result = await response.json();
+
+                                if (result.error) {
+                                    showAlert(`Error: ${result.error}`, 6000, { title: 'Error', type: 'error' });
+                                    return;
+                                }
+
+                                showAlert(
+                                    result.unchanged ? 'No Tomodachi Life data was stored for this Mii.' : 'Tomodachi Life data cleared.',
+                                    3000,
+                                    { title: result.unchanged ? 'No Changes' : 'Success', type: result.unchanged ? 'info' : 'success' }
+                                );
+                                setTimeout(() => location.reload(), 1000);
+                            } catch (error) {
+                                console.error('Error clearing TL data:', error);
+                                showAlert('Failed to clear Tomodachi Life data', 6000, { title: 'Error', type: 'error' });
+                            } finally {
+                                setSaveButtonBusy(button, false);
+                            }
+                        },
+                        null,
+                        { title: 'Clear TL Data', confirmText: 'Clear TL Data' }
+                    );
                 }
 
                 async function confirmDeleteMii() {

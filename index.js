@@ -201,6 +201,7 @@ const MAX_MANUAL_MII_ID_LENGTH = 10;
 const MAX_COMPANY_SOURCE_NAME_LENGTH = 15;
 const DEFAULT_OFFICIAL_COMPANY_SOURCE = "Nintendo";
 const AVERAGE_MII_EXCLUDED_TAGS = ["Face Art"];
+const TOMODACHI_LIFE_TAG = "Tomodachi Life";
 
 function normalizeExportFormat(input) {
     if (!input) return null;
@@ -2109,6 +2110,58 @@ function normalizeTagList(rawTags) {
     }
 
     return normalized;
+}
+
+function hasDecodedTomodachiLifeData(mii) {
+    const tlData = mii?.tl;
+    if (tlData === null || tlData === undefined) return false;
+    if (typeof tlData !== "object") return true;
+    return Object.keys(tlData).length > 0;
+}
+
+function getTomodachiLifeDisplayValue(value, fallback = "Unknown") {
+    const normalized = String(value ?? "")
+        .replace(/\s+/g, " ")
+        .trim();
+    return normalized || fallback;
+}
+
+function buildTomodachiLifeUploadWebhookFields(mii) {
+    if (!hasDecodedTomodachiLifeData(mii)) return [];
+
+    const tl = mii.tl || {};
+    const firstName = getTomodachiLifeDisplayValue(tl.firstName);
+    const lastName = getTomodachiLifeDisplayValue(tl.lastName);
+    const islandName = getTomodachiLifeDisplayValue(tl.island?.name);
+    const catchphrase = getTomodachiLifeDisplayValue(tl.catchphrase);
+
+    return [{
+        name: "Tomodachi Life",
+        value: truncateText(
+            `In Tomodachi Life, this Mii is named ${firstName} ${lastName}, and comes from ${islandName} Island. Their catchphrase is ${catchphrase}.`,
+            1024
+        ),
+        inline: false
+    }];
+}
+
+async function applyAutomaticDecodedMiiTags(mii) {
+    if (!mii || typeof mii !== "object") return mii;
+    if (!hasDecodedTomodachiLifeData(mii)) return mii;
+
+    const autoTags = [TOMODACHI_LIFE_TAG];
+    const autoTagKeys = new Set(autoTags.map(tag => tag.toLowerCase()));
+    const existingTags = normalizeTagList(mii.tags || []).filter(
+        tag => !autoTagKeys.has(tag.toLowerCase())
+    );
+
+    mii.tags = [...existingTags, ...autoTags];
+    await updateSettings({
+        $addToSet: {
+            miiTags: { $each: autoTags }
+        }
+    });
+    return mii;
 }
 
 function normalizeCompanySourceName(source) {
@@ -4685,6 +4738,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
                         mii.desc = "Uploaded in Bulk";
                         mii.private = false;
                         mii.published = true;
+                        await applyAutomaticDecodedMiiTags(mii);
                         ensureUploadMiiPermissions(mii);
 
                         await Miis.create(mii);
@@ -5341,6 +5395,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
         mii.official = false;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
+        await applyAutomaticDecodedMiiTags(mii);
         ensureUploadMiiPermissions(mii);
 
         const miiImageData = await miijs.renderMii(mii);
@@ -5388,7 +5443,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
                         value: isLegacyNintendoBrowserUserAgent(req.get("user-agent")) ? "Nintendo 3DS / Wii U" : "Unknown",
                         inline: true
                     }
-                ],
+                ].concat(buildTomodachiLifeUploadWebhookFields(mii)),
                 image: {
                     url: `attachment://${mii.id}.png`
                 },
@@ -6002,6 +6057,92 @@ site.post('/regenerateRender', requireAuth, requireRole(ROLES.MODERATOR), async 
     }));
 
     res.json({ okay: true });
+});
+// Clear Tomodachi Life metadata (Admin only)
+site.post('/clearMiiTlData', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (req, res) => {
+    try {
+        const id = normalizeMiiIdInput(req.body?.id || req.body?.miiId);
+        const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+
+        if (!id) {
+            return res.json({ error: 'Mii ID required' });
+        }
+
+        const mii = await getMiiById(id, true);
+        if (!mii) {
+            return res.json({ error: 'Mii not found' });
+        }
+
+        const currentTags = normalizeTagList(mii.tags || []);
+        const nextTags = currentTags.filter(
+            tag => tag.toLowerCase() !== TOMODACHI_LIFE_TAG.toLowerCase()
+        );
+        const hadTlData = hasDecodedTomodachiLifeData(mii);
+        const hadTomodachiLifeTag = nextTags.length !== currentTags.length;
+
+        if (!hadTlData && !hadTomodachiLifeTag) {
+            return res.json({ okay: true, unchanged: true });
+        }
+
+        await Miis.findOneAndUpdate(
+            { id },
+            {
+                $unset: { tl: "" },
+                $set: { tags: nextTags }
+            }
+        );
+
+        const updatedMii = {
+            ...mii,
+            tags: nextTags
+        };
+        delete updatedMii.tl;
+
+        const { qrPath, qrWiiPath } = getMiiAssetPaths(id, Boolean(mii.private));
+        await Promise.all([
+            writeQrPng(updatedMii, qrPath, "3DS"),
+            writeQrPng(updatedMii, qrWiiPath, "WIIU")
+        ]);
+
+        makeReport(JSON.stringify({
+            embeds: [{
+                type: 'rich',
+                title: 'Tomodachi Life Data Cleared',
+                description: `Administrator ${req.cookies.username} cleared Tomodachi Life data from a Mii`,
+                color: 0xF7C02D,
+                fields: [
+                    {
+                        name: 'Mii',
+                        value: `[${mii.meta?.name || "Unknown"}](https://infinimii.com/mii/${id})`,
+                        inline: true
+                    },
+                    {
+                        name: 'Tomodachi Life Tag Removed',
+                        value: hadTomodachiLifeTag ? 'Yes' : 'No',
+                        inline: true
+                    }
+                ],
+                thumbnail: {
+                    url: `https://infinimii.com/${mii.private ? 'privateMiiImgs' : 'miiImgs'}/${id}.png`
+                }
+            }]
+        }));
+
+        res.json({ okay: true });
+
+        if (!mii.private && mii.published !== false) {
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedMii, {
+                    includeOfficialListing: Boolean(updatedMii.official)
+                }),
+                resolvedBaseUrl,
+                'clear-mii-tl-data'
+            );
+        }
+    } catch (e) {
+        console.error('Error clearing Mii TL data:', e);
+        res.json({ error: 'Server error' });
+    }
 });
 // Add Role to User (Admin only)
 site.post('/addUserRole', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (req, res) => {
@@ -6956,6 +7097,7 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
         mii.official = false;
         mii.published = false;
         mii.blockedFromPublishing = false;
+        await applyAutomaticDecodedMiiTags(mii);
         ensureUploadMiiPermissions(mii);
         
         // Store in database as private Mii
@@ -6993,7 +7135,7 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
                         "value": mii.meta?.creatorName || "Unknown",
                         "inline": true
                     }
-                ],
+                ].concat(buildTomodachiLifeUploadWebhookFields(mii)),
                 "image": {
                     "url": `attachment://${newMiiId}.png`
                 },
@@ -8925,6 +9067,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         mii.official = isOfficialUpload;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
+        await applyAutomaticDecodedMiiTags(mii);
         ensureUploadMiiPermissions(mii);
         
         // Save to correct folders
@@ -8959,7 +9102,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                 "title": (isOfficialUpload ? "Official " : "") + `${wantsPublic ? "Public" : "Private"} Mii Uploaded`,
                 "description": mii.desc,
                 "color": 0x00aaff,
-                "fields": isOfficialUpload
+                "fields": (isOfficialUpload
                     ? [
                         {
                             "name": `Mii Name`,
@@ -8998,7 +9141,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                             "value": mii.meta?.creatorName || "Unknown",
                             "inline": true
                         }
-                    ],
+                    ]).concat(buildTomodachiLifeUploadWebhookFields(mii)),
                 "image": {
                     "url": `attachment://${mii.id}.png`
                 },
