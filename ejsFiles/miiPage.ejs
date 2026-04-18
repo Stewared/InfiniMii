@@ -1544,11 +1544,65 @@
                 await saveStagedEditorChanges(changes, button, 'Save Changes');
             }
 
+            let relatedMiiGridLayoutFrame = 0;
+            let relatedMiiGridResizeObserver = null;
+
+            function updateRelatedMiiGridSingleRow() {
+                const relatedGrids = document.querySelectorAll('.related-mii-grid');
+                if (relatedGrids.length === 0) return;
+
+                relatedGrids.forEach((grid) => {
+                    const cards = Array.from(grid.children).filter((child) => child.classList.contains('related-mii-card'));
+                    if (cards.length === 0) return;
+
+                    cards.forEach((card) => {
+                        card.hidden = false;
+                    });
+
+                    const firstRowTop = cards[0].offsetTop;
+                    cards.forEach((card) => {
+                        if (card.offsetTop > firstRowTop + 1) {
+                            card.hidden = true;
+                        }
+                    });
+                });
+            }
+
+            function scheduleRelatedMiiGridSingleRowUpdate() {
+                if (relatedMiiGridLayoutFrame) {
+                    cancelAnimationFrame(relatedMiiGridLayoutFrame);
+                }
+
+                relatedMiiGridLayoutFrame = requestAnimationFrame(() => {
+                    relatedMiiGridLayoutFrame = 0;
+                    updateRelatedMiiGridSingleRow();
+                });
+            }
+
             function initializeMiiPageEditorState() {
                 updateCategoryEditorTriggers();
                 updateOfficialCheckboxLabel();
                 const officialCheckbox = document.getElementById('officialCheckbox');
                 officialCheckbox?.addEventListener('change', updateOfficialCheckboxLabel);
+
+                const hasRelatedMiiGrid = Boolean(document.querySelector('.related-mii-grid'));
+                if (!hasRelatedMiiGrid) {
+                    return;
+                }
+
+                scheduleRelatedMiiGridSingleRowUpdate();
+                window.addEventListener('resize', scheduleRelatedMiiGridSingleRowUpdate, { passive: true });
+                window.addEventListener('load', scheduleRelatedMiiGridSingleRowUpdate, { once: true });
+
+                if (typeof ResizeObserver === 'function' && !relatedMiiGridResizeObserver) {
+                    relatedMiiGridResizeObserver = new ResizeObserver(() => {
+                        scheduleRelatedMiiGridSingleRowUpdate();
+                    });
+
+                    document.querySelectorAll('.related-mii-grid').forEach((grid) => {
+                        relatedMiiGridResizeObserver.observe(grid);
+                    });
+                }
             }
 
             if (document.readyState === 'loading') {

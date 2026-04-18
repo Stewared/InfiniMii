@@ -2045,7 +2045,7 @@ function buildMiiSeoDetails(mii, categoryConfig, options = {}) {
     };
 }
 
-function buildCuratedMiiCollections(collections, limitPerCollection = 4) {
+function buildCuratedMiiCollections(collections, limitPerCollection = 5) {
     const usedIds = new Set();
     const curatedCollections = [];
 
@@ -7292,7 +7292,7 @@ site.get('/mii/:id', async (req, res) => {
             description: "These official archive entries share the same source categories.",
             items: relatedCategoryMiis
         }
-    ], 4);
+    ], 5);
 
     // Override mii color for this page
     inp.userPfpMiiColor = mii.general.favoriteColor;
