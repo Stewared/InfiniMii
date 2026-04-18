@@ -108,8 +108,8 @@ const SEO_KEYWORD_SHORT_TOKENS = new Set([
 
 const EXPORT_FORMAT_LABELS = {
     qr: "QR Code (PNG)",
-    rcd: "Wii RSD (.rcd)",
-    rsd: "Wii RCD (.rsd)",
+    rcd: "Wii RCD (.rcd)",
+    rsd: "Wii RSD (.rsd)",
     ncd: "DS NCD (.ncd)",
     nsd: "DS NSD (.nsd)",
     cfcd: "3DS CFCD (.cfcd)",

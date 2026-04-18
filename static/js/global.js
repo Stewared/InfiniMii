@@ -824,19 +824,23 @@ function bytesToHexString(bytes) {
 }
 
 function updateHeaderBannerShift() {
-    const header = document.querySelector('header');
-    const bannerImage = header?.querySelector?.('.site-banner-image');
-    const signedInAccount = document.querySelector('.account:not(.account-guest)');
+    const header = document.querySelector('.site-header') || document.querySelector('header');
+    const bannerLink = header?.querySelector?.('.site-banner-link');
+    const bannerImage = bannerLink?.querySelector?.('.site-banner-image') || header?.querySelector?.('.site-banner-image');
+    const account = document.querySelector('.account');
 
-    if (!bannerImage) return;
+    if (!bannerLink || !bannerImage) return;
 
-    bannerImage.style.setProperty('--banner-shift-x', '0px');
+    bannerLink.style.setProperty('--banner-shift-x', '0px');
 
-    if (!header || !signedInAccount) return;
+    if (!header || !account || !window.matchMedia('(max-width: 992px)').matches) return;
+
+    const accountStyles = window.getComputedStyle(account);
+    if (accountStyles.display === 'none' || accountStyles.visibility === 'hidden') return;
 
     const headerRect = header.getBoundingClientRect();
     const bannerRect = bannerImage.getBoundingClientRect();
-    const accountRect = signedInAccount.getBoundingClientRect();
+    const accountRect = account.getBoundingClientRect();
     const minimumGap = 12;
 
     const verticalOverlap = Math.min(bannerRect.bottom, accountRect.bottom) - Math.max(bannerRect.top, accountRect.top);
@@ -849,15 +853,16 @@ function updateHeaderBannerShift() {
     const shift = Math.min(Math.ceil(horizontalOverlap), Math.ceil(maxShift));
     if (shift <= 0) return;
 
-    bannerImage.style.setProperty('--banner-shift-x', `${-shift}px`);
+    bannerLink.style.setProperty('--banner-shift-x', `${-shift}px`);
 }
 
 function initHeaderBannerShift() {
-    const header = document.querySelector('header');
-    const bannerImage = header?.querySelector?.('.site-banner-image');
-    const signedInAccount = document.querySelector('.account:not(.account-guest)');
+    const header = document.querySelector('.site-header') || document.querySelector('header');
+    const bannerLink = header?.querySelector?.('.site-banner-link');
+    const bannerImage = bannerLink?.querySelector?.('.site-banner-image') || header?.querySelector?.('.site-banner-image');
+    const account = document.querySelector('.account');
 
-    if (!header || !bannerImage || !signedInAccount) return;
+    if (!header || !bannerLink || !bannerImage) return;
 
     let frameId = null;
     const scheduleUpdate = () => {
@@ -883,8 +888,11 @@ function initHeaderBannerShift() {
     if ('ResizeObserver' in window) {
         const observer = new ResizeObserver(scheduleUpdate);
         observer.observe(header);
+        observer.observe(bannerLink);
         observer.observe(bannerImage);
-        observer.observe(signedInAccount);
+        if (account) {
+            observer.observe(account);
+        }
     }
 }
 
