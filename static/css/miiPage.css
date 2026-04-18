@@ -242,7 +242,7 @@
 
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
 }
 
@@ -1263,7 +1263,7 @@
     }
 
     .info-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .mii-name {
@@ -1282,7 +1282,7 @@
     }
 
     .info-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .mii-name {
@@ -1484,6 +1484,12 @@
 
     .report-button-label {
         display: none;
+    }
+}
+
+@media (max-width: 400px) {
+    .info-grid {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -1882,7 +1888,7 @@
 
 /* Tag styling */
 .mii-tags-section {
-    margin-top: 1rem;
+    /* margin-top: 1rem; */
     padding: 0.7rem 0.8rem;
     border-radius: 10px;
     border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #797979 42%);
