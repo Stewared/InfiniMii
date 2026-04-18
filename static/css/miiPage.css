@@ -1362,32 +1362,42 @@
         flex: 1 1 100%;
         max-width: none;
         --export-menu-width: min(320px, calc(100vw - 2rem));
+        --export-mobile-results-height: 230px;
     }
 
     .export-format-menu {
         width: var(--export-menu-width);
+        --export-search-wrap-height: 0px;
         overflow: hidden;
+    }
+
+    .export-format-search-wrap {
+        position: relative;
+        z-index: 2;
     }
 
     .export-format-list,
     .export-format-search-results {
-        max-height: 230px;
+        max-height: var(--export-mobile-results-height);
         overflow-y: auto;
         transition: transform 0.22s ease;
     }
 
     .export-format-flyout-panel {
         position: absolute;
-        top: 2.3rem;
+        top: var(--export-search-wrap-height);
         left: 100%;
         right: auto;
         width: 100%;
+        height: var(--export-mobile-results-height);
         transform: translateX(0);
         border: 0;
-        border-top: 1px solid color-mix(in oklab, var(--layer-4) 56%, #7f8899 44%);
         border-radius: 0;
         box-shadow: none;
-        max-height: calc(230px + 2.3rem);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 1;
         transition: transform 0.22s ease;
     }
 
@@ -1396,20 +1406,23 @@
     }
 
     .export-format-flyout-list {
-        max-height: 230px;
+        max-height: none;
+        flex: 1 1 auto;
         overflow-y: auto;
     }
 
     .export-format-menu.is-mobile-flyout-open .export-format-list,
     .export-format-menu.is-mobile-flyout-open .export-format-search-results {
         transform: translateX(-100%);
+        visibility: hidden;
+        pointer-events: none;
     }
 
     .export-format-menu.is-mobile-flyout-open .export-format-flyout-panel {
         transform: translateX(-100%);
     }
 
-    .export-action-reveal {
+    .export-form.has-export-format .export-action-reveal {
         max-height: 90px;
     }
 
@@ -1474,7 +1487,7 @@
         width: 100%;
     }
 
-    .export-action-reveal {
+    .export-form.has-export-format .export-action-reveal {
         max-height: 140px;
     }
 
@@ -2407,7 +2420,7 @@
 
 @media (max-width: 760px) {
     .mii-seo-sections {
-        padding: 0 1.15rem 1.2rem;
+        padding: 1.15rem 1.15rem 1.2rem;
     }
 
     .mii-fact-list {

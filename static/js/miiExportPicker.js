@@ -10,6 +10,7 @@
         const pickerToggle = form.querySelector('[data-export-picker-toggle]');
         const pickerMenu = form.querySelector('.export-format-menu');
         const formatList = form.querySelector('.export-format-list');
+        const searchWrap = form.querySelector('.export-format-search-wrap');
         const searchResultsList = form.querySelector('[data-export-search-results]');
         const selectedLabel = form.querySelector('[data-export-selected-label]');
         const actionButtons = Array.from(form.querySelectorAll('[data-export-action]'));
@@ -176,6 +177,15 @@
             );
         };
 
+        const syncMobileLayoutMeasurements = () => {
+            if (!searchWrap || pickerMenu.hidden || !isMobileViewport()) return;
+
+            const measuredSearchWrapHeight = Math.ceil(searchWrap.getBoundingClientRect().height);
+            if (Number.isFinite(measuredSearchWrapHeight) && measuredSearchWrapHeight > 0) {
+                pickerMenu.style.setProperty('--export-search-wrap-height', `${measuredSearchWrapHeight}px`);
+            }
+        };
+
         const updateCardOverflowGap = () => {
             if (!cardRoot) return;
 
@@ -258,6 +268,7 @@
             if (searchInput && String(searchInput.value || '').trim()) return;
 
             if (isMobileViewport()) {
+                syncMobileLayoutMeasurements();
                 flyoutPanel.hidden = false;
                 flyoutTrigger.setAttribute('aria-expanded', 'true');
                 pickerMenu.classList.add('is-mobile-flyout-open');
@@ -385,6 +396,7 @@
         const openPicker = (focusSearchInput = false) => {
             openMenuOverflowGap = 0;
             pickerMenu.hidden = false;
+            syncMobileLayoutMeasurements();
             pickerToggle.setAttribute('aria-expanded', 'true');
             pickerRoot.classList.add('is-open');
             applySearchFilter(searchInput?.value || '');
@@ -597,6 +609,8 @@
         });
 
         window.addEventListener('resize', () => {
+            syncMobileLayoutMeasurements();
+
             if (!pickerMenu.hidden && flyoutPanel && !flyoutPanel.hidden) {
                 if (isMobileViewport()) {
                     closeFlyout({ force: true });
