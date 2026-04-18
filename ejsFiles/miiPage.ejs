@@ -21,7 +21,8 @@
         const pageDesc = seo.metaDescription || mii.desc || `Download ${miiName} Mii character${mii.official ? ` from ${officialSourceLabel}` : ''} for Wii, 3DS, Wii U, and Switch. Get QR code access and convert to supported formats.`;
         const canonicalUrl = `${baseUrl}/mii/${mii.id}`;
         const imgPath = isPrivate ? 'privateMiiImgs' : 'miiImgs';
-        const qrPath = isPrivate ? 'privateMiiQRs' : 'miiQRs';
+        const qr3dsPath = isPrivate ? 'privateMiiQRs' : 'miiQRs';
+        const qrWiiPath = isPrivate ? 'privateMiiQRsWii' : 'miiQRsWii';
         const previewAssetVersionSource = mii?.updatedAt || pageUpdatedAt || mii?.uploadedOn || Date.now();
         const previewAssetVersionRaw = typeof previewAssetVersionSource === 'number'
             ? previewAssetVersionSource
@@ -30,7 +31,8 @@
             ? previewAssetVersionRaw
             : Date.now();
         const previewImagePath = `/${imgPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
-        const previewQrPath = `/${qrPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
+        const previewQr3dsPath = `/${qr3dsPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
+        const previewQrWiiPath = `/${qrWiiPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
         const ogImage = isPrivate
             ? `${baseUrl}/miiImgs/00000.png`
             : `${baseUrl}${previewImagePath}`;
@@ -150,30 +152,29 @@
                             height="400"
                             fetchpriority="high">
                         <figcaption class="qr-code">
-                            <a href="<%= previewQrPath %>" target="_blank" rel="noopener noreferrer">
-                                <img src="<%= previewQrPath %>" 
-                                    onerror="this.src='<%= previewQrPath %>'"
-                                    alt="QR Code for <%= miiName %> - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo" 
-                                    width="200" 
-                                    height="200"
-                                    loading="lazy">
-                            </a>
+                            <div class="qr-preview-window" data-qr-preview data-qr3ds-src="<%= previewQr3dsPath %>" data-qr-wii-src="<%= previewQrWiiPath %>" data-qr-wiiu-src="<%= previewQrWiiPath %>">
+                                <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
+                                    <button type="button" class="qr-console-tab is-active" data-qr-tab="3DS" role="tab" aria-selected="true" onclick="setQrPreviewConsole(this)">3DS</button>
+                                    <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false" onclick="setQrPreviewConsole(this)">Wii U</button>
+                                </div>
+                                <a class="qr-preview-link" href="<%= previewQr3dsPath %>" target="_blank" rel="noopener noreferrer" data-qr-link>
+                                    <img
+                                        class="qr-code-image"
+                                        src="<%= previewQr3dsPath %>"
+                                        alt="QR Code for <%= miiName %> - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo"
+                                        width="200"
+                                        height="200"
+                                        loading="lazy"
+                                        decoding="async"
+                                        fetchpriority="low"
+                                        data-qr-image
+                                        data-qr-console="3DS"
+                                    >
+                                </a>
+                            </div>
                             <form id="miiQrExportForm" method="GET" action="/exportMii" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center;">
                                 <input type="hidden" name="id" value="<%= mii.id %>">
-                                <input type="hidden" name="format" value="qr">
-                                <label for="qr-preview-console-<%= mii.id %>" style="display: inline-flex; align-items: center; gap: 6px;">
-                                    QR:
-                                    <select id="qr-preview-console-<%= mii.id %>" name="qrConsole">
-                                        <option value="3DS">3DS</option>
-                                        <option value="WIIU">Wii U</option>
-                                    </select>
-                                </label>
-                                <label style="display: inline-flex; align-items: center; gap: 6px;">
-                                    <input type="checkbox" name="special">
-                                    Special
-                                </label>
                                 <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center;">
-                                    <button type="submit" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;">Download QR</button>
                                     <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyQrPreviewMnmsText('hex')">Copy Hex</button>
                                     <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyQrPreviewMnmsText('base64')">Copy Base64</button>
                                 </div>
@@ -566,8 +567,243 @@
                     <% } %>
                 </div>
 
+                <!-- Description -->
+                <div class="id-card-description">
+                    <h3 class="info-label">Description</h3>
+                    <p itemprop="description"><%= (mii.desc && mii.desc.length > 0) ? mii.desc : `${archiveIntro} ${archiveOwnerStatsLabel}`.trim() %></p>
+                    <div class="id-card-description-actions">
+                        <div class="vote-section">
+                            <%
+                                const userVotedFor = Array.isArray(user?.votedFor) ? user.votedFor : [];
+                                const isLikeLocked = Boolean(
+                                    user?.username &&
+                                    (mii.uploader === user.username || mii.contributor === user.username)
+                                );
+                                const hasLikedMii = userVotedFor.includes(mii.id) || isLikeLocked;
+                            %>
+                            <button
+                                onclick="likeMii(this,'<%= mii.id %>','<%= highlightedMii %>','<%= isModerator %>')"
+                                class="like-button <%= hasLikedMii ? 'is-liked' : 'is-unliked' %><%= isLikeLocked ? ' is-like-locked' : '' %>"
+                                data-mii-id="<%= mii.id %>"
+                                data-liked="<%= hasLikedMii ? 'true' : 'false' %>"
+                                data-like-locked="<%= isLikeLocked ? 'true' : 'false' %>"
+                                aria-pressed="<%= hasLikedMii ? 'true' : 'false' %>"
+                                aria-label="<%= isLikeLocked ? 'You permanently like Miis you upload' : (hasLikedMii ? 'Unlike this Mii' : 'Like this Mii') %>"
+                            >
+                                <%- include('icon', { name: 'heart', size: 26, class: 'like-icon' }) %>
+                                <span class="vote-count" itemprop="interactionStatistic" itemscope itemtype="https://schema.org/InteractionCounter">
+                                    <meta itemprop="interactionType" content="https://schema.org/LikeAction">
+                                    <meta itemprop="userInteractionCount" content="<%= mii.votes || 0 %>">
+                                    <%= mii.votes||0 %>
+                                </span>
+                            </button>
+
+                            <% if(isModerator || mii.uploader === user?.username){ %>
+                                <button class="trash-button" onclick="deleteMii('<%= mii.id %>')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="trash-icon" viewBox="0 96 960 960" fill="currentColor">
+                                        <path d="M261 936q-24.75 0-42.375-17.625T201 876V306h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438V306ZM367 790h60V391h-60v399Zm166 0h60V391h-60v399ZM261 306v570-570Z"/>
+                                    </svg>
+                                </button>
+                            <% } %>
+                            <button type="button" class="report-button" onclick="openReportProblemModal(event, this)" aria-label="Report a problem with this Mii">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="report-icon" viewBox="0 -960 960 960" fill="currentColor">
+                                    <path d="M200-120v-680h360l16 80h224v400H520l-16-80H280v280h-80Zm300-440Zm86 160h134v-240H510l-16-80H280v240h290l16 80Z"/>
+                                </svg>
+                                <span class="report-button-label">Report Problem</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="id-card-actions">
+                    <%
+                        const availableExportFormats = Array.isArray(exportFormats) ? exportFormats : [];
+                        const normalizedExportFormats = availableExportFormats
+                            .map((fmt) => ({
+                                value: String(fmt?.value || '').trim(),
+                                label: String(fmt?.label || fmt?.value || '').trim()
+                            }))
+                            .filter((fmt) => fmt.value.length > 0);
+                        const exportFormatByValue = new Map(
+                            normalizedExportFormats.map((fmt) => [fmt.value.toLowerCase(), fmt])
+                        );
+
+                        const quickExportFormats = [];
+                        const usedQuickValues = new Set();
+                        const addQuickFormat = (format) => {
+                            if (!format || !format.value) return;
+                            const normalizedValue = String(format.value).toLowerCase();
+                            if (usedQuickValues.has(normalizedValue)) return;
+                            usedQuickValues.add(normalizedValue);
+                            quickExportFormats.push({
+                                key: format.key || format.value,
+                                value: format.value,
+                                label: format.label,
+                                valueText: format.valueText || format.value,
+                                labelText: format.labelText || format.label,
+                                qrConsole: format.qrConsole || ''
+                            });
+                        };
+
+                        const qrFormat = exportFormatByValue.get('qr');
+                        if (qrFormat) {
+                            quickExportFormats.push({
+                                key: 'qr:3DS',
+                                value: 'qr',
+                                label: 'QR Code (3DS)',
+                                valueText: '3DS QR',
+                                labelText: qrFormat.label,
+                                qrConsole: '3DS'
+                            });
+                            quickExportFormats.push({
+                                key: 'qr:WIIU',
+                                value: 'qr',
+                                label: 'QR Code (Wii U)',
+                                valueText: 'Wii U QR',
+                                labelText: qrFormat.label,
+                                qrConsole: 'WIIU'
+                            });
+                            usedQuickValues.add('qr');
+                        }
+
+                        addQuickFormat(exportFormatByValue.get('mnms'));
+                        addQuickFormat(exportFormatByValue.get('rcd'));
+                        addQuickFormat(exportFormatByValue.get('charinfo'));
+
+                        normalizedExportFormats.forEach((fmt) => {
+                            if (quickExportFormats.length >= 5) return;
+                            addQuickFormat(fmt);
+                        });
+
+                        const remainingExportFormats = normalizedExportFormats
+                            .filter((fmt) => !usedQuickValues.has(fmt.value.toLowerCase()))
+                            .map((fmt) => ({
+                                key: fmt.value,
+                                value: fmt.value,
+                                label: fmt.label,
+                                valueText: fmt.value,
+                                labelText: fmt.label,
+                                qrConsole: ''
+                            }));
+                    %>
+                    <h3 class="info-label export-section-title">Download / Export Mii</h3>
+                    <form id="miiExportForm" class="export-form" method="GET" action="/exportMii">
+                        <input type="hidden" name="id" value="<%= mii.id %>">
+                        <input type="hidden" id="export-format-<%= mii.id %>" name="format" value="">
+                        <input type="hidden" name="qrConsole" value="3DS" data-export-qr-console-input>
+                        <input type="hidden" value="" data-export-selection-key>
+
+                        <div class="export-top-row">
+                            <div class="export-format-picker" data-export-picker>
+                                <button
+                                    type="button"
+                                    class="export-format-trigger"
+                                    data-export-picker-toggle
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                    aria-controls="export-format-menu-<%= mii.id %>"
+                                >
+                                    <span class="export-format-selected" data-export-selected-label>Select format</span>
+                                    <span class="export-format-trigger-caret" aria-hidden="true">▼</span>
+                                </button>
+                                <div class="export-format-menu" id="export-format-menu-<%= mii.id %>" hidden>
+                                    <div class="export-format-search-wrap">
+                                        <input
+                                            type="text"
+                                            class="export-format-search"
+                                            data-export-search
+                                            autocomplete="off"
+                                            spellcheck="false"
+                                            placeholder="Search formats"
+                                            aria-label="Search export formats"
+                                        >
+                                    </div>
+
+                                    <div class="export-format-search-results" data-export-search-results role="listbox" aria-label="Search results" hidden></div>
+
+                                    <div class="export-format-list" role="listbox" aria-label="Top formats">
+                                        <% quickExportFormats.forEach(fmt => { %>
+                                            <button
+                                                type="button"
+                                                class="export-format-option export-format-option-quick"
+                                                data-export-key="<%= fmt.key %>"
+                                                data-export-value="<%= fmt.value %>"
+                                                data-export-label="<%= fmt.labelText %>"
+                                                data-export-display="<%= fmt.label %>"
+                                                data-export-qr-console="<%= fmt.qrConsole %>"
+                                                title="<%= fmt.labelText %>"
+                                            >
+                                                <span class="export-option-value"><%= fmt.valueText %></span>
+                                                <span class="export-option-label"><%= fmt.labelText %></span>
+                                            </button>
+                                        <% }) %>
+                                        <% if(remainingExportFormats.length > 0) { %>
+                                            <button
+                                                type="button"
+                                                class="export-format-option export-format-flyout-trigger"
+                                                data-export-flyout-trigger
+                                                aria-haspopup="true"
+                                                aria-expanded="false"
+                                            >
+                                                <span class="export-option-value">Other formats</span>
+                                                <span class="export-option-label">Browse the full export list</span>
+                                                <span class="export-option-flyout-arrow" aria-hidden="true">></span>
+                                            </button>
+                                        <% } %>
+                                    </div>
+
+                                    <% if(remainingExportFormats.length > 0) { %>
+                                        <div class="export-format-flyout-panel" data-export-flyout-panel hidden>
+                                            <button
+                                                type="button"
+                                                class="export-format-flyout-back"
+                                                data-export-flyout-back
+                                                aria-label="Back to default formats"
+                                            >
+                                                <span aria-hidden="true">&lt;</span>
+                                                <span>Back</span>
+                                            </button>
+                                            <div class="export-format-flyout-list" role="listbox" aria-label="Other formats">
+                                                <% remainingExportFormats.forEach(fmt => { %>
+                                                    <button
+                                                        type="button"
+                                                        class="export-format-option export-format-option-other"
+                                                        data-export-key="<%= fmt.key %>"
+                                                        data-export-value="<%= fmt.value %>"
+                                                        data-export-label="<%= fmt.labelText %>"
+                                                        data-export-display="<%= fmt.label %>"
+                                                        data-export-qr-console="<%= fmt.qrConsole %>"
+                                                        title="<%= fmt.labelText %>"
+                                                    >
+                                                        <span class="export-option-value"><%= fmt.valueText %></span>
+                                                        <span class="export-option-label"><%= fmt.labelText %></span>
+                                                    </button>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                    <% } %>
+
+                                    <div class="export-format-empty" data-export-no-results hidden>No formats match your search.</div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn-secondary export-instructions-btn" onclick="openMiiInstructions(event)">Recreation Instructions</button>
+                        </div>
+
+                        <div class="export-action-reveal" data-export-action-reveal aria-live="polite">
+                            <label class="export-inline-toggle export-inline-toggle-reveal">
+                                <input type="checkbox" name="special">
+                                <span>Special Mii</span>
+                            </label>
+                            <button type="submit" class="btn-primary export-main-action" data-export-action disabled>Download</button>
+                            <button type="button" class="btn-secondary export-main-action" data-export-action disabled onclick="copyMiiExportText('miiExportForm', 'hex')">Copy Hex</button>
+                            <button type="button" class="btn-secondary export-main-action" data-export-action disabled onclick="copyMiiExportText('miiExportForm', 'base64')">Copy Base64</button>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- Uploader Information -->
-                <!-- Footer Section -->
                 <div class="id-card-footer">
                     <div class="uploader-info">
                         <% if(mii.official){ %>
@@ -604,97 +840,6 @@
                             </a>
                         <% } %>
                         <time class="date" datetime="<%= new Date(mii.uploadedOn).toISOString() %>" itemprop="datePublished">on <%= new Date(mii.uploadedOn).toLocaleDateString() %></time>
-                    </div>
-                </div>
-                <!-- Description -->
-                <div class="id-card-description">
-                    <h3 class="info-label">Description</h3>
-                    <p itemprop="description"><%= (mii.desc && mii.desc.length > 0) ? mii.desc : `${archiveIntro} ${archiveOwnerStatsLabel}`.trim() %></p>
-                </div>
-
-                <!-- Actions -->
-                <div class="id-card-actions">
-                    <button class="btn-primary" onclick="copyMiiId(this, '<%= mii.id %>')">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 96 960 960" width="20" fill="currentColor">
-                            <path d="M360 816q-33 0-56.5-23.5T280 736V256q0-33 23.5-56.5T360 176h360q33 0 56.5 23.5T800 256v480q0 33-23.5 56.5T720 816H360Zm0-80h360V256H360v480ZM200 976q-33 0-56.5-23.5T120 896V336h80v560h440v80H200Zm160-240V256v480Z"/>
-                        </svg>
-                        <span class="copy-label">Copy Mii ID</span>
-                    </button>
-
-                    <form id="miiExportForm" class="export-form" method="GET" action="/exportMii">
-                        <input type="hidden" name="id" value="<%= mii.id %>">
-                        <label for="export-format-<%= mii.id %>">Download format</label>
-                        <div class="export-row">
-                            <input type="text" id="export-format-<%= mii.id %>" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
-                            <button type="submit" class="btn-primary">Download</button>
-                            <button type="button" class="btn-secondary" onclick="copyMiiExportText('miiExportForm', 'hex')">Copy Hex</button>
-                            <button type="button" class="btn-secondary" onclick="copyMiiExportText('miiExportForm', 'base64')">Copy Base64</button>
-                        </div>
-                        <div class="export-row" style="margin-top: 10px;">
-                            <label style="display: inline-flex; align-items: center; gap: 8px;">
-                                <input type="checkbox" name="special">
-                                Download as Special Mii
-                            </label>
-                            <label for="qr-console-<%= mii.id %>" style="display: inline-flex; align-items: center; gap: 8px;">
-                                QR Console:
-                                <select id="qr-console-<%= mii.id %>" name="qrConsole">
-                                    <option value="3DS">3DS</option>
-                                    <option value="WIIU">Wii U</option>
-                                </select>
-                            </label>
-                        </div>
-                        <p class="note">Search any supported format (except NTAG). Try <code>qr</code>, <code>charinfo</code>, or <code>ffsd</code>.</p>
-                    </form>
-                    <datalist id="exportFormatOptions">
-                        <% exportFormats.forEach(fmt => { %>
-                            <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
-                        <% }) %>
-                    </datalist>
-
-                    <div class="export-secondary">
-                        <button class="btn-secondary" onclick="openMiiInstructions(event)">Recreation Instructions</button>
-                    </div>
-
-
-                    <div class="vote-section">
-                        <%
-                            const userVotedFor = Array.isArray(user?.votedFor) ? user.votedFor : [];
-                            const isLikeLocked = Boolean(
-                                user?.username &&
-                                (mii.uploader === user.username || mii.contributor === user.username)
-                            );
-                            const hasLikedMii = userVotedFor.includes(mii.id) || isLikeLocked;
-                        %>
-                        <button
-                            onclick="likeMii(this,'<%= mii.id %>','<%= highlightedMii %>','<%= isModerator %>')"
-                            class="like-button <%= hasLikedMii ? 'is-liked' : 'is-unliked' %><%= isLikeLocked ? ' is-like-locked' : '' %>"
-                            data-mii-id="<%= mii.id %>"
-                            data-liked="<%= hasLikedMii ? 'true' : 'false' %>"
-                            data-like-locked="<%= isLikeLocked ? 'true' : 'false' %>"
-                            aria-pressed="<%= hasLikedMii ? 'true' : 'false' %>"
-                            aria-label="<%= isLikeLocked ? 'You permanently like Miis you upload' : (hasLikedMii ? 'Unlike this Mii' : 'Like this Mii') %>"
-                        >
-                            <%- include('icon', { name: 'heart', size: 26, class: 'like-icon' }) %>
-                            <span class="vote-count" itemprop="interactionStatistic" itemscope itemtype="https://schema.org/InteractionCounter">
-                                <meta itemprop="interactionType" content="https://schema.org/LikeAction">
-                                <meta itemprop="userInteractionCount" content="<%= mii.votes || 0 %>">
-                                <%= mii.votes||0 %>
-                            </span>
-                        </button>
-
-                        <% if(isModerator || mii.uploader === user?.username){ %>
-                            <button class="trash-button" onclick="deleteMii('<%= mii.id %>')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="trash-icon" viewBox="0 96 960 960" fill="currentColor">
-                                    <path d="M261 936q-24.75 0-42.375-17.625T201 876V306h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438V306ZM367 790h60V391h-60v399Zm166 0h60V391h-60v399ZM261 306v570-570Z"/>
-                                </svg>
-                            </button>
-                        <% } %>
-                        <button type="button" class="report-button" onclick="openReportProblemModal(event, this)" aria-label="Report a problem with this Mii">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="report-icon" viewBox="0 -960 960 960" fill="currentColor">
-                                <path d="M200-120v-680h360l16 80h224v400H520l-16-80H280v280h-80Zm300-440Zm86 160h134v-240H510l-16-80H280v240h290l16 80Z"/>
-                            </svg>
-                            <span class="report-button-label">Report Problem</span>
-                        </button>
                     </div>
                 </div>
 
@@ -1002,6 +1147,8 @@
         
         <%- include('footer') %>
 
+        <script src="/js/miiExportPicker.js"></script>
+
         <!--Due to needing access to EJS variables, we unfortunately cannot move these contents to a dedicated JS file-->
         <script>
             function copyMiiId(el, id){
@@ -1289,12 +1436,157 @@
             async function copyMiiExportText(formId, encoding) {
                 const form = document.getElementById(formId);
                 if (!form) return;
+
+                const selectedFormat = form.querySelector('input[name="format"]')?.value?.trim();
+                if (!selectedFormat) {
+                    if (typeof showAlert === 'function') {
+                        showAlert('Choose an export format first.', 3500, { title: 'Format Required' });
+                    }
+                    return;
+                }
+
                 const normalizedEncoding = String(encoding || '').trim().toLowerCase();
                 if (normalizedEncoding === 'base64') {
                     await copyExportBase64FromForm(form);
                     return;
                 }
                 await copyExportHexFromForm(form);
+            }
+
+            function initializeMiiExportPicker() {
+                if (typeof window.initMiiExportPicker === 'function') {
+                    window.initMiiExportPicker();
+                }
+            }
+
+            function normalizeQrPreviewConsole(consoleType) {
+                const normalizedConsole = String(consoleType || '').trim().toUpperCase();
+                return normalizedConsole === 'WII' ? 'WIIU' : normalizedConsole;
+            }
+
+            function getQrPreviewSources(preview) {
+                if (!(preview instanceof HTMLElement)) return null;
+                const source3ds = String(preview.dataset.qr3dsSrc || '').trim();
+                const sourceWiiu = String(preview.dataset.qrWiiuSrc || preview.dataset.qrWiiSrc || '').trim() || source3ds;
+                if (!source3ds) return null;
+
+                return {
+                    '3DS': source3ds,
+                    'WIIU': sourceWiiu,
+                    'WII': sourceWiiu
+                };
+            }
+
+            function setQrPreviewConsole(tabOrPreview, consoleType) {
+                let preview = null;
+                let targetConsole = consoleType;
+
+                if (tabOrPreview instanceof HTMLElement && tabOrPreview.matches('[data-qr-tab]')) {
+                    preview = tabOrPreview.closest('[data-qr-preview]');
+                    targetConsole = tabOrPreview.dataset.qrTab || consoleType;
+                } else if (tabOrPreview instanceof HTMLElement && tabOrPreview.matches('[data-qr-preview]')) {
+                    preview = tabOrPreview;
+                } else {
+                    preview = document.querySelector('[data-qr-preview]');
+                }
+
+                if (!preview) return false;
+
+                const image = preview.querySelector('[data-qr-image]');
+                const link = preview.querySelector('[data-qr-link]');
+                const tabs = Array.from(preview.querySelectorAll('[data-qr-tab]'));
+                const sourceByConsole = getQrPreviewSources(preview);
+
+                if (!image || tabs.length === 0 || !sourceByConsole) {
+                    return false;
+                }
+
+                const normalizedConsole = normalizeQrPreviewConsole(targetConsole || image.dataset.qrConsole || '3DS');
+                const nextSrc = sourceByConsole[normalizedConsole];
+                if (!nextSrc) {
+                    return false;
+                }
+
+                tabs.forEach((tab) => {
+                    const tabConsole = normalizeQrPreviewConsole(tab.dataset.qrTab || '');
+                    const isSelected = tabConsole === normalizedConsole;
+                    tab.classList.toggle('is-active', isSelected);
+                    tab.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+                });
+
+                image.dataset.qrConsole = normalizedConsole;
+                if (link) {
+                    link.href = nextSrc;
+                }
+
+                if (image.src !== nextSrc) {
+                    image.classList.remove('is-loaded');
+                    image.classList.add('is-switching');
+                    image.src = nextSrc;
+                } else if (image.complete && image.naturalWidth > 0) {
+                    image.classList.remove('is-switching');
+                    image.classList.add('is-loaded');
+                }
+
+                return true;
+            }
+
+            function initializeQrPreviewTabs() {
+                const preview = document.querySelector('[data-qr-preview]');
+                if (!preview) return;
+                if (preview.dataset.qrTabsInitialized === 'true') return;
+                preview.dataset.qrTabsInitialized = 'true';
+
+                const image = preview.querySelector('[data-qr-image]');
+                const tabs = Array.from(preview.querySelectorAll('[data-qr-tab]'));
+                const sourceByConsole = getQrPreviewSources(preview);
+
+                if (!image || tabs.length === 0 || !sourceByConsole) {
+                    return;
+                }
+
+                const loadedConsoles = new Set();
+
+                const setLoadedState = () => {
+                    image.classList.remove('is-switching');
+                    image.classList.add('is-loaded');
+                    const currentConsole = normalizeQrPreviewConsole(image.dataset.qrConsole || '');
+                    if (currentConsole) {
+                        loadedConsoles.add(currentConsole);
+                    }
+                };
+
+                image.addEventListener('load', () => {
+                    setLoadedState();
+                });
+
+                tabs.forEach((tab) => {
+                    const tabConsole = normalizeQrPreviewConsole(tab.dataset.qrTab || '');
+                    tab.addEventListener('keydown', (event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') {
+                            return;
+                        }
+                        event.preventDefault();
+                        setQrPreviewConsole(preview, tabConsole);
+                    });
+
+                    tab.addEventListener('mouseenter', () => {
+                        const src = sourceByConsole[tabConsole];
+                        if (!src || loadedConsoles.has(tabConsole)) return;
+                        const preload = new Image();
+                        preload.decoding = 'async';
+                        preload.loading = 'lazy';
+                        preload.src = src;
+                    });
+                });
+
+                if (image.complete && image.naturalWidth > 0) {
+                    setLoadedState();
+                } else {
+                    image.classList.add('is-switching');
+                }
+
+                setQrPreviewConsole(preview, '3DS');
             }
 
             function buildQrPreviewMnmsCopyForm() {
@@ -1316,15 +1608,6 @@
                 formatInput.name = 'format';
                 formatInput.value = 'mnms';
                 copyForm.appendChild(formatInput);
-
-                const specialCheckbox = sourceForm.querySelector('input[name="special"]');
-                if (specialCheckbox?.checked) {
-                    const specialInput = document.createElement('input');
-                    specialInput.type = 'hidden';
-                    specialInput.name = 'special';
-                    specialInput.value = specialCheckbox.value || 'on';
-                    copyForm.appendChild(specialInput);
-                }
 
                 return copyForm;
             }
@@ -1582,6 +1865,17 @@
             function initializeMiiPageEditorState() {
                 updateCategoryEditorTriggers();
                 updateOfficialCheckboxLabel();
+                try {
+                    initializeQrPreviewTabs();
+                } catch (error) {
+                    console.error('Error initializing QR preview tabs:', error);
+                }
+
+                try {
+                    initializeMiiExportPicker();
+                } catch (error) {
+                    console.error('Error initializing export picker:', error);
+                }
                 const officialCheckbox = document.getElementById('officialCheckbox');
                 officialCheckbox?.addEventListener('change', updateOfficialCheckboxLabel);
 
