@@ -79,7 +79,9 @@ function isRelevantSitePagePath(pathname) {
         normalizedPath.startsWith("/miiimgs/")
         || normalizedPath.startsWith("/privatemiiimgs/")
         || normalizedPath.startsWith("/miiqrs/")
+        || normalizedPath.startsWith("/miiqrswii/")
         || normalizedPath.startsWith("/privatemiiqrs/")
+        || normalizedPath.startsWith("/privatemiiqrswii/")
         || normalizedPath.startsWith("/static/")
         || normalizedPath === "/favicon.ico"
     ) {
@@ -153,7 +155,7 @@ function extractMiiIdFromAssetUrl(urlLike) {
     let match = normalized.match(/^attachment:\/\/([^/.]+)\.(?:png|jpe?g|gif|webp)$/i);
     if (match) return match[1];
 
-    match = normalized.match(/\/(?:miiImgs|privateMiiImgs|miiQRs|privateMiiQRs)\/([^/.]+)\.(?:png|jpe?g|gif|webp)$/i);
+    match = normalized.match(/\/(?:miiImgs|privateMiiImgs|miiQRs|privateMiiQRs|miiQRsWii|privateMiiQRsWii)\/([^/.]+)\.(?:png|jpe?g|gif|webp)$/i);
     if (match) {
         try {
             return decodeURIComponent(match[1]);

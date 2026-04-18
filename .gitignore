@@ -7,6 +7,8 @@ static/miiImgs/*
 static/miiQRs/*
 static/privateMiiImgs/*
 static/privateMiiQRs/*
+static/miiQRsWii/*
+static/privateMiiQRsWii/*
 static/temp/*
 TODO.md
 env.json

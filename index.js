@@ -30,8 +30,10 @@ import { renderIcon, icons } from "./icons.js";
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 fs.mkdirSync(path.join(__dirname, "static", "miiImgs"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "static", "miiQRs"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "static", "miiQRsWii"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "static", "privateMiiImgs"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRs"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRsWii"), { recursive: true });
 
 const defaultMiisPerPage = 16;
 const profileMiisPerPage = 18;
@@ -2462,37 +2464,43 @@ function sha256(str) {
 }
 
 function getMiiAssetPaths(miiId, isPrivate) {
+    const qr3dsDir = isPrivate ? "privateMiiQRs" : "miiQRs";
+    const qrWiiDir = isPrivate ? "privateMiiQRsWii" : "miiQRsWii";
+
     return {
         imgPath: isPrivate ? `./static/privateMiiImgs/${miiId}.png` : `./static/miiImgs/${miiId}.png`,
-        qrPath: isPrivate ? `./static/privateMiiQRs/${miiId}.png` : `./static/miiQRs/${miiId}.png`
+        qrPath: `./static/${qr3dsDir}/${miiId}.png`,
+        qrWiiPath: `./static/${qrWiiDir}/${miiId}.png`
     };
 }
 
 function deleteMiiAssets(miiId, isPrivate) {
-    const { imgPath, qrPath } = getMiiAssetPaths(miiId, isPrivate);
+    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(miiId, isPrivate);
     try { fs.unlinkSync(imgPath); } catch (e) {}
     try { fs.unlinkSync(qrPath); } catch (e) {}
+    try { fs.unlinkSync(qrWiiPath); } catch (e) {}
 }
 
 async function moveMiiAssets(miiId, fromPrivate, toPrivate) {
     const sourcePaths = getMiiAssetPaths(miiId, fromPrivate);
     const destinationPaths = getMiiAssetPaths(miiId, toPrivate);
-    let movedImage = false;
-    let movedQr = false;
 
     if (fs.existsSync(sourcePaths.imgPath)) {
         try { await fs.promises.unlink(destinationPaths.imgPath); } catch (e) {}
         await fs.promises.rename(sourcePaths.imgPath, destinationPaths.imgPath);
-        movedImage = true;
     }
 
     if (fs.existsSync(sourcePaths.qrPath)) {
         try { await fs.promises.unlink(destinationPaths.qrPath); } catch (e) {}
         await fs.promises.rename(sourcePaths.qrPath, destinationPaths.qrPath);
-        movedQr = true;
     }
 
-    return { movedImage, movedQr, ...destinationPaths };
+    if (fs.existsSync(sourcePaths.qrWiiPath)) {
+        try { await fs.promises.unlink(destinationPaths.qrWiiPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.qrWiiPath, destinationPaths.qrWiiPath);
+    }
+
+    return destinationPaths;
 }
 
 function escapeRegExp(value) {
@@ -2570,13 +2578,18 @@ async function renameMiiAssets(oldId, newId, isPrivate) {
         await fs.promises.rename(sourcePaths.qrPath, destinationPaths.qrPath);
     }
 
+    if (fs.existsSync(sourcePaths.qrWiiPath)) {
+        try { await fs.promises.unlink(destinationPaths.qrWiiPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.qrWiiPath, destinationPaths.qrWiiPath);
+    }
+
     return destinationPaths;
 }
 
 async function ensureStoredMiiAssets(mii) {
     if (!mii?.id) return;
 
-    const { imgPath, qrPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
+    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
 
     if (!fs.existsSync(imgPath)) {
         const renderedImage = await miijs.renderMii(mii);
@@ -2584,7 +2597,11 @@ async function ensureStoredMiiAssets(mii) {
     }
 
     if (!fs.existsSync(qrPath)) {
-        await writeQrPng(mii, qrPath);
+        await writeQrPng(mii, qrPath, "3DS");
+    }
+
+    if (!fs.existsSync(qrWiiPath)) {
+        await writeQrPng(mii, qrWiiPath, "WIIU");
     }
 }
 
@@ -3635,14 +3652,16 @@ async function syncAverageMiiAssets(avgMii) {
         const renderedAverageMii = await miijs.renderMii(avgMii);
         await Promise.all([
             fs.promises.writeFile("./static/miiImgs/average.png", renderedAverageMii),
-            writeQrPng(avgMii, "./static/miiQRs/average.png")
+            writeQrPng(avgMii, "./static/miiQRs/average.png", "3DS"),
+            writeQrPng(avgMii, "./static/miiQRsWii/average.png", "WIIU")
         ]);
         return;
     }
 
     await Promise.allSettled([
         fs.promises.unlink("./static/miiImgs/average.png"),
-        fs.promises.unlink("./static/miiQRs/average.png")
+        fs.promises.unlink("./static/miiQRs/average.png"),
+        fs.promises.unlink("./static/miiQRsWii/average.png")
     ]);
 }
 
@@ -4371,7 +4390,7 @@ async function requirePrivateMiiAssetAccess(req, res, next) {
         return next();
     }
 
-    if (req.baseUrl === "/privateMiiQRs") {
+    if (req.baseUrl === "/privateMiiQRs" || req.baseUrl === "/privateMiiQRsWii") {
         return await sendError(res, req, "Access denied. This is a private Mii.", 403);
     }
 
@@ -4386,12 +4405,13 @@ async function writeRenderedMiiImage(mii, assetPath) {
     await fs.promises.writeFile(assetPath, await miijs.renderMii(mii));
 }
 
-async function writeRenderedMiiQr(mii, assetPath) {
-    await writeQrPng(mii, assetPath);
+async function writeRenderedMiiQr(mii, assetPath, qrConsole = "3DS") {
+    await writeQrPng(mii, assetPath, qrConsole);
 }
 
 site.use('/privateMiiImgs', requirePrivateMiiAssetAccess);
 site.use('/privateMiiQRs', requirePrivateMiiAssetAccess);
+site.use('/privateMiiQRsWii', requirePrivateMiiAssetAccess);
 
 // Render missing private Mii images on demand
 site.use('/privateMiiImgs', async (req, res, next) => {
@@ -4434,7 +4454,34 @@ site.use('/privateMiiQRs', async (req, res, next) => {
         const generated = await ensureGeneratedAsset(qrPath, async () => {
             const mii = await resolvePrivateAssetMii(req);
             if (!mii) return false;
-            await writeRenderedMiiQr(mii, qrPath);
+            await writeRenderedMiiQr(mii, qrPath, "3DS");
+            return true;
+        });
+
+        if (generated) {
+            return res.sendFile(qrPath);
+        }
+        return next();
+    } catch (e) {
+        return next(e);
+    }
+});
+
+// Render missing private Mii Wii QRs on demand
+site.use('/privateMiiQRsWii', async (req, res, next) => {
+    const miiId = getRequestedMiiId(req);
+    if (!miiId) return next();
+
+    const qrPath = getMiiAssetPath('privateMiiQRsWii', miiId);
+    if (await fileExists(qrPath)) {
+        return res.sendFile(qrPath);
+    }
+
+    try {
+        const generated = await ensureGeneratedAsset(qrPath, async () => {
+            const mii = await resolvePrivateAssetMii(req);
+            if (!mii) return false;
+            await writeRenderedMiiQr(mii, qrPath, "WIIU");
             return true;
         });
 
@@ -4494,7 +4541,34 @@ site.use('/miiQRs', async (req, res, next) => {
         const generated = await ensureGeneratedAsset(qrPath, async () => {
             const mii = await Miis.findOne({ id: miiId, private: false }).lean();
             if (!mii) return false;
-            await writeRenderedMiiQr(mii, qrPath);
+            await writeRenderedMiiQr(mii, qrPath, "3DS");
+            return true;
+        });
+
+        if (generated) {
+            return res.sendFile(qrPath);
+        }
+        return next();
+    } catch (e) {
+        return next(e);
+    }
+});
+
+// Render missing public Mii Wii QRs on demand
+site.use('/miiQRsWii', async (req, res, next) => {
+    const miiId = getRequestedMiiId(req);
+    if (!miiId) return next();
+
+    const qrPath = getMiiAssetPath('miiQRsWii', miiId);
+    if (await fileExists(qrPath)) {
+        return res.sendFile(qrPath);
+    }
+
+    try {
+        const generated = await ensureGeneratedAsset(qrPath, async () => {
+            const mii = await Miis.findOne({ id: miiId, private: false }).lean();
+            if (!mii) return false;
+            await writeRenderedMiiQr(mii, qrPath, "WIIU");
             return true;
         });
 
@@ -4552,6 +4626,12 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
         }
         if (!fs.existsSync('./static/privateMiiQRs')) {
             fs.mkdirSync('./static/privateMiiQRs', { recursive: true });
+        }
+        if (!fs.existsSync('./static/miiQRsWii')) {
+            fs.mkdirSync('./static/miiQRsWii', { recursive: true });
+        }
+        if (!fs.existsSync('./static/privateMiiQRsWii')) {
+            fs.mkdirSync('./static/privateMiiQRsWii', { recursive: true });
         }
         if (!fs.existsSync('./static/temp')) {
             fs.mkdirSync('./static/temp', { recursive: true });
@@ -5266,10 +5346,16 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
         const miiImageData = await miijs.renderMii(mii);
         if (wantsPublic) {
             await fs.promises.writeFile(`./static/miiImgs/${mii.id}.png`, miiImageData);
-            await writeQrPng(mii, `./static/miiQRs/${mii.id}.png`);
+            await Promise.all([
+                writeQrPng(mii, `./static/miiQRs/${mii.id}.png`, "3DS"),
+                writeQrPng(mii, `./static/miiQRsWii/${mii.id}.png`, "WIIU")
+            ]);
         } else {
             await fs.promises.writeFile(`./static/privateMiiImgs/${mii.id}.png`, miiImageData);
-            await writeQrPng(mii, `./static/privateMiiQRs/${mii.id}.png`);
+            await Promise.all([
+                writeQrPng(mii, `./static/privateMiiQRs/${mii.id}.png`, "3DS"),
+                writeQrPng(mii, `./static/privateMiiQRsWii/${mii.id}.png`, "WIIU")
+            ]);
         }
 
         await Miis.create({
@@ -5848,16 +5934,18 @@ site.post('/changeMiiId', requireAuth, requireRole(ROLES.MODERATOR), async (req,
 // Regenerate QR Code (Moderator only)
 site.post('/regenerateQR', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     const { id } = req.body;
-    const qrConsole = normalizeQrConsole(req.body?.qrConsole);
     const mii = await getMiiById(id, true);
 
     if (!mii) {
         return res.json({ error: 'Mii not found' });
     }
 
-    // Regenerate the QR code
-    const qrPath = mii.private ? `./static/privateMiiQRs/${id}.png` : `./static/miiQRs/${id}.png`;
-    await writeQrPng(mii, qrPath, qrConsole);
+    // Regenerate both QR previews so the page tabs stay synchronized.
+    const { qrPath, qrWiiPath } = getMiiAssetPaths(id, Boolean(mii.private));
+    await Promise.all([
+        writeQrPng(mii, qrPath, "3DS"),
+        writeQrPng(mii, qrWiiPath, "WIIU")
+    ]);
 
     // Log to Discord
     makeReport(JSON.stringify({
@@ -8843,10 +8931,16 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         const miiImageData = await miijs.renderMii(mii);
         if (wantsPublic) {
             await fs.promises.writeFile("./static/miiImgs/" + mii.id + ".png", miiImageData);
-            await writeQrPng(mii, "./static/miiQRs/" + mii.id + ".png");
+            await Promise.all([
+                writeQrPng(mii, "./static/miiQRs/" + mii.id + ".png", "3DS"),
+                writeQrPng(mii, "./static/miiQRsWii/" + mii.id + ".png", "WIIU")
+            ]);
         } else {
             await fs.promises.writeFile("./static/privateMiiImgs/" + mii.id + ".png", miiImageData);
-            await writeQrPng(mii, "./static/privateMiiQRs/" + mii.id + ".png");
+            await Promise.all([
+                writeQrPng(mii, "./static/privateMiiQRs/" + mii.id + ".png", "3DS"),
+                writeQrPng(mii, "./static/privateMiiQRsWii/" + mii.id + ".png", "WIIU")
+            ]);
         }
         
         // Store in database
@@ -9785,7 +9879,11 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
         mii.published = true;
         mii.uploadedOn = publishedOn;
 
-        const { imgPath: publicImgPath, qrPath: publicQrPath } = getMiiAssetPaths(mii.id, false);
+        const {
+            imgPath: publicImgPath,
+            qrPath: publicQrPath,
+            qrWiiPath: publicQrWiiPath
+        } = getMiiAssetPaths(mii.id, false);
         let miiImageData = null;
 
         await moveMiiAssets(mii.id, true, false);
@@ -9802,7 +9900,10 @@ site.post('/publishMii', requireAuth,  async (req, res) => {
             await fs.promises.writeFile(publicImgPath, miiImageData);
         }
         if (!fs.existsSync(publicQrPath)) {
-            await writeQrPng(mii, publicQrPath);
+            await writeQrPng(mii, publicQrPath, "3DS");
+        }
+        if (!fs.existsSync(publicQrWiiPath)) {
+            await writeQrPng(mii, publicQrWiiPath, "WIIU");
         }
 
         // Clean up any remaining private files after successful publish
