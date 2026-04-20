@@ -65,53 +65,18 @@
                                         if (!mii || !mii.id) {
                                             return;
                                         }
-                                        const miiName = mii?.meta?.name || mii?.name || "Unknown Mii";
-                                        const miiAttribution = getMiiAttribution(mii);
-                                        const miiFavoriteColor = decodeColor(mii.general?.favoriteColor) || decodeColor(0);
-                                        const miiDescription = typeof mii?.desc === 'string'
-                                            ? mii.desc
-                                            : (typeof mii?.description === 'string' ? mii.description : '');
                                         const shouldEagerLoadImage = miiIndex < 3;
                                         const shouldPrioritizeImage = miiIndex === 0;
                                     %>
-                                    <article class="mii-card" style="--favorite-color: <%= miiFavoriteColor %>;">
-                                        <a href="/mii/<%= mii.id %>">
-                                            <img
-                                                src="/miiImgs/<%= mii.id %>.png"
-                                                alt="<%= miiName %> Mii: <%= miiDescription %>"
-                                                width="256"
-                                                height="256"
-                                                loading="<%= shouldEagerLoadImage ? 'eager' : 'lazy' %>"
-                                                decoding="async"
-                                                fetchpriority="<%= shouldPrioritizeImage ? 'high' : (shouldEagerLoadImage ? 'auto' : 'low') %>"
-                                            >
-                                        </a>
-                                        <div class="flex">
-                                            <div>
-                                                <h3><%= miiName %></h3>
-                                                <p class="mii-card-byline">
-                                                    <span><%= miiAttribution.prefix %></span>
-                                                    <% if (miiAttribution.url) { %>
-                                                        <a href="<%= miiAttribution.url %>"><%= miiAttribution.label %></a>
-                                                    <% } else { %>
-                                                        <span><%= miiAttribution.label %></span>
-                                                    <% } %>
-                                                </p>
-                                                <p><%= miiDescription.length > 75 ? miiDescription.slice(0, 73) + "..." : miiDescription %></p>
-                                                <% if (Array.isArray(mii.tags) && mii.tags.length > 0) { %>
-                                                    <div class="mii-card-tags">
-                                                        <% mii.tags.slice(0, 3).forEach(tag => { %>
-                                                            <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
-                                                        <% }) %>
-                                                        <% if (mii.tags.length > 3) { %>
-                                                            <span class="mii-card-tag mii-card-tag-more">+<%= mii.tags.length - 3 %></span>
-                                                        <% } %>
-                                                    </div>
-                                                <% } %>
-                                            </div>
-                                            <%- include('miiCardLikeButton', { mii, user }) %>
-                                        </div>
-                                    </article>
+                                    <%- include('miiCard', {
+                                        mii,
+                                        user,
+                                        imageEagerLoad: shouldEagerLoadImage,
+                                        imagePriorityLoad: shouldPrioritizeImage,
+                                        descriptionMaxLength: 75,
+                                        metadataType: 'tags',
+                                        metadataItemLimit: 3
+                                    }) %>
                                 <% }); %>
                             </section>
                         <% }); %>

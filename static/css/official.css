@@ -171,34 +171,27 @@
 .official-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.4rem;
+    justify-content: center;
+    gap: 0;
+    margin: 0;
     padding: 0.25rem 0.6rem;
     border-radius: 999px;
     border: 1px solid color-mix(in oklab, #caa841 70%, #afafaf 30%);
     background: color-mix(in oklab, #e6bf4f 35%, var(--layer-2-um) 65%);
     color: #fff5cf;
     font-size: 0.78rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
-.mii-categories {
+.official-miis-page .mii-categories {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem;
     margin-top: 0.6rem;
 }
 
-.official-card-meta-row {
-    align-items: flex-start;
-}
-
-.official-card-meta {
-    min-width: 0;
-}
-
 .official-card-like-button {
-    align-self: flex-start;
+    align-self: center;
 }
 
 .official-miis-page .mii-categories .category-tag {
@@ -287,11 +280,9 @@
 }
 
 @media (max-width: 768px) {
-    .official-miis-page .official-card-meta-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        align-items: start;
-        gap: 0.8rem;
+    .official-miis-page .mii-card-meta-row {
+        align-items: center;
+        gap: 0.7rem;
     }
 
     .official-miis-page .mii-card-byline {
@@ -314,7 +305,6 @@
     }
 
     .official-miis-page .official-card-like-button {
-        justify-self: end;
         gap: 0.32rem;
         min-height: 1.8rem;
         padding: 0.28rem 0.48rem;

@@ -1,0 +1,192 @@
+<%
+const cardMii = typeof mii !== 'undefined' ? mii : null;
+if (cardMii && cardMii.id) {
+    const cardUser = typeof user !== 'undefined' ? user : null;
+    const miiName = cardMii?.meta?.name || cardMii?.name || 'Unknown Mii';
+    const attribution = getMiiAttribution(cardMii);
+
+    const resolvedDescription = typeof descriptionText === 'string'
+        ? descriptionText
+        : (typeof cardMii?.desc === 'string'
+            ? cardMii.desc
+            : (typeof cardMii?.description === 'string' ? cardMii.description : ''));
+    const maxDescriptionLengthInput = typeof descriptionMaxLength !== 'undefined' ? Number(descriptionMaxLength) : NaN;
+    const maxDescriptionLength = Number.isFinite(maxDescriptionLengthInput) && maxDescriptionLengthInput > 0
+        ? Math.max(8, Math.floor(maxDescriptionLengthInput))
+        : 75;
+    const descriptionSliceLength = Math.max(1, maxDescriptionLength - 2);
+    const truncatedDescription = resolvedDescription.length > maxDescriptionLength
+        ? `${resolvedDescription.slice(0, descriptionSliceLength)}...`
+        : resolvedDescription;
+
+    const cardClassName = typeof cardClass === 'string' ? cardClass.trim() : '';
+    const cardId = typeof cardDomId === 'string' && cardDomId.trim() ? cardDomId.trim() : '';
+    const includeDataMiiId = typeof includeMiiDataId !== 'undefined' && includeMiiDataId === true;
+
+    const favoriteColor = (typeof favoriteColorOverride === 'string' && favoriteColorOverride.trim())
+        ? favoriteColorOverride
+        : (decodeColor(cardMii.general?.favoriteColor) || decodeColor(0));
+
+    const cardHref = typeof href === 'string' && href.trim()
+        ? href
+        : `/mii/${cardMii.id}`;
+    const cardLinkAriaLabel = typeof linkAriaLabel === 'string' && linkAriaLabel.trim()
+        ? linkAriaLabel
+        : '';
+    const cardImageSrc = typeof imageSrc === 'string' && imageSrc.trim()
+        ? imageSrc
+        : `/miiImgs/${cardMii.id}.png`;
+    const cardImageAlt = typeof imageAltText === 'string' && imageAltText.trim()
+        ? imageAltText
+        : `${miiName} Mii: ${resolvedDescription}`;
+    const imageOnError = typeof imageOnErrorAttr === 'string' && imageOnErrorAttr.trim()
+        ? imageOnErrorAttr
+        : '';
+
+    const shouldEagerLoadImage = typeof imageEagerLoad !== 'undefined' && imageEagerLoad === true;
+    const shouldPrioritizeImage = typeof imagePriorityLoad !== 'undefined' && imagePriorityLoad === true;
+    const imageLoadingValue = shouldEagerLoadImage ? 'eager' : 'lazy';
+    const imageFetchPriorityValue = shouldPrioritizeImage
+        ? 'high'
+        : (shouldEagerLoadImage ? 'auto' : 'low');
+
+    const showAttribution = typeof showByline === 'undefined' || showByline !== false;
+    const showLikeButton = typeof includeLikeButton === 'undefined' || includeLikeButton !== false;
+    const likeButtonClassName = typeof likeButtonClass === 'string' ? likeButtonClass : '';
+    const likeIconSizeInput = typeof likeIconSize !== 'undefined' ? Number(likeIconSize) : NaN;
+    const likeIconPixelSize = Number.isFinite(likeIconSizeInput) && likeIconSizeInput > 0
+        ? Math.floor(likeIconSizeInput)
+        : 20;
+
+    const metadataMode = typeof metadataType !== 'undefined' && metadataType === 'categories' ? 'categories' : 'tags';
+    const metadataItemsInput = (typeof metadataItems !== 'undefined' && Array.isArray(metadataItems))
+        ? metadataItems
+        : (metadataMode === 'categories'
+            ? (Array.isArray(cardMii.officialCategories) ? cardMii.officialCategories : [])
+            : (Array.isArray(cardMii.tags) ? cardMii.tags : []));
+    const normalizedMetadataItems = metadataItemsInput
+        .map((value) => String(value || '').trim())
+        .filter(Boolean);
+    const metadataItemLimitInput = typeof metadataItemLimit !== 'undefined' ? Number(metadataItemLimit) : NaN;
+    const metadataLimit = Number.isFinite(metadataItemLimitInput) && metadataItemLimitInput > 0
+        ? Math.max(1, Math.floor(metadataItemLimitInput))
+        : 3;
+    const visibleMetadataItems = normalizedMetadataItems.slice(0, metadataLimit);
+    const hiddenMetadataCount = Math.max(0, normalizedMetadataItems.length - visibleMetadataItems.length);
+    const showMetadata = (typeof metadataEnabled === 'undefined' || metadataEnabled !== false) && normalizedMetadataItems.length > 0;
+
+    const showBadge = typeof badgeEnabled !== 'undefined' && badgeEnabled === true;
+    const badgeLabel = typeof badgeText === 'string' ? badgeText.trim() : '';
+
+    const showPrivateControls = typeof privateControls !== 'undefined' && privateControls === true;
+    const isBlockedFromPublishing = Boolean(cardMii.blockedFromPublishing);
+%>
+<article
+    class="mii-card <%= cardClassName %>"
+    style="--favorite-color: <%= favoriteColor %>;"
+    <% if (cardId) { %>id="<%= cardId %>"<% } %>
+    <% if (includeDataMiiId) { %>data-mii-id="<%= cardMii.id %>"<% } %>
+>
+    <a href="<%= cardHref %>" <% if (cardLinkAriaLabel) { %>aria-label="<%= cardLinkAriaLabel %>"<% } %>>
+        <img
+            src="<%= cardImageSrc %>"
+            alt="<%= cardImageAlt %>"
+            width="256"
+            height="256"
+            loading="<%= imageLoadingValue %>"
+            decoding="async"
+            fetchpriority="<%= imageFetchPriorityValue %>"
+            <% if (imageOnError) { %>onerror="<%= imageOnError %>"<% } %>
+        >
+    </a>
+
+    <div class="mii-card-content">
+        <div class="mii-card-meta-row">
+            <div class="mii-card-meta">
+                <h3>
+                    <a class="mii-card-title-link" href="<%= cardHref %>"><%= miiName %></a>
+                </h3>
+
+                <% if (showAttribution) { %>
+                    <p class="mii-card-byline">
+                        <span><%= attribution.prefix %></span>
+                        <% if (attribution.url) { %>
+                            <a href="<%= attribution.url %>"><%= attribution.label %></a>
+                        <% } else { %>
+                            <span><%= attribution.label %></span>
+                        <% } %>
+                    </p>
+                <% } %>
+            </div>
+
+            <% if (showLikeButton) { %>
+                <%- include('miiCardLikeButton', {
+                    mii: cardMii,
+                    user: cardUser,
+                    buttonClass: likeButtonClassName,
+                    iconSize: likeIconPixelSize
+                }) %>
+            <% } %>
+        </div>
+
+        <% if (truncatedDescription) { %>
+            <p class="mii-card-description"><%= truncatedDescription %></p>
+        <% } %>
+
+        <% if ((showBadge && badgeLabel) || showMetadata) { %>
+            <div class="mii-card-tags <%= metadataMode === 'categories' ? 'mii-categories' : '' %>">
+                <% if (showBadge && badgeLabel) { %>
+                    <span class="mii-card-tag official-badge"><%= badgeLabel %></span>
+                <% } %>
+
+                <% if (showMetadata) { %>
+                    <% visibleMetadataItems.forEach((item) => { %>
+                        <% if (metadataMode === 'categories') { %>
+                            <span class="mii-card-tag category-tag"><%= item %></span>
+                        <% } else { %>
+                            <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(item) %>"><%= item %></a>
+                        <% } %>
+                    <% }) %>
+
+                    <% if (hiddenMetadataCount > 0) { %>
+                        <span class="mii-card-tag mii-card-tag-more <%= metadataMode === 'categories' ? 'category-tag more' : '' %>">+<%= hiddenMetadataCount %></span>
+                    <% } %>
+                <% } %>
+            </div>
+        <% } %>
+
+        <% if (showPrivateControls && isBlockedFromPublishing) { %>
+            <div class="blocked-notice">
+                <%- include('icon', { name: 'ban', size: 14, class: 'icon-inline icon-danger' }) %>
+                Blocked from publishing
+                <% if (cardMii.blockReason) { %>
+                    <small><%= cardMii.blockReason %></small>
+                <% } %>
+            </div>
+        <% } %>
+
+        <% if (showPrivateControls) { %>
+            <div class="mii-actions private-mii-actions">
+                <% if (!isBlockedFromPublishing) { %>
+                    <button
+                        class="publish-btn"
+                        onclick="publishMii('<%= cardMii.id %>')"
+                        aria-label="Publish <%= miiName %>"
+                    >
+                        <%- include('icon', { name: 'upload', size: 12 }) %>
+                        Publish
+                    </button>
+                <% } %>
+                <button
+                    class="delete-btn"
+                    onclick="deleteMii('<%= cardMii.id %>')"
+                    aria-label="Delete <%= miiName %>"
+                >
+                    <%- include('icon', { name: 'trash', size: 12 }) %>
+                    Delete
+                </button>
+            </div>
+        <% } %>
+    </div>
+</article>
+<% } %>

@@ -44,8 +44,7 @@
     display: none !important;
 }
 
-.miiCategory .mii-card > .flex,
-.miiCategory .mii-card > p {
+.miiCategory .mii-card .mii-card-content {
     padding: 1rem;
 }
 
@@ -55,8 +54,7 @@
         padding: 1rem;
     }
 
-    .miiCategory .mii-card > .flex,
-    .miiCategory .mii-card > p {
+    .miiCategory .mii-card .mii-card-content {
         padding: 0.85rem;
     }
 }

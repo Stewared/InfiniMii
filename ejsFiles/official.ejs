@@ -101,53 +101,25 @@
                         <% for(var i=0; i<displayedMiis.length; i++){ %>
                             <%
                                 const officialMii = displayedMiis[i];
-                                const officialMiiAttribution = getMiiAttribution(officialMii);
                                 const shouldEagerLoadImage = i < 6;
                                 const shouldPrioritizeImage = i < 3;
                             %>
-                            <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
-                                <a href="<%= '/mii/'+displayedMiis[i].id %>">
-                                    <img
-                                        src="miiImgs/<%= displayedMiis[i].id %>.png"
-                                        alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %> Mii: <%= displayedMiis[i]?.description %>"
-                                        width="256"
-                                        height="256"
-                                        loading="<%= shouldEagerLoadImage ? 'eager' : 'lazy' %>"
-                                        decoding="async"
-                                        fetchpriority="<%= shouldPrioritizeImage ? 'high' : (shouldEagerLoadImage ? 'auto' : 'low') %>"
-                                    >
-                                </a>
-                                <div class="flex official-card-meta-row">
-                                    <div class="official-card-meta">
-                                        <h3><%= displayedMiis[i].meta?.name || displayedMiis[i].name %></h3>
-                                        <div class="official-badge"><%- include('icon', { name: 'star-filled', size: 12, class: 'icon-gold' }) %> Official</div>
-                                        <p class="mii-card-byline">
-                                            <span><%= officialMiiAttribution.prefix %></span>
-                                            <% if (officialMiiAttribution.url) { %>
-                                                <a href="<%= officialMiiAttribution.url %>"><%= officialMiiAttribution.label %></a>
-                                            <% } else { %>
-                                                <span><%= officialMiiAttribution.label %></span>
-                                            <% } %>
-                                        </p>
-                                        <% if(displayedMiis[i].officialCategories && displayedMiis[i].officialCategories.length > 0) { %>
-                                            <div class="mii-categories">
-                                                <% displayedMiis[i].officialCategories.slice(0, 3).forEach(cat => { %>
-                                                    <span class="category-tag"><%= cat %></span>
-                                                <% }); %>
-                                                <% if(displayedMiis[i].officialCategories.length > 3) { %>
-                                                    <span class="category-tag more">+<%= displayedMiis[i].officialCategories.length - 3 %></span>
-                                                <% } %>
-                                            </div>
-                                        <% } %>
-                                    </div>
-                                    <%- include('miiCardLikeButton', { mii: officialMii, user, buttonClass: 'official-card-like-button', iconSize: 18 }) %>
-                                </div>
-                                <p>
-                                    <%= displayedMiis[i].desc && displayedMiis[i].desc.length > 75 ? 
-                                        displayedMiis[i].desc.substring(0, 75) + '...' : 
-                                        (displayedMiis[i].desc || '') %>
-                                </p>
-                            </div>
+                            <%- include('miiCard', {
+                                mii: officialMii,
+                                user,
+                                cardDomId: officialMii.id,
+                                imageEagerLoad: shouldEagerLoadImage,
+                                imagePriorityLoad: shouldPrioritizeImage,
+                                descriptionMaxLength: 75,
+                                includeLikeButton: true,
+                                likeButtonClass: 'official-card-like-button',
+                                likeIconSize: 18,
+                                metadataType: 'categories',
+                                metadataItems: officialMii.officialCategories,
+                                metadataItemLimit: 3,
+                                badgeEnabled: true,
+                                badgeText: 'Official'
+                            }) %>
                         <% } %>
                     </div>
                     

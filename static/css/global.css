@@ -412,8 +412,16 @@ footer ul li a:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
- .mii-card .flex, .mii-card > p {
+.mii-card .mii-card-content,
+.mii-card .flex,
+.mii-card > p {
     padding: 1.5rem;
+}
+
+.mii-card .mii-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.42rem;
 }
 
 .mii-card > a,
@@ -551,16 +559,32 @@ footer ul li a:hover {
     max-width: 100%;
 }
 
-.mii-card > div > div > a {
-    color: var(--brand-color);
-    margin: 0;
-    margin-bottom: .5rem;
-    display: block;
-    text-decoration: none;
+.mii-card .mii-card-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
 }
 
-.mii-card > div > div > a:hover {
-    text-decoration: underline;
+.mii-card .mii-card-meta {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.mii-card .mii-card-title-link {
+    color: inherit;
+    display: block;
+    max-width: 100%;
+    text-decoration: inherit;
+}
+
+.mii-card .mii-card-title-link:hover {
+    text-decoration: inherit;
+}
+
+.mii-card .mii-card-meta-row .mii-card-like-button {
+    align-self: center;
+    margin-left: auto;
 }
 
 .mii-card p {
@@ -568,6 +592,11 @@ footer ul li a:hover {
     margin-top: 8px;
     color: var(--text-2);
     font-size: 14px;
+}
+
+.mii-card .mii-card-description {
+    margin-top: 0.15rem;
+    line-height: 1.45;
 }
 
 .mii-card-byline {
@@ -581,7 +610,7 @@ footer ul li a:hover {
     line-height: 1.25;
 }
 
-.mii-card .flex .mii-card-byline span {
+.mii-card .mii-card-byline span {
     display: inline;
 }
 
@@ -651,6 +680,7 @@ footer ul li a:hover {
 
 .mii-card-like-button .icon,
 .mii-card-like-button .like-icon {
+    display: block;
     width: 20px;
     height: 20px;
     margin: 0;

@@ -301,43 +301,31 @@
 /* User's Miis Grid */
 #browse-miis {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 210px));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
     justify-content: center;
-    gap: 30px;
+    gap: 1rem;
     margin-top: 2rem;
     align-items: stretch;
 }
 
 #browse-miis .mii-card {
-    border: 2px solid #202020;
-    border-radius: 25px;
-    padding: 1rem;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
-    flex-direction: column;
     border: var(--brand-color) 2px solid;
     width: 100%;
+    max-width: var(--mii-card-max-width);
     min-width: 0;
-    overflow: hidden;
 }
 
 #browse-miis .mii-card > a {
     display: block;
     overflow: hidden;
-    border-radius: 20px;
 }
 
 #browse-miis .mii-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 #browse-miis .mii-card img {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-    border-radius: 20px;
-    margin-bottom: 0.75rem;
     transition: transform 1s, opacity 0.3s ease;
 }
 
@@ -348,54 +336,11 @@
     transform-origin: bottom;
 }
 
-/* Undo broad global mii-card spacing so profile cards are not cramped */
-#browse-miis .mii-card .flex,
-#browse-miis .mii-card > p {
-    padding: 0;
+#browse-miis .mii-card .mii-card-content {
+    padding: 1rem;
 }
 
-#browse-miis .mii-card .flex {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 0.5rem;
-}
-
-#browse-miis .mii-card .flex > div {
-    flex: 1;
-    min-width: 0;
-}
-
-#browse-miis .mii-card h3 {
-    font-size: 18px;
-    font-weight: 400;
-    margin: 0;
-    text-decoration: underline;
-    text-decoration-color: var(--brand-color);
-    text-decoration-thickness: 3px;
-    text-underline-offset: 1px;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-#browse-miis .mii-card a {
-    color: var(--brand-color);
-    text-decoration: none;
-    font-size: 14px;
-}
-
-#browse-miis .mii-card a:hover {
-    text-decoration: underline;
-}
-
-#browse-miis .mii-card p {
-    margin: 0;
-    color: var(--text-2);
-    font-size: 14px;
-    line-height: 1.4;
+#browse-miis .mii-card .mii-card-description {
     display: -webkit-box;
     line-clamp: 3;
     -webkit-line-clamp: 3;
@@ -404,49 +349,7 @@
 }
 
 #browse-miis .mii-card .mii-card-byline {
-    display: flex;
-    align-items: center;
-    gap: 0.28rem;
-    margin: 0.18rem 0 0;
-    line-clamp: unset;
-    -webkit-line-clamp: unset;
-    -webkit-box-orient: initial;
-    overflow: hidden;
-}
-
-#browse-miis .mii-card .mii-card-byline span {
-    display: inline;
-}
-
-#browse-miis .mii-card .flex span {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-}
-
-#browse-miis .mii-card .like {
-    fill: var(--brand-color);
-    width: 35px;
-    height: 35px;
-    transition: transform 0.3s ease;
-    cursor: pointer;
-}
-
-#browse-miis .mii-card .like:hover {
-    transform: scale(1.2);
-}
-
-#browse-miis .mii-card .trash {
-    width: 35px;
-    height: 35px;
-    fill: #f00;
-    transition: transform 0.3s ease;
-    cursor: pointer;
-}
-
-#browse-miis .mii-card .trash:hover {
-    transform: scale(1.2);
+    margin: 0.15rem 0 0.42rem;
 }
 
 /* Empty State */

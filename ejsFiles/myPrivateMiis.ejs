@@ -30,47 +30,30 @@
                 <% if(privateMiis.length > 0) { %>
                     <div id="private-miis-grid">
                         <% for(var i=0; i<privateMiis.length; i++){ %>
-                            <% const shouldEagerLoadImage = i < 4; const shouldPrioritizeImage = i < 2; %>
-                            <article class="private-mii-card" data-mii-id="<%= privateMiis[i].id %>" style="--favorite-color: <%= decodeColor(privateMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
-                                <a href="<%= '/mii/'+privateMiis[i].id %>" aria-label="View <%= privateMiis[i].meta?.name || privateMiis[i].name %>">
-                                    <img src="/privateMiiImgs/<%= privateMiis[i].id %>.png" 
-                                         onerror="this.src='/privateMiiImgs/<%= privateMiis[i].id %>.png'"
-                                         alt="<%= privateMiis[i].meta?.name || privateMiis[i].name %>"
-                                         width="256"
-                                         height="256"
-                                         loading="<%= shouldEagerLoadImage ? 'eager' : 'lazy' %>"
-                                         decoding="async"
-                                         fetchpriority="<%= shouldPrioritizeImage ? 'high' : (shouldEagerLoadImage ? 'auto' : 'low') %>">
-                                </a>
-                                <div class="mii-info">
-                                    <h3><%= privateMiis[i].meta?.name || privateMiis[i].name %></h3>
-                                    <% if(privateMiis[i].desc) { %>
-                                        <p class="mii-desc">
-                                            <%= privateMiis[i].desc.length > 80 ? 
-                                                privateMiis[i].desc.substring(0, 80) + '...' : 
-                                                privateMiis[i].desc %>
-                                        </p>
-                                    <% } %>
-                                    <% if(privateMiis[i].blockedFromPublishing) { %>
-                                        <div class="blocked-notice">
-                                            <%- include('icon', { name: 'ban', size: 14, class: 'icon-inline icon-danger' }) %> Blocked from publishing
-                                            <% if(privateMiis[i].blockReason) { %>
-                                                <small><%= privateMiis[i].blockReason %></small>
-                                            <% } %>
-                                        </div>
-                                    <% } %>
-                                </div>
-                                <div class="mii-actions">
-                                    <% if(!privateMiis[i].blockedFromPublishing) { %>
-                                        <button class="publish-btn" onclick="publishMii('<%= privateMiis[i].id %>')" aria-label="Publish <%= privateMiis[i].meta?.name || privateMiis[i].name %>">
-                                            <%- include('icon', { name: 'upload', size: 12 }) %> Publish
-                                        </button>
-                                    <% } %>
-                                    <button class="delete-btn" onclick="deleteMii('<%= privateMiis[i].id %>')" aria-label="Delete <%= privateMiis[i].meta?.name || privateMiis[i].name %>">
-                                        <%- include('icon', { name: 'trash', size: 12 }) %> Delete
-                                    </button>
-                                </div>
-                            </article>
+                            <%
+                                const privateMii = privateMiis[i];
+                                const privateMiiName = privateMii?.meta?.name || privateMii?.name || 'Unknown Mii';
+                                const shouldEagerLoadImage = i < 4;
+                                const shouldPrioritizeImage = i < 2;
+                            %>
+                            <%- include('miiCard', {
+                                mii: privateMii,
+                                user,
+                                cardClass: 'private-mii-card',
+                                includeMiiDataId: true,
+                                href: `/mii/${privateMii.id}`,
+                                linkAriaLabel: `View ${privateMiiName}`,
+                                imageSrc: `/privateMiiImgs/${privateMii.id}.png`,
+                                imageOnErrorAttr: `this.src='/privateMiiImgs/${privateMii.id}.png'`,
+                                imageAltText: privateMiiName,
+                                imageEagerLoad: shouldEagerLoadImage,
+                                imagePriorityLoad: shouldPrioritizeImage,
+                                descriptionMaxLength: 60,
+                                showByline: false,
+                                includeLikeButton: false,
+                                metadataEnabled: false,
+                                privateControls: true
+                            }) %>
                         <% } %>
                     </div>
                 <% } else { %>

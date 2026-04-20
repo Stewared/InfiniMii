@@ -456,42 +456,19 @@
                             <% for(var i=0; i<displayedMiis.length; i++){ %>
                                 <%
                                     const profileMii = displayedMiis[i];
-                                    const profileMiiAttribution = getMiiAttribution(profileMii);
                                     const shouldEagerLoadImage = i < 6;
                                     const shouldPrioritizeImage = i < 3;
                                 %>
-                                <div class="mii-card" id="<%= displayedMiis[i].id %>" style="--favorite-color: <%= decodeColor(displayedMiis[i].general?.favoriteColor) || decodeColor(0) %>;">
-                                    <a href="<%= '/mii/'+displayedMiis[i].id %>">
-                                        <img
-                                            src="/miiImgs/<%= displayedMiis[i].id %>.png"
-                                            alt="<%= displayedMiis[i].meta?.name || displayedMiis[i].name %> Mii: <%= displayedMiis[i]?.description %>"
-                                            width="256"
-                                            height="256"
-                                            loading="<%= shouldEagerLoadImage ? 'eager' : 'lazy' %>"
-                                            decoding="async"
-                                            fetchpriority="<%= shouldPrioritizeImage ? 'high' : (shouldEagerLoadImage ? 'auto' : 'low') %>"
-                                        >
-                                    </a>
-                                    <div class="flex">
-                                        <div>
-                                            <h3>
-                                                <%= displayedMiis[i].meta?.name || displayedMiis[i].name %>
-                                            </h3>
-                                            <p class="mii-card-byline">
-                                                <span><%= profileMiiAttribution.prefix %></span>
-                                                <% if (profileMiiAttribution.url) { %>
-                                                    <a href="<%= profileMiiAttribution.url %>"><%= profileMiiAttribution.label %></a>
-                                                <% } else { %>
-                                                    <span><%= profileMiiAttribution.label %></span>
-                                                <% } %>
-                                            </p>
-                                        </div>
-                                        <%- include('miiCardLikeButton', { mii: profileMii, user }) %>
-                                    </div>
-                                    <p>
-                                        <%= displayedMiis[i].desc && displayedMiis[i].desc.length> 75 ? displayedMiis[i].desc.slice(0,73) + "..." : displayedMiis[i].desc %>
-                                    </p>
-                                </div>
+                                <%- include('miiCard', {
+                                    mii: profileMii,
+                                    user,
+                                    cardDomId: profileMii.id,
+                                    imageEagerLoad: shouldEagerLoadImage,
+                                    imagePriorityLoad: shouldPrioritizeImage,
+                                    descriptionMaxLength: 75,
+                                    metadataType: 'tags',
+                                    metadataItemLimit: 3
+                                }) %>
                             <% } %>
                         </div>
 
