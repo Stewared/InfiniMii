@@ -32,11 +32,14 @@
         <div class="flex">
             <div>
                 <h3><%= highlightedMiiData.meta.name %></h3>
-                <% if (highlightedAttribution.url) { %>
-                    <a href="<%= highlightedAttribution.url %>"><%= highlightedAttribution.label %></a>
-                <% } else { %>
-                    <a><%= highlightedAttribution.label %></a>
-                <% } %>
+                <p class="mii-card-byline">
+                    <span><%= highlightedAttribution.prefix %></span>
+                    <% if (highlightedAttribution.url) { %>
+                        <a href="<%= highlightedAttribution.url %>"><%= highlightedAttribution.label %></a>
+                    <% } else { %>
+                        <span><%= highlightedAttribution.label %></span>
+                    <% } %>
+                </p>
             </div>
             <button
                 type="button"
