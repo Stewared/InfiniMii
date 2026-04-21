@@ -45,13 +45,13 @@
         <% } %>
         <a href="/upload"><li><%- include('icon', { name: 'upload', class: 'sidebar-icon' }) %> Upload</li></a>
         <a href="/settings"><li><%- include('icon', { name: 'settings', class: 'sidebar-icon' }) %> Settings</li></a>
-        <a href="/convert"><li><%- include('icon', { name: 'arrow-right', class: 'sidebar-icon' }) %> Convert</li></a>
         <% if(isResearcher || isAdmin) { %>
             <a href="/upload#official-upload"><li><%- include('icon', { name: 'flask', class: 'sidebar-icon' }) %> Upload Official Mii</li></a>
             <a href="/manageCategories"><li><%- include('icon', { name: 'folders', class: 'sidebar-icon' }) %> Manage Categories</li></a>
         <% } %>
     </ul>
     <ul class="sidebar-list">
+        <a href="/convert"><li><%- include('icon', { name: 'arrow-right', class: 'sidebar-icon' }) %> Convert Mii</li></a>
         <a href="/qr"><li><%- include('icon', { name: 'qr-code', class: 'sidebar-icon' }) %> QR Options</li></a>
         <a href="/amiibo"><li><%- include('icon', { name: 'statue', class: 'sidebar-icon' }) %> Amiibo Tools</li></a>
         <a href="/wiimote"><li><%- include('icon', { name: 'gamepad', class: 'sidebar-icon' }) %> Wiimote Tools</li></a>
