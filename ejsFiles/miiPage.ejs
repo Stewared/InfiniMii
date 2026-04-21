@@ -133,7 +133,6 @@
                 <header class="id-card-header">
                     <h2 itemprop="name">Mii ID Card</h2>
                     <div class="id-card-header-tools">
-                        <div class="card-number" role="button" tabindex="0" onclick="copyMiiId(this, '<%= mii.id %>')" aria-label="Copy Mii ID">ID: <%= mii.id %></div>
                         <% if (canChangeMiiId) { %>
                             <button
                                 type="button"
@@ -147,6 +146,7 @@
                                 <span>New ID</span>
                             </button>
                         <% } %>
+                        <div class="card-number" role="button" tabindex="0" onclick="copyMiiId(this, '<%= mii.id %>')" aria-label="Copy Mii ID">ID: <%= mii.id %></div>
                     </div>
                 </header>
 
