@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= subject %></title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0E0C10;
+            color: #ffffff;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+        }
+
+        .preheader {
+            display: none !important;
+            visibility: hidden;
+            opacity: 0;
+            color: transparent;
+            height: 0;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .shell {
+            width: 100%;
+            max-width: 980px;
+            margin: 0 auto;
+            border-radius: 20px;
+            border: 1px solid #2a2930;
+            background:
+                radial-gradient(circle at top right, rgba(222, 67, 98, 0.16), transparent 32%),
+                radial-gradient(ellipse at center, rgba(32, 30, 37, 0.98), rgba(14, 12, 16, 0.98) 85%);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 26px 20px 10px;
+        }
+
+        .header img {
+            width: 100%;
+            max-width: 430px;
+            height: auto;
+            border: 0;
+        }
+
+        .main-wrap {
+            padding: 16px 22px 10px;
+        }
+
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .main-column {
+            width: 68%;
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .aside-column {
+            width: 32%;
+            vertical-align: top;
+            padding: 0 0 0 16px;
+        }
+
+        .content-card {
+            border-radius: 18px;
+            border: 1px solid #33313a;
+            background:
+                radial-gradient(circle at top left, rgba(222, 67, 98, 0.13), transparent 42%),
+                linear-gradient(150deg, #26242c, #14131a);
+            padding: 20px 20px 16px;
+        }
+
+        .eyebrow {
+            margin: 0 0 7px;
+            color: #f194ab;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 26px;
+            line-height: 1.15;
+            color: #ffffff;
+        }
+
+        .content-copy {
+            margin-top: 14px;
+            color: #f6f6f7;
+            font-size: 15px;
+        }
+
+        .content-copy p {
+            margin: 0 0 12px;
+        }
+
+        .content-copy a {
+            color: #DE4362;
+            text-decoration: underline;
+            text-decoration-color: rgba(222, 67, 98, 0.35);
+        }
+
+        .content-copy a:hover {
+            text-decoration-color: #DE4362;
+        }
+
+        .cta {
+            margin-top: 14px;
+        }
+
+        .cta a {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 999px;
+            background: linear-gradient(150deg, #e55f7c, #b2334e);
+            color: #ffffff;
+            font-weight: 700;
+            text-decoration: none;
+            border: 1px solid #f07f98;
+        }
+
+        .mii-card {
+            border-radius: 18px;
+            border: 1px solid #33313a;
+            background: #211f25;
+            overflow: hidden;
+        }
+
+        .mii-card-header {
+            padding: 12px 14px 8px;
+            border-bottom: 1px solid #312f38;
+            color: #f194ab;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .mii-card-media {
+            text-align: center;
+            background:
+                radial-gradient(circle at center, rgba(66, 64, 74, 0.8) 30%, rgba(25, 23, 30, 0.95) 100%);
+        }
+
+        .mii-card-media img {
+            display: block;
+            width: 100%;
+            max-width: 256px;
+            height: auto;
+            margin: 0 auto;
+            border: 0;
+        }
+
+        .mii-card-content {
+            padding: 12px 14px 14px;
+            color: #ffffff;
+        }
+
+        .mii-card-content h2 {
+            margin: 0;
+            font-size: 18px;
+            line-height: 1.25;
+            color: #ffffff;
+        }
+
+        .mii-byline {
+            margin: 7px 0 0;
+            color: #b9b1b6;
+            font-size: 13px;
+        }
+
+        .mii-byline a {
+            color: #DE4362;
+            text-decoration: none;
+        }
+
+        .mii-byline a:hover {
+            text-decoration: underline;
+        }
+
+        .mii-description {
+            margin: 9px 0 0;
+            color: #ffffff;
+            font-size: 13px;
+        }
+
+        .mii-link {
+            margin-top: 11px;
+        }
+
+        .mii-link a {
+            color: #DE4362;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .mii-link a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            padding: 12px 22px 26px;
+            color: #aaa1a6;
+            font-size: 12px;
+        }
+
+        .footer a {
+            color: #DE4362;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media only screen and (max-width: 740px) {
+            .main-wrap {
+                padding: 14px 14px 6px;
+            }
+
+            .main-column,
+            .aside-column {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .aside-column {
+                padding: 14px 0 0 !important;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .content-card {
+                padding: 16px;
+            }
+
+            .footer {
+                padding: 12px 14px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <span class="preheader"><%= preheader %></span>
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="padding: 18px 10px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="shell">
+                    <tr>
+                        <td class="header">
+                            <a href="<%= homepageUrl %>" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                                <img src="<%= bannerUrl %>" alt="InfiniMii">
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="main-wrap">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="main-table">
+                                <tr>
+                                    <td class="main-column">
+                                        <div class="content-card">
+                                            <p class="eyebrow">InfiniMii Update</p>
+                                            <h1><%= subject %></h1>
+                                            <div class="content-copy">
+                                                <%- bodyHtml %>
+                                            </div>
+                                            <div class="cta">
+                                                <a href="<%= homepageUrl %>" target="_blank" rel="noopener noreferrer">Open InfiniMii</a>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <% if (includeHighlightedMii && highlightedMii) { %>
+                                    <td class="aside-column">
+                                        <div class="mii-card">
+                                            <div class="mii-card-header">Highlighted Mii</div>
+                                            <div class="mii-card-media">
+                                                <a href="<%= highlightedMii.miiUrl %>" target="_blank" rel="noopener noreferrer">
+                                                    <img src="<%= highlightedMii.imageUrl %>" alt="<%= highlightedMii.name %> Mii">
+                                                </a>
+                                            </div>
+                                            <div class="mii-card-content">
+                                                <h2><%= highlightedMii.name %></h2>
+                                                <p class="mii-byline">
+                                                    <span><%= highlightedMii.attributionPrefix %></span>
+                                                    <% if (highlightedMii.attributionUrl) { %>
+                                                        <a href="<%= highlightedMii.attributionUrl %>" target="_blank" rel="noopener noreferrer"><%= highlightedMii.attributionLabel %></a>
+                                                    <% } else { %>
+                                                        <span><%= highlightedMii.attributionLabel %></span>
+                                                    <% } %>
+                                                </p>
+                                                <% if (highlightedMii.description) { %>
+                                                    <p class="mii-description"><%= highlightedMii.description %></p>
+                                                <% } %>
+                                                <p class="mii-link"><a href="<%= highlightedMii.miiUrl %>" target="_blank" rel="noopener noreferrer">View this Mii</a></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <% } %>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="footer">
+                            <p style="margin: 0;">You are receiving this message from <a href="<%= homepageUrl %>" target="_blank" rel="noopener noreferrer">InfiniMii</a>.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

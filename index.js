@@ -1165,7 +1165,7 @@ function isInvalidMiiTypeError(error) {
         ? error.message
         : String(error || "");
 
-    return /Could not find any decod(?:e|a)ble formats/i.test(errorMessage);
+    return /Could not find any decode?able formats/i.test(errorMessage);
 }
 
 async function buildInvalidMiiTypeErrorPayload({ reqFile = null, rawInput = "", filePath = "" } = {}) {
@@ -9018,11 +9018,9 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                         filePath: req.file?.path || tempBinPath
                     });
                 }
-                res.json(await buildInvalidMiiTypeErrorPayload({
-                    reqFile: req.file,
-                    rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
-                    filePath: dumpedUpload?.destinationPath || req.file?.path || tempBinPath
-                }));
+                res.json({
+                    error: "Failed to process file. Please double-check that you selected the correct file. Could not find any decodeable formats. If this is a QR code, make sure it is clear and not blurry."
+                });
                 return;
             }
             res.json({error: `Failed to process file. Please double-check that you selected the correct file. ${e.message || ''}`});
