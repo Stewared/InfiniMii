@@ -5758,13 +5758,14 @@ site.post('/deleteMii', async (req, res) => { // TODO: csrf here, make post
         res.json({ error: 'Server error' });
     }
 });
-// Update Mii Field (Moderator+, plus Researchers for official Miis)
+// Update Mii Field (Moderator+, Researchers for official Miis, and unlocked uploaders for metadata)
 site.post('/updateMiiField', requireAuth, async (req, res) => {
     try {
         const { id, field, value } = req.body;
+        const requestedField = String(field || '').trim();
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
 
-        if (!id || !field || value === undefined) {
+        if (!id || !requestedField || value === undefined) {
             return res.json({ error: 'Missing parameters' });
         }
 
@@ -5773,35 +5774,78 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
             return res.json({ error: 'Mii not found' });
         }
 
+        const editableMetadataFields = new Set(['name', 'desc', 'creatorName']);
         const canUseModeratorTools = canModerate(req.user);
         const canResearchOfficial = isResearcher(req.user) && mii.official;
-        if (!canUseModeratorTools && !canResearchOfficial) {
+        const isUploader = Boolean(req.user?.username && mii.uploader === req.user.username);
+        const isMetadataField = editableMetadataFields.has(requestedField);
+        const isUserEditLocked = Boolean(mii.lockedFromUserEdits);
+        const canUploaderEditMetadata = isUploader && isMetadataField && !isUserEditLocked;
+
+        if (requestedField === 'lockedFromUserEdits' && !canUseModeratorTools) {
+            return res.json({ error: 'Only moderators can change the uploader edit lock' });
+        }
+
+        if (
+            requestedField !== 'lockedFromUserEdits' &&
+            !canUseModeratorTools &&
+            !canResearchOfficial &&
+            !canUploaderEditMetadata
+        ) {
+            if (isUploader && isMetadataField && isUserEditLocked) {
+                return res.json({ error: 'This Mii has been locked from uploader edits by a moderator' });
+            }
             return res.json({ error: 'Insufficient permissions' });
         }
 
         const isResearcherOnlyActor = canResearchOfficial && !canUseModeratorTools;
         const researcherAllowedFields = new Set(['name', 'desc', 'creatorName']);
-        if (isResearcherOnlyActor && !researcherAllowedFields.has(field)) {
+        if (isResearcherOnlyActor && !researcherAllowedFields.has(requestedField)) {
             return res.json({ error: 'Researchers can only edit name, description, and creator name on official Miis' });
         }
 
         // Store old value for logging
         let oldValue;
+        let normalizedValue = value;
         let updates = {};
 
         // Update the appropriate field
-        switch (field) {
+        switch (requestedField) {
             case 'name':
+                if (typeof value !== 'string') {
+                    return res.json({ error: 'Mii name must be a string' });
+                }
+                normalizedValue = value.trim();
+                if (!normalizedValue) {
+                    return res.json({ error: 'Mii name is required' });
+                }
+                if (normalizedValue.length > 10) {
+                    return res.json({ error: 'Mii name must be 10 characters or fewer' });
+                }
                 oldValue = mii.meta.name;
-                updates['meta.name'] = value;
+                updates['meta.name'] = normalizedValue;
                 break;
             case 'desc':
+                if (typeof value !== 'string') {
+                    return res.json({ error: 'Description must be a string' });
+                }
+                normalizedValue = value;
+                if (!normalizedValue.trim()) {
+                    return res.json({ error: 'Description is required' });
+                }
                 oldValue = mii.desc;
-                updates.desc = value;
+                updates.desc = normalizedValue;
                 break;
             case 'creatorName':
+                if (typeof value !== 'string') {
+                    return res.json({ error: 'Creator name must be a string' });
+                }
+                normalizedValue = value.trim();
+                if (normalizedValue.length > 10) {
+                    return res.json({ error: 'Creator name must be 10 characters or fewer' });
+                }
                 oldValue = mii.meta.creatorName;
-                updates['meta.creatorName'] = value;
+                updates['meta.creatorName'] = normalizedValue;
                 break;
             case 'uploader':
                 // Validate new uploader exists
@@ -5817,6 +5861,14 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                     updates.officialSource = value;
                 }
                 break;
+            case 'lockedFromUserEdits':
+                if (typeof value !== 'boolean') {
+                    return res.json({ error: 'Uploader edit lock must be true or false' });
+                }
+                normalizedValue = Boolean(value);
+                oldValue = mii.lockedFromUserEdits ? 'Locked' : 'Unlocked';
+                updates.lockedFromUserEdits = normalizedValue;
+                break;
             default:
                 return res.json({ error: 'Invalid field' });
         }
@@ -5825,14 +5877,14 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
 
         const actorRoleLabel = isAdmin(req.user)
             ? 'Administrator'
-            : (canUseModeratorTools ? 'Moderator' : 'Researcher');
+            : (canUseModeratorTools ? 'Moderator' : (canResearchOfficial ? 'Researcher' : 'Uploader'));
 
         // Log to Discord
         makeReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `Mii ${field} Updated`,
-                description: `${actorRoleLabel} ${req.cookies.username} updated ${field}`,
+                title: `Mii ${requestedField} Updated`,
+                description: `${actorRoleLabel} ${req.user.username} updated ${requestedField}`,
                 color: 0xFFA500,
                 fields: [
                     {
@@ -5842,17 +5894,21 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                     },
                     {
                         name: 'Field',
-                        value: field,
+                        value: requestedField,
                         inline: true
                     },
                     {
                         name: 'Old Value',
-                        value: oldValue || 'N/A',
+                        value: String(oldValue || 'N/A'),
                         inline: false
                     },
                     {
                         name: 'New Value',
-                        value: value,
+                        value: String(
+                            requestedField === 'lockedFromUserEdits'
+                                ? (normalizedValue ? 'Locked' : 'Unlocked')
+                                : (normalizedValue || 'N/A')
+                        ),
                         inline: false
                     }
                 ],
@@ -5865,9 +5921,9 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
         if (!mii.private && mii.published !== false) {
             const updatedMii = {
                 ...mii,
-                uploader: field === "uploader" ? value : mii.uploader
+                uploader: requestedField === "uploader" ? normalizedValue : mii.uploader
             };
-            const extraUrls = field === "uploader"
+            const extraUrls = requestedField === "uploader"
                 ? [getUserProfileUrl(resolvedBaseUrl, oldValue)]
                 : [];
             notifyIndexNow(
@@ -5876,7 +5932,7 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                     includeOfficialListing: Boolean(mii.official)
                 }),
                 resolvedBaseUrl,
-                `update-mii-${field}`
+                `update-mii-${requestedField}`
             );
         }
 

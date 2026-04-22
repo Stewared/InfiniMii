@@ -57,6 +57,10 @@
         const canChangeMiiId = Boolean(isModerator && mii.id !== 'average');
         const canSetMiiIdDirectly = Boolean(isAdmin && mii.id !== 'average');
         const canClearTomodachiLifeData = Boolean(isAdmin);
+        const isMiiUploader = Boolean(user?.username && mii.uploader === user.username);
+        const isMiiUserEditLocked = Boolean(mii.lockedFromUserEdits);
+        const canInlineEditMiiMetadata = Boolean(isModerator || (isMiiUploader && !isMiiUserEditLocked));
+        const shouldShowCreatorName = creatorName.length > 0 || canInlineEditMiiMetadata;
         const breadcrumbs = [
             { name: 'Home', url: '/' },
             { name: mii.official ? 'Official Miis' : 'Community Miis', url: mii.official ? '/official' : '/top' },
@@ -197,13 +201,56 @@
 
                     <!-- Right side: Information -->
                     <div class="id-card-info">
-                        <h1 class="mii-name"><%= miiName %></h1>
+                        <div class="mii-inline-edit-block mii-name-edit-block" data-inline-edit-field="name">
+                            <div class="editable-label-row">
+                                <span class="info-label">Name</span>
+                                <% if(canInlineEditMiiMetadata) { %>
+                                    <button type="button" class="inline-edit-icon-button" data-inline-edit-trigger="name" onclick="openMiiInlineEditor('name')" aria-label="Edit Mii name" title="Edit Mii name">
+                                        <%- include('icon', { name: 'edit', size: 14 }) %>
+                                    </button>
+                                <% } %>
+                            </div>
+                            <h1 class="mii-name" data-inline-edit-display="name"><%= miiName %></h1>
+                            <% if(canInlineEditMiiMetadata) { %>
+                                <div class="inline-edit-controls" data-inline-edit-controls="name" hidden>
+                                    <input type="text" id="inlineEditName" class="inline-edit-input inline-edit-input-name" data-inline-edit-input="name" value="<%= mii.meta?.name || '' %>" maxlength="10" autocomplete="off" spellcheck="false">
+                                    <div class="inline-edit-actions">
+                                        <button type="button" class="inline-edit-save-button" data-inline-edit-save="name" onclick="saveInlineMiiField('name')">
+                                            <%- include('icon', { name: 'check', size: 15 }) %> Save
+                                        </button>
+                                        <button type="button" class="inline-edit-cancel-button" onclick="cancelInlineMiiEdit('name')" aria-label="Cancel name edit" title="Cancel">
+                                            <%- include('icon', { name: 'x', size: 15 }) %>
+                                        </button>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
                         
                         <div class="info-grid">
-                            <% if(creatorName.length > 0){ %>
+                            <% if(shouldShowCreatorName){ %>
                             <div class="info-item">
-                                <span class="info-label">Creator Name</span>
-                                <span class="info-value" itemprop="creator"><%= creatorName %></span>
+                                <div class="editable-label-row">
+                                    <span class="info-label">Creator Name</span>
+                                    <% if(canInlineEditMiiMetadata) { %>
+                                        <button type="button" class="inline-edit-icon-button" data-inline-edit-trigger="creatorName" onclick="openMiiInlineEditor('creatorName')" aria-label="Edit creator name" title="Edit creator name">
+                                            <%- include('icon', { name: 'edit', size: 14 }) %>
+                                        </button>
+                                    <% } %>
+                                </div>
+                                <span class="info-value" itemprop="creator" data-inline-edit-display="creatorName"><%= creatorName || 'Not Set' %></span>
+                                <% if(canInlineEditMiiMetadata) { %>
+                                    <div class="inline-edit-controls inline-edit-controls-compact" data-inline-edit-controls="creatorName" hidden>
+                                        <input type="text" id="inlineEditCreatorName" class="inline-edit-input" data-inline-edit-input="creatorName" value="<%= mii.meta?.creatorName || '' %>" maxlength="10" autocomplete="off" spellcheck="false">
+                                        <div class="inline-edit-actions">
+                                            <button type="button" class="inline-edit-save-button" data-inline-edit-save="creatorName" onclick="saveInlineMiiField('creatorName')">
+                                                <%- include('icon', { name: 'check', size: 15 }) %> Save
+                                            </button>
+                                            <button type="button" class="inline-edit-cancel-button" onclick="cancelInlineMiiEdit('creatorName')" aria-label="Cancel creator name edit" title="Cancel">
+                                                <%- include('icon', { name: 'x', size: 15 }) %>
+                                            </button>
+                                        </div>
+                                    </div>
+                                <% } %>
                             </div>
                             <% } %>
 
@@ -288,9 +335,15 @@
                                     creatorName: <%- toScriptJson(mii.meta?.creatorName || '') %>,
                                     uploader: <%- toScriptJson(mii.uploader || '') %>,
                                     official: <%- toScriptJson(Boolean(mii.official)) %>,
+                                    lockedFromUserEdits: <%- toScriptJson(Boolean(mii.lockedFromUserEdits)) %>,
                                     categories: [...currentCategories].map((value) => String(value ?? '')).sort(),
                                     tags: [...currentMiiTags].map((value) => String(value ?? '')).sort()
                                 });
+                                const inlineMiiEditorState = {
+                                    name: originalMiiEditorState.name,
+                                    desc: originalMiiEditorState.desc,
+                                    creatorName: originalMiiEditorState.creatorName
+                                };
                                 let selectedMiiTags = new Set(currentMiiTags);
                                 let officialCategories = [];
                                 let selectedPaths = new Set(currentCategories);
@@ -582,8 +635,28 @@
 
                 <!-- Description -->
                 <div class="id-card-description">
-                    <h3 class="info-label">Description</h3>
-                    <p itemprop="description"><%= (mii.desc && mii.desc.length > 0) ? mii.desc : `${archiveIntro} ${archiveOwnerStatsLabel}`.trim() %></p>
+                    <div class="editable-label-row">
+                        <h3 class="info-label">Description</h3>
+                        <% if(canInlineEditMiiMetadata) { %>
+                            <button type="button" class="inline-edit-icon-button" data-inline-edit-trigger="desc" onclick="openMiiInlineEditor('desc')" aria-label="Edit description" title="Edit description">
+                                <%- include('icon', { name: 'edit', size: 14 }) %>
+                            </button>
+                        <% } %>
+                    </div>
+                    <p itemprop="description" data-inline-edit-display="desc"><%= (mii.desc && mii.desc.length > 0) ? mii.desc : `${archiveIntro} ${archiveOwnerStatsLabel}`.trim() %></p>
+                    <% if(canInlineEditMiiMetadata) { %>
+                        <div class="inline-edit-controls inline-edit-controls-wide" data-inline-edit-controls="desc" hidden>
+                            <textarea id="inlineEditDesc" class="inline-edit-input inline-edit-textarea" data-inline-edit-input="desc" rows="4"><%= mii.desc || '' %></textarea>
+                            <div class="inline-edit-actions">
+                                <button type="button" class="inline-edit-save-button" data-inline-edit-save="desc" onclick="saveInlineMiiField('desc')">
+                                    <%- include('icon', { name: 'check', size: 15 }) %> Save
+                                </button>
+                                <button type="button" class="inline-edit-cancel-button" onclick="cancelInlineMiiEdit('desc')" aria-label="Cancel description edit" title="Cancel">
+                                    <%- include('icon', { name: 'x', size: 15 }) %>
+                                </button>
+                            </div>
+                        </div>
+                    <% } %>
                     <div class="id-card-description-actions">
                         <div class="vote-section">
                             <%
@@ -1026,28 +1099,21 @@
                         
                         <div class="mod-tools-content" id="modToolsContent">
                             <div class="mod-tool-grid">
-                                <!-- Edit Mii Name -->
-                                <div class="mod-tool-item">
-                                    <label>Mii Name:</label>
-                                    <input type="text" id="editMiiName" value="<%= mii.meta.name %>" placeholder="Mii Name" maxLength="10">
-                                </div>
-
-                                <!-- Edit Description -->
-                                <div class="mod-tool-item">
-                                    <label>Description:</label>
-                                    <textarea id="editDesc" rows="3" placeholder="Description"><%= mii.desc %></textarea>
-                                </div>
-
-                                <!-- Edit Creator Name -->
-                                <div class="mod-tool-item">
-                                    <label>Creator Name (in Mii file):</label>
-                                    <input type="text" id="editCreatorName" value="<%= mii.meta.creatorName || '' %>" placeholder="Creator Name">
-                                </div>
-
                                 <!-- Switch Uploader -->
                                 <div class="mod-tool-item">
                                     <label>Change Uploader:</label>
                                     <input type="text" id="editUploader" value="<%= mii.uploader %>" placeholder="Username">
+                                </div>
+
+                                <div class="mod-tool-item">
+                                    <label>Uploader Editing:</label>
+                                    <div class="toggle-container">
+                                        <input type="checkbox" id="userEditLockCheckbox" <%= mii.lockedFromUserEdits ? 'checked' : '' %>>
+                                        <label for="userEditLockCheckbox">
+                                            <%- include('icon', { name: 'lock', size: 16, class: 'icon-inline' }) %>
+                                            <span>Lock uploader metadata edits</span>
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <% if (canSetMiiIdDirectly) { %>
@@ -1135,7 +1201,7 @@
                             <div class="mod-tool-grid">
                                 <div class="mod-tool-item">
                                     <label>Mii Name:</label>
-                                    <input type="text" id="researcherEditMiiName" value="<%= mii.meta.name %>" placeholder="Mii Name">
+                                    <input type="text" id="researcherEditMiiName" value="<%= mii.meta.name %>" placeholder="Mii Name" maxlength="10">
                                 </div>
 
                                 <div class="mod-tool-item">
@@ -1145,7 +1211,7 @@
 
                                 <div class="mod-tool-item">
                                     <label>Creator Name (in Mii file):</label>
-                                    <input type="text" id="researcherEditCreatorName" value="<%= mii.meta.creatorName || '' %>" placeholder="Creator Name">
+                                    <input type="text" id="researcherEditCreatorName" value="<%= mii.meta.creatorName || '' %>" placeholder="Creator Name" maxlength="10">
                                 </div>
 
                                 <div class="mod-tool-item">
@@ -1682,6 +1748,154 @@
                     : button.dataset.defaultLabel;
             }
 
+            function getMiiMetadataEditConfig(field) {
+                const configs = {
+                    name: {
+                        endpointField: 'name',
+                        label: 'name',
+                        maxLength: 10,
+                        required: true,
+                        fallback: 'Unknown Mii'
+                    },
+                    desc: {
+                        endpointField: 'desc',
+                        label: 'description',
+                        required: true,
+                        fallback: <%- toScriptJson(`${archiveIntro} ${archiveOwnerStatsLabel}`.trim()) %>
+                    },
+                    creatorName: {
+                        endpointField: 'creatorName',
+                        label: 'creator name',
+                        maxLength: 10,
+                        required: false,
+                        fallback: 'Not Set'
+                    }
+                };
+
+                return configs[field] || null;
+            }
+
+            function getInlineMiiEditorElement(field, role) {
+                return document.querySelector(`[data-inline-edit-${role}="${field}"]`);
+            }
+
+            function normalizeMiiMetadataEditorValue(field, value) {
+                if (field === 'name' || field === 'creatorName') {
+                    return String(value ?? '').trim();
+                }
+
+                return String(value ?? '');
+            }
+
+            function validateMiiMetadataEditorValue(field, value) {
+                const config = getMiiMetadataEditConfig(field);
+                if (!config) {
+                    showAlert('Invalid field.', 5000, { title: 'Error', type: 'error' });
+                    return false;
+                }
+
+                const normalizedValue = normalizeMiiMetadataEditorValue(field, value);
+                if (config.required && normalizedValue.trim() === '') {
+                    showAlert(`Please enter a valid ${config.label}.`, 5000, { title: 'Error', type: 'error' });
+                    return false;
+                }
+
+                if (config.maxLength && normalizedValue.length > config.maxLength) {
+                    showAlert(`${config.label.charAt(0).toUpperCase()}${config.label.slice(1)} must be ${config.maxLength} characters or fewer.`, 5000, { title: 'Error', type: 'error' });
+                    return false;
+                }
+
+                return true;
+            }
+
+            function setInlineMiiEditorOpen(field, isOpen) {
+                const display = getInlineMiiEditorElement(field, 'display');
+                const controls = getInlineMiiEditorElement(field, 'controls');
+                const trigger = getInlineMiiEditorElement(field, 'trigger');
+
+                if (display) display.hidden = isOpen;
+                if (controls) controls.hidden = !isOpen;
+                if (trigger) trigger.hidden = isOpen;
+            }
+
+            function openMiiInlineEditor(field) {
+                const input = getInlineMiiEditorElement(field, 'input');
+                if (!input) return;
+
+                input.value = inlineMiiEditorState[field] ?? '';
+                setInlineMiiEditorOpen(field, true);
+                input.focus();
+
+                if (typeof input.select === 'function') {
+                    input.select();
+                }
+            }
+
+            function cancelInlineMiiEdit(field) {
+                const input = getInlineMiiEditorElement(field, 'input');
+                if (input) {
+                    input.value = inlineMiiEditorState[field] ?? '';
+                }
+
+                setInlineMiiEditorOpen(field, false);
+            }
+
+            async function saveInlineMiiField(field) {
+                const config = getMiiMetadataEditConfig(field);
+                const input = getInlineMiiEditorElement(field, 'input');
+                const display = getInlineMiiEditorElement(field, 'display');
+                const button = getInlineMiiEditorElement(field, 'save');
+
+                if (!config || !input || !display) return;
+
+                const nextValue = normalizeMiiMetadataEditorValue(field, input.value);
+                if (!validateMiiMetadataEditorValue(field, nextValue)) return;
+
+                if (nextValue === inlineMiiEditorState[field]) {
+                    cancelInlineMiiEdit(field);
+                    showAlert('No changes to save.', 2500, { title: 'Nothing to Save' });
+                    return;
+                }
+
+                setSaveButtonBusy(button, true);
+                try {
+                    const result = await submitMiiFieldUpdate(config.endpointField, nextValue);
+                    if (result?.error) {
+                        showAlert(`Error: ${result.error}`, 6000, { title: 'Error', type: 'error' });
+                        return;
+                    }
+
+                    inlineMiiEditorState[field] = nextValue;
+                    display.textContent = nextValue || config.fallback;
+                    input.value = nextValue;
+                    setInlineMiiEditorOpen(field, false);
+                    showAlert('Saved.', 2500, { title: 'Success', type: 'success' });
+                } catch (error) {
+                    console.error('Error saving Mii field:', error);
+                    showAlert('Failed to save changes.', 6000, { title: 'Error', type: 'error' });
+                } finally {
+                    setSaveButtonBusy(button, false);
+                }
+            }
+
+            function initializeInlineMiiEditors() {
+                document.querySelectorAll('[data-inline-edit-input]').forEach((input) => {
+                    const field = input.dataset.inlineEditInput;
+                    input.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+                            cancelInlineMiiEdit(field);
+                            return;
+                        }
+
+                        if (event.key === 'Enter' && field !== 'desc') {
+                            event.preventDefault();
+                            saveInlineMiiField(field);
+                        }
+                    });
+                });
+            }
+
             async function saveStagedEditorChanges(changes, button, title = 'Save Changes') {
                 if (changes.length === 0) {
                     showAlert('No changes to save.', 3000, { title: 'Nothing to Save' });
@@ -1746,39 +1960,21 @@
                 const button = document.getElementById('saveModeratorEditsButton');
                 const changes = [];
 
-                const name = document.getElementById('editMiiName')?.value ?? '';
-                if (name !== originalMiiEditorState.name) {
-                    if (!validateEditorValue(name, 'name')) return;
-                    changes.push({
-                        label: 'name',
-                        run: () => submitMiiFieldUpdate('name', name)
-                    });
-                }
-
-                const desc = document.getElementById('editDesc')?.value ?? '';
-                if (desc !== originalMiiEditorState.desc) {
-                    if (!validateEditorValue(desc, 'description')) return;
-                    changes.push({
-                        label: 'description',
-                        run: () => submitMiiFieldUpdate('desc', desc)
-                    });
-                }
-
-                const creatorName = document.getElementById('editCreatorName')?.value ?? '';
-                if (creatorName !== originalMiiEditorState.creatorName) {
-                    if (!validateEditorValue(creatorName, 'creator name')) return;
-                    changes.push({
-                        label: 'creator name',
-                        run: () => submitMiiFieldUpdate('creatorName', creatorName)
-                    });
-                }
-
-                const uploader = document.getElementById('editUploader')?.value ?? '';
-                if (uploader !== originalMiiEditorState.uploader) {
+                const uploaderInput = document.getElementById('editUploader');
+                const uploader = uploaderInput?.value ?? '';
+                if (uploaderInput && uploader !== originalMiiEditorState.uploader) {
                     if (!validateEditorValue(uploader, 'uploader')) return;
                     changes.push({
                         label: 'uploader',
                         run: () => submitMiiFieldUpdate('uploader', uploader)
+                    });
+                }
+
+                const userEditLockCheckbox = document.getElementById('userEditLockCheckbox');
+                if (userEditLockCheckbox && userEditLockCheckbox.checked !== originalMiiEditorState.lockedFromUserEdits) {
+                    changes.push({
+                        label: 'uploader edit lock',
+                        run: () => submitMiiFieldUpdate('lockedFromUserEdits', userEditLockCheckbox.checked)
                     });
                 }
 
@@ -1813,27 +2009,27 @@
                 const button = document.getElementById('saveOfficialEditorButton');
                 const changes = [];
 
-                const name = document.getElementById('researcherEditMiiName')?.value ?? '';
+                const name = normalizeMiiMetadataEditorValue('name', document.getElementById('researcherEditMiiName')?.value ?? '');
                 if (name !== originalMiiEditorState.name) {
-                    if (!validateEditorValue(name, 'name')) return;
+                    if (!validateMiiMetadataEditorValue('name', name)) return;
                     changes.push({
                         label: 'name',
                         run: () => submitMiiFieldUpdate('name', name)
                     });
                 }
 
-                const desc = document.getElementById('researcherEditDesc')?.value ?? '';
+                const desc = normalizeMiiMetadataEditorValue('desc', document.getElementById('researcherEditDesc')?.value ?? '');
                 if (desc !== originalMiiEditorState.desc) {
-                    if (!validateEditorValue(desc, 'description')) return;
+                    if (!validateMiiMetadataEditorValue('desc', desc)) return;
                     changes.push({
                         label: 'description',
                         run: () => submitMiiFieldUpdate('desc', desc)
                     });
                 }
 
-                const creatorName = document.getElementById('researcherEditCreatorName')?.value ?? '';
+                const creatorName = normalizeMiiMetadataEditorValue('creatorName', document.getElementById('researcherEditCreatorName')?.value ?? '');
                 if (creatorName !== originalMiiEditorState.creatorName) {
-                    if (!validateEditorValue(creatorName, 'creator name')) return;
+                    if (!validateMiiMetadataEditorValue('creatorName', creatorName)) return;
                     changes.push({
                         label: 'creator name',
                         run: () => submitMiiFieldUpdate('creatorName', creatorName)
@@ -1887,6 +2083,7 @@
             }
 
             function initializeMiiPageEditorState() {
+                initializeInlineMiiEditors();
                 updateCategoryEditorTriggers();
                 updateOfficialCheckboxLabel();
                 try {

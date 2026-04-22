@@ -296,6 +296,157 @@
     font-weight: 500;
 }
 
+.mii-name-edit-block {
+    margin: 0 0 1.5rem 0;
+}
+
+.mii-name-edit-block .mii-name {
+    margin: 0.2rem 0 0 0;
+}
+
+.editable-label-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    max-width: 100%;
+}
+
+.editable-label-row .info-label {
+    margin: 0;
+}
+
+.inline-edit-icon-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #8b909b 40%);
+    border-radius: 8px;
+    background: color-mix(in oklab, var(--layer-2-um) 78%, #202a3b 22%);
+    color: var(--text-2);
+    cursor: pointer;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.inline-edit-icon-button:hover,
+.inline-edit-icon-button:focus-visible {
+    outline: none;
+    color: var(--text-1);
+    border-color: color-mix(in oklab, var(--brand-color) 56%, #858b96 44%);
+    background: color-mix(in oklab, var(--brand-color) 22%, var(--layer-2-um) 78%);
+    transform: translateY(-1px);
+}
+
+.inline-edit-icon-button[hidden],
+.inline-edit-controls[hidden],
+[data-inline-edit-display][hidden] {
+    display: none !important;
+}
+
+.inline-edit-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+    max-width: 100%;
+}
+
+.inline-edit-controls-wide {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+}
+
+.inline-edit-controls-compact {
+    align-items: flex-start;
+}
+
+.inline-edit-input {
+    box-sizing: border-box;
+    width: min(100%, 280px);
+    min-width: 0;
+    padding: 0.58rem 0.7rem;
+    border: 2px solid color-mix(in oklab, var(--layer-3-um) 72%, #8a8f9b 28%);
+    border-radius: 8px;
+    background-color: color-mix(in oklab, var(--layer-1-um) 88%, #1b2434 12%);
+    color: var(--text-1);
+    font: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.inline-edit-input:focus {
+    outline: none;
+    border-color: var(--brand-color);
+    background-color: color-mix(in oklab, var(--layer-1-um) 80%, #253149 20%);
+}
+
+.inline-edit-input-name {
+    color: var(--brand-color);
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.inline-edit-textarea {
+    width: 100%;
+    min-height: 108px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.inline-edit-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.inline-edit-save-button,
+.inline-edit-cancel-button {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.inline-edit-save-button {
+    padding: 0.48rem 0.85rem;
+    background: var(--brand-color);
+}
+
+.inline-edit-save-button:hover,
+.inline-edit-save-button:focus-visible {
+    outline: none;
+    background: #c93855;
+    transform: translateY(-1px);
+}
+
+.inline-edit-cancel-button {
+    width: 36px;
+    padding: 0;
+    background: var(--layer-3-um);
+}
+
+.inline-edit-cancel-button:hover,
+.inline-edit-cancel-button:focus-visible {
+    outline: none;
+    background: #6d666b;
+    transform: translateY(-1px);
+}
+
 /* Footer Section */
 .id-card-footer {
     padding: 1rem 2rem;
@@ -1384,6 +1535,16 @@
         padding: 0.95rem 1rem 1.1rem;
     }
 
+    .inline-edit-controls,
+    .inline-edit-actions,
+    .inline-edit-input {
+        width: 100%;
+    }
+
+    .inline-edit-save-button {
+        flex: 1 1 auto;
+    }
+
     .export-top-row {
         align-items: stretch;
     }
@@ -1678,6 +1839,9 @@
 }
 
 .toggle-container label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     cursor: pointer;
     margin: 0;
     font-size: 1em;

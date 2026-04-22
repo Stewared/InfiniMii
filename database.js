@@ -53,6 +53,7 @@ const miiSchema = new mongoose.Schema({
     tags: { type: [String], default: [], index: true },
     published: { type: Boolean, default: false, index: true },
     private: { type: Boolean, default: true, index: true }, //TODO_DB: verify published vs private
+    lockedFromUserEdits: { type: Boolean, default: false },
     blockedFromPublishing: { type: Boolean, default: false },
     blockReason: { type: String }
 }, { timestamps: true, minimize: false });
