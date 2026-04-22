@@ -2,11 +2,9 @@
 User-agent: *
 Allow: /
 Disallow: /login
-Disallow: /signup
 Disallow: /requestPasswordReset
 Disallow: /resetPassword
 Disallow: /settings
-Disallow: /upload
 Disallow: /myPrivateMiis
 Disallow: /manageCategories
 Disallow: /privateMiiImgs
@@ -15,5 +13,5 @@ Disallow: /privateMiiQRs
 Sitemap: https://infinimii.com/sitemap.xml
 
 # LLM-friendly summary files
-https://infinimii.com/llms.txt
-https://infinimii.com/llms-full.txt
+# https://infinimii.com/llms.txt
+# https://infinimii.com/llms-full.txt
