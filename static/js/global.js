@@ -260,6 +260,21 @@ function initializeFullRowBrowseGrids() {
 
     let frameId = 0;
 
+    const setPaginationLinkState = (link, isEnabled, href) => {
+        if (!link) return;
+
+        if (isEnabled && href) {
+            link.setAttribute('href', href);
+            link.removeAttribute('aria-disabled');
+            link.removeAttribute('tabindex');
+            return;
+        }
+
+        link.removeAttribute('href');
+        link.setAttribute('aria-disabled', 'true');
+        link.setAttribute('tabindex', '-1');
+    };
+
     const syncGrid = (grid) => {
         const cards = getGridCards(grid);
         if (cards.length === 0) return;
@@ -310,6 +325,7 @@ function initializeFullRowBrowseGrids() {
         const randomVisibleCountEl = controls.querySelector('[data-random-visible-count]');
         const totalPages = fullPageSize > 0 ? Math.max(1, Math.ceil(safeTotal / fullPageSize)) : 1;
         const currentPage = Math.min(totalPages, fullPageSize > 0 ? Math.floor(safeStart / fullPageSize) + 1 : 1);
+        const hasPrevious = safeStart > 0;
         const previousStart = Math.max(0, safeStart - fullPageSize);
         const nextStart = safeStart + visibleCount;
         const hasNext = nextStart < safeTotal;
@@ -338,16 +354,10 @@ function initializeFullRowBrowseGrids() {
             randomVisibleCountEl.textContent = String(visibleCount);
         }
         if (prevLink) {
-            prevLink.hidden = safeStart <= 0;
-            if (safeStart > 0) {
-                prevLink.href = buildStartPaginationUrl(previousStart);
-            }
+            setPaginationLinkState(prevLink, hasPrevious, buildStartPaginationUrl(previousStart));
         }
         if (nextLink) {
-            nextLink.hidden = !hasNext;
-            if (hasNext) {
-                nextLink.href = buildStartPaginationUrl(nextStart);
-            }
+            setPaginationLinkState(nextLink, hasNext, buildStartPaginationUrl(nextStart));
         }
     };
 

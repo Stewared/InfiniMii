@@ -51,7 +51,7 @@ const profileMiisPerPage = 18;
 const HOME_PREVIEW_COUNT = 16;
 const FULL_ROW_BROWSE_REQUEST_LIMIT = defaultMiisPerPage + HOME_PREVIEW_COUNT;
 const FULL_ROW_PROFILE_REQUEST_LIMIT = profileMiisPerPage + HOME_PREVIEW_COUNT;
-const GLOBAL_ASSET_VERSION = "20260423-full-row-pages-3";
+const GLOBAL_ASSET_VERSION = "20260423-pagination-bounds-1";
 const RSS_FEED_MII_LIMIT = 50;
 const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
 const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
@@ -4283,6 +4283,18 @@ function buildRequestPathWithPage(req, pageNumber) {
     return queryString ? `${req.path}?${queryString}` : req.path;
 }
 
+function getLastStartOffset(total, requestLimit = defaultMiisPerPage) {
+    const normalizedTotal = Number.isFinite(Number(total)) && Number(total) > 0
+        ? Math.floor(Number(total))
+        : 0;
+    const normalizedRequestLimit = Number.isFinite(Number(requestLimit)) && Number(requestLimit) > 0
+        ? Math.floor(Number(requestLimit))
+        : defaultMiisPerPage;
+
+    if (normalizedTotal <= 0) return 0;
+    return Math.floor((normalizedTotal - 1) / normalizedRequestLimit) * normalizedRequestLimit;
+}
+
 function buildStartPagination(req, start, total, requestLimit = defaultMiisPerPage) {
     const normalizedStart = Number.isFinite(Number(start)) && Number(start) > 0
         ? Math.floor(Number(start))
@@ -5125,6 +5137,9 @@ site.get('/trending', miiListRatelimiter, async (req, res) => {
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
     const paginatedData = await paginatedApi("trending", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
+    if (paginatedData.total > 0 && start >= paginatedData.total) {
+        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
+    }
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
     toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
@@ -5145,6 +5160,9 @@ site.get('/top', miiListRatelimiter, async (req, res) => {
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
     const paginatedData = await paginatedApi("top", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
+    if (paginatedData.total > 0 && start >= paginatedData.total) {
+        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
+    }
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
     toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
@@ -5165,6 +5183,9 @@ site.get('/recent', miiListRatelimiter, async (req, res) => {
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
     const paginatedData = await paginatedApi("recent", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
+    if (paginatedData.total > 0 && start >= paginatedData.total) {
+        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
+    }
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
     toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
@@ -5206,6 +5227,9 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
     
     // Get paginated official Miis
     const paginatedData = await paginatedApi("official", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, filterCategory);
+    if (paginatedData.total > 0 && start >= paginatedData.total) {
+        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
+    }
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
     toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
@@ -7957,6 +7981,9 @@ site.get('/user/:username', async (req, res) => {
         firstUploadOn: undefined
     };
     const totalMiis = profileSummary.totalMiis || 0;
+    if (totalMiis > 0 && profileStart >= totalMiis) {
+        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(totalMiis, FULL_ROW_PROFILE_REQUEST_LIMIT)));
+    }
     const skip = profileStart;
 
     inp.displayedMiis = await Miis.find(profileFilter)
@@ -8213,6 +8240,9 @@ site.get('/myLikedMiis', requireAuth, async (req, res) => {
     const totalLikedMiis = likedMiiIds.length > 0
         ? await Miis.countDocuments(likedMiisQuery)
         : 0;
+    if (totalLikedMiis > 0 && start >= totalLikedMiis) {
+        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(totalLikedMiis, FULL_ROW_BROWSE_REQUEST_LIMIT)));
+    }
 
     toSend.displayedMiis = likedMiiIds.length > 0
         ? await Miis.find(likedMiisQuery)

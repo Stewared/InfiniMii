@@ -1914,13 +1914,24 @@ fieldset a:hover {
     letter-spacing: 0.01em;
 }
 
-.pagination-btn:hover {
+.pagination-btn[aria-disabled="true"],
+.pagination-btn:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+    box-shadow: none;
+    border-color: color-mix(in oklab, var(--brand-color) 18%, #26222b 82%);
+    color: color-mix(in oklab, var(--text-2) 88%, #8d8598 12%);
+}
+
+.pagination-btn:hover:not([aria-disabled="true"]):not(:disabled) {
     transform: translateY(-1px);
     border-color: color-mix(in oklab, var(--brand-color) 55%, #2d2834 45%);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
 }
 
-.pagination-btn:focus-visible {
+.pagination-btn:focus-visible:not([aria-disabled="true"]):not(:disabled) {
     outline: 2px solid color-mix(in oklab, var(--brand-color) 75%, white 25%);
     outline-offset: 2px;
 }

@@ -146,10 +146,10 @@
                     <% if (pagination && pagination.mode === 'offset') { %>
                         <div class="pagination" data-full-row-controls-for="browse-miis">
                             <a
-                                href="<%= pagination.prevUrl || '/official' %>"
+                                <% if (pagination.prevUrl) { %>href="<%= pagination.prevUrl %>"<% } %>
                                 class="pagination-btn"
                                 data-pagination-prev
-                                <%= pagination.start > 0 ? '' : 'hidden' %>
+                                <%= pagination.prevUrl ? '' : 'aria-disabled="true" tabindex="-1"' %>
                             >&larr; Previous</a>
                             
                             <span
@@ -179,10 +179,10 @@
                             </span>
                             
                             <a
-                                href="<%= pagination.nextUrl || '/official' %>"
+                                <% if (pagination.nextUrl) { %>href="<%= pagination.nextUrl %>"<% } %>
                                 class="pagination-btn"
                                 data-pagination-next
-                                <%= pagination.nextUrl ? '' : 'hidden' %>
+                                <%= pagination.nextUrl ? '' : 'aria-disabled="true" tabindex="-1"' %>
                             >Next &rarr;</a>
                         </div>
                     <% } %>

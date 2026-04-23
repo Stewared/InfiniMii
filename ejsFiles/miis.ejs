@@ -246,10 +246,10 @@
                 <% if (pagination?.mode === 'offset' && displayedMiis.length > 0) { %>
                     <div class="pagination" data-full-row-controls-for="browse-miis">
                         <a
-                            href="<%= pagination.prevUrl || currentPathName %>"
+                            <% if (pagination.prevUrl) { %>href="<%= pagination.prevUrl %>"<% } %>
                             class="pagination-btn"
                             data-pagination-prev
-                            <%= pagination.start > 0 ? '' : 'hidden' %>
+                            <%= pagination.prevUrl ? '' : 'aria-disabled="true" tabindex="-1"' %>
                         >&larr; Previous</a>
 
                         <span
@@ -279,10 +279,10 @@
                         </span>
 
                         <a
-                            href="<%= pagination.nextUrl || currentPathName %>"
+                            <% if (pagination.nextUrl) { %>href="<%= pagination.nextUrl %>"<% } %>
                             class="pagination-btn"
                             data-pagination-next
-                            <%= pagination.nextUrl ? '' : 'hidden' %>
+                            <%= pagination.nextUrl ? '' : 'aria-disabled="true" tabindex="-1"' %>
                         >Next &rarr;</a>
                     </div>
                 <% } else if (isRandomPage && displayedMiis.length > 0) { %>
@@ -296,9 +296,11 @@
                     </div>
                 <% } else if (pagination && pagination.mode !== 'offset' && pagination.mode !== 'random' && pagination.totalPages > 1) { %>
                     <div class="pagination">
-                        <% if (pagination.currentPage > 1) { %>
-                            <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>" class="pagination-btn">&larr; Previous</a>
-                        <% } %>
+                        <a
+                            <% if (pagination.currentPage > 1) { %>href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>"<% } %>
+                            class="pagination-btn"
+                            <%= pagination.currentPage > 1 ? '' : 'aria-disabled="true" tabindex="-1"' %>
+                        >&larr; Previous</a>
 
                         <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
                             Page
@@ -318,9 +320,11 @@
                             (<%= pagination.total %> Miis)
                         </span>
 
-                        <% if (pagination.currentPage < pagination.totalPages) { %>
-                            <a href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>" class="pagination-btn">Next &rarr;</a>
-                        <% } %>
+                        <a
+                            <% if (pagination.currentPage < pagination.totalPages) { %>href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>"<% } %>
+                            class="pagination-btn"
+                            <%= pagination.currentPage < pagination.totalPages ? '' : 'aria-disabled="true" tabindex="-1"' %>
+                        >Next &rarr;</a>
                     </div>
                 <% } %>
             </div>
