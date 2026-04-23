@@ -168,6 +168,26 @@
                     </section>
                 <% } %>
 
+                <%
+                    let emptyStateTitle = 'No Miis Found';
+                    let emptyStateBody = 'There are no public Miis to show here yet.';
+                    let emptyStateIconPath = 'M479.82 976 423.36 925.85Q311 824.46 235.5 749.5 160 674.54 114.5 608.77q-45.5-65.77-62-120.85Q36 432.85 36 385.15q0-96 64.5-160.58Q165 160 260 160q54 0 102 24.5t82 70.5q34-46 82-70.5t102-24.5q95 0 159.5 64.57Q852 288.15 852 384.15q0 48.7-16.5 104-16.5 55.31-62 121.08-45.5 65.77-121.12 140.88-75.61 75.12-188.1 175.74L479.82 976Z';
+
+                    if (currentPathName === '/searchResults') {
+                        emptyStateTitle = 'No Search Results';
+                        emptyStateBody = safeSearchQuery || hasSelectedTags
+                            ? 'Try a broader search, fewer tags, or another spelling.'
+                            : 'Enter a search term or choose tags to find Miis.';
+                        emptyStateIconPath = 'M784 936 532 684q-30 24-69 38t-83 14q-109 0-184.5-75.5T120 476q0-109 75.5-184.5T380 216q109 0 184.5 75.5T640 476q0 44-14 83t-38 69l252 252-56 56ZM380 656q75 0 127.5-52.5T560 476q0-75-52.5-127.5T380 296q-75 0-127.5 52.5T200 476q0 75 52.5 127.5T380 656Z';
+                    } else if (isLikedMiisPage) {
+                        emptyStateTitle = 'No Liked Miis Yet';
+                        emptyStateBody = 'Like a few Miis and they will show up here.';
+                    } else if (currentPathName === '/official') {
+                        emptyStateTitle = 'No Official Miis Found';
+                        emptyStateBody = 'No official Miis match this category yet.';
+                    }
+                %>
+
                 <% if (displayedMiis.length > 0) { %>
                     <div id="browse-miis" class="browse-miis-balanced">
                         <% for (var i = 0; i < displayedMiis.length; i++) { %>
@@ -194,10 +214,10 @@
                 <% } else { %>
                     <div class="empty-state browse-empty-state">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 96 960 960">
-                            <path d="m479.82 976-56.46-50.15Q311 824.46 235.5 749.5 160 674.54 114.5 608.77q-45.5-65.77-62-120.85Q36 432.85 36 385.15q0-96 64.5-160.58Q165 160 260 160q54 0 102 24.5t82 70.5q34-46 82-70.5t102-24.5q95 0 159.5 64.57Q852 288.15 852 384.15q0 48.7-16.5 104-16.5 55.31-62 121.08-45.5 65.77-121.12 140.88-75.61 75.12-188.1 175.74L479.82 976Z" />
+                            <path d="<%= emptyStateIconPath %>" />
                         </svg>
-                        <h3>No Liked Miis Yet</h3>
-                        <p>Like a few Miis and they will show up here.</p>
+                        <h3><%= emptyStateTitle %></h3>
+                        <p><%= emptyStateBody %></p>
                     </div>
                 <% } %>
 

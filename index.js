@@ -26,6 +26,15 @@ import ms from 'ms';
 import dns from "dns";
 import { connectionPromise, Miis, Users, Settings, ReservedUsername } from "./database.js";
 import { renderIcon, icons } from "./icons.js";
+import {
+    SEARCH_FALLBACK_CANDIDATE_LIMIT,
+    buildMiiSearchMatchClauses,
+    buildMiiSearchPlan,
+    buildMiiSearchScoreExpression,
+    getMiiSearchSort,
+    normalizeSearchFieldSelection,
+    rankMiiSearchCandidates
+} from "./searchUtils.js";
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 fs.mkdirSync(path.join(__dirname, "static", "miiImgs"), { recursive: true });
@@ -183,8 +192,6 @@ function buildExportFormats() {
 
 const EXPORT_FORMATS = buildExportFormats();
 const EXPORT_FORMAT_SET = new Set(EXPORT_FORMATS.map(fmt => fmt.value));
-const SEARCH_FIELD_VALUES = ["uploader", "name", "description"];
-const SEARCH_FIELD_SET = new Set(SEARCH_FIELD_VALUES);
 const MII_CHILD_STAGE_LABELS = [
     "Newborn",
     "Infant",
@@ -2362,27 +2369,6 @@ function mapRequestedTagsToCatalog(requestedTags, catalogTags) {
     return mapped;
 }
 
-function normalizeSearchFieldSelection(requestedFields, { defaultToAll = true } = {}) {
-    const source = Array.isArray(requestedFields) ? requestedFields : [requestedFields];
-    const normalized = [];
-    const seen = new Set();
-
-    for (const rawField of source) {
-        const field = String(rawField || "").trim().toLowerCase();
-        if (!SEARCH_FIELD_SET.has(field)) continue;
-        if (seen.has(field)) continue;
-
-        seen.add(field);
-        normalized.push(field);
-    }
-
-    if (normalized.length === 0 && defaultToAll) {
-        return [...SEARCH_FIELD_VALUES];
-    }
-
-    return normalized;
-}
-
 function getRequestedSearchFields(source = {}) {
     const hasExplicitFieldConfig = parseBooleanLike(source?.searchFieldsConfigured);
     return normalizeSearchFieldSelection(source?.searchIn, {
@@ -3012,6 +2998,22 @@ async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date
     };
 }
 
+async function getFallbackSearchPaginatedResult(baseQuery, searchPlan, page, perPage, skip) {
+    const candidates = await Miis.find(baseQuery)
+        .sort(getStablePopularitySort())
+        .limit(SEARCH_FALLBACK_CANDIDATE_LIMIT)
+        .lean();
+    const rankedCandidates = rankMiiSearchCandidates(candidates, searchPlan);
+
+    return {
+        items: rankedCandidates.slice(skip, skip + perPage),
+        total: rankedCandidates.length,
+        page,
+        perPage,
+        totalPages: Math.ceil(rankedCandidates.length / perPage)
+    };
+}
+
 // Paginated API that queries database directly with skip/limit
 async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter = null) {
     const skip = (page - 1) * perPage;
@@ -3111,29 +3113,44 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
             const selectedSearchFields = normalizeSearchFieldSelection(filterObject.searchIn, {
                 defaultToAll: !parseBooleanLike(filterObject.searchFieldsConfigured)
             });
+            const searchPlan = buildMiiSearchPlan(searchText, selectedSearchFields);
 
             if (selectedTags.length > 0) {
                 query.tags = { $all: selectedTags };
             }
 
-            if (searchText) {
-                const searchRegex = new RegExp(escapeRegex(searchText), "i");
-                const searchFilters = [];
-
-                if (selectedSearchFields.includes("name")) {
-                    searchFilters.push({ "meta.name": searchRegex });
-                    searchFilters.push({ "meta.creatorName": searchRegex });
-                }
-                if (selectedSearchFields.includes("description")) {
-                    searchFilters.push({ "desc": searchRegex });
-                }
-                if (selectedSearchFields.includes("uploader")) {
-                    searchFilters.push({ "uploader": searchRegex });
+            if (searchPlan.active) {
+                const baseSearchQuery = { ...query };
+                const searchMatchClauses = buildMiiSearchMatchClauses(searchPlan);
+                if (searchMatchClauses.length > 0) {
+                    query.$and = [
+                        ...(Array.isArray(query.$and) ? query.$and : []),
+                        ...searchMatchClauses
+                    ];
                 }
 
-                if (searchFilters.length > 0) {
-                    query.$or = searchFilters;
+                const [items, totalCount] = await Promise.all([
+                    Miis.aggregate([
+                        { $match: query },
+                        { $addFields: { searchScore: buildMiiSearchScoreExpression(searchPlan) } },
+                        { $sort: getMiiSearchSort() },
+                        { $skip: skip },
+                        { $limit: perPage }
+                    ]),
+                    Miis.countDocuments(query)
+                ]);
+
+                if (totalCount > 0) {
+                    return {
+                        items,
+                        total: totalCount,
+                        page,
+                        perPage,
+                        totalPages: Math.ceil(totalCount / perPage)
+                    };
                 }
+
+                return getFallbackSearchPaginatedResult(baseSearchQuery, searchPlan, page, perPage, skip);
             }
 
             sort = getStablePopularitySort();
