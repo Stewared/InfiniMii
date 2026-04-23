@@ -45,7 +45,7 @@
 }
 
 .miiCategory .mii-card .mii-card-content {
-    padding: 1rem;
+    padding: 0.9rem;
 }
 
 /* Responsive breakpoints */
@@ -55,7 +55,7 @@
     }
 
     .miiCategory .mii-card .mii-card-content {
-        padding: 0.85rem;
+        padding: 0.8rem;
     }
 }
 

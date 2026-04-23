@@ -1,6 +1,6 @@
 <div class="account <%= thisUser === 'Default' ? 'account-guest' : '' %>">
     <% if(thisUser!=="Default"){ %>
-        <img class="account-image-small" src="/miiImgs/<%= pfp %>.png"> <%= thisUser %>
+        <img class="account-image-small" src="/miiImgs/<%= pfp %>.png"> <span class="account-username"><%= thisUser %></span>
         <div class="accDropdown">
             <a href="/user/<%= encodeURIComponent(thisUser) %>">Profile</a>
             <a href="/myLikedMiis">My Liked Miis</a>

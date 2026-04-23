@@ -117,8 +117,8 @@ button .icon,
     --layer-2-um: color-mix(in oklab, var(--layer-2) 95%, var(--derivative-mii-color) 5%);
     --layer-3-um: color-mix(in oklab, var(--layer-3) 95%, var(--derivative-mii-color) 5%);
 
-    --mii-card-min-width: 12rem;
-    --mii-card-max-width: 15rem;
+    --mii-card-min-width: 11.25rem;
+    --mii-card-max-width: 14rem;
 }
 
 * {
@@ -150,8 +150,9 @@ body {
 .site-banner-link {
     --banner-shift-x: 0px;
     position: relative;
-    left: var(--banner-shift-x);
-    transition: left 0.18s ease;
+    transform: translateX(var(--banner-shift-x));
+    transition: transform 0.18s ease;
+    will-change: transform;
 }
 
 .site-banner-image {
@@ -179,6 +180,11 @@ body {
     margin-right: .3rem;
     background-color: color-mix(in lab, var(--layer-2-um) 50%, var(--brand-color) 80%);
 }
+
+.account-username {
+    vertical-align: middle;
+}
+
 .account-image-small {
     width: 2ch;
     height: auto;
@@ -388,7 +394,7 @@ footer ul li a:hover {
 }
 
 .mii-card {
-    --mii-card-radius: 25px;
+    --mii-card-radius: 23px;
     --mii-card-inner-radius: calc(var(--mii-card-radius) - 2px);
     display: flex;
     flex-flow: column;
@@ -415,13 +421,13 @@ footer ul li a:hover {
 .mii-card .mii-card-content,
 .mii-card .flex,
 .mii-card > p {
-    padding: 1.5rem;
+    padding: 1.35rem;
 }
 
 .mii-card .mii-card-content {
     display: flex;
     flex-direction: column;
-    gap: 0.42rem;
+    gap: 0.38rem;
 }
 
 .mii-card > a,
@@ -509,7 +515,7 @@ footer ul li a:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 9px;
 }
 
 .mii-card .flex > div {
@@ -543,14 +549,14 @@ footer ul li a:hover {
 }
 
 .mii-card h3 {
-    font-size: clamp(0.9rem, 0.82rem + 0.2vw, 1rem);
+    font-size: clamp(0.86rem, 0.8rem + 0.16vw, 0.95rem);
     font-weight: 400;
     margin: 0;
     display: block;
     width: 100%;
     text-decoration: underline;
     text-decoration-color: var(--brand-color);
-    text-decoration-thickness: 3px;
+    text-decoration-thickness: 2.5px;
     text-underline-offset: 1px;
     line-height: 1.2;
     white-space: nowrap;
@@ -563,7 +569,7 @@ footer ul li a:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
+    gap: 0.68rem;
 }
 
 .mii-card .mii-card-meta {
@@ -578,7 +584,7 @@ footer ul li a:hover {
     overflow: hidden;
     text-decoration: underline;
     text-decoration-color: var(--brand-color);
-    text-decoration-thickness: 3px;
+    text-decoration-thickness: 2.5px;
     text-overflow: ellipsis;
     text-underline-offset: 1px;
     white-space: nowrap;
@@ -596,24 +602,24 @@ footer ul li a:hover {
 
 .mii-card p {
     margin: 0;
-    margin-top: 8px;
+    margin-top: 7px;
     color: var(--text-2);
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .mii-card .mii-card-description {
     margin-top: 0.15rem;
-    line-height: 1.45;
+    line-height: 1.42;
 }
 
 .mii-card-byline {
     display: flex;
     align-items: center;
-    gap: 0.28rem;
+    gap: 0.25rem;
     min-width: 0;
-    margin: 0.18rem 0 0.45rem;
+    margin: 0.16rem 0 0.4rem;
     color: var(--text-2);
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     line-height: 1.25;
 }
 
@@ -639,10 +645,10 @@ footer ul li a:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
-    min-height: 2.1rem;
+    gap: 0.4rem;
+    min-height: 1.95rem;
     margin: 0;
-    padding: 0.38rem 0.65rem;
+    padding: 0.34rem 0.58rem;
     border-radius: 999px;
     border: 1px solid color-mix(in oklab, var(--layer-4, #7f8b9f) 55%, #7f8b9f 45%);
     background: color-mix(in oklab, var(--layer-2-um) 72%, #2a3342 28%);
@@ -651,7 +657,7 @@ footer ul li a:hover {
     cursor: pointer;
     flex-shrink: 0;
     font: inherit;
-    font-size: 0.94rem;
+    font-size: 0.88rem;
     font-weight: 600;
     line-height: 1;
     white-space: nowrap;
@@ -688,8 +694,8 @@ footer ul li a:hover {
 .mii-card-like-button .icon,
 .mii-card-like-button .like-icon {
     display: block;
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
     margin: 0;
     color: currentColor;
     fill: none;
@@ -715,7 +721,7 @@ footer ul li a:hover {
     display: block;
     min-width: 1ch;
     color: currentColor;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 700;
     line-height: 1;
     text-align: center;
@@ -724,8 +730,8 @@ footer ul li a:hover {
 .mii-card-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-top: 0.55rem;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
 }
 
 .mii-card-tag {
@@ -735,10 +741,10 @@ footer ul li a:hover {
     border: 1px solid color-mix(in oklab, var(--brand-color) 40%, #8a8a8a 60%);
     background: color-mix(in oklab, var(--brand-color) 18%, var(--layer-2-um) 82%);
     color: color-mix(in oklab, #ffffff 88%, var(--brand-color) 12%);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     line-height: 1.2;
     text-decoration: none;
-    padding: 0.18rem 0.52rem;
+    padding: 0.16rem 0.48rem;
     transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -1477,6 +1483,49 @@ fieldset a:hover {
         grid-template-columns: 1fr;
     }
 
+    .site-header.site-header-with-account {
+        --mobile-account-reserved-width: calc(min(46vw, 13rem) + max(8px, env(safe-area-inset-right, 0px)) + 12px);
+        justify-content: center;
+        padding-left: max(0px, env(safe-area-inset-left, 0px));
+        padding-right: var(--mobile-account-reserved-width);
+    }
+
+    .site-header.site-header-with-account .site-banner-link {
+        width: min(100%, clamp(7rem, 34vw, 14rem));
+        opacity: 0;
+        transition: none;
+    }
+
+    .site-header.site-header-with-account.site-header-positioned .site-banner-link {
+        opacity: 1;
+    }
+
+    .site-header.site-header-with-account .site-banner-image {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .account:not(.account-guest) {
+        display: inline-flex;
+        align-items: center;
+        max-width: min(46vw, 13rem);
+        right: max(8px, env(safe-area-inset-right, 0px));
+        padding: 7px 9px;
+        white-space: nowrap;
+    }
+
+    .account:not(.account-guest) .account-username {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .account:not(.account-guest) .account-image-small {
+        flex: 0 0 auto;
+    }
+
     #browse-miis {
         order: 2;
     }
@@ -1657,7 +1706,7 @@ fieldset a:hover {
 
     .browse-featured-miis .mii-card > .flex,
     .browse-featured-miis .mii-card > p {
-        padding: 1rem;
+        padding: 0.9rem;
     }
 }
 
@@ -1672,7 +1721,7 @@ fieldset a:hover {
     
     .mii-card {
         width: min(100%, var(--mii-card-max-width));
-        padding: 1rem;
+        padding: 0.9rem;
     }
     
     footer ul {

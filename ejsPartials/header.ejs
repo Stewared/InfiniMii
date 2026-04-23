@@ -1,4 +1,7 @@
-<header class="site-header">
+<%
+const headerHasAccount = typeof thisUser !== 'undefined' && thisUser !== 'Default';
+%>
+<header class="site-header <%= headerHasAccount ? 'site-header-with-account' : '' %>">
     <a class="site-banner-link" href="/" aria-label="InfiniMii Home - Convert, Share, and Download Mii Characters"><img class="site-banner-image" src='/banner.png' alt="InfiniMii - The Ultimate Mii Character Repository"></a>
 </header>
 <script src="/global.js"></script>

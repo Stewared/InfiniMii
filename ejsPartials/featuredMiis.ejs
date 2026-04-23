@@ -22,6 +22,7 @@
         <%
             const highlightedUserVotedFor = Array.isArray(user?.votedFor) ? user.votedFor : [];
             const highlightedIsLikeLocked = Boolean(
+                !highlightedMiiData.official &&
                 user?.username &&
                 (highlightedMiiData.uploader === user.username || highlightedMiiData.contributor === user.username)
             );

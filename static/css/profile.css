@@ -337,7 +337,7 @@
 }
 
 #browse-miis .mii-card .mii-card-content {
-    padding: 1rem;
+    padding: 0.9rem;
 }
 
 #browse-miis .mii-card .mii-card-description {
@@ -389,7 +389,7 @@
     }
 
     #browse-miis {
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 170px));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
         gap: 20px;
     }
 
@@ -440,7 +440,7 @@
     }
 
     #browse-miis {
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 145px));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
         gap: 15px;
     }
 }
@@ -464,7 +464,7 @@
     }
 
     #browse-miis {
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 136px), 136px));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
     }
 }
 

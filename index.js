@@ -47,7 +47,7 @@ fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRsWii"), { recursive: tr
 const defaultMiisPerPage = 16;
 const profileMiisPerPage = 18;
 // Fetch enough cards for the homepage so the client can keep each section to
-// a single fitted row across a range of viewport widths.
+// one fitted row on wide layouts and fuller preview rows on narrow layouts.
 const HOME_PREVIEW_COUNT = 16;
 const RSS_FEED_MII_LIMIT = 50;
 const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
@@ -1422,6 +1422,53 @@ async function ensureUploaderAutoLike(username, miiId, minimumVotes = 1) {
             { $set: { votes: minimumVotes } }
         );
     }
+}
+
+function isMiiLikeLockedForUser(mii, user) {
+    return Boolean(
+        !mii?.official &&
+        user?.username &&
+        (mii.uploader === user.username || mii.contributor === user.username)
+    );
+}
+
+async function decrementMiiVote(miiId, { minimumVotes = 0 } = {}) {
+    const normalizedMiiId = String(miiId || "").trim();
+    const normalizedMinimumVotes = Number.isFinite(Number(minimumVotes))
+        ? Math.max(0, Number(minimumVotes))
+        : 0;
+    if (!normalizedMiiId) return;
+
+    await Miis.updateOne(
+        { id: normalizedMiiId, votes: { $gt: normalizedMinimumVotes } },
+        { $inc: { votes: -1 } }
+    );
+
+    if (normalizedMinimumVotes > 0) {
+        await Miis.updateOne(
+            {
+                id: normalizedMiiId,
+                $or: [
+                    { votes: { $exists: false } },
+                    { votes: { $lt: normalizedMinimumVotes } }
+                ]
+            },
+            { $set: { votes: normalizedMinimumVotes } }
+        );
+    }
+}
+
+async function ensureOfficialMiiSeedLikes() {
+    await Miis.updateMany(
+        {
+            official: true,
+            $or: [
+                { votes: { $exists: false } },
+                { votes: { $lt: 1 } }
+            ]
+        },
+        { $set: { votes: 1 } }
+    );
 }
 
 function parseCsvKeywordContent(content) {
@@ -3533,6 +3580,11 @@ function mode(arr) {
     });
     return best;
 }
+
+function yieldToEventLoop() {
+    return new Promise((resolve) => setImmediate(resolve));
+}
+
 function getNestedAsArrays(obj) {
     const ret = {};
     for (const [key, val] of Object.entries(obj)) {
@@ -3546,7 +3598,7 @@ function getNestedAsArrays(obj) {
     return ret;
 }
 function populateNestedArrays(arrayObj, obj) {
-    const ret = structuredClone(arrayObj);
+    const ret = arrayObj;
     for (const [key, val] of Object.entries(obj)) {
         if (isPlainObject(val)) {
             if (!ret[key] || !isPlainObject(ret[key])) ret[key] = {};
@@ -3561,8 +3613,13 @@ function populateNestedArrays(arrayObj, obj) {
 }
 async function getCollectedLeavesAcrossMiis(allMiis) {
     let acc;
-    for (const mii of allMiis) {
+    for (let i = 0; i < allMiis.length; i++) {
+        const mii = allMiis[i];
         acc = acc ? populateNestedArrays(acc, mii) : getNestedAsArrays(mii);
+
+        if (i > 0 && i % 100 === 0) {
+            await yieldToEventLoop();
+        }
     }
     return acc;
 }
@@ -3749,6 +3806,43 @@ async function hasRecentAverageAffectingUpload(windowMs = AVERAGE_MII_REFRESH_WI
     }));
 
     return Boolean(recentUpload);
+}
+
+let averageMiiRefreshPromise = null;
+let averageMiiRefreshTimer = null;
+let averageMiiRefreshPendingReason = null;
+
+function queueAverageMiiRefresh(reason = "manual") {
+    averageMiiRefreshPendingReason = reason;
+
+    if (averageMiiRefreshPromise || averageMiiRefreshTimer) {
+        return;
+    }
+
+    averageMiiRefreshTimer = setTimeout(() => {
+        averageMiiRefreshTimer = null;
+
+        averageMiiRefreshPromise = (async () => {
+            while (averageMiiRefreshPendingReason) {
+                const currentReason = averageMiiRefreshPendingReason;
+                averageMiiRefreshPendingReason = null;
+                const startedAt = Date.now();
+
+                try {
+                    console.log(`[average] Refresh started (${currentReason}).`);
+                    await refreshAverageMiiAssets();
+                    console.log(`[average] Refresh completed in ${Date.now() - startedAt}ms.`);
+                } catch (error) {
+                    console.error("[average] Failed to refresh average Mii:", error);
+                }
+            }
+        })().finally(() => {
+            averageMiiRefreshPromise = null;
+            if (averageMiiRefreshPendingReason) {
+                queueAverageMiiRefresh(averageMiiRefreshPendingReason);
+            }
+        });
+    }, 0);
 }
 
 // Sitemap generation functions
@@ -4717,6 +4811,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             await updateSettings({ officialCompanySources: normalizedCompanySources });
         }
         await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
+        await ensureOfficialMiiSeedLikes();
         console.log("Settings initialized");
         getIndexNowKey();
 
@@ -4771,16 +4866,20 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             console.log("Finished Checking Quick Uploads Folder");
         }
 
-        console.log(`Generating new average Mii...`);
-        await refreshAverageMiiAssets();
+        console.log(`[average] Scheduling background average Mii refresh.`);
+        queueAverageMiiRefresh("startup");
         setInterval(async () => {
             try {
+                if (averageMiiRefreshPromise || averageMiiRefreshTimer) {
+                    return;
+                }
+
                 if (await hasRecentAverageAffectingUpload()) {
-                    console.log("[average] Recent public upload detected. Regenerating average Mii.");
-                    await refreshAverageMiiAssets();
+                    console.log("[average] Recent public upload detected. Queueing average Mii refresh.");
+                    queueAverageMiiRefresh("recent upload");
                 }
             } catch (error) {
-                console.error("[average] Failed to refresh average Mii:", error);
+                console.error("[average] Failed to check average Mii refresh status:", error);
             }
         }, AVERAGE_MII_REFRESH_WINDOW_MS);
 
@@ -6653,6 +6752,9 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
         if (normalizedOfficial && !mii.officialSource) {
             toggleUpdates.officialSource = mii.uploader;
         }
+        if (normalizedOfficial && (!Number.isFinite(Number(mii.votes)) || Number(mii.votes) < 1)) {
+            toggleUpdates.votes = 1;
+        }
         await Miis.findOneAndUpdate(
             { id },
             { $set: toggleUpdates }
@@ -7432,11 +7534,7 @@ site.post('/voteMii', requireAuth, async (req, res) => {
             return;
         }
 
-        const isUploaderOrContributor = Boolean(
-            req.user?.username &&
-            (mii.uploader === req.user.username || mii.contributor === req.user.username)
-        );
-        if (isUploaderOrContributor) {
+        if (isMiiLikeLockedForUser(mii, req.user)) {
             await ensureUploaderAutoLike(req.user.username, req.query.id, 1);
             res.send("LockedLiked");
             return;
@@ -7447,10 +7545,15 @@ site.post('/voteMii', requireAuth, async (req, res) => {
             { $pull: { votedFor: req.query.id } }
         );
         if (unlikeResult.modifiedCount > 0) {
-            await Miis.updateOne(
-                { id: req.query.id, votes: { $gt: 0 } },
-                { $inc: { votes: -1 } }
-            );
+            const minimumVotes = mii.official ? 1 : 0;
+            const currentVotes = Number.isFinite(Number(mii.votes)) ? Number(mii.votes) : 0;
+            await decrementMiiVote(req.query.id, {
+                minimumVotes
+            });
+            if (minimumVotes > 0 && currentVotes <= minimumVotes) {
+                res.send("UnlikedSeeded");
+                return;
+            }
             res.send("Unliked");
             return;
         }
@@ -9163,7 +9266,9 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             id: mii.id,
             private: !wantsPublic
         });
-        await ensureUploaderAutoLike(uploader, mii.id, 1);
+        if (!isOfficialUpload) {
+            await ensureUploaderAutoLike(uploader, mii.id, 1);
+        }
         
         // Send to Discord for moderator review
         var d = new Date();

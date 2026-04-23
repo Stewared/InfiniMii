@@ -56,7 +56,7 @@ if (cardMii && cardMii.id) {
     const likeIconSizeInput = typeof likeIconSize !== 'undefined' ? Number(likeIconSize) : NaN;
     const likeIconPixelSize = Number.isFinite(likeIconSizeInput) && likeIconSizeInput > 0
         ? Math.floor(likeIconSizeInput)
-        : 20;
+        : 19;
 
     const metadataMode = typeof metadataType !== 'undefined' && metadataType === 'categories' ? 'categories' : 'tags';
     const metadataItemsInput = (typeof metadataItems !== 'undefined' && Array.isArray(metadataItems))

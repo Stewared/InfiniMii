@@ -662,6 +662,7 @@
                             <%
                                 const userVotedFor = Array.isArray(user?.votedFor) ? user.votedFor : [];
                                 const isLikeLocked = Boolean(
+                                    !mii.official &&
                                     user?.username &&
                                     (mii.uploader === user.username || mii.contributor === user.username)
                                 );

@@ -97,6 +97,11 @@ function likeMii(el,id,highlightedMii,mod){
             setLikeButtonVoteCount(syncedButtons, Math.max(0, currentCount - 1));
             return;
         }
+        if(d==="UnlikedSeeded"){
+            syncedButtons.forEach((candidate) => setLikeButtonVisualState(candidate, false, false));
+            setLikeButtonVoteCount(syncedButtons, 1);
+            return;
+        }
         if (d === "LockedLiked") {
             syncedButtons.forEach((candidate) => setLikeButtonVisualState(candidate, true, true));
             setLikeButtonVoteCount(syncedButtons, Math.max(1, currentCount));
@@ -122,8 +127,11 @@ function initializeHomepagePreviewRows() {
         });
 
         const firstRowTop = cards[0].offsetTop;
-        const visibleCount = cards.findIndex((card) => Math.abs(card.offsetTop - firstRowTop) > 1);
-        const cardsToShow = visibleCount === -1 ? cards.length : visibleCount;
+        const firstWrappedCardIndex = cards.findIndex((card) => Math.abs(card.offsetTop - firstRowTop) > 1);
+        const firstRowCount = firstWrappedCardIndex === -1 ? cards.length : firstWrappedCardIndex;
+        const cardsToShow = firstRowCount === 1
+            ? Math.min(cards.length, 5)
+            : Math.min(cards.length, firstRowCount < 5 ? firstRowCount * 2 : firstRowCount);
 
         cards.forEach((card, index) => {
             card.hidden = index >= cardsToShow;
@@ -823,6 +831,48 @@ function bytesToHexString(bytes) {
     return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function getNarrowHeaderViewportWidth() {
+    const viewportWidths = [
+        window.innerWidth,
+        document.documentElement?.clientWidth,
+        window.visualViewport?.width
+    ].filter((width) => Number.isFinite(width) && width > 0);
+
+    return viewportWidths.length > 0 ? Math.min(...viewportWidths) : window.innerWidth;
+}
+
+function updateMobileAccountHeaderSpace(header, account) {
+    if (!header?.classList?.contains('site-header-with-account')) return false;
+
+    const narrowViewportWidth = getNarrowHeaderViewportWidth();
+    const isNarrowHeader = window.matchMedia('(max-width: 992px)').matches || narrowViewportWidth <= 992;
+    if (!isNarrowHeader) {
+        header.classList.remove('site-header-positioned');
+        header.style.removeProperty('--mobile-account-reserved-width');
+        return false;
+    }
+
+    if (!account) return false;
+
+    const accountStyles = window.getComputedStyle(account);
+    if (accountStyles.display === 'none' || accountStyles.visibility === 'hidden') return false;
+
+    const accountRect = account.getBoundingClientRect();
+    const viewportRight = Math.min(
+        ...[
+            document.documentElement?.clientWidth,
+            window.innerWidth,
+            window.visualViewport?.width
+        ].filter((width) => Number.isFinite(width) && width > 0)
+    );
+    const minimumGap = 12;
+    const reservedWidth = Math.max(0, viewportRight - accountRect.left + minimumGap);
+
+    header.style.setProperty('--mobile-account-reserved-width', `${Math.ceil(reservedWidth)}px`);
+    header.classList.add('site-header-positioned');
+    return true;
+}
+
 function updateHeaderBannerShift() {
     const header = document.querySelector('.site-header') || document.querySelector('header');
     const bannerLink = header?.querySelector?.('.site-banner-link');
@@ -832,8 +882,12 @@ function updateHeaderBannerShift() {
     if (!bannerLink || !bannerImage) return;
 
     bannerLink.style.setProperty('--banner-shift-x', '0px');
+    if (updateMobileAccountHeaderSpace(header, account)) return;
 
-    if (!header || !account || !window.matchMedia('(max-width: 992px)').matches) return;
+    const narrowViewportWidth = getNarrowHeaderViewportWidth();
+    const isNarrowHeader = window.matchMedia('(max-width: 992px)').matches || narrowViewportWidth <= 992;
+    if (!header || !account || !isNarrowHeader) return;
+    if (header.classList.contains('site-header-with-account')) return;
 
     const accountStyles = window.getComputedStyle(account);
     if (accountStyles.display === 'none' || accountStyles.visibility === 'hidden') return;
@@ -842,14 +896,24 @@ function updateHeaderBannerShift() {
     const bannerRect = bannerImage.getBoundingClientRect();
     const accountRect = account.getBoundingClientRect();
     const minimumGap = 12;
+    const viewportRight = Math.min(
+        ...[
+            headerRect.right,
+            document.documentElement?.clientWidth,
+            window.innerWidth,
+            window.visualViewport?.width
+        ].filter((width) => Number.isFinite(width) && width > 0)
+    );
+    const visibleLeft = Math.max(0, headerRect.left) + minimumGap;
 
-    const verticalOverlap = Math.min(bannerRect.bottom, accountRect.bottom) - Math.max(bannerRect.top, accountRect.top);
+    const verticalOverlap = Math.min(headerRect.bottom, accountRect.bottom) - Math.max(headerRect.top, accountRect.top);
     if (verticalOverlap <= 0) return;
 
-    const horizontalOverlap = bannerRect.right - (accountRect.left - minimumGap);
+    const accountAvoidLeft = Math.min(accountRect.left, viewportRight);
+    const horizontalOverlap = bannerRect.right - (accountAvoidLeft - minimumGap);
     if (horizontalOverlap <= 0) return;
 
-    const maxShift = Math.max(0, bannerRect.left - (headerRect.left + minimumGap));
+    const maxShift = Math.max(0, bannerRect.left - visibleLeft);
     const shift = Math.min(Math.ceil(horizontalOverlap), Math.ceil(maxShift));
     if (shift <= 0) return;
 
@@ -857,14 +921,18 @@ function updateHeaderBannerShift() {
 }
 
 function initHeaderBannerShift() {
+    if (window.__infinimiiHeaderBannerShiftInitialized) return;
+
     const header = document.querySelector('.site-header') || document.querySelector('header');
     const bannerLink = header?.querySelector?.('.site-banner-link');
     const bannerImage = bannerLink?.querySelector?.('.site-banner-image') || header?.querySelector?.('.site-banner-image');
     const account = document.querySelector('.account');
 
     if (!header || !bannerLink || !bannerImage) return;
+    window.__infinimiiHeaderBannerShiftInitialized = true;
 
     let frameId = null;
+    let resizeObserver = null;
     const scheduleUpdate = () => {
         if (frameId !== null) cancelAnimationFrame(frameId);
         frameId = requestAnimationFrame(() => {
@@ -874,8 +942,26 @@ function initHeaderBannerShift() {
     };
 
     scheduleUpdate();
+    if (header.classList.contains('site-header-with-account') && !account && 'MutationObserver' in window) {
+        const accountObserver = new MutationObserver(() => {
+            const nextAccount = document.querySelector('.account');
+            if (!nextAccount) return;
+
+            accountObserver.disconnect();
+            if (resizeObserver) {
+                resizeObserver.observe(nextAccount);
+            }
+            scheduleUpdate();
+        });
+
+        accountObserver.observe(document.documentElement, { childList: true, subtree: true });
+    }
+
     window.addEventListener('resize', scheduleUpdate, { passive: true });
+    window.addEventListener('orientationchange', scheduleUpdate, { passive: true });
+    window.addEventListener('pageshow', scheduleUpdate);
     window.addEventListener('load', scheduleUpdate);
+    window.visualViewport?.addEventListener('resize', scheduleUpdate, { passive: true });
 
     if (!bannerImage.complete) {
         bannerImage.addEventListener('load', scheduleUpdate, { once: true });
@@ -886,17 +972,19 @@ function initHeaderBannerShift() {
     }
 
     if ('ResizeObserver' in window) {
-        const observer = new ResizeObserver(scheduleUpdate);
-        observer.observe(header);
-        observer.observe(bannerLink);
-        observer.observe(bannerImage);
+        resizeObserver = new ResizeObserver(scheduleUpdate);
+        resizeObserver.observe(header);
+        resizeObserver.observe(bannerLink);
+        resizeObserver.observe(bannerImage);
         if (account) {
-            observer.observe(account);
+            resizeObserver.observe(account);
         }
     }
 }
 
-if (document.readyState === 'loading') {
+if (document.querySelector('.site-header')) {
+    initHeaderBannerShift();
+} else if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initHeaderBannerShift, { once: true });
 } else {
     initHeaderBannerShift();

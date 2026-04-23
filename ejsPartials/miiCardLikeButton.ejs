@@ -4,6 +4,7 @@ if (cardMii && cardMii.id) {
     const cardMiiName = cardMii?.meta?.name || cardMii?.name || 'this Mii';
     const userVotedFor = Array.isArray(user?.votedFor) ? user.votedFor : [];
     const isLikeLocked = Boolean(
+        !cardMii.official &&
         user?.username &&
         (cardMii.uploader === user.username || cardMii.contributor === user.username)
     );
@@ -11,7 +12,7 @@ if (cardMii && cardMii.id) {
     const extraButtonClass = typeof buttonClass === 'string' ? buttonClass : '';
     const resolvedIconSize = typeof iconSize !== 'undefined' && Number.isFinite(Number(iconSize))
         ? Number(iconSize)
-        : 20;
+        : 19;
 %>
 <button
     type="button"
