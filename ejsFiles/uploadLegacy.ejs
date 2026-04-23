@@ -25,7 +25,7 @@
                     <% if (legacyUploadError) { %>
                         <tr>
                             <td bgcolor="#45222A">
-                                <font color="#FFD9DF"><b>Error:</b> <%= legacyUploadError %></font>
+                                <font color="#FFD9DF"><b>Error:</b> <% if (legacyUploadErrorHtml) { %><%- legacyUploadErrorHtml %><% } else { %><%= legacyUploadError %><% } %></font>
                             </td>
                         </tr>
                     <% } %>

@@ -18,6 +18,7 @@ const miiSchema = new mongoose.Schema({
     uploader: { type: String, required: true, index: true },
     contributor: { type: String, index: true },
     desc: { type: String, default: "No Description Provided" },
+    miiHash: { type: String, index: true },
     votes: { type: Number, default: 1 },
     official: { type: Boolean, default: false, index: true },
     officialSource: { type: String, index: true },

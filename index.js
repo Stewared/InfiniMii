@@ -534,29 +534,17 @@ async function createMiiData(input, debug) {
     }
 }
 
-const MII_COMPARISON_IGNORED_TOP_LEVEL_FIELDS = new Set([
-    "_id",
-    "__v",
-    "id",
-    "uploader",
-    "desc",
-    "votes",
-    "official",
-    "officialsource",
-    "uploadedon",
-    "officialcategories",
-    "published",
-    "private",
-    "blockedfrompublishing",
-    "blockreason",
-    "contributor",
-    "console",
-    "createdat",
-    "updatedat"
-]);
-
-const MII_COMPARISON_IGNORED_ROOT_SUBTREES = new Set(["perms", "meta", "tl", "mt"]);
-const MII_COMPARISON_IGNORED_GENERAL_FIELDS = new Set(["name", "creatorname", "height", "weight"]);
+const MII_IDENTITY_HASH_FIELDS = [
+    "hair",
+    "face",
+    "eyes",
+    "eyebrows",
+    "nose",
+    "mouth",
+    "beard",
+    "glasses",
+    "mole"
+];
 
 function getComparableMiiSource(mii) {
     if (!mii || typeof mii !== "object") return mii;
@@ -564,7 +552,22 @@ function getComparableMiiSource(mii) {
     return mii;
 }
 
-function normalizeMiiForComparison(mii) {
+function normalizeValueForMiiIdentityHash(value) {
+    if (value === undefined) return null;
+    if (value === null || typeof value !== "object") return value;
+    if (Array.isArray(value)) return value.map(normalizeValueForMiiIdentityHash);
+
+    const out = {};
+    for (const key of Object.keys(value).sort()) {
+        const normalized = normalizeValueForMiiIdentityHash(value[key]);
+        if (normalized !== undefined) {
+            out[key] = normalized;
+        }
+    }
+    return out;
+}
+
+function getMiiIdentityHashPayload(mii) {
     const source = getComparableMiiSource(mii);
     if (!source || typeof source !== "object") return source;
 
@@ -572,44 +575,54 @@ function normalizeMiiForComparison(mii) {
         ? source.toObject({ depopulate: true, virtuals: false, getters: false, minimize: false })
         : source;
 
-    const visit = (value, parentKey = "") => {
-        if (value === null || typeof value !== "object") return value;
-        if (Array.isArray(value)) return value.map(item => visit(item, parentKey));
+    return Object.fromEntries(
+        MII_IDENTITY_HASH_FIELDS.map((field) => [
+            field,
+            normalizeValueForMiiIdentityHash(plain[field])
+        ])
+    );
+}
 
-        const out = {};
-        for (const [key, child] of Object.entries(value)) {
-            const lowerKey = key.toLowerCase();
-            const lowerParentKey = parentKey.toLowerCase();
+function getMiiIdentityHash(mii) {
+    const payload = getMiiIdentityHashPayload(mii);
+    if (!payload || typeof payload !== "object") return "";
 
-            if (!parentKey) {
-                if (MII_COMPARISON_IGNORED_TOP_LEVEL_FIELDS.has(lowerKey)) continue;
-                if (MII_COMPARISON_IGNORED_ROOT_SUBTREES.has(lowerKey)) continue;
-            }
+    return crypto
+        .createHash("sha256")
+        .update(`mii-face-v1:${JSON.stringify(payload)}`)
+        .digest("hex");
+}
 
-            if (lowerParentKey === "general" && MII_COMPARISON_IGNORED_GENERAL_FIELDS.has(lowerKey)) {
-                continue;
-            }
-
-            out[key] = visit(child, key);
-        }
-        return out;
-    };
-
-    return visit(plain);
+function setMiiIdentityHash(mii) {
+    if (!mii || typeof mii !== "object") return mii;
+    mii.miiHash = getMiiIdentityHash(mii);
+    return mii;
 }
 
 function areMiisTheSame(miiA, miiB) {
-    return isDeepStrictEqual(normalizeMiiForComparison(miiA), normalizeMiiForComparison(miiB));
+    const hashA = getMiiIdentityHash(miiA);
+    const hashB = getMiiIdentityHash(miiB);
+    return Boolean(hashA && hashB && hashA === hashB);
 }
 
 async function findMatchingMii(candidateMii, { includePrivate = true, excludeId } = {}) {
+    const candidateHash = getMiiIdentityHash(candidateMii);
     const query = includePrivate ? {} : { private: false };
     if (excludeId) query.id = { $ne: excludeId };
+    if (candidateHash) {
+        query.$or = [
+            { miiHash: candidateHash },
+            { miiHash: { $exists: false } },
+            { miiHash: null },
+            { miiHash: "" }
+        ];
+    }
 
     const existingMiis = await Miis.find(query).lean();
 
     for (const existingMii of existingMiis) {
-        if (areMiisTheSame(candidateMii, existingMii)) {
+        const existingHash = existingMii.miiHash || getMiiIdentityHash(existingMii);
+        if (candidateHash && existingHash === candidateHash) {
             return existingMii;
         }
     }
@@ -617,8 +630,51 @@ async function findMatchingMii(candidateMii, { includePrivate = true, excludeId 
     return null;
 }
 
+async function backfillMiiIdentityHashes() {
+    const cursor = Miis.find({
+        $or: [
+            { miiHash: { $exists: false } },
+            { miiHash: null },
+            { miiHash: "" }
+        ]
+    }).cursor();
+
+    let updatedCount = 0;
+    for await (const mii of cursor) {
+        const miiHash = getMiiIdentityHash(mii);
+        if (!miiHash) continue;
+
+        await Miis.updateOne(
+            { _id: mii._id },
+            { $set: { miiHash } }
+        );
+        updatedCount++;
+
+        if (updatedCount % 100 === 0) {
+            await yieldToEventLoop();
+        }
+    }
+
+    if (updatedCount > 0) {
+        console.log(`[miiHash] Backfilled ${updatedCount} Mii identity hash${updatedCount === 1 ? "" : "es"}.`);
+    }
+}
+
 function getDuplicateMiiErrorMessage(matchingMiiId) {
     return `This Mii already exists (Mii ID: ${matchingMiiId}). If you believe this is incorrect, you can dispute it by contacting Stewared at /contact.`;
+}
+
+function getDuplicateMiiErrorHtml(matchingMiiId) {
+    const duplicateMiiId = String(matchingMiiId ?? "");
+    const duplicateMiiUrl = `/mii/${encodeURIComponent(duplicateMiiId)}`;
+    return `This Mii already exists (<a href="${duplicateMiiUrl}">Mii ID: ${escapeHtmlText(duplicateMiiId)}</a>). If you believe this is incorrect, you can dispute it by <a href="/contact">contacting Stewared</a>.`;
+}
+
+function getDuplicateMiiErrorPayload(matchingMiiId) {
+    return {
+        error: getDuplicateMiiErrorMessage(matchingMiiId),
+        errorHtml: getDuplicateMiiErrorHtml(matchingMiiId)
+    };
 }
 
 function parseQuickUploadConfig(content) {
@@ -3763,6 +3819,7 @@ async function setAverageMii(){
     avg.uploadedOn = Date.now();
     avg.private = false;
     avg.published = true;
+    setMiiIdentityHash(avg);
     
     // Upsert average Mii
     await Miis.findOneAndUpdate(
@@ -4812,6 +4869,11 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
         }
         await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
         await ensureOfficialMiiSeedLikes();
+        setTimeout(() => {
+            backfillMiiIdentityHashes().catch((error) => {
+                console.error("[miiHash] Failed to backfill Mii identity hashes:", error);
+            });
+        }, 0);
         console.log("Settings initialized");
         getIndexNowKey();
 
@@ -4850,6 +4912,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
                         mii.desc = "Uploaded in Bulk";
                         mii.private = false;
                         mii.published = true;
+                        setMiiIdentityHash(mii);
                         await applyAutomaticDecodedMiiTags(mii);
                         ensureUploadMiiPermissions(mii);
 
@@ -5286,6 +5349,7 @@ async function renderLegacyUploadPage(req, res, options = {}) {
         averageMiiData,
         legacyCacheBuster: Date.now().toString(36),
         legacyUploadError: options.error || "",
+        legacyUploadErrorHtml: options.errorHtml || "",
         legacyUploadSuccess: options.success || "",
         legacyUploadedMii: options.uploadedMii || null,
         legacyFormValues: options.formValues || {
@@ -5498,6 +5562,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
             cleanupUpload();
             await renderLegacyUploadPage(req, res, {
                 error: getDuplicateMiiErrorMessage(matchingMii.id),
+                errorHtml: getDuplicateMiiErrorHtml(matchingMii.id),
                 formValues
             });
             return;
@@ -5511,6 +5576,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
         mii.official = false;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
+        setMiiIdentityHash(mii);
         await applyAutomaticDecodedMiiTags(mii);
         ensureUploadMiiPermissions(mii);
 
@@ -7253,7 +7319,7 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
         const mii = await createMiiData(tempQrPath);
         const matchingMii = await findMatchingMii(mii);
         if (matchingMii) {
-            res.json({ error: getDuplicateMiiErrorMessage(matchingMii.id) });
+            res.json(getDuplicateMiiErrorPayload(matchingMii.id));
             return;
         }
 
@@ -7272,6 +7338,7 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
         mii.official = false;
         mii.published = false;
         mii.blockedFromPublishing = false;
+        setMiiIdentityHash(mii);
         await applyAutomaticDecodedMiiTags(mii);
         ensureUploadMiiPermissions(mii);
         
@@ -9214,7 +9281,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
 
         const matchingMii = await findMatchingMii(mii);
         if (matchingMii) {
-            res.json({ error: getDuplicateMiiErrorMessage(matchingMii.id) });
+            res.json(getDuplicateMiiErrorPayload(matchingMii.id));
             return;
         }
 
@@ -9241,6 +9308,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         mii.official = isOfficialUpload;
         mii.published = wantsPublic;
         mii.blockedFromPublishing = false;
+        setMiiIdentityHash(mii);
         await applyAutomaticDecodedMiiTags(mii);
         ensureUploadMiiPermissions(mii);
         
