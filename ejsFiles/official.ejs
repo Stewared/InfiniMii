@@ -2,7 +2,8 @@
 <html lang="en">
     <head>
         <%
-            const currentPageNumber = pagination?.currentPage || 1;
+            const usesOffsetPagination = pagination?.mode === 'offset';
+            const currentPageNumber = usesOffsetPagination ? null : (pagination?.currentPage || 1);
             const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
             const pageTitle = currentFilter
                 ? `Official Mii Characters in ${currentFilter}${pageSuffix} - InfiniMii`
@@ -10,9 +11,14 @@
             const pageDesc = currentFilter
                 ? `Browse official Mii characters filed under ${currentFilter} on InfiniMii.`
                 : 'Browse official Nintendo Mii characters from games, promotions, and system sources preserved on InfiniMii.';
-            const canonicalQuery = currentFilter
-                ? `${currentPageNumber > 1 ? `?category=${encodeURIComponent(currentFilter)}&page=${currentPageNumber}` : `?category=${encodeURIComponent(currentFilter)}`}`
-                : (currentPageNumber > 1 ? `?page=${currentPageNumber}` : '');
+            const canonicalCategoryPrefix = currentFilter ? `?category=${encodeURIComponent(currentFilter)}` : '';
+            const canonicalOffsetSuffix = usesOffsetPagination && pagination?.start > 0
+                ? `${currentFilter ? '&' : '?'}start=${pagination.start}`
+                : '';
+            const canonicalPageSuffix = !usesOffsetPagination && currentPageNumber > 1
+                ? `${currentFilter ? '&' : '?'}page=${currentPageNumber}`
+                : '';
+            const canonicalQuery = `${canonicalCategoryPrefix}${usesOffsetPagination ? canonicalOffsetSuffix : canonicalPageSuffix}`;
             const canonicalUrl = `${baseUrl}/official${canonicalQuery}`;
             const keywords = currentFilter
                 ? `official miis, ${currentFilter}, nintendo miis`
@@ -25,7 +31,9 @@
                 breadcrumbs.push({ name: currentFilter, url: `/official?category=${encodeURIComponent(currentFilter)}` });
             }
             const schemaType = 'CollectionPage';
-            const listOffset = ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
+            const listOffset = usesOffsetPagination
+                ? (pagination?.start || 0)
+                : ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
             const schemaGraphs = Array.isArray(displayedMiis) && displayedMiis.length > 0
                 ? [{
                     "@context": "https://schema.org",
@@ -99,7 +107,16 @@
 
                 <!-- Miis Grid -->
                 <% if(displayedMiis.length > 0) { %>
-                    <div id="browse-miis" class="browse-miis-balanced">
+                    <div
+                        id="browse-miis"
+                        class="browse-miis-balanced"
+                        data-full-row-grid="1"
+                        data-full-row-start="<%= pagination?.start || 0 %>"
+                        data-full-row-total="<%= pagination?.total ?? displayedMiis.length %>"
+                        data-full-row-request-limit="<%= pagination?.requestLimit || displayedMiis.length || 1 %>"
+                        data-full-row-base-count="<%= pagination?.baseCount || 16 %>"
+                        data-full-row-allow-partial-last="1"
+                    >
                         <% for(var i=0; i<displayedMiis.length; i++){ %>
                             <%
                                 const officialMii = displayedMiis[i];
@@ -126,13 +143,24 @@
                     </div>
                     
                     <!-- Pagination Controls -->
-                    <% if (pagination && pagination.totalPages > 1) { %>
-                        <div class="pagination">
-                            <% if (pagination.currentPage > 1) { %>
-                                <a href="?page=<%= pagination.currentPage - 1 %><%= currentFilter ? '&category=' + encodeURIComponent(currentFilter) : '' %>" class="pagination-btn">&larr; Previous</a>
-                            <% } %>
+                    <% if (pagination && pagination.mode === 'offset') { %>
+                        <div class="pagination" data-full-row-controls-for="browse-miis">
+                            <a
+                                href="<%= pagination.prevUrl || '/official' %>"
+                                class="pagination-btn"
+                                data-pagination-prev
+                                <%= pagination.start > 0 ? '' : 'hidden' %>
+                            >&larr; Previous</a>
                             
-                            <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
+                            <span
+                                class="pagination-info"
+                                data-pagination-mode="offset"
+                                data-current-page="<%= pagination.currentPage %>"
+                                data-total-pages="<%= pagination.totalPages %>"
+                                data-page-size="<%= pagination.requestLimit %>"
+                                data-start="<%= pagination.start %>"
+                                data-total-items="<%= pagination.total %>"
+                            >
                                 Page
                                 <button type="button" class="pagination-current-page" aria-label="Jump to page">
                                     <%= pagination.currentPage %>
@@ -146,13 +174,16 @@
                                     inputmode="numeric"
                                     aria-label="Type page number"
                                 >
-                                of <%= pagination.totalPages %>
-                                (<%= pagination.total %> Miis)
+                                of <span data-pagination-total-pages><%= pagination.totalPages %></span>
+                                (<span data-pagination-total><%= pagination.total %></span> Miis)
                             </span>
                             
-                            <% if (pagination.currentPage < pagination.totalPages) { %>
-                                <a href="?page=<%= pagination.currentPage + 1 %><%= currentFilter ? '&category=' + encodeURIComponent(currentFilter) : '' %>" class="pagination-btn">Next &rarr;</a>
-                            <% } %>
+                            <a
+                                href="<%= pagination.nextUrl || '/official' %>"
+                                class="pagination-btn"
+                                data-pagination-next
+                                <%= pagination.nextUrl ? '' : 'hidden' %>
+                            >Next &rarr;</a>
                         </div>
                     <% } %>
                 <% } else { %>
@@ -170,4 +201,3 @@
         <%- include('footer') %>
     </body>
 </html>
-

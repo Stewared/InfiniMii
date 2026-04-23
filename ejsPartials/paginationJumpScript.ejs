@@ -3,9 +3,62 @@
         const paginationInfoRows = document.querySelectorAll(".pagination-info[data-current-page][data-total-pages]");
         if (!paginationInfoRows.length) return;
 
-        function buildPageUrl(pageNumber) {
+        function buildStartUrl(startOffset) {
+            const normalizedStart = Number.isFinite(Number(startOffset)) && Number(startOffset) > 0
+                ? Math.floor(Number(startOffset))
+                : 0;
+
             try {
                 const url = new URL(window.location.href);
+                url.searchParams.delete("page");
+                if (normalizedStart > 0) {
+                    url.searchParams.set("start", String(normalizedStart));
+                } else {
+                    url.searchParams.delete("start");
+                }
+                return url.toString();
+            } catch (e) {
+                const existingSearch = String(window.location.search || "").replace(/^\?/, "");
+                const queryParts = existingSearch ? existingSearch.split("&").filter(Boolean) : [];
+                let foundStartParam = false;
+
+                const nextQueryParts = queryParts.reduce((parts, part) => {
+                    const equalsIndex = part.indexOf("=");
+                    const rawKey = equalsIndex === -1 ? part : part.slice(0, equalsIndex);
+                    const key = decodeURIComponent(rawKey || "");
+                    if (key === "page") return parts;
+                    if (key !== "start") {
+                        parts.push(part);
+                        return parts;
+                    }
+
+                    foundStartParam = true;
+                    if (normalizedStart > 0) {
+                        parts.push(`start=${encodeURIComponent(String(normalizedStart))}`);
+                    }
+                    return parts;
+                }, []);
+
+                if (!foundStartParam && normalizedStart > 0) {
+                    nextQueryParts.push(`start=${encodeURIComponent(String(normalizedStart))}`);
+                }
+
+                const queryString = nextQueryParts.join("&");
+                return `${window.location.pathname}${queryString ? `?${queryString}` : ""}${window.location.hash || ""}`;
+            }
+        }
+
+        function buildPageUrl(row, pageNumber) {
+            const mode = String(row.dataset.paginationMode || "").trim().toLowerCase();
+            if (mode === "offset") {
+                const pageSize = Number.parseInt(row.dataset.pageSize || "", 10);
+                const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 1;
+                return buildStartUrl((pageNumber - 1) * safePageSize);
+            }
+
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.delete("start");
                 url.searchParams.set("page", String(pageNumber));
                 return url.toString();
             } catch (e) {
@@ -14,15 +67,20 @@
                 const encodedPage = encodeURIComponent(String(pageNumber));
                 let foundPageParam = false;
 
-                const nextQueryParts = queryParts.map((part) => {
+                const nextQueryParts = queryParts.reduce((parts, part) => {
                     const equalsIndex = part.indexOf("=");
                     const rawKey = equalsIndex === -1 ? part : part.slice(0, equalsIndex);
                     const key = decodeURIComponent(rawKey || "");
-                    if (key !== "page") return part;
+                    if (key === "start") return parts;
+                    if (key !== "page") {
+                        parts.push(part);
+                        return parts;
+                    }
 
                     foundPageParam = true;
-                    return `page=${encodedPage}`;
-                });
+                    parts.push(`page=${encodedPage}`);
+                    return parts;
+                }, []);
 
                 if (!foundPageParam) {
                     nextQueryParts.push(`page=${encodedPage}`);
@@ -33,21 +91,30 @@
             }
         }
 
+        function getPaginationState(row) {
+            const currentPage = Number.parseInt(row.dataset.currentPage || "", 10);
+            const totalPages = Number.parseInt(row.dataset.totalPages || "", 10);
+            return {
+                currentPage,
+                totalPages
+            };
+        }
+
         paginationInfoRows.forEach((row) => {
             const pageButton = row.querySelector(".pagination-current-page");
             const pageInput = row.querySelector(".pagination-page-input");
             if (!pageButton || !pageInput) return;
 
-            const currentPage = Number.parseInt(row.dataset.currentPage || "", 10);
-            const totalPages = Number.parseInt(row.dataset.totalPages || "", 10);
+            const { currentPage, totalPages } = getPaginationState(row);
             if (!Number.isFinite(currentPage) || !Number.isFinite(totalPages) || totalPages < 1) return;
 
             let isNavigating = false;
 
             function openEditor() {
                 if (isNavigating) return;
+                const { currentPage: liveCurrentPage } = getPaginationState(row);
                 row.classList.add("is-editing");
-                pageInput.value = String(currentPage);
+                pageInput.value = String(liveCurrentPage);
                 requestAnimationFrame(() => {
                     pageInput.focus();
                     pageInput.select();
@@ -59,22 +126,24 @@
             }
 
             function normalizePage(value) {
+                const { currentPage: liveCurrentPage, totalPages: liveTotalPages } = getPaginationState(row);
                 const parsed = Number.parseInt(String(value), 10);
-                if (!Number.isFinite(parsed)) return currentPage;
-                return Math.max(1, Math.min(totalPages, parsed));
+                if (!Number.isFinite(parsed)) return liveCurrentPage;
+                return Math.max(1, Math.min(liveTotalPages, parsed));
             }
 
             function submitPage() {
                 if (isNavigating) return;
+                const { currentPage: liveCurrentPage } = getPaginationState(row);
 
                 const nextPage = normalizePage(pageInput.value);
                 pageInput.value = String(nextPage);
                 closeEditor();
 
-                if (nextPage === currentPage) return;
+                if (nextPage === liveCurrentPage) return;
 
                 isNavigating = true;
-                window.location.assign(buildPageUrl(nextPage));
+                window.location.assign(buildPageUrl(row, nextPage));
             }
 
             pageButton.addEventListener("click", (event) => {
@@ -97,7 +166,7 @@
 
                 if (event.key === "Escape") {
                     event.preventDefault();
-                    pageInput.value = String(currentPage);
+                    pageInput.value = String(getPaginationState(row).currentPage);
                     closeEditor();
                     pageButton.focus();
                 }

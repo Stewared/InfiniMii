@@ -112,6 +112,83 @@ function likeMii(el,id,highlightedMii,mod){
     });
 }
 
+function getGridCards(container) {
+    return Array.from(container.querySelectorAll('.mii-card'));
+}
+
+function getCardsPerRow(container, cards) {
+    if (!Array.isArray(cards) || cards.length === 0) return 0;
+
+    try {
+        const computedStyle = window.getComputedStyle(container);
+        const displayValue = String(computedStyle.display || '').toLowerCase();
+        if (displayValue.includes('grid')) {
+            const templateColumns = String(computedStyle.gridTemplateColumns || '').trim();
+            if (templateColumns && templateColumns !== 'none') {
+                const columnCount = templateColumns.split(/\s+/).filter(Boolean).length;
+                if (columnCount > 0) {
+                    return Math.min(cards.length, columnCount);
+                }
+            }
+        }
+    } catch (e) {
+        // Fall back to layout-based detection below.
+    }
+
+    const firstRowTop = cards[0].offsetTop;
+    const firstWrappedCardIndex = cards.findIndex((card) => Math.abs(card.offsetTop - firstRowTop) > 1);
+    return firstWrappedCardIndex === -1 ? cards.length : firstWrappedCardIndex;
+}
+
+function buildStartPaginationUrl(startOffset) {
+    const normalizedStart = Number.isFinite(Number(startOffset)) && Number(startOffset) > 0
+        ? Math.floor(Number(startOffset))
+        : 0;
+
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('page');
+        if (normalizedStart > 0) {
+            url.searchParams.set('start', String(normalizedStart));
+        } else {
+            url.searchParams.delete('start');
+        }
+        return url.toString();
+    } catch (e) {
+        const existingSearch = String(window.location.search || '').replace(/^\?/, '');
+        const queryParts = existingSearch ? existingSearch.split('&').filter(Boolean) : [];
+        let hasStart = false;
+
+        const nextQueryParts = queryParts.reduce((parts, part) => {
+            const equalsIndex = part.indexOf('=');
+            const rawKey = equalsIndex === -1 ? part : part.slice(0, equalsIndex);
+            const key = decodeURIComponent(rawKey || '');
+
+            if (key === 'page') {
+                return parts;
+            }
+
+            if (key !== 'start') {
+                parts.push(part);
+                return parts;
+            }
+
+            hasStart = true;
+            if (normalizedStart > 0) {
+                parts.push(`start=${encodeURIComponent(String(normalizedStart))}`);
+            }
+            return parts;
+        }, []);
+
+        if (!hasStart && normalizedStart > 0) {
+            nextQueryParts.push(`start=${encodeURIComponent(String(normalizedStart))}`);
+        }
+
+        const queryString = nextQueryParts.join('&');
+        return `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash || ''}`;
+    }
+}
+
 function initializeHomepagePreviewRows() {
     const categories = Array.from(document.querySelectorAll('[data-home-preview-row]'));
     if (categories.length === 0) return;
@@ -119,16 +196,14 @@ function initializeHomepagePreviewRows() {
     let frameId = 0;
 
     const syncCategory = (category) => {
-        const cards = Array.from(category.querySelectorAll('.mii-card'));
+        const cards = getGridCards(category);
         if (cards.length === 0) return;
 
         cards.forEach((card) => {
             card.hidden = false;
         });
 
-        const firstRowTop = cards[0].offsetTop;
-        const firstWrappedCardIndex = cards.findIndex((card) => Math.abs(card.offsetTop - firstRowTop) > 1);
-        const firstRowCount = firstWrappedCardIndex === -1 ? cards.length : firstWrappedCardIndex;
+        const firstRowCount = getCardsPerRow(category, cards);
         const cardsToShow = firstRowCount === 1
             ? Math.min(cards.length, 5)
             : Math.min(cards.length, firstRowCount < 5 ? firstRowCount * 2 : firstRowCount);
@@ -179,6 +254,144 @@ function initializeHomepagePreviewRows() {
     }
 }
 
+function initializeFullRowBrowseGrids() {
+    const grids = Array.from(document.querySelectorAll('[data-full-row-grid]'));
+    if (grids.length === 0) return;
+
+    let frameId = 0;
+
+    const syncGrid = (grid) => {
+        const cards = getGridCards(grid);
+        if (cards.length === 0) return;
+
+        cards.forEach((card) => {
+            card.hidden = false;
+        });
+
+        const cardsPerRow = getCardsPerRow(grid, cards);
+        if (!cardsPerRow) return;
+
+        const start = Number.parseInt(grid.dataset.fullRowStart || '', 10);
+        const total = Number.parseInt(grid.dataset.fullRowTotal || '', 10);
+        const requestLimit = Number.parseInt(grid.dataset.fullRowRequestLimit || '', 10);
+        const baseCount = Number.parseInt(grid.dataset.fullRowBaseCount || '', 10);
+        const allowPartialLastRow = grid.dataset.fullRowAllowPartialLast === '1';
+        const safeStart = Number.isFinite(start) && start > 0 ? start : 0;
+        const safeTotal = Number.isFinite(total) && total >= 0 ? total : cards.length;
+        const safeRequestLimit = Number.isFinite(requestLimit) && requestLimit > 0 ? requestLimit : cards.length;
+        const safeBaseCount = Number.isFinite(baseCount) && baseCount > 0 ? baseCount : Math.min(16, safeRequestLimit);
+        const totalRemaining = Math.max(0, safeTotal - safeStart);
+        const maxVisibleAvailable = Math.min(cards.length, totalRemaining || cards.length);
+        const fullPageSize = (() => {
+            const computed = Math.ceil(Math.max(safeBaseCount, cardsPerRow) / cardsPerRow) * cardsPerRow;
+            return Math.min(safeRequestLimit, Math.max(cardsPerRow, computed));
+        })();
+        const isLastPage = allowPartialLastRow && totalRemaining <= fullPageSize;
+        const visibleCount = isLastPage
+            ? maxVisibleAvailable
+            : Math.min(maxVisibleAvailable, fullPageSize);
+
+        cards.forEach((card, index) => {
+            card.hidden = index >= visibleCount;
+        });
+
+        const controls = grid.id
+            ? document.querySelector(`[data-full-row-controls-for="${grid.id}"]`)
+            : null;
+        if (!controls) return;
+
+        const paginationInfo = controls.querySelector('.pagination-info');
+        const pageButton = controls.querySelector('.pagination-current-page');
+        const pageInput = controls.querySelector('.pagination-page-input');
+        const totalPagesEl = controls.querySelector('[data-pagination-total-pages]');
+        const totalEl = controls.querySelector('[data-pagination-total]');
+        const prevLink = controls.querySelector('[data-pagination-prev]');
+        const nextLink = controls.querySelector('[data-pagination-next]');
+        const randomVisibleCountEl = controls.querySelector('[data-random-visible-count]');
+        const totalPages = fullPageSize > 0 ? Math.max(1, Math.ceil(safeTotal / fullPageSize)) : 1;
+        const currentPage = Math.min(totalPages, fullPageSize > 0 ? Math.floor(safeStart / fullPageSize) + 1 : 1);
+        const previousStart = Math.max(0, safeStart - fullPageSize);
+        const nextStart = safeStart + visibleCount;
+        const hasNext = nextStart < safeTotal;
+
+        if (paginationInfo) {
+            paginationInfo.dataset.currentPage = String(currentPage);
+            paginationInfo.dataset.totalPages = String(totalPages);
+            paginationInfo.dataset.pageSize = String(fullPageSize);
+            paginationInfo.dataset.start = String(safeStart);
+            paginationInfo.dataset.totalItems = String(safeTotal);
+        }
+        if (pageButton) {
+            pageButton.textContent = String(currentPage);
+        }
+        if (pageInput) {
+            pageInput.value = String(currentPage);
+            pageInput.max = String(totalPages);
+        }
+        if (totalPagesEl) {
+            totalPagesEl.textContent = String(totalPages);
+        }
+        if (totalEl) {
+            totalEl.textContent = String(safeTotal);
+        }
+        if (randomVisibleCountEl) {
+            randomVisibleCountEl.textContent = String(visibleCount);
+        }
+        if (prevLink) {
+            prevLink.hidden = safeStart <= 0;
+            if (safeStart > 0) {
+                prevLink.href = buildStartPaginationUrl(previousStart);
+            }
+        }
+        if (nextLink) {
+            nextLink.hidden = !hasNext;
+            if (hasNext) {
+                nextLink.href = buildStartPaginationUrl(nextStart);
+            }
+        }
+    };
+
+    const syncAllGrids = () => {
+        frameId = 0;
+        grids.forEach(syncGrid);
+    };
+
+    const requestSync = () => {
+        if (frameId) {
+            cancelAnimationFrame(frameId);
+        }
+
+        frameId = requestAnimationFrame(syncAllGrids);
+    };
+
+    requestSync();
+    window.addEventListener('load', requestSync, { once: true });
+    window.addEventListener('resize', requestSync, { passive: true });
+
+    if ('ResizeObserver' in window) {
+        const observedWidths = new WeakMap();
+        const observer = new ResizeObserver((entries) => {
+            const widthChanged = entries.some((entry) => {
+                const nextWidth = Math.round(entry.contentRect.width);
+                const previousWidth = observedWidths.get(entry.target);
+                observedWidths.set(entry.target, nextWidth);
+                return typeof previousWidth === 'undefined' || previousWidth !== nextWidth;
+            });
+
+            if (widthChanged) {
+                requestSync();
+            }
+        });
+
+        grids.forEach((grid) => {
+            observedWidths.set(grid, Math.round(grid.getBoundingClientRect().width));
+            observer.observe(grid);
+        });
+
+        window.__fullRowBrowseResizeObserver = observer;
+    }
+}
+
 function initializeMiiCardImageLoading() {
     const cardImages = Array.from(document.querySelectorAll('.mii-card > a > img, .private-mii-card > a > img'));
     if (cardImages.length === 0) return;
@@ -213,6 +426,7 @@ function initializeMiiCardImageLoading() {
 
 function initializePageFeatures() {
     initializeHomepagePreviewRows();
+    initializeFullRowBrowseGrids();
     initializeMiiCardImageLoading();
 }
 

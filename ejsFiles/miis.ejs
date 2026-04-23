@@ -3,7 +3,9 @@
     <head>
         <%
             const currentPathName = currentPath.split('?')[0];
-            const currentPageNumber = pagination?.currentPage || 1;
+            const usesOffsetPagination = pagination?.mode === 'offset';
+            const isRandomPage = currentPathName === '/random';
+            const currentPageNumber = usesOffsetPagination ? null : (pagination?.currentPage || 1);
             const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
             const hasSelectedTags = Array.isArray(selectedTags) && selectedTags.length > 0;
             const tagSummary = hasSelectedTags ? selectedTags.join(', ') : '';
@@ -74,7 +76,9 @@
                 breadcrumbs.push({ name: 'Search', url: '/search' });
             }
 
-            const listOffset = ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
+            const listOffset = usesOffsetPagination
+                ? (pagination?.start || 0)
+                : ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
             const schemaType = 'CollectionPage';
             const schemaGraphs = (!pageRobots && Array.isArray(displayedMiis) && displayedMiis.length > 0)
                 ? [{
@@ -118,6 +122,13 @@
                         ? '&searchFieldsConfigured=1' + selectedSearchFieldParams.map(field => '&searchIn=' + encodeURIComponent(field)).join('')
                         : '';
                     const hasActiveSearchQuery = Boolean(query.q && selectedSearchFieldParams.length > 0);
+                    const shouldUseFullRowGrid = usesOffsetPagination || isRandomPage;
+                    const fullRowGridStart = usesOffsetPagination ? (pagination?.start || 0) : 0;
+                    const fullRowGridTotal = usesOffsetPagination ? (pagination?.total ?? displayedMiis.length) : displayedMiis.length;
+                    const fullRowRequestLimit = usesOffsetPagination
+                        ? (pagination?.requestLimit || displayedMiis.length || 1)
+                        : (displayedMiis.length || 1);
+                    const fullRowBaseCount = pagination?.baseCount || 16;
                 %>
 
                 <% if (currentPath.startsWith('/searchResults')) { %>
@@ -189,7 +200,18 @@
                 %>
 
                 <% if (displayedMiis.length > 0) { %>
-                    <div id="browse-miis" class="browse-miis-balanced">
+                    <div
+                        id="browse-miis"
+                        class="browse-miis-balanced"
+                        <% if (shouldUseFullRowGrid) { %>
+                            data-full-row-grid="1"
+                            data-full-row-start="<%= fullRowGridStart %>"
+                            data-full-row-total="<%= fullRowGridTotal %>"
+                            data-full-row-request-limit="<%= fullRowRequestLimit %>"
+                            data-full-row-base-count="<%= fullRowBaseCount %>"
+                            data-full-row-allow-partial-last="<%= usesOffsetPagination ? '1' : '0' %>"
+                        <% } %>
+                    >
                         <% for (var i = 0; i < displayedMiis.length; i++) { %>
                             <%
                                 const miiItem = displayedMiis[i];
@@ -221,7 +243,58 @@
                     </div>
                 <% } %>
 
-                <% if (pagination && pagination.totalPages > 1 && !pageTitle.toLowerCase().includes("random")) { %>
+                <% if (pagination?.mode === 'offset' && displayedMiis.length > 0) { %>
+                    <div class="pagination" data-full-row-controls-for="browse-miis">
+                        <a
+                            href="<%= pagination.prevUrl || currentPathName %>"
+                            class="pagination-btn"
+                            data-pagination-prev
+                            <%= pagination.start > 0 ? '' : 'hidden' %>
+                        >&larr; Previous</a>
+
+                        <span
+                            class="pagination-info"
+                            data-pagination-mode="offset"
+                            data-current-page="<%= pagination.currentPage %>"
+                            data-total-pages="<%= pagination.totalPages %>"
+                            data-page-size="<%= pagination.requestLimit %>"
+                            data-start="<%= pagination.start %>"
+                            data-total-items="<%= pagination.total %>"
+                        >
+                            Page
+                            <button type="button" class="pagination-current-page" aria-label="Jump to page">
+                                <%= pagination.currentPage %>
+                            </button>
+                            <input
+                                type="number"
+                                class="pagination-page-input"
+                                min="1"
+                                max="<%= pagination.totalPages %>"
+                                value="<%= pagination.currentPage %>"
+                                inputmode="numeric"
+                                aria-label="Type page number"
+                            >
+                            of <span data-pagination-total-pages><%= pagination.totalPages %></span>
+                            (<span data-pagination-total><%= pagination.total %></span> Miis)
+                        </span>
+
+                        <a
+                            href="<%= pagination.nextUrl || currentPathName %>"
+                            class="pagination-btn"
+                            data-pagination-next
+                            <%= pagination.nextUrl ? '' : 'hidden' %>
+                        >Next &rarr;</a>
+                    </div>
+                <% } else if (isRandomPage && displayedMiis.length > 0) { %>
+                    <div class="pagination" data-full-row-controls-for="browse-miis">
+                        <a href="/random" class="pagination-btn">Refresh</a>
+                        <span class="pagination-info">
+                            Showing
+                            <span data-random-visible-count><%= displayedMiis.length %></span>
+                            random Miis
+                        </span>
+                    </div>
+                <% } else if (pagination && pagination.mode !== 'offset' && pagination.mode !== 'random' && pagination.totalPages > 1) { %>
                     <div class="pagination">
                         <% if (pagination.currentPage > 1) { %>
                             <a href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>" class="pagination-btn">&larr; Previous</a>

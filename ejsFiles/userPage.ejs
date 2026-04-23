@@ -32,7 +32,8 @@
             const profileFeaturedMiis = Array.isArray(profileHighlights?.featuredMiis) ? profileHighlights.featuredMiis : [];
             const featuredNames = Array.isArray(profileHighlights?.featuredNames) ? profileHighlights.featuredNames : [];
             const selectedProfileSort = profileSort === 'latest' ? 'latest' : 'popular';
-            const currentPageNumber = pagination?.currentPage || 1;
+            const usesOffsetPagination = pagination?.mode === 'offset';
+            const currentPageNumber = usesOffsetPagination ? null : (pagination?.currentPage || 1);
             const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
             const memberSinceLabel = memberSince
                 ? new Date(memberSince).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
@@ -47,7 +48,9 @@
             if (selectedProfileSort === 'latest') {
                 canonicalParams.set('sort', 'latest');
             }
-            if (currentPageNumber > 1) {
+            if (usesOffsetPagination && pagination?.start > 0) {
+                canonicalParams.set('start', String(pagination.start));
+            } else if (currentPageNumber > 1) {
                 canonicalParams.set('page', String(currentPageNumber));
             }
             const canonicalQuery = canonicalParams.toString();
@@ -90,7 +93,9 @@
                 { name: targetUser.username, url: `/user/${encodeURIComponent(targetUser.username)}` }
             ];
             const schemaType = 'ProfilePage';
-            const listOffset = ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
+            const listOffset = usesOffsetPagination
+                ? (pagination?.start || 0)
+                : ((pagination?.currentPage || 1) - 1) * (pagination?.perPage || displayedMiis.length || 0);
             const uploaderSearchUrl = `/searchResults?q=${encodeURIComponent(targetUser.username)}&searchFieldsConfigured=1&searchIn=uploader`;
             const faqEntries = totalUploaded > 0
                 ? [
@@ -187,13 +192,16 @@
             <div class="profile-container">
                 <%
                     const profileBasePath = '/user/' + encodeURIComponent(targetUser.username);
-                    const buildProfilePageUrl = (pageNumber = 1, sortName = selectedProfileSort) => {
+                    const buildProfilePageUrl = (startOffset = 0, sortName = selectedProfileSort) => {
                         const params = new URLSearchParams();
                         if (sortName === 'latest') {
                             params.set('sort', 'latest');
                         }
-                        if (pageNumber > 1) {
-                            params.set('page', String(pageNumber));
+                        const normalizedStart = Number.isFinite(Number(startOffset)) && Number(startOffset) > 0
+                            ? Math.floor(Number(startOffset))
+                            : 0;
+                        if (normalizedStart > 0) {
+                            params.set('start', String(normalizedStart));
                         }
                         const queryString = params.toString();
                         return queryString ? `${profileBasePath}?${queryString}` : profileBasePath;
@@ -452,7 +460,16 @@
                     <% } %>
 
                     <% if(displayedMiis.length> 0) { %>
-                        <div id="browse-miis">
+                        <div
+                            id="browse-miis"
+                            class="browse-miis-balanced"
+                            data-full-row-grid="1"
+                            data-full-row-start="<%= pagination?.start || 0 %>"
+                            data-full-row-total="<%= pagination?.total ?? displayedMiis.length %>"
+                            data-full-row-request-limit="<%= pagination?.requestLimit || displayedMiis.length || 1 %>"
+                            data-full-row-base-count="<%= pagination?.baseCount || 18 %>"
+                            data-full-row-allow-partial-last="1"
+                        >
                             <% for(var i=0; i<displayedMiis.length; i++){ %>
                                 <%
                                     const profileMii = displayedMiis[i];
@@ -472,10 +489,52 @@
                             <% } %>
                         </div>
 
-                        <% if (pagination && pagination.totalPages > 1) { %>
+                        <% if (pagination?.mode === 'offset') { %>
+                            <div class="pagination" data-full-row-controls-for="browse-miis">
+                                <a
+                                    href="<%= pagination.prevUrl || profileBasePath %>"
+                                    class="pagination-btn"
+                                    data-pagination-prev
+                                    <%= pagination.start > 0 ? '' : 'hidden' %>
+                                >&larr; Previous</a>
+
+                                <span
+                                    class="pagination-info"
+                                    data-pagination-mode="offset"
+                                    data-current-page="<%= pagination.currentPage %>"
+                                    data-total-pages="<%= pagination.totalPages %>"
+                                    data-page-size="<%= pagination.requestLimit %>"
+                                    data-start="<%= pagination.start %>"
+                                    data-total-items="<%= pagination.total %>"
+                                >
+                                    Page
+                                    <button type="button" class="pagination-current-page" aria-label="Jump to page">
+                                        <%= pagination.currentPage %>
+                                    </button>
+                                    <input
+                                        type="number"
+                                        class="pagination-page-input"
+                                        min="1"
+                                        max="<%= pagination.totalPages %>"
+                                        value="<%= pagination.currentPage %>"
+                                        inputmode="numeric"
+                                        aria-label="Type page number"
+                                    >
+                                    of <span data-pagination-total-pages><%= pagination.totalPages %></span>
+                                    (<span data-pagination-total><%= pagination.total %></span> Miis)
+                                </span>
+
+                                <a
+                                    href="<%= pagination.nextUrl || buildProfilePageUrl((pagination?.start || 0) + (pagination?.requestLimit || displayedMiis.length || 1)) %>"
+                                    class="pagination-btn"
+                                    data-pagination-next
+                                    <%= pagination.nextUrl ? '' : 'hidden' %>
+                                >Next &rarr;</a>
+                            </div>
+                        <% } else if (pagination && pagination.totalPages > 1) { %>
                             <div class="pagination">
                                 <% if (pagination.currentPage > 1) { %>
-                                    <a href="<%= buildProfilePageUrl(pagination.currentPage - 1) %>" class="pagination-btn">&larr; Previous</a>
+                                    <a href="?page=<%= pagination.currentPage - 1 %>" class="pagination-btn">&larr; Previous</a>
                                 <% } %>
 
                                 <span class="pagination-info" data-current-page="<%= pagination.currentPage %>" data-total-pages="<%= pagination.totalPages %>">
@@ -497,7 +556,7 @@
                                 </span>
 
                                 <% if (pagination.currentPage < pagination.totalPages) { %>
-                                    <a href="<%= buildProfilePageUrl(pagination.currentPage + 1) %>" class="pagination-btn">Next &rarr;</a>
+                                    <a href="?page=<%= pagination.currentPage + 1 %>" class="pagination-btn">Next &rarr;</a>
                                 <% } %>
                             </div>
                         <% } %>

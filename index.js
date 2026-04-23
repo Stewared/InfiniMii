@@ -49,6 +49,9 @@ const profileMiisPerPage = 18;
 // Fetch enough cards for the homepage so the client can keep each section to
 // one fitted row on wide layouts and fuller preview rows on narrow layouts.
 const HOME_PREVIEW_COUNT = 16;
+const FULL_ROW_BROWSE_REQUEST_LIMIT = defaultMiisPerPage + HOME_PREVIEW_COUNT;
+const FULL_ROW_PROFILE_REQUEST_LIMIT = profileMiisPerPage + HOME_PREVIEW_COUNT;
+const GLOBAL_ASSET_VERSION = "20260423-full-row-pages-3";
 const RSS_FEED_MII_LIMIT = 50;
 const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
 const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
@@ -1757,9 +1760,12 @@ async function getSendables(req, title, user) {
         isAdmin: isAdmin(req.user),
         pfp: pfp,
         query: req.query,
+        prevUrl: undefined,
+        nextUrl: undefined,
         discordInvite: process.env.discordInvite,
         githubLink: process.env.githubLink,
         paypalDonateUrl: PAYPAL_DONATE_URL,
+        assetVersion: GLOBAL_ASSET_VERSION,
         baseUrl: resolvedBaseUrl,
         title: title,
         exportFormats: EXPORT_FORMATS,
@@ -3097,6 +3103,7 @@ async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date
         total,
         page,
         perPage,
+        start: skip,
         totalPages: Math.ceil(total / perPage)
     };
 }
@@ -3113,13 +3120,61 @@ async function getFallbackSearchPaginatedResult(baseQuery, searchPlan, page, per
         total: rankedCandidates.length,
         page,
         perPage,
+        start: skip,
         totalPages: Math.ceil(rankedCandidates.length / perPage)
     };
 }
 
+function normalizePaginationWindow(pageOrOptions = 1, perPage = defaultMiisPerPage) {
+    const normalizedPerPage = Number.isFinite(Number(perPage)) && Number(perPage) > 0
+        ? Math.floor(Number(perPage))
+        : defaultMiisPerPage;
+
+    if (pageOrOptions && typeof pageOrOptions === "object" && !Array.isArray(pageOrOptions)) {
+        const requestedStart = Number.parseInt(pageOrOptions.start, 10);
+        const start = Number.isFinite(requestedStart) && requestedStart > 0 ? requestedStart : 0;
+        const requestedPage = Number.parseInt(pageOrOptions.page, 10);
+        const page = Number.isFinite(requestedPage) && requestedPage > 0
+            ? requestedPage
+            : Math.floor(start / normalizedPerPage) + 1;
+
+        return {
+            page,
+            perPage: normalizedPerPage,
+            start
+        };
+    }
+
+    const requestedPage = Number.parseInt(pageOrOptions, 10);
+    const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+    return {
+        page,
+        perPage: normalizedPerPage,
+        start: (page - 1) * normalizedPerPage
+    };
+}
+
+function getRequestedStartOffset(query, perPage = defaultMiisPerPage) {
+    const requestedStart = Number.parseInt(query?.start, 10);
+    if (Number.isFinite(requestedStart) && requestedStart >= 0) {
+        return requestedStart;
+    }
+
+    const requestedPage = Number.parseInt(query?.page, 10);
+    if (Number.isFinite(requestedPage) && requestedPage > 1) {
+        return (requestedPage - 1) * perPage;
+    }
+
+    return 0;
+}
+
 // Paginated API that queries database directly with skip/limit
-async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter = null) {
-    const skip = (page - 1) * perPage;
+async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPage, filter = null) {
+    const paginationWindow = normalizePaginationWindow(pageOrOptions, perPage);
+    const page = paginationWindow.page;
+    const requestLimit = paginationWindow.perPage;
+    const skip = paginationWindow.start;
     const settings = await getSettings();
     
     let query = { private: false, id: { $ne: "average" } };
@@ -3134,7 +3189,8 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
                     items: [],
                     total: 0,
                     page,
-                    perPage,
+                    perPage: requestLimit,
+                    start: skip,
                     totalPages: 0
                 };
             }
@@ -3159,9 +3215,9 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
             // ];
             const pipeline = [
                 { $match: query },
-                { $sample: { size: Math.min(totalCount, skip + perPage) } },
+                { $sample: { size: Math.min(totalCount, skip + requestLimit) } },
                 { $skip: skip },
-                { $limit: perPage }
+                { $limit: requestLimit }
             ];
 
             const items = await Miis.aggregate(pipeline);
@@ -3170,8 +3226,9 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
                 items,
                 total: totalCount,
                 page,
-                perPage,
-                totalPages: Math.ceil(totalCount / perPage)
+                perPage: requestLimit,
+                start: skip,
+                totalPages: Math.ceil(totalCount / requestLimit)
             };
         }
         
@@ -3238,7 +3295,7 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
                         { $addFields: { searchScore: buildMiiSearchScoreExpression(searchPlan) } },
                         { $sort: getMiiSearchSort() },
                         { $skip: skip },
-                        { $limit: perPage }
+                        { $limit: requestLimit }
                     ]),
                     Miis.countDocuments(query)
                 ]);
@@ -3248,12 +3305,13 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
                         items,
                         total: totalCount,
                         page,
-                        perPage,
-                        totalPages: Math.ceil(totalCount / perPage)
+                        perPage: requestLimit,
+                        start: skip,
+                        totalPages: Math.ceil(totalCount / requestLimit)
                     };
                 }
 
-                return getFallbackSearchPaginatedResult(baseSearchQuery, searchPlan, page, perPage, skip);
+                return getFallbackSearchPaginatedResult(baseSearchQuery, searchPlan, page, requestLimit, skip);
             }
 
             sort = getStablePopularitySort();
@@ -3261,7 +3319,7 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
         }
         
         default:
-            return { items: [], total: 0, page: 1, perPage, totalPages: 0 };
+            return { items: [], total: 0, page: 1, perPage: requestLimit, start: skip, totalPages: 0 };
     }
     
     // For simple sorted queries (best, recent, official without category)
@@ -3269,15 +3327,16 @@ async function paginatedApi(what, page = 1, perPage = defaultMiisPerPage, filter
     const items = await Miis.find(query)
         .sort(sort)
         .skip(skip)
-        .limit(perPage)
+        .limit(requestLimit)
         .lean();
     
     return {
         items,
         total: totalCount,
         page,
-        perPage,
-        totalPages: Math.ceil(totalCount / perPage)
+        perPage: requestLimit,
+        start: skip,
+        totalPages: Math.ceil(totalCount / requestLimit)
     };
 }
 
@@ -4166,6 +4225,37 @@ function toAbsoluteSiteUrl(req, value = "/") {
         : `${resolvedBaseUrl}/${trimmed.replace(/^\/+/, "")}`;
 }
 
+function buildRequestPathWithStart(req, startOffset) {
+    const params = new URLSearchParams();
+
+    Object.entries(req.query || {}).forEach(([key, value]) => {
+        if (key === "page" || key === "start") return;
+
+        if (Array.isArray(value)) {
+            value
+                .filter(item => typeof item !== "undefined" && item !== null && `${item}`.trim() !== "")
+                .forEach(item => params.append(key, String(item)));
+            return;
+        }
+
+        if (typeof value === "undefined" || value === null) return;
+        const normalized = String(value).trim();
+        if (!normalized) return;
+        params.append(key, normalized);
+    });
+
+    const normalizedStart = Number.isFinite(Number(startOffset)) && Number(startOffset) > 0
+        ? Math.floor(Number(startOffset))
+        : 0;
+
+    if (normalizedStart > 0) {
+        params.set("start", String(normalizedStart));
+    }
+
+    const queryString = params.toString();
+    return queryString ? `${req.path}?${queryString}` : req.path;
+}
+
 function buildRequestPathWithPage(req, pageNumber) {
     const params = new URLSearchParams();
 
@@ -4191,6 +4281,34 @@ function buildRequestPathWithPage(req, pageNumber) {
 
     const queryString = params.toString();
     return queryString ? `${req.path}?${queryString}` : req.path;
+}
+
+function buildStartPagination(req, start, total, requestLimit = defaultMiisPerPage) {
+    const normalizedStart = Number.isFinite(Number(start)) && Number(start) > 0
+        ? Math.floor(Number(start))
+        : 0;
+    const normalizedTotal = Number.isFinite(Number(total)) && Number(total) > 0
+        ? Math.floor(Number(total))
+        : 0;
+    const normalizedRequestLimit = Number.isFinite(Number(requestLimit)) && Number(requestLimit) > 0
+        ? Math.floor(Number(requestLimit))
+        : defaultMiisPerPage;
+
+    return {
+        mode: "offset",
+        start: normalizedStart,
+        total: normalizedTotal,
+        requestLimit: normalizedRequestLimit,
+        baseCount: defaultMiisPerPage,
+        currentPage: Math.floor(normalizedStart / normalizedRequestLimit) + 1,
+        totalPages: Math.max(1, Math.ceil(Math.max(1, normalizedTotal) / normalizedRequestLimit)),
+        prevUrl: normalizedStart > 0
+            ? buildRequestPathWithStart(req, Math.max(0, normalizedStart - normalizedRequestLimit))
+            : undefined,
+        nextUrl: normalizedTotal > normalizedStart + 1
+            ? buildRequestPathWithStart(req, normalizedStart + normalizedRequestLimit)
+            : undefined
+    };
 }
 
 function attachPaginationMeta(req, toSend, pagination) {
@@ -4977,23 +5095,19 @@ site.get('/', highGeneralRatelimit, async (req, res) => {
 //The following up to and including /recent are all sorted before being renders in miis.ejs, meaning the file is recycled. / is currently just a clone of /trending. /official and /search is more of the same but with a slight change to make Highlighted Mii still work without the full Mii array
 site.get('/random', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
-    const page = parseInt(req.query.page) || 1;
-    const perPage = 32;
-    
-    // Get or generate seed: use query param if provided, otherwise generate random seed
-    // On page 1 without seed, generate new random seed. On subsequent pages, seed must be passed.
-    const seed = req.query.seed || Math.floor(Math.random() * 1000000).toString();
-    
-    const paginatedData = await paginatedApi("random", page, perPage, seed);
+    const perPage = FULL_ROW_BROWSE_REQUEST_LIMIT;
+    const seed = Math.floor(Math.random() * 1000000).toString();
+
+    const paginatedData = await paginatedApi("random", 1, perPage, seed);
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = {
-        currentPage: paginatedData.page,
-        totalPages: paginatedData.totalPages,
-        total: paginatedData.total,
-        perPage: paginatedData.perPage,
-        seed: paginatedData.seed // Pass seed to template for pagination links
+        mode: "random",
+        start: 0,
+        total: paginatedData.items.length,
+        requestLimit: paginatedData.perPage,
+        baseCount: defaultMiisPerPage
     };
-    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.currentPath = req.path;
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     toSend.title = "Random Miis - InfiniMii";
@@ -5008,17 +5122,12 @@ site.get('/random', miiListRatelimiter, async (req, res) => {
 });
 site.get('/trending', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
-    const page = parseInt(req.query.page) || 1;
+    const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("trending", page, defaultMiisPerPage);
+    const paginatedData = await paginatedApi("trending", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
     toSend.displayedMiis = paginatedData.items;
-    toSend.pagination = {
-        currentPage: paginatedData.page,
-        totalPages: paginatedData.totalPages,
-        total: paginatedData.total,
-        perPage: paginatedData.perPage
-    };
-    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
+    toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     toSend.title = "Trending Miis - InfiniMii";
@@ -5033,17 +5142,12 @@ site.get('/trending', miiListRatelimiter, async (req, res) => {
 });
 site.get('/top', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
-    const page = parseInt(req.query.page) || 1;
+    const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("top", page, defaultMiisPerPage);
+    const paginatedData = await paginatedApi("top", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
     toSend.displayedMiis = paginatedData.items;
-    toSend.pagination = {
-        currentPage: paginatedData.page,
-        totalPages: paginatedData.totalPages,
-        total: paginatedData.total,
-        perPage: paginatedData.perPage
-    };
-    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
+    toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     toSend.title = "Top Miis - InfiniMii";
@@ -5058,17 +5162,12 @@ site.get('/top', miiListRatelimiter, async (req, res) => {
 });
 site.get('/recent', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
-    const page = parseInt(req.query.page) || 1;    const perRow = 5;
+    const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("recent", page, defaultMiisPerPage);
+    const paginatedData = await paginatedApi("recent", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
     toSend.displayedMiis = paginatedData.items;
-    toSend.pagination = {
-        currentPage: paginatedData.page,
-        totalPages: paginatedData.totalPages,
-        total: paginatedData.total,
-        perPage: paginatedData.perPage
-    };
-    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
+    toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     toSend.title = "Recent Miis - InfiniMii";
@@ -5084,7 +5183,7 @@ site.get('/recent', miiListRatelimiter, async (req, res) => {
 site.get('/official', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     
-    const page = parseInt(req.query.page) || 1;
+    const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     const filterCategory = req.query.category;
     
     // Get settings for categories
@@ -5106,15 +5205,10 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
     toSend.availableCategories.sort((a, b) => a.path.localeCompare(b.path));
     
     // Get paginated official Miis
-    const paginatedData = await paginatedApi("official", page, defaultMiisPerPage, filterCategory);
+    const paginatedData = await paginatedApi("official", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, filterCategory);
     toSend.displayedMiis = paginatedData.items;
-    toSend.pagination = {
-        currentPage: paginatedData.page,
-        totalPages: paginatedData.totalPages,
-        total: paginatedData.total,
-        perPage: paginatedData.perPage
-    };
-    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
+    toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     
     if (filterCategory) {
@@ -7795,8 +7889,7 @@ site.get('/user/:username', async (req, res) => {
     let inp = await getSendables(req);
     inp.targetUser = targetUser;
     const selectedProfileSort = req.query.sort === "latest" ? "latest" : "popular";
-    const requestedPage = Number.parseInt(req.query.page, 10);
-    const currentPageCandidate = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const profileStart = getRequestedStartOffset(req.query, profileMiisPerPage);
 
     const profileFilter = {
         uploader: targetUsername,
@@ -7864,14 +7957,12 @@ site.get('/user/:username', async (req, res) => {
         firstUploadOn: undefined
     };
     const totalMiis = profileSummary.totalMiis || 0;
-    const totalPages = Math.max(1, Math.ceil(totalMiis / profileMiisPerPage));
-    const currentPage = Math.min(currentPageCandidate, totalPages);
-    const skip = (currentPage - 1) * profileMiisPerPage;
+    const skip = profileStart;
 
     inp.displayedMiis = await Miis.find(profileFilter)
         .sort(profileListSort)
         .skip(skip)
-        .limit(profileMiisPerPage)
+        .limit(FULL_ROW_PROFILE_REQUEST_LIMIT)
         .lean();
     const topCategories = getMiiCategoryDetails(
         topCategoryRows.map(row => row?._id).filter(Boolean),
@@ -7894,13 +7985,11 @@ site.get('/user/:username', async (req, res) => {
         featuredNames: uniqueTextValues(featuredMiis.map(getDisplayMiiName)).slice(0, 6)
     };
     inp.profileSort = selectedProfileSort;
-    inp.pagination = {
-        currentPage,
-        totalPages,
-        total: totalMiis,
-        perPage: profileMiisPerPage
-    };
-    attachPaginationMeta(req, inp, inp.pagination);
+    inp.pagination = buildStartPagination(req, profileStart, totalMiis, FULL_ROW_PROFILE_REQUEST_LIMIT);
+    inp.pagination.baseCount = profileMiisPerPage;
+    inp.pagination.totalPages = Math.max(1, Math.ceil(Math.max(1, totalMiis) / profileMiisPerPage));
+    inp.pagination.currentPage = Math.min(inp.pagination.totalPages, Math.floor(profileStart / profileMiisPerPage) + 1);
+    inp.currentPath = buildRequestPathWithStart(req, profileStart);
     inp.pageUpdatedAt = profileSummary.latestUploadOn
         ? new Date(profileSummary.latestUploadOn).toISOString()
         : undefined;
@@ -8103,8 +8192,7 @@ site.get('/myPrivateMiis', requireAuth, async (req, res) => {
 });
 site.get('/myLikedMiis', requireAuth, async (req, res) => {
     let toSend = await getSendables(req, undefined, req.user);
-    const requestedPage = Number.parseInt(req.query.page, 10);
-    const currentPageCandidate = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     const likedSort = req.query.sort === "likes" ? "likes" : "latest";
     const likedMiiIds = Array.isArray(req.user?.votedFor)
         ? req.user.votedFor.map(id => String(id || "").trim()).filter(Boolean)
@@ -8125,24 +8213,16 @@ site.get('/myLikedMiis', requireAuth, async (req, res) => {
     const totalLikedMiis = likedMiiIds.length > 0
         ? await Miis.countDocuments(likedMiisQuery)
         : 0;
-    const totalPages = Math.max(1, Math.ceil(totalLikedMiis / defaultMiisPerPage));
-    const currentPage = Math.min(currentPageCandidate, totalPages);
-    const skip = (currentPage - 1) * defaultMiisPerPage;
 
     toSend.displayedMiis = likedMiiIds.length > 0
         ? await Miis.find(likedMiisQuery)
             .sort(sort)
-            .skip(skip)
-            .limit(defaultMiisPerPage)
+            .skip(start)
+            .limit(FULL_ROW_BROWSE_REQUEST_LIMIT)
             .lean()
         : [];
-    toSend.pagination = {
-        currentPage,
-        totalPages,
-        total: totalLikedMiis,
-        perPage: defaultMiisPerPage
-    };
-    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pagination = buildStartPagination(req, start, totalLikedMiis, FULL_ROW_BROWSE_REQUEST_LIMIT);
+    toSend.currentPath = buildRequestPathWithStart(req, start);
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
 
     ejs.renderFile('./ejsFiles/miis.ejs', toSend, {}, function(err, str) {

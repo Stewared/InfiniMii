@@ -393,6 +393,10 @@ footer ul li a:hover {
     min-width: 0;
 }
 
+#browse-miis.browse-miis-balanced .mii-card[hidden] {
+    display: none !important;
+}
+
 .mii-card {
     --mii-card-radius: 23px;
     --mii-card-inner-radius: calc(var(--mii-card-radius) - 2px);
