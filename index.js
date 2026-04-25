@@ -2979,6 +2979,16 @@ function seededShuffle(array, seed) {
     return shuffled;
 }
 
+const USERNAME_REGEX = /^[A-Za-z0-9_.-]{3,20}$/;
+
+function normalizeUsernameInput(value) {
+    return String(value || "").trim();
+}
+
+function isValidUsername(value) {
+    return USERNAME_REGEX.test(normalizeUsernameInput(value));
+}
+
 function validate(what) {
     return /^(\d|\D){1,15}$/.test(what);
 }
@@ -6793,31 +6803,32 @@ site.post('/deleteAllUserMiis', requireAuth, requireRole(ROLES.MODERATOR), async
 // Change Username (Moderator+)
 site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
-        const { oldUsername, newUsername } = req.body;
+        const normalizedOldUsername = normalizeUsernameInput(req.body?.oldUsername);
+        const normalizedNewUsername = normalizeUsernameInput(req.body?.newUsername);
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
 
-        if (!validate(newUsername)) {
-            return res.json({ error: 'Invalid username format' });
+        if (!isValidUsername(normalizedNewUsername)) {
+            return res.json({ error: 'Invalid username format. Username must be 3-20 characters using only letters, numbers, underscores, hyphens, or periods.' });
         }
 
-        const existing = await getUserByUsername(newUsername);
+        const existing = await getUserByUsername(normalizedNewUsername);
         if (existing) {
             return res.json({ error: 'Username already taken' });
         }
         
         // Check if username is reserved
-        const reserved = await ReservedUsername.findOne({ username: newUsername });
+        const reserved = await ReservedUsername.findOne({ username: normalizedNewUsername });
         if (reserved) {
             return res.json({ error: 'This username is reserved. Please try choose a different username.' });
         }
 
-        const user = await getUserByUsername(oldUsername);
+        const user = await getUserByUsername(normalizedOldUsername);
         if (!user) {
             return res.json({ error: 'User not found' });
         }
 
         const publicUserMiis = await Miis.find({
-            uploader: oldUsername,
+            uploader: normalizedOldUsername,
             private: false,
             published: true
         }).select('id official private published').lean();
@@ -6826,7 +6837,7 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
         const reserveUntil = new Date(Date.now() + ms('30 days'));
         try {
             await ReservedUsername.create({
-                username: oldUsername,
+                username: normalizedOldUsername,
                 expiresAt: reserveUntil
             });
         } catch (e) {
@@ -6839,9 +6850,9 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
 
         // Update username in User document
         await Users.findOneAndUpdate(
-            { username: oldUsername },
+            { username: normalizedOldUsername },
             { 
-                username: newUsername,
+                username: normalizedNewUsername,
                 tokenVersion: newTokenVersion,
                 lastUsernameChange: Date.now()
             }
@@ -6849,8 +6860,8 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
 
         // Update uploader field in all user's Miis
         await Miis.updateMany(
-            { uploader: oldUsername },
-            { $set: { uploader: newUsername } }
+            { uploader: normalizedOldUsername },
+            { $set: { uploader: normalizedNewUsername } }
         );
 
         makeReport(JSON.stringify({
@@ -6862,26 +6873,26 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
                 fields: [
                     {
                         name: 'Old Username',
-                        value: oldUsername,
+                        value: normalizedOldUsername,
                         inline: true
                     },
                     {
                         name: 'New Username',
-                        value: newUsername,
+                        value: normalizedNewUsername,
                         inline: true
                     }
                 ]
             }]
         }));
-        sendEmail(user.email,`Username Changed - InfiniMii`,`Hi ${oldUsername}, a moderator has changed your username to ${newUsername}. This will be what you login with moving forward. You can reply to this email to receive support.`);
+        sendEmail(user.email,`Username Changed - InfiniMii`,`Hi ${normalizedOldUsername}, a moderator has changed your username to ${normalizedNewUsername}. This will be what you login with moving forward. You can reply to this email to receive support.`);
 
         if (publicUserMiis.length > 0) {
-            const updatedMiis = publicUserMiis.map((mii) => ({ ...mii, uploader: newUsername }));
+            const updatedMiis = publicUserMiis.map((mii) => ({ ...mii, uploader: normalizedNewUsername }));
             notifyIndexNow(
                 buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedMiis, {
                     extraUrls: [
-                        getUserProfileUrl(resolvedBaseUrl, oldUsername),
-                        getUserProfileUrl(resolvedBaseUrl, newUsername)
+                        getUserProfileUrl(resolvedBaseUrl, normalizedOldUsername),
+                        getUserProfileUrl(resolvedBaseUrl, normalizedNewUsername)
                     ]
                 }),
                 resolvedBaseUrl,
@@ -6890,8 +6901,8 @@ site.post('/changeUsername', requireAuth, requireRole(ROLES.MODERATOR), async (r
         } else {
             notifyIndexNow(
                 [
-                    getUserProfileUrl(resolvedBaseUrl, oldUsername),
-                    getUserProfileUrl(resolvedBaseUrl, newUsername)
+                    getUserProfileUrl(resolvedBaseUrl, normalizedOldUsername),
+                    getUserProfileUrl(resolvedBaseUrl, normalizedNewUsername)
                 ],
                 resolvedBaseUrl,
                 "change-username"
@@ -8296,11 +8307,11 @@ site.post('/changePfp', requireAuth, async (req, res) => {
     }
 });
 site.post('/changeUser', requireAuth, async (req, res) => {   // change username  
-    const newUsername = req.body.newUser;
+    const newUsername = normalizeUsernameInput(req.body?.newUser);
     const oldUsername = req.user.username;
     const existingUser = await getUserByUsername(newUsername);
     
-    if (validate(newUsername) && !existingUser) {
+    if (isValidUsername(newUsername) && !existingUser) {
         // Update all Miis uploaded by this user
         await Miis.updateMany(
             { uploader: oldUsername },
@@ -8932,7 +8943,8 @@ site.post('/requestPasswordReset', async (req, res) => {
 // User Self-Service Username Change
 site.post('/changeSelfUsername', requireAuth, async (req, res) => {
     try {
-        const { newUsername, password } = req.body;
+        const newUsername = normalizeUsernameInput(req.body?.newUsername);
+        const { password } = req.body;
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         
         // Verify password
@@ -8941,8 +8953,8 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
         }
         
         // Validate new username
-        if (!validate(newUsername)) {
-            return res.json({ error: 'Invalid username format. Username must be 3-20 alphanumeric characters or underscores.' });
+        if (!isValidUsername(newUsername)) {
+            return res.json({ error: 'Invalid username format. Username must be 3-20 characters using letters, numbers, underscores, hyphens, or periods.' });
         }
         
         if (isBad(newUsername)) {
@@ -10727,21 +10739,27 @@ site.post('/signup', async (req, res) => {
     }
     const cleanEmail = validator.normalizeEmail(req.body.email);
 
+    const normalizedUsername = normalizeUsernameInput(req.body?.username);
+
+    if (!isValidUsername(normalizedUsername)) {
+        return res.json({ error: 'Username invalid. Use 3-20 characters: letters, numbers, underscores, hyphens, or periods only.' });
+    }
+
     // Validate username
-    const existingUsername = await getUserByUsername(req.body.username);
+    const existingUsername = await getUserByUsername(normalizedUsername);
     if (existingUsername) {
         res.json({ error: "Username already taken" });
         return;
     }
     
     // Check if username is reserved
-    const reserved = await ReservedUsername.findOne({ username: req.body.username });
+    const reserved = await ReservedUsername.findOne({ username: normalizedUsername });
     if (reserved) {
         res.json({ error: "This username is temporarily unavailable. Please try again later or choose a different username." });
         return;
     }
     
-    if (isBad(req.body.username) || existingUsername || !validate(req.body.username)) {
+    if (isBad(normalizedUsername) || existingUsername) {
         res.json({ error: "Username invalid" });
         return;
     }
@@ -10766,7 +10784,7 @@ site.post('/signup', async (req, res) => {
     var token = genToken();
     
     await Users.create({
-        username: req.body.username,
+        username: normalizedUsername,
         salt: hashedPassword.salt,
         pass: hashedPassword.hash,
         verificationToken: hashPassword(token, hashedPassword.salt).hash,
@@ -10776,7 +10794,7 @@ site.post('/signup', async (req, res) => {
         roles: [ ROLES.BASIC ],
     });
     
-    let link = "https://infinimii.com/verify?user=" + encodeURIComponent(req.body.username) + "&token=" + encodeURIComponent(token);
+    let link = "https://infinimii.com/verify?user=" + encodeURIComponent(normalizedUsername) + "&token=" + encodeURIComponent(token);
     await sendEmail(cleanEmail, "InfiniMii Verification", 
         "Welcome to InfiniMii! If you initiated this message, verify your email by clicking this link: " + link
     );

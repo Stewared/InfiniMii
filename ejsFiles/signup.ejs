@@ -34,7 +34,8 @@
                         <div id="errorMessage" class="form-message" style="display: none;"></div>
 
                         <label class="sr-only" for="username">Username</label>
-                        <input placeholder="Username" required name="username" type="text" id="username" autocomplete="username">
+                        <input placeholder="Username" required name="username" type="text" id="username" autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_.-]{3,20}">
+                        <p id="usernameRules" class="auth-note" style="margin-top: 6px;">Username must be 3-20 characters and can only use letters, numbers, underscores, hyphens, and periods.</p>
 
                         <label class="sr-only" for="password">Password</label>
                         <input type="password" placeholder="Password" required name="pass" id="password" autocomplete="new-password">
@@ -53,12 +54,44 @@
     </main>
     <%- include('footer') %>
     <script>
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
+        const USERNAME_REGEX = /^[A-Za-z0-9_.-]{3,20}$/;
+
+        function sanitizeUsernameInput(value) {
+            return String(value || '').replace(/[^A-Za-z0-9_.-]/g, '');
+        }
+
+        const signupForm = document.getElementById('signupForm');
+        const usernameInput = document.getElementById('username');
+        const usernameRules = document.getElementById('usernameRules');
+
+        usernameInput.addEventListener('input', () => {
+            const rawValue = usernameInput.value;
+            const cleanedValue = sanitizeUsernameInput(rawValue);
+            if (rawValue !== cleanedValue) {
+                usernameInput.value = cleanedValue;
+                usernameRules.textContent = 'Special characters and spaces are not allowed in usernames.';
+            } else {
+                usernameRules.textContent = 'Username must be 3-20 characters and can only use letters, numbers, underscores, hyphens, and periods.';
+            }
+        });
+
+        signupForm.addEventListener('submit', function(e) {
+            const normalizedUsername = sanitizeUsernameInput(usernameInput.value.trim());
+            usernameInput.value = normalizedUsername;
+            if (!USERNAME_REGEX.test(normalizedUsername)) {
+                e.preventDefault();
+                const messageDiv = document.getElementById('errorMessage');
+                messageDiv.textContent = 'Username invalid. Use 3-20 characters: letters, numbers, underscores, hyphens, or periods only.';
+                messageDiv.className = 'form-message error';
+                messageDiv.style.display = 'block';
+                return;
+            }
+
             handleFormSubmit(e, '/signup', 'Signing up...', 'errorMessage', {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 bodyFormatter: (formData) => {
                     return new URLSearchParams({
-                        username: formData.get('username'),
+                        username: sanitizeUsernameInput(String(formData.get('username') || '').trim()),
                         pass: formData.get('pass'),
                         email: formData.get('email')
                     });
