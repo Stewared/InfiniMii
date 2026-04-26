@@ -467,19 +467,29 @@ function safeMiiFilename(name, fallback = "mii") {
 function isQrImageInput(input) {
     if (typeof input === "string") {
         const normalized = input.trim().toLowerCase();
-        if (normalized.startsWith("data:image/png") || normalized.startsWith("data:image/jpeg") || normalized.startsWith("data:image/jpg")) {
+        if (
+            normalized.startsWith("data:image/png")
+            || normalized.startsWith("data:image/jpeg")
+            || normalized.startsWith("data:image/jpg")
+            || normalized.startsWith("data:image/webp")
+        ) {
             return true;
         }
 
         const pathWithoutQuery = normalized.split("?")[0];
-        return pathWithoutQuery.endsWith(".png") || pathWithoutQuery.endsWith(".jpg") || pathWithoutQuery.endsWith(".jpeg");
+        return (
+            pathWithoutQuery.endsWith(".png")
+            || pathWithoutQuery.endsWith(".jpg")
+            || pathWithoutQuery.endsWith(".jpeg")
+            || pathWithoutQuery.endsWith(".webp")
+        );
     }
 
     if (Buffer.isBuffer(input) || input instanceof Uint8Array || input instanceof ArrayBuffer) {
         try {
             const bytes = Buffer.isBuffer(input) ? input : Buffer.from(input);
             const formats = miijs.detectMiiFormat(bytes);
-            return formats.includes("png") || formats.includes("jpg");
+            return formats.includes("png") || formats.includes("jpg") || formats.includes("webp");
         } catch {
             return false;
         }
