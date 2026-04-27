@@ -15,6 +15,7 @@ import nodemailer from "nodemailer";
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import multer from 'multer';
+import { unzipSync } from "fflate";
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
 import { doubleMetaphone } from 'double-metaphone';
 import validator from 'validator';
@@ -77,6 +78,9 @@ const REPORT_MII_CATEGORIES = Object.freeze([
 ]);
 const REPORT_MII_CATEGORY_SET = new Set(REPORT_MII_CATEGORIES);
 const REPORT_MII_DETAILS_MAX_LENGTH = 4000;
+const OFFICIAL_ZIP_MAX_ENTRIES = 250;
+const OFFICIAL_ZIP_MAX_ENTRY_BYTES = 8 * 1024 * 1024;
+const OFFICIAL_ZIP_MAX_TOTAL_BYTES = 32 * 1024 * 1024;
 
 let cachedSeoKeywords = null;
 let loggedSeoKeywordLoadError = false;
@@ -829,6 +833,82 @@ const upload = multer({
         cb(null, `${hash}.${ext}`);
     }
 });
+
+function getUploadedFileExtension(file) {
+    const originalName = typeof file?.originalname === "string" ? file.originalname : "";
+    const fallbackName = typeof file?.filename === "string" ? file.filename : "";
+    return path.extname(originalName || fallbackName).toLowerCase();
+}
+
+function isZipUpload(file) {
+    if (!file) return false;
+    if (getUploadedFileExtension(file) === ".zip") {
+        return true;
+    }
+
+    const mimeType = typeof file?.mimetype === "string" ? file.mimetype.toLowerCase() : "";
+    return mimeType === "application/zip" || mimeType === "application/x-zip-compressed";
+}
+
+function shouldIgnoreOfficialZipEntry(entryName) {
+    const normalizedName = String(entryName || "").replace(/\\/g, "/").trim();
+    if (!normalizedName || normalizedName.endsWith("/")) {
+        return true;
+    }
+
+    if (normalizedName.startsWith("__MACOSX/")) {
+        return true;
+    }
+
+    const baseName = path.posix.basename(normalizedName).toLowerCase();
+    return baseName === ".ds_store" || baseName === "thumbs.db";
+}
+
+async function extractOfficialZipEntries(filePath) {
+    let archiveEntries;
+    try {
+        archiveEntries = unzipSync(await fs.promises.readFile(filePath));
+    } catch (error) {
+        throw new Error("Could not open the ZIP archive. Make sure it is a valid .zip file.");
+    }
+
+    const extractedEntries = [];
+    let totalExtractedBytes = 0;
+
+    for (const [entryName, rawEntryData] of Object.entries(archiveEntries)) {
+        const normalizedName = String(entryName || "").replace(/\\/g, "/");
+        if (shouldIgnoreOfficialZipEntry(normalizedName)) {
+            continue;
+        }
+
+        const entryBuffer = Buffer.from(rawEntryData);
+        if (!entryBuffer.length) {
+            continue;
+        }
+
+        if (entryBuffer.length > OFFICIAL_ZIP_MAX_ENTRY_BYTES) {
+            throw new Error(
+                `The file "${path.posix.basename(normalizedName)}" is too large. Each ZIP entry must stay under 8 MB.`
+            );
+        }
+
+        totalExtractedBytes += entryBuffer.length;
+        if (totalExtractedBytes > OFFICIAL_ZIP_MAX_TOTAL_BYTES) {
+            throw new Error("This ZIP is too large once extracted. Keep the total extracted file size under 32 MB.");
+        }
+
+        extractedEntries.push({
+            name: normalizedName,
+            data: entryBuffer
+        });
+
+        if (extractedEntries.length > OFFICIAL_ZIP_MAX_ENTRIES) {
+            throw new Error(`ZIP uploads can include at most ${OFFICIAL_ZIP_MAX_ENTRIES} files at a time.`);
+        }
+    }
+
+    return extractedEntries;
+}
 
 function getClientIpAddress(req) {
     const directIp = typeof req?.ip === 'string' ? req.ip.trim() : '';
@@ -2450,6 +2530,301 @@ function ensureUploadMiiPermissions(miiData) {
     miiData.perms.sharing = true;
     miiData.perms.copying = true;
     return miiData;
+}
+
+async function persistUploadedMii(mii, {
+    uploader,
+    wantsPublic,
+    isOfficialUpload = false,
+    officialSource = null,
+    desc = "",
+    officialCategories = []
+} = {}) {
+    const normalizedOfficialCategories = isOfficialUpload ? normalizeCategoryPaths(officialCategories) : [];
+
+    mii.officialCategories = normalizedOfficialCategories;
+    mii.id = await genId();
+    mii.uploadedOn = Date.now();
+    mii.uploader = isOfficialUpload ? officialSource : uploader;
+    mii.contributor = isOfficialUpload ? uploader : undefined;
+    mii.officialSource = isOfficialUpload ? officialSource : undefined;
+    mii.desc = desc;
+    mii.votes = 1;
+    mii.official = isOfficialUpload;
+    mii.published = wantsPublic;
+    mii.blockedFromPublishing = false;
+    setMiiIdentityHash(mii);
+    await applyAutomaticDecodedMiiTags(mii);
+    ensureUploadMiiPermissions(mii);
+
+    const miiImageData = await miijs.renderMii(mii);
+    const assetPaths = wantsPublic
+        ? {
+            image: `./static/miiImgs/${mii.id}.png`,
+            qr3ds: `./static/miiQRs/${mii.id}.png`,
+            qrWii: `./static/miiQRsWii/${mii.id}.png`
+        }
+        : {
+            image: `./static/privateMiiImgs/${mii.id}.png`,
+            qr3ds: `./static/privateMiiQRs/${mii.id}.png`,
+            qrWii: `./static/privateMiiQRsWii/${mii.id}.png`
+        };
+
+    try {
+        await fs.promises.writeFile(assetPaths.image, miiImageData);
+        await Promise.all([
+            writeQrPng(mii, assetPaths.qr3ds, "3DS"),
+            writeQrPng(mii, assetPaths.qrWii, "WIIU")
+        ]);
+        await Miis.create({
+            ...mii,
+            id: mii.id,
+            private: !wantsPublic
+        });
+    } catch (error) {
+        await Promise.all([
+            fs.promises.unlink(assetPaths.image).catch(() => {}),
+            fs.promises.unlink(assetPaths.qr3ds).catch(() => {}),
+            fs.promises.unlink(assetPaths.qrWii).catch(() => {})
+        ]);
+        throw error;
+    }
+
+    if (!isOfficialUpload) {
+        await ensureUploaderAutoLike(uploader, mii.id, 1);
+    }
+
+    return { mii, miiImageData };
+}
+
+function buildOfficialZipUploadSummary({
+    uploadedCount = 0,
+    duplicateCount = 0,
+    invalidCount = 0,
+    failedCount = 0
+} = {}) {
+    const parts = [`Uploaded ${uploadedCount} official Mii${uploadedCount === 1 ? "" : "s"} from the ZIP archive.`];
+    if (duplicateCount > 0) {
+        parts.push(`Skipped ${duplicateCount} duplicate${duplicateCount === 1 ? "" : "s"}.`);
+    }
+    if (invalidCount > 0) {
+        parts.push(`Skipped ${invalidCount} file${invalidCount === 1 ? "" : "s"} that could not be decoded.`);
+    }
+    if (failedCount > 0) {
+        parts.push(`Skipped ${failedCount} file${failedCount === 1 ? "" : "s"} that failed during processing.`);
+    }
+    return parts.join(" ");
+}
+
+function buildOfficialZipUploadFailureMessage({
+    duplicateCount = 0,
+    invalidCount = 0,
+    failedCount = 0
+} = {}) {
+    const parts = ["No new Miis were uploaded from this ZIP archive."];
+    if (duplicateCount > 0) {
+        parts.push(`${duplicateCount} file${duplicateCount === 1 ? "" : "s"} matched Miis already in the archive.`);
+    }
+    if (invalidCount > 0) {
+        parts.push(`${invalidCount} file${invalidCount === 1 ? "" : "s"} could not be decoded as Miis.`);
+    }
+    if (failedCount > 0) {
+        parts.push(`${failedCount} file${failedCount === 1 ? "" : "s"} failed during processing.`);
+    }
+    return parts.join(" ");
+}
+
+async function sendOfficialZipUploadReport({
+    uploader,
+    officialSource,
+    description,
+    officialCategories,
+    uploadedMiis,
+    duplicateCount,
+    invalidCount,
+    failedCount
+}) {
+    const previewNames = uploadedMiis
+        .slice(0, 12)
+        .map(({ mii }) => getDisplayMiiName(mii))
+        .join(", ");
+    const moreCount = Math.max(0, uploadedMiis.length - 12);
+    const uploadedNames = previewNames
+        ? `${previewNames}${moreCount > 0 ? `, +${moreCount} more` : ""}`
+        : "Unknown";
+    const uploadedIds = uploadedMiis
+        .slice(0, 8)
+        .map(({ mii }) => `[${mii.id}](https://infinimii.com/mii/${encodeURIComponent(mii.id)})`)
+        .join(", ");
+    const uploadedAt = new Date();
+
+    await makeReport(JSON.stringify({
+        embeds: [{
+            type: "rich",
+            title: "Official ZIP Mii Upload",
+            description: truncateText(description || buildOfficialZipUploadSummary({
+                uploadedCount: uploadedMiis.length,
+                duplicateCount,
+                invalidCount,
+                failedCount
+            }), 4096),
+            color: 0x00aaff,
+            fields: [
+                {
+                    name: "Uploaded Count",
+                    value: String(uploadedMiis.length),
+                    inline: true
+                },
+                {
+                    name: "Official Source",
+                    value: `[${officialSource}](https://infinimii.com/user/${encodeURIComponent(officialSource)})`,
+                    inline: true
+                },
+                {
+                    name: "Contributed by",
+                    value: `[${uploader}](https://infinimii.com/user/${encodeURIComponent(uploader)})`,
+                    inline: true
+                },
+                {
+                    name: "Categories",
+                    value: officialCategories.length > 0
+                        ? truncateText(officialCategories.join(", "), 1024)
+                        : "None",
+                    inline: false
+                },
+                {
+                    name: "Uploaded Miis",
+                    value: truncateText(uploadedNames, 1024),
+                    inline: false
+                },
+                {
+                    name: "Sample IDs",
+                    value: uploadedIds || "Unavailable",
+                    inline: false
+                },
+                {
+                    name: "Skipped",
+                    value: `Duplicates: ${duplicateCount}\nInvalid: ${invalidCount}\nProcessing failures: ${failedCount}`,
+                    inline: false
+                }
+            ],
+            footer: {
+                text: `Uploaded at ${uploadedAt.getHours()}:${uploadedAt.getMinutes()}, ${uploadedAt.toDateString()} UTC`
+            }
+        }]
+    }));
+}
+
+async function processOfficialZipUpload({
+    req,
+    uploader,
+    officialSource,
+    officialSourceNotice,
+    officialSettings,
+    resolvedBaseUrl
+}) {
+    const archiveEntries = await extractOfficialZipEntries(req.file.path);
+    if (archiveEntries.length === 0) {
+        return { error: "The ZIP archive did not contain any files to process." };
+    }
+
+    const validLeafPaths = getLeafCategoryPathSet(
+        getOfficialCategoryTree(officialSettings || await getSettings())
+    );
+    const officialCategories = normalizeCategoryPaths(req.body.categories)
+        .filter(categoryPath => validLeafPaths.has(categoryPath));
+    const duplicateEntries = [];
+    const invalidEntries = [];
+    const failedEntries = [];
+    const uploadedMiis = [];
+    const seenArchiveHashes = new Set();
+
+    for (const entry of archiveEntries) {
+        try {
+            const mii = await createMiiData(entry.data);
+            const miiHash = getMiiIdentityHash(mii);
+
+            if (miiHash && seenArchiveHashes.has(miiHash)) {
+                duplicateEntries.push(entry.name);
+                continue;
+            }
+
+            const matchingMii = await findMatchingMii(mii);
+            if (matchingMii) {
+                duplicateEntries.push(entry.name);
+                continue;
+            }
+
+            try {
+                uploadedMiis.push(await persistUploadedMii(mii, {
+                    uploader,
+                    wantsPublic: true,
+                    isOfficialUpload: true,
+                    officialSource,
+                    desc: req.body.desc,
+                    officialCategories
+                }));
+                if (miiHash) {
+                    seenArchiveHashes.add(miiHash);
+                }
+            } catch (error) {
+                console.error(`[official zip upload] Failed to save ${entry.name}:`, error);
+                failedEntries.push(entry.name);
+            }
+        } catch (error) {
+            invalidEntries.push(entry.name);
+        }
+
+        if ((uploadedMiis.length + duplicateEntries.length + invalidEntries.length + failedEntries.length) % 10 === 0) {
+            await yieldToEventLoop();
+        }
+    }
+
+    if (uploadedMiis.length === 0) {
+        return {
+            error: buildOfficialZipUploadFailureMessage({
+                duplicateCount: duplicateEntries.length,
+                invalidCount: invalidEntries.length,
+                failedCount: failedEntries.length
+            })
+        };
+    }
+
+    try {
+        await sendOfficialZipUploadReport({
+            uploader,
+            officialSource,
+            description: req.body.desc,
+            officialCategories,
+            uploadedMiis,
+            duplicateCount: duplicateEntries.length,
+            invalidCount: invalidEntries.length,
+            failedCount: failedEntries.length
+        });
+    } catch (error) {
+        console.error("[official zip upload] Failed to send upload report:", error);
+    }
+
+    notifyIndexNow(
+        buildIndexNowUrlsForMiis(
+            resolvedBaseUrl,
+            uploadedMiis.map(({ mii }) => ({ ...mii, private: false, published: true }))
+        ),
+        resolvedBaseUrl,
+        "upload-mii-zip"
+    );
+
+    const summaryNotice = buildOfficialZipUploadSummary({
+        uploadedCount: uploadedMiis.length,
+        duplicateCount: duplicateEntries.length,
+        invalidCount: invalidEntries.length,
+        failedCount: failedEntries.length
+    });
+
+    return {
+        redirect: "/official",
+        notice: [officialSourceNotice, summaryNotice].filter(Boolean).join(" ")
+    };
 }
 
 function getMiiTags(settings) {
@@ -9268,6 +9643,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         const normalizedRawMiiData = rawMiiDataInput.replace(/\s+/g, "");
         const providedMiiName = typeof req.body.miiName === "string" ? req.body.miiName.trim() : "";
         const isNinetyTwoCharCode = normalizedRawMiiData.length === 92;
+        const hasZipUpload = isZipUpload(req.file);
 
         // Check if trying to upload official Mii without permission
         if (isOfficialUpload && !canUploadOfficial(req.user)) {
@@ -9288,6 +9664,18 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
 
             officialSource = sourceResolution.sourceName;
             officialSourceNotice = sourceResolution.notice;
+        }
+
+        if (hasZipUpload && normalizedRawMiiData) {
+            res.json({ error: "Use either a ZIP file upload or raw Mii data, not both in the same submission." });
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+            return;
+        }
+
+        if (hasZipUpload && !isOfficialUpload) {
+            res.json({ error: "ZIP uploads are only allowed in the Official Mii upload form." });
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+            return;
         }
 
         // Check private Mii limit
@@ -9312,6 +9700,23 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         let tempBinPath = "";
         try {
             const fromAmiiboId = typeof req.body.fromAmiibo === "string" ? req.body.fromAmiibo.trim() : "";
+
+            if (hasZipUpload) {
+                if (fromAmiiboId) {
+                    res.json({ error: "ZIP uploads are not supported for extracted Amiibo uploads." });
+                    return;
+                }
+
+                res.json(await processOfficialZipUpload({
+                    req,
+                    uploader,
+                    officialSource,
+                    officialSourceNotice,
+                    officialSettings,
+                    resolvedBaseUrl
+                }));
+                return;
+            }
 
             if (fromAmiiboId && !req.file && !req.body.miiData) {
                 // Uploading from Amiibo extraction
@@ -9407,58 +9812,25 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             return;
         }
 
-        // Add official Mii categorization
-        if (isOfficialUpload) {
-            mii.officialCategories = [];
-            
-            const validLeafPaths = getLeafCategoryPathSet(
+        const validLeafPaths = isOfficialUpload
+            ? getLeafCategoryPathSet(
                 getOfficialCategoryTree(officialSettings || await getSettings())
-            );
-            mii.officialCategories = normalizeCategoryPaths(req.body.categories)
-                .filter(path => validLeafPaths.has(path));
-        } else {
-            mii.officialCategories = [];
-        }
-        
-        mii.id = await genId();
-        mii.uploadedOn = Date.now();
-        mii.uploader = isOfficialUpload ? officialSource : uploader;
-        mii.contributor = isOfficialUpload ? uploader : undefined;
-        mii.officialSource = isOfficialUpload ? officialSource : undefined;
-        mii.desc = req.body.desc;
-        mii.votes = 1;
-        mii.official = isOfficialUpload;
-        mii.published = wantsPublic;
-        mii.blockedFromPublishing = false;
-        setMiiIdentityHash(mii);
-        await applyAutomaticDecodedMiiTags(mii);
-        ensureUploadMiiPermissions(mii);
-        
-        // Save to correct folders
-        const miiImageData = await miijs.renderMii(mii);
-        if (wantsPublic) {
-            await fs.promises.writeFile("./static/miiImgs/" + mii.id + ".png", miiImageData);
-            await Promise.all([
-                writeQrPng(mii, "./static/miiQRs/" + mii.id + ".png", "3DS"),
-                writeQrPng(mii, "./static/miiQRsWii/" + mii.id + ".png", "WIIU")
-            ]);
-        } else {
-            await fs.promises.writeFile("./static/privateMiiImgs/" + mii.id + ".png", miiImageData);
-            await Promise.all([
-                writeQrPng(mii, "./static/privateMiiQRs/" + mii.id + ".png", "3DS"),
-                writeQrPng(mii, "./static/privateMiiQRsWii/" + mii.id + ".png", "WIIU")
-            ]);
-        }
-        
-        // Store in database
-        await Miis.create({
-            ...mii,
-            id: mii.id,
-            private: !wantsPublic
+            )
+            : null;
+        const officialCategories = isOfficialUpload
+            ? normalizeCategoryPaths(req.body.categories)
+                .filter(categoryPath => validLeafPaths.has(categoryPath))
+            : [];
+        const persistedUpload = await persistUploadedMii(mii, {
+            uploader,
+            wantsPublic,
+            isOfficialUpload,
+            officialSource,
+            desc: req.body.desc,
+            officialCategories
         });
-        if (!isOfficialUpload) {
-            await ensureUploaderAutoLike(uploader, mii.id, 1);
-        }
+        mii = persistedUpload.mii;
+        const miiImageData = persistedUpload.miiImageData;
         
         // Send to Discord for moderator review
         var d = new Date();
