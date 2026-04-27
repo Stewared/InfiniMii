@@ -24,6 +24,7 @@
     "express-async-errors": "^3.1.1",
     "express-rate-limit": "^8.2.1",
     "ffl.js": "github:ariankordi/FFL.js#f63076162584808715008a39f9cd7b606442cee3",
+    "fflate": "^0.8.2",
     "form-data": "^4.0.4",
     "fs": "^0.0.1-security",
     "helmet": "^8.1.0",
