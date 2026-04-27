@@ -214,7 +214,7 @@ const MAX_MII_TAG_LENGTH = 40;
 const MAX_MANUAL_MII_ID_LENGTH = 10;
 const MAX_COMPANY_SOURCE_NAME_LENGTH = 15;
 const DEFAULT_OFFICIAL_COMPANY_SOURCE = "Nintendo";
-const AVERAGE_MII_EXCLUDED_TAGS = ["Face Art"];
+const AVERAGE_MII_EXCLUDED_TAGS = ["Face Art","Animal"];
 const TOMODACHI_LIFE_TAG = "Tomodachi Life";
 
 function normalizeExportFormat(input) {
