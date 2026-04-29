@@ -552,6 +552,56 @@ const MII_IDENTITY_HASH_FIELDS = [
     "glasses",
     "mole"
 ];
+const MII_IDENTITY_HASH_VERSION = "mii-face-v2";
+const MII_IDENTITY_HASH_PREFIX = `${MII_IDENTITY_HASH_VERSION}:`;
+
+function areEyebrowsOffForMiiIdentityHash(eyebrows) {
+    if (!eyebrows || typeof eyebrows !== "object") return false;
+    if (eyebrows.on === false) return true;
+    return eyebrows.type === 23;
+}
+
+function areGlassesOffForMiiIdentityHash(glasses) {
+    if (!glasses || typeof glasses !== "object") return false;
+    return glasses.type === 0;
+}
+
+function isMoleOffForMiiIdentityHash(mole) {
+    if (!mole || typeof mole !== "object") return false;
+    return mole.on === false;
+}
+
+function isHairIgnoredForMiiIdentityHash(hair) {
+    if (!hair || typeof hair !== "object") return false;
+    return hair.type === 30;
+}
+
+function normalizeFeatureForMiiIdentityHash(field, value) {
+    const normalized = normalizeValueForMiiIdentityHash(value);
+    if (normalized === null || typeof normalized !== "object") return normalized;
+
+    if (field === "eyebrows" && areEyebrowsOffForMiiIdentityHash(normalized)) {
+        return null;
+    }
+
+    if (field === "glasses" && areGlassesOffForMiiIdentityHash(normalized)) {
+        return null;
+    }
+
+    if (field === "mole" && isMoleOffForMiiIdentityHash(normalized)) {
+        return null;
+    }
+
+    if (field === "hair" && isHairIgnoredForMiiIdentityHash(normalized)) {
+        return null;
+    }
+
+    return normalized;
+}
+
+function hasCurrentMiiIdentityHashVersion(value) {
+    return typeof value === "string" && value.startsWith(MII_IDENTITY_HASH_PREFIX);
+}
 
 function getComparableMiiSource(mii) {
     if (!mii || typeof mii !== "object") return mii;
@@ -585,7 +635,7 @@ function getMiiIdentityHashPayload(mii) {
     return Object.fromEntries(
         MII_IDENTITY_HASH_FIELDS.map((field) => [
             field,
-            normalizeValueForMiiIdentityHash(plain[field])
+            normalizeFeatureForMiiIdentityHash(field, plain[field])
         ])
     );
 }
@@ -594,10 +644,12 @@ function getMiiIdentityHash(mii) {
     const payload = getMiiIdentityHashPayload(mii);
     if (!payload || typeof payload !== "object") return "";
 
-    return crypto
+    const digest = crypto
         .createHash("sha256")
-        .update(`mii-face-v1:${JSON.stringify(payload)}`)
+        .update(`${MII_IDENTITY_HASH_VERSION}:${JSON.stringify(payload)}`)
         .digest("hex");
+
+    return `${MII_IDENTITY_HASH_PREFIX}${digest}`;
 }
 
 function setMiiIdentityHash(mii) {
@@ -619,6 +671,7 @@ async function findMatchingMii(candidateMii, { includePrivate = true, excludeId 
     if (candidateHash) {
         query.$or = [
             { miiHash: candidateHash },
+            { miiHash: { $not: new RegExp(`^${MII_IDENTITY_HASH_PREFIX}`) } },
             { miiHash: { $exists: false } },
             { miiHash: null },
             { miiHash: "" }
@@ -628,7 +681,9 @@ async function findMatchingMii(candidateMii, { includePrivate = true, excludeId 
     const existingMiis = await Miis.find(query).lean();
 
     for (const existingMii of existingMiis) {
-        const existingHash = existingMii.miiHash || getMiiIdentityHash(existingMii);
+        const existingHash = hasCurrentMiiIdentityHashVersion(existingMii.miiHash)
+            ? existingMii.miiHash
+            : getMiiIdentityHash(existingMii);
         if (candidateHash && existingHash === candidateHash) {
             return existingMii;
         }
@@ -638,18 +693,12 @@ async function findMatchingMii(candidateMii, { includePrivate = true, excludeId 
 }
 
 async function backfillMiiIdentityHashes() {
-    const cursor = Miis.find({
-        $or: [
-            { miiHash: { $exists: false } },
-            { miiHash: null },
-            { miiHash: "" }
-        ]
-    }).cursor();
+    const cursor = Miis.find({}).cursor();
 
     let updatedCount = 0;
     for await (const mii of cursor) {
         const miiHash = getMiiIdentityHash(mii);
-        if (!miiHash) continue;
+        if (!miiHash || mii.miiHash === miiHash) continue;
 
         await Miis.updateOne(
             { _id: mii._id },
@@ -663,7 +712,7 @@ async function backfillMiiIdentityHashes() {
     }
 
     if (updatedCount > 0) {
-        console.log(`[miiHash] Backfilled ${updatedCount} Mii identity hash${updatedCount === 1 ? "" : "es"}.`);
+        console.log(`[miiHash] Updated ${updatedCount} Mii identity hash${updatedCount === 1 ? "" : "es"}.`);
     }
 }
 
@@ -5639,25 +5688,23 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
 });
 site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
-    const page = parseInt(req.query.page) || 1;
+    const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
     const selectedTags = Array.isArray(toSend.selectedTags) ? toSend.selectedTags : [];
     const selectedSearchFields = getRequestedSearchFields(req.query);
     
-    const paginatedData = await paginatedApi("search", page, defaultMiisPerPage, {
+    const paginatedData = await paginatedApi("search", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, {
         query: searchQuery,
         tags: selectedTags,
         searchIn: selectedSearchFields,
         searchFieldsConfigured: true
     });
+    if (paginatedData.total > 0 && start >= paginatedData.total) {
+        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
+    }
     toSend.displayedMiis = paginatedData.items;
-    toSend.pagination = {
-        currentPage: paginatedData.page,
-        totalPages: paginatedData.totalPages,
-        total: paginatedData.total,
-        perPage: paginatedData.perPage
-    };
-    attachPaginationMeta(req, toSend, toSend.pagination);
+    toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
+    toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
     
     toSend.searchQuery = searchQuery;
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
