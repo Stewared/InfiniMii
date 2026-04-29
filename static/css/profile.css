@@ -66,6 +66,24 @@
     overflow-wrap: anywhere;
 }
 
+.profile-subtext {
+    margin: 0.25rem 0 0;
+    color: var(--text-2);
+    font-size: 1rem;
+}
+
+.profile-subtext a {
+    color: var(--brand-color);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.16em;
+}
+
+.profile-subtext a:hover {
+    color: color-mix(in oklab, var(--brand-color) 84%, #ffffff 16%);
+}
+
 .mod-badge {
     background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
     color: white;
