@@ -157,6 +157,7 @@ body {
 
 .site-banner-image {
     width: 60%;
+    height: auto;
 }
 
 #banner {

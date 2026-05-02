@@ -36,9 +36,12 @@ if (cardMii && cardMii.id) {
     const cardImageSrc = typeof imageSrc === 'string' && imageSrc.trim()
         ? imageSrc
         : `/miiImgs/${cardMii.id}.png`;
+    const fallbackCardImageAlt = resolvedDescription
+        ? `${miiName} Mii character: ${resolvedDescription}`
+        : `${miiName} Mii character preview`;
     const cardImageAlt = typeof imageAltText === 'string' && imageAltText.trim()
         ? imageAltText
-        : `${miiName} Mii: ${resolvedDescription}`;
+        : fallbackCardImageAlt;
     const imageOnError = typeof imageOnErrorAttr === 'string' && imageOnErrorAttr.trim()
         ? imageOnErrorAttr
         : '';

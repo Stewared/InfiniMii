@@ -1,6 +1,6 @@
 var header = `
 	<header>
- 		<img src='banner.png'>
+		<img src='banner.png' alt='InfiniMii' decoding='async'>
  	</header>
 `;
 var footer = `

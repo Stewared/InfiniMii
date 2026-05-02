@@ -68,6 +68,7 @@ const userSchema = new mongoose.Schema({
     email: String,
     votedFor: { type: [String], default: [] },
     miiPfp: { type: String, default: "00000" },
+    pfpSet: { type: Boolean, default: false },
     roles: { type: [String], default: ["basic"] },
     verified: { type: Boolean, default: false },
     isBanned: { type: Boolean, default: false },

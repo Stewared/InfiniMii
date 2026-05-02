@@ -1,6 +1,6 @@
 <div class="account <%= thisUser === 'Default' ? 'account-guest' : '' %>">
     <% if(thisUser!=="Default"){ %>
-        <img class="account-image-small" src="/miiImgs/<%= pfp %>.png"> <span class="account-username"><%= thisUser %></span>
+        <img class="account-image-small" src="/miiImgs/<%= pfp %>.png" alt="<%= thisUser %>'s profile Mii" width="32" height="32" loading="eager" decoding="async"> <span class="account-username"><%= thisUser %></span>
         <div class="accDropdown">
             <a href="/user/<%= encodeURIComponent(thisUser) %>">Profile</a>
             <a href="/myLikedMiis">My Liked Miis</a>
