@@ -61,7 +61,12 @@ if (cardMii && cardMii.id) {
         ? Math.floor(likeIconSizeInput)
         : 19;
 
-    const metadataMode = typeof metadataType !== 'undefined' && metadataType === 'categories' ? 'categories' : 'tags';
+    const isOfficialCard = Boolean(cardMii.official);
+    const shouldUseOfficialMetadata = isOfficialCard && (
+        typeof useOfficialMetadata === 'undefined' || useOfficialMetadata !== false
+    );
+    const requestedMetadataMode = typeof metadataType !== 'undefined' && metadataType === 'categories' ? 'categories' : 'tags';
+    const metadataMode = shouldUseOfficialMetadata ? 'categories' : requestedMetadataMode;
     const metadataItemsInput = (typeof metadataItems !== 'undefined' && Array.isArray(metadataItems))
         ? metadataItems
         : (metadataMode === 'categories'
@@ -78,8 +83,11 @@ if (cardMii && cardMii.id) {
     const hiddenMetadataCount = Math.max(0, normalizedMetadataItems.length - visibleMetadataItems.length);
     const showMetadata = (typeof metadataEnabled === 'undefined' || metadataEnabled !== false) && normalizedMetadataItems.length > 0;
 
-    const showBadge = typeof badgeEnabled !== 'undefined' && badgeEnabled === true;
-    const badgeLabel = typeof badgeText === 'string' ? badgeText.trim() : '';
+    const showBadge = (typeof badgeEnabled !== 'undefined' && badgeEnabled === true)
+        || (shouldUseOfficialMetadata && (typeof officialBadgeEnabled === 'undefined' || officialBadgeEnabled !== false));
+    const badgeLabel = typeof badgeText === 'string' && badgeText.trim()
+        ? badgeText.trim()
+        : (shouldUseOfficialMetadata ? 'Official' : '');
 
     const showPrivateControls = typeof privateControls !== 'undefined' && privateControls === true;
     const isBlockedFromPublishing = Boolean(cardMii.blockedFromPublishing);

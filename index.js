@@ -68,6 +68,7 @@ const baseUrl = process.env.baseUrl;
 const PAYPAL_DONATE_URL = "https://www.paypal.com/donate?business=kestron@kestron.com&no_recurring=0&item_name=Stewared&item_number=InfiniMii";
 const AVERAGE_MII_REFRESH_WINDOW_MS = ms("10m");
 const UPLOAD_WEBHOOK_IMAGE_READY_TIMEOUT_MS = ms("10s");
+const TRENDING_TIME_DECAY_EXPONENT = 1.25;
 const MII_RENDER_IMAGE_WIDTH = 512;
 const MII_RENDER_IMAGE_HEIGHT = 512;
 const MII_SITEMAP_PAGE_SIZE = 5000;
@@ -2880,17 +2881,12 @@ async function persistUploadedMii(mii, {
     await applyAutomaticDecodedMiiTags(mii);
     ensureUploadMiiPermissions(mii);
 
-    const assetPaths = wantsPublic
-        ? {
-            img: `./static/miiImgs/${mii.id}.png`,
-            qr3ds: `./static/miiQRs/${mii.id}.png`,
-            qrWii: `./static/miiQRsWii/${mii.id}.png`
-        }
-        : {
-            img: `./static/privateMiiImgs/${mii.id}.png`,
-            qr3ds: `./static/privateMiiQRs/${mii.id}.png`,
-            qrWii: `./static/privateMiiQRsWii/${mii.id}.png`
-        };
+    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(mii.id, !wantsPublic);
+    const assetPaths = {
+        img: imgPath,
+        qr3ds: qrPath,
+        qrWii: qrWiiPath
+    };
 
     try {
         await Promise.all([
@@ -2916,7 +2912,7 @@ async function persistUploadedMii(mii, {
         await ensureUploaderAutoLike(uploader, mii.id, 1);
     }
 
-    return { mii };
+    return { mii, assetPaths };
 }
 
 async function mergeOfficialCategoriesIntoDuplicateMii(matchingMii, officialCategories) {
@@ -3903,7 +3899,7 @@ async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date
                         {
                             $pow: [
                                 { $add: ["$ageHours", 2] },
-                                1.5
+                                TRENDING_TIME_DECAY_EXPONENT
                             ]
                         }
                     ]
@@ -5642,16 +5638,44 @@ async function waitForFileOrTimeout(filePath, {
 
 function queueUploadWebhookReport(embed, {
     imagePath = "",
+    imageFilename = "",
     attachments = []
 } = {}) {
     void (async () => {
+        let reportEmbed = embed;
+        const reportAttachments = Array.isArray(attachments) ? [...attachments] : [];
+
         if (imagePath) {
-            await waitForFileOrTimeout(imagePath);
+            const imageReady = await waitForFileOrTimeout(imagePath);
+            if (imageReady) {
+                try {
+                    const imageData = await fs.promises.readFile(imagePath);
+                    const contentType = detectImageMime(imageData) || "image/png";
+                    const requestedFilename = imageFilename || path.basename(imagePath);
+                    const filename = contentType === "image/bmp" && requestedFilename.toLowerCase().endsWith(".png")
+                        ? requestedFilename.replace(/\.png$/i, ".bmp")
+                        : requestedFilename;
+                    reportAttachments.push({
+                        data: imageData,
+                        filename,
+                        contentType
+                    });
+                    reportEmbed = {
+                        ...reportEmbed,
+                        image: {
+                            ...(reportEmbed?.image || {}),
+                            url: `attachment://${filename}`
+                        }
+                    };
+                } catch (error) {
+                    rawConsoleError("Error reading upload render for webhook report:", error);
+                }
+            }
         }
 
         await makeReport(JSON.stringify({
-            embeds: [embed]
-        }), attachments);
+            embeds: [reportEmbed]
+        }), reportAttachments);
     })().catch((error) => {
         rawConsoleError("Error queueing upload webhook report:", error);
     });
@@ -10477,20 +10501,19 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             };
         }
         queueUploadWebhookReport(uploadReportEmbed, {
-            imagePath: getMiiAssetPath(wantsPublic ? "miiImgs" : "privateMiiImgs", mii.id)
+            imagePath: persistedUpload.assetPaths?.img || getMiiAssetPath(wantsPublic ? "miiImgs" : "privateMiiImgs", mii.id),
+            imageFilename: `${mii.id}.png`
         });
         
-        setTimeout(() => {
-            const responsePayload = {
-                redirect: !isOfficialUpload && wantsPublic
-                    ? `/mii/${mii.id}`
-                    : (isOfficialUpload ? "/official" : "/myPrivateMiis")
-            };
-            if (officialSourceNotice) {
-                responsePayload.notice = officialSourceNotice;
-            }
-            res.json(responsePayload);
-        }, 2000); // TODO: jank
+        const responsePayload = {
+            redirect: !isOfficialUpload && wantsPublic
+                ? `/mii/${mii.id}`
+                : (isOfficialUpload ? "/official" : "/myPrivateMiis")
+        };
+        if (officialSourceNotice) {
+            responsePayload.notice = officialSourceNotice;
+        }
+        res.json(responsePayload);
 
         if (wantsPublic) {
             notifyIndexNow(
@@ -10499,9 +10522,6 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                 "upload-mii"
             );
         }
-
-        // TODO: does rendering lag this? If so, 
-
     } catch (e) {
         console.error('Error uploading Mii:', e);
         res.json({error: `Server error while uploading. Please verify you uploaded the right file and try again.`});

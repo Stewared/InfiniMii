@@ -571,30 +571,35 @@
                                     }
                                 }
                                 </script>
-                            <div class="mii-tags-section">
-                                <span class="info-label">Tags</span>
-                                <% if(tagList.length > 0) { %>
-                                    <div class="mii-tags-list">
-                                        <% tagList.forEach(tag => { %>
-                                            <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
-                                        <% }); %>
+                            <% if(mii.official) { %>
+                                <div class="official-categories-section">
+                                    <span class="info-label">Official Categories</span>
+                                    <div class="categories-display mii-card-tags mii-categories">
+                                        <span class="mii-card-tag official-badge">Official</span>
+                                        <% if(categoryDetails.length > 0) { %>
+                                            <% categoryDetails.forEach(category => { %>
+                                                <a class="mii-card-tag category-tag" href="<%= category.url %>" style="--category-color: <%= category.color || '#999999' %>;">
+                                                    <%= category.fullPath || category.name %>
+                                                </a>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <span class="no-categories">No categories assigned.</span>
+                                        <% } %>
                                     </div>
-                                <% } else { %>
-                                    <span class="no-tags">No tags assigned.</span>
-                                <% } %>
-                            </div>
-
-                            <% if(categoryDetails.length > 0) { %>
-                            <div class="official-categories-section">
-                                <span class="info-label">Official Categories</span>
-                                <div class="categories-display">
-                                    <% categoryDetails.forEach(category => { %>
-                                        <a class="category-badge" href="<%= category.url %>" style="--category-color: <%= category.color || '#999999' %>;">
-                                            <%= category.fullPath || category.name %>
-                                        </a>
-                                    <% }); %>
                                 </div>
-                            </div>
+                            <% } else { %>
+                                <div class="mii-tags-section">
+                                    <span class="info-label">Tags</span>
+                                    <% if(tagList.length > 0) { %>
+                                        <div class="mii-tags-list">
+                                            <% tagList.forEach(tag => { %>
+                                                <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                                            <% }); %>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="no-tags">No tags assigned.</span>
+                                    <% } %>
+                                </div>
                             <% } %>
                         </div>
                     </div>
