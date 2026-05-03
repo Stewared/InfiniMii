@@ -147,20 +147,20 @@ if (cardMii && cardMii.id) {
         <% if ((showBadge && badgeLabel) || showMetadata) { %>
             <div class="mii-card-tags <%= metadataMode === 'categories' ? 'mii-categories' : '' %>">
                 <% if (showBadge && badgeLabel) { %>
-                    <span class="mii-card-tag official-badge"><%= badgeLabel %></span>
+                    <span class="mii-card-tag official-badge"><span class="tag-marquee-content"><%= badgeLabel %></span></span>
                 <% } %>
 
                 <% if (showMetadata) { %>
                     <% visibleMetadataItems.forEach((item) => { %>
                         <% if (metadataMode === 'categories') { %>
-                            <span class="mii-card-tag category-tag"><%= item %></span>
+                            <span class="mii-card-tag category-tag"><span class="tag-marquee-content"><%= item %></span></span>
                         <% } else { %>
-                            <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(item) %>"><%= item %></a>
+                            <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(item) %>"><span class="tag-marquee-content"><%= item %></span></a>
                         <% } %>
                     <% }) %>
 
                     <% if (hiddenMetadataCount > 0) { %>
-                        <span class="mii-card-tag mii-card-tag-more <%= metadataMode === 'categories' ? 'category-tag more' : '' %>">+<%= hiddenMetadataCount %></span>
+                        <span class="mii-card-tag mii-card-tag-more <%= metadataMode === 'categories' ? 'category-tag more' : '' %>"><span class="tag-marquee-content">+<%= hiddenMetadataCount %></span></span>
                     <% } %>
                 <% } %>
             </div>

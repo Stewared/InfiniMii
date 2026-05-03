@@ -433,6 +433,7 @@ footer ul li a:hover {
     display: flex;
     flex-direction: column;
     gap: 0.38rem;
+    min-width: 0;
 }
 
 .mii-card > a,
@@ -737,6 +738,7 @@ footer ul li a:hover {
     flex-wrap: wrap;
     gap: 0.3rem;
     margin-top: 0.5rem;
+    min-width: 0;
 }
 
 .mii-card-tags.mii-categories {
@@ -749,6 +751,8 @@ footer ul li a:hover {
 .mii-card-tag {
     display: inline-flex;
     align-items: center;
+    max-width: 100%;
+    min-width: 0;
     border-radius: 999px;
     border: 1px solid color-mix(in oklab, var(--brand-color) 40%, #8a8a8a 60%);
     background: color-mix(in oklab, var(--brand-color) 18%, var(--layer-2-um) 82%);
@@ -756,8 +760,55 @@ footer ul li a:hover {
     font-size: 0.68rem;
     line-height: 1.2;
     text-decoration: none;
+    overflow: hidden;
     padding: 0.16rem 0.48rem;
     transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.tag-marquee-content {
+    display: block;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transform: translateX(0);
+    will-change: auto;
+}
+
+.is-tag-marqueeing .tag-marquee-content {
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    will-change: transform;
+    animation: tag-boundary-marquee var(--tag-marquee-duration, 7s) ease-in-out infinite;
+}
+
+@keyframes tag-boundary-marquee {
+    0%,
+    14% {
+        transform: translateX(0);
+    }
+
+    50%,
+    64% {
+        transform: translateX(calc(var(--tag-marquee-distance, 0px) * -1));
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .is-tag-marqueeing .tag-marquee-content {
+        animation: none !important;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transform: none;
+    }
 }
 
 .mii-card-tag.official-badge {
@@ -998,6 +1049,8 @@ footer ul li a:hover {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
+    max-width: 100%;
+    min-width: 0;
     margin: 0;
     padding: 0.22rem 0.58rem;
     border-radius: 999px;
@@ -1007,9 +1060,11 @@ footer ul li a:hover {
     font-size: 0.82rem;
     font-weight: 500;
     line-height: 1.25;
+    overflow: hidden;
 }
 
 .tag-filter-option input[type="checkbox"] {
+    flex: 0 0 auto;
     margin: 0;
 }
 

@@ -575,11 +575,11 @@
                                 <div class="official-categories-section">
                                     <span class="info-label">Official Categories</span>
                                     <div class="categories-display mii-card-tags mii-categories">
-                                        <span class="mii-card-tag official-badge">Official</span>
+                                        <span class="mii-card-tag official-badge"><span class="tag-marquee-content">Official</span></span>
                                         <% if(categoryDetails.length > 0) { %>
                                             <% categoryDetails.forEach(category => { %>
                                                 <a class="mii-card-tag category-tag" href="<%= category.url %>" style="--category-color: <%= category.color || '#999999' %>;">
-                                                    <%= category.fullPath || category.name %>
+                                                    <span class="tag-marquee-content"><%= category.fullPath || category.name %></span>
                                                 </a>
                                             <% }); %>
                                         <% } else { %>
@@ -593,7 +593,7 @@
                                     <% if(tagList.length > 0) { %>
                                         <div class="mii-tags-list">
                                             <% tagList.forEach(tag => { %>
-                                                <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                                                <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><span class="tag-marquee-content"><%= tag %></span></a>
                                             <% }); %>
                                         </div>
                                     <% } else { %>
@@ -1033,17 +1033,17 @@
                         <h2 id="mii-links-heading">Search Topics And Related Links</h2>
                         <p>Browse by character name, creator name, uploader, tags, and official categories related to <%= miiName %>.</p>
                         <div class="mii-chip-list">
-                            <a class="mii-chip mii-chip-link" href="<%= nameSearchUrl %>"><%= miiName %> search</a>
+                            <a class="mii-chip mii-chip-link" href="<%= nameSearchUrl %>"><span class="tag-marquee-content"><%= miiName %> search</span></a>
                             <% if(creatorSearchUrl) { %>
-                                <a class="mii-chip mii-chip-link" href="<%= creatorSearchUrl %>"><%= creatorName %> creator search</a>
+                                <a class="mii-chip mii-chip-link" href="<%= creatorSearchUrl %>"><span class="tag-marquee-content"><%= creatorName %> creator search</span></a>
                             <% } %>
-                            <a class="mii-chip mii-chip-link" href="<%= archiveOwnerProfileUrl %>"><%= archiveOwnerLabel %> profile</a>
-                            <a class="mii-chip mii-chip-link" href="<%= uploaderSearchUrl %>"><%= mii.uploader %> uploader search</a>
+                            <a class="mii-chip mii-chip-link" href="<%= archiveOwnerProfileUrl %>"><span class="tag-marquee-content"><%= archiveOwnerLabel %> profile</span></a>
+                            <a class="mii-chip mii-chip-link" href="<%= uploaderSearchUrl %>"><span class="tag-marquee-content"><%= mii.uploader %> uploader search</span></a>
                             <% categoryDetails.forEach(category => { %>
-                                <a class="mii-chip mii-chip-link" href="<%= category.url %>"><%= category.name %></a>
+                                <a class="mii-chip mii-chip-link" href="<%= category.url %>"><span class="tag-marquee-content"><%= category.name %></span></a>
                             <% }) %>
                             <% tagList.forEach(tag => { %>
-                                <a class="mii-chip mii-chip-link" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                                <a class="mii-chip mii-chip-link" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><span class="tag-marquee-content"><%= tag %></span></a>
                             <% }) %>
                         </div>
                         <% if(searchTopics.length > 0) { %>

@@ -434,10 +434,83 @@ function initializeMiiCardImageLoading() {
     });
 }
 
+function initializeTagBoundaryMarquees() {
+    const trackSelector = [
+        '.mii-card-tag .tag-marquee-content',
+        '.mii-tag-badge .tag-marquee-content',
+        '.mii-chip .tag-marquee-content',
+        '.tag-filter-option .tag-marquee-content'
+    ].join(', ');
+    const chipSelector = '.mii-card-tag, .mii-tag-badge, .mii-chip, .tag-filter-option';
+    let frameId = 0;
+
+    const syncTrack = (track) => {
+        const chip = track.closest(chipSelector);
+        if (!chip) return;
+
+        chip.classList.remove('is-tag-marqueeing');
+        track.style.removeProperty('--tag-marquee-distance');
+        track.style.removeProperty('--tag-marquee-duration');
+
+        const rect = chip.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+
+        const overflowDistance = Math.ceil(track.scrollWidth - track.clientWidth);
+        if (overflowDistance <= 1) return;
+
+        const duration = Math.min(16, Math.max(6, 4 + overflowDistance / 16));
+        track.style.setProperty('--tag-marquee-distance', `${overflowDistance}px`);
+        track.style.setProperty('--tag-marquee-duration', `${duration.toFixed(2)}s`);
+        chip.classList.add('is-tag-marqueeing');
+
+        if (!chip.getAttribute('title')) {
+            const label = track.textContent.trim();
+            if (label) {
+                chip.setAttribute('title', label);
+            }
+        }
+    };
+
+    const syncAll = () => {
+        frameId = 0;
+        document.querySelectorAll(trackSelector).forEach(syncTrack);
+    };
+
+    const requestSync = () => {
+        if (frameId) {
+            cancelAnimationFrame(frameId);
+        }
+        frameId = requestAnimationFrame(syncAll);
+    };
+
+    requestSync();
+    window.addEventListener('load', requestSync, { once: true });
+    window.addEventListener('resize', requestSync, { passive: true });
+
+    if ('ResizeObserver' in window) {
+        const resizeObserver = new ResizeObserver(requestSync);
+        document.querySelectorAll(chipSelector).forEach((chip) => resizeObserver.observe(chip));
+        window.__tagBoundaryMarqueeResizeObserver = resizeObserver;
+    }
+
+    if ('MutationObserver' in window) {
+        const mutationObserver = new MutationObserver(requestSync);
+        mutationObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+        window.__tagBoundaryMarqueeMutationObserver = mutationObserver;
+    }
+
+    window.refreshTagBoundaryMarquees = requestSync;
+}
+
 function initializePageFeatures() {
     initializeHomepagePreviewRows();
     initializeFullRowBrowseGrids();
     initializeMiiCardImageLoading();
+    initializeTagBoundaryMarquees();
 }
 
 if (document.readyState === 'loading') {
