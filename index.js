@@ -33,6 +33,7 @@ import {
     buildMiiSearchPlan,
     buildMiiSearchScoreExpression,
     getMiiSearchSort,
+    normalizeSearchText,
     normalizeSearchFieldSelection,
     rankMiiSearchCandidates
 } from "./searchUtils.js";
@@ -130,6 +131,58 @@ const SEO_KEYWORD_SHORT_TOKENS = new Set([
     "ds",
     "mt",
     "qr"
+]);
+
+const SIMILAR_MII_QUERY_LIMIT = 96;
+const SIMILAR_MII_TOKEN_QUERY_LIMIT = 8;
+const SIMILAR_MII_TAG_TERM_LIMIT = 40;
+const SIMILAR_MII_DESCRIPTION_TERM_LIMIT = 40;
+const SIMILAR_MII_GENERIC_TERMS = new Set([
+    "about",
+    "also",
+    "and",
+    "are",
+    "because",
+    "been",
+    "but",
+    "can",
+    "avatar",
+    "avatars",
+    "character",
+    "characters",
+    "desc",
+    "description",
+    "for",
+    "from",
+    "had",
+    "has",
+    "have",
+    "in",
+    "into",
+    "is",
+    "it",
+    "its",
+    "like",
+    "made",
+    "make",
+    "mii",
+    "miis",
+    "no",
+    "none",
+    "of",
+    "on",
+    "or",
+    "provided",
+    "that",
+    "the",
+    "their",
+    "then",
+    "this",
+    "to",
+    "was",
+    "were",
+    "will",
+    "with"
 ]);
 
 const EXPORT_FORMAT_LABELS = {
@@ -2291,6 +2344,242 @@ function normalizeTagList(rawTags) {
     }
 
     return normalized;
+}
+
+function normalizeSimilarMiiText(value) {
+    return normalizeSearchText(value).replace(/\s+/g, " ").trim();
+}
+
+function getComparableMiiName(mii) {
+    const candidates = [mii?.meta?.name, mii?.name];
+
+    for (const candidate of candidates) {
+        const name = String(candidate ?? "")
+            .replace(/\s+/g, " ")
+            .trim();
+        if (name) return name;
+    }
+
+    return "";
+}
+
+function getSimilarMiiDescriptionText(mii) {
+    const description = String(mii?.desc ?? mii?.description ?? "")
+        .replace(/\s+/g, " ")
+        .trim();
+    const normalizedDescription = normalizeSimilarMiiText(description);
+
+    if (!normalizedDescription || normalizedDescription === "no description provided") {
+        return "";
+    }
+
+    return description;
+}
+
+function getSimilarMiiTerms(value, { limit = SIMILAR_MII_DESCRIPTION_TERM_LIMIT } = {}) {
+    const normalized = normalizeSimilarMiiText(value);
+    const rawTerms = normalized.match(/[\p{L}\p{N}]+/gu) || [];
+    const terms = [];
+    const seen = new Set();
+
+    for (const rawTerm of rawTerms) {
+        const term = rawTerm.trim();
+        if (!term || (term === "s" && rawTerms.length > 1)) continue;
+        if (term.length < 3 && !SEO_KEYWORD_SHORT_TOKENS.has(term)) continue;
+        if (SIMILAR_MII_GENERIC_TERMS.has(term)) continue;
+        if (seen.has(term)) continue;
+
+        seen.add(term);
+        terms.push(term);
+
+        if (terms.length >= limit) {
+            break;
+        }
+    }
+
+    return terms;
+}
+
+function countSetMatches(sourceSet, candidateSet) {
+    let count = 0;
+
+    for (const value of sourceSet) {
+        if (candidateSet.has(value)) {
+            count += 1;
+        }
+    }
+
+    return count;
+}
+
+function getSimilarMiiTagKeys(tags) {
+    return normalizeTagList(tags)
+        .map(normalizeSimilarMiiText)
+        .filter(Boolean);
+}
+
+function getSimilarMiiTagTerms(tags, { limit = SIMILAR_MII_TAG_TERM_LIMIT } = {}) {
+    return getSimilarMiiTerms(normalizeTagList(tags).join(" "), { limit });
+}
+
+function buildContainsCaseInsensitiveRegex(value) {
+    const normalized = String(value ?? "").trim();
+    return normalized ? new RegExp(escapeRegExp(normalized), "i") : null;
+}
+
+function buildSimilarMiiContext(mii) {
+    const currentTags = normalizeTagList(mii?.tags || []);
+    const tagKeys = getSimilarMiiTagKeys(currentTags);
+    const tagTerms = getSimilarMiiTagTerms(currentTags);
+    const descriptionTerms = getSimilarMiiTerms(getSimilarMiiDescriptionText(mii));
+
+    return {
+        name: normalizeSimilarMiiText(getComparableMiiName(mii)),
+        currentTags,
+        tagKeySet: new Set(tagKeys),
+        tagTermSet: new Set(tagTerms),
+        descriptionTermSet: new Set(descriptionTerms),
+        tagTerms,
+        descriptionTerms
+    };
+}
+
+function scoreSimilarMiiCandidate(candidate, context) {
+    const candidateName = normalizeSimilarMiiText(getComparableMiiName(candidate));
+    const candidateTagKeySet = new Set(getSimilarMiiTagKeys(candidate?.tags || []));
+    const candidateTagTermSet = new Set(getSimilarMiiTagTerms(candidate?.tags || [], {
+        limit: SIMILAR_MII_TAG_TERM_LIMIT * 2
+    }));
+    const candidateDescriptionTermSet = new Set(getSimilarMiiTerms(getSimilarMiiDescriptionText(candidate), {
+        limit: SIMILAR_MII_DESCRIPTION_TERM_LIMIT * 2
+    }));
+    const exactTagMatches = countSetMatches(context.tagKeySet, candidateTagKeySet);
+
+    return {
+        sameName: Boolean(context.name && candidateName && candidateName === context.name),
+        exactTagSetMatch: Boolean(
+            context.tagKeySet.size > 0
+            && exactTagMatches === context.tagKeySet.size
+            && candidateTagKeySet.size === context.tagKeySet.size
+        ),
+        exactTagMatches,
+        similarTagTermMatches: countSetMatches(context.tagTermSet, candidateTagTermSet),
+        descriptionTermMatches: countSetMatches(context.descriptionTermSet, candidateDescriptionTermSet)
+    };
+}
+
+function hasSimilarMiiSignal(score) {
+    return Boolean(
+        score.sameName
+        || score.exactTagMatches > 0
+        || score.similarTagTermMatches > 0
+        || score.descriptionTermMatches > 0
+    );
+}
+
+function compareSimilarMiiEntries(left, right) {
+    return Number(right.score.sameName) - Number(left.score.sameName)
+        || Number(right.score.exactTagSetMatch) - Number(left.score.exactTagSetMatch)
+        || right.score.exactTagMatches - left.score.exactTagMatches
+        || right.score.similarTagTermMatches - left.score.similarTagTermMatches
+        || right.score.descriptionTermMatches - left.score.descriptionTermMatches
+        || (right.mii?.votes || 0) - (left.mii?.votes || 0)
+        || (right.mii?.uploadedOn || 0) - (left.mii?.uploadedOn || 0)
+        || String(left.mii?.id || "").localeCompare(String(right.mii?.id || ""));
+}
+
+function rankSimilarMiiCandidates(candidates, context, limit = 8) {
+    const uniqueCandidates = new Map();
+
+    for (const candidate of candidates) {
+        const id = String(candidate?.id || "").trim();
+        if (!id || uniqueCandidates.has(id)) continue;
+        uniqueCandidates.set(id, candidate);
+    }
+
+    return [...uniqueCandidates.values()]
+        .map((candidate) => ({
+            mii: candidate,
+            score: scoreSimilarMiiCandidate(candidate, context)
+        }))
+        .filter((entry) => hasSimilarMiiSignal(entry.score))
+        .sort(compareSimilarMiiEntries)
+        .slice(0, limit)
+        .map((entry) => entry.mii);
+}
+
+async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
+    const context = buildSimilarMiiContext(mii);
+    const candidateQueries = [];
+    const sort = getStablePopularitySort();
+    const name = getComparableMiiName(mii);
+
+    if (name) {
+        const nameRegex = buildExactCaseInsensitiveRegex(name);
+        candidateQueries.push(
+            Miis.find({
+                ...visibilityFilter,
+                $or: [
+                    { "meta.name": nameRegex },
+                    { name: nameRegex }
+                ]
+            })
+                .sort(sort)
+                .limit(SIMILAR_MII_QUERY_LIMIT)
+                .lean()
+        );
+    }
+
+    if (context.currentTags.length > 0) {
+        candidateQueries.push(
+            Miis.find({
+                ...visibilityFilter,
+                tags: { $in: context.currentTags.map(buildExactCaseInsensitiveRegex) }
+            })
+                .sort(sort)
+                .limit(SIMILAR_MII_QUERY_LIMIT)
+                .lean()
+        );
+    }
+
+    const tagTermRegexes = context.tagTerms
+        .slice(0, SIMILAR_MII_TOKEN_QUERY_LIMIT)
+        .map(buildContainsCaseInsensitiveRegex)
+        .filter(Boolean);
+    if (tagTermRegexes.length > 0) {
+        candidateQueries.push(
+            Miis.find({
+                ...visibilityFilter,
+                tags: { $in: tagTermRegexes }
+            })
+                .sort(sort)
+                .limit(SIMILAR_MII_QUERY_LIMIT)
+                .lean()
+        );
+    }
+
+    const descriptionTermRegexes = context.descriptionTerms
+        .slice(0, SIMILAR_MII_TOKEN_QUERY_LIMIT)
+        .map(buildContainsCaseInsensitiveRegex)
+        .filter(Boolean);
+    if (descriptionTermRegexes.length > 0) {
+        candidateQueries.push(
+            Miis.find({
+                ...visibilityFilter,
+                $or: descriptionTermRegexes.map((regex) => ({ desc: regex }))
+            })
+                .sort(sort)
+                .limit(SIMILAR_MII_QUERY_LIMIT)
+                .lean()
+        );
+    }
+
+    if (candidateQueries.length === 0) {
+        return [];
+    }
+
+    const candidateGroups = await Promise.all(candidateQueries);
+    return rankSimilarMiiCandidates(candidateGroups.flat(), context, limit);
 }
 
 function hasDecodedTomodachiLifeData(mii) {
@@ -8508,20 +8797,12 @@ site.get('/mii/:id', async (req, res) => {
         }
         : { uploader: mii.uploader };
 
-    const [sameArchiveOwnerMiis, relatedTagMiis, relatedCategoryMiis, archiveOwnerSummary] = await Promise.all([
+    const [sameArchiveOwnerMiis, similarMiis, relatedCategoryMiis, archiveOwnerSummary] = await Promise.all([
         Miis.find({ ...relatedVisibilityFilter, ...sameArchiveOwnerQuery })
             .sort({ votes: -1, uploadedOn: -1 })
             .limit(8)
             .lean(),
-        inp.miiSeo.tagList.length > 0
-            ? Miis.find({
-                ...relatedVisibilityFilter,
-                tags: { $in: inp.miiSeo.tagList.slice(0, 6) }
-            })
-                .sort({ votes: -1, uploadedOn: -1 })
-                .limit(8)
-                .lean()
-            : Promise.resolve([]),
+        findSimilarMiis(mii, relatedVisibilityFilter, 8),
         inp.miiSeo.categoryDetails.length > 0
             ? Miis.find({
                 ...relatedVisibilityFilter,
@@ -8564,9 +8845,9 @@ site.get('/mii/:id', async (req, res) => {
             items: sameArchiveOwnerMiis
         },
         {
-            title: "Miis with matching tags",
-            description: "These Miis overlap with the same community tags and search topics.",
-            items: relatedTagMiis
+            title: "Similar Miis",
+            description: "These Miis share matching names, exact or similar tags, and description topics.",
+            items: similarMiis
         },
         {
             title: "Miis in matching official categories",
