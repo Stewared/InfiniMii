@@ -443,6 +443,42 @@ function initializeTagBoundaryMarquees() {
     ].join(', ');
     const chipSelector = '.mii-card-tag, .mii-tag-badge, .mii-chip, .tag-filter-option';
     let frameId = 0;
+    let followUpFrameId = 0;
+
+    const measureTrackContentWidth = (track) => {
+        const label = track.textContent || '';
+        if (!label.trim()) return 0;
+
+        const computedStyles = window.getComputedStyle(track);
+        const canvas = window.__tagBoundaryMarqueeMeasureCanvas
+            || (window.__tagBoundaryMarqueeMeasureCanvas = document.createElement('canvas'));
+        const context = canvas.getContext('2d');
+
+        if (!context) {
+            return track.scrollWidth;
+        }
+
+        const font = computedStyles.font && computedStyles.font !== ''
+            ? computedStyles.font
+            : [
+                computedStyles.fontStyle,
+                computedStyles.fontVariant,
+                computedStyles.fontWeight,
+                computedStyles.fontStretch,
+                computedStyles.fontSize,
+                computedStyles.fontFamily
+            ].filter(Boolean).join(' ');
+
+        context.font = font;
+
+        let measuredWidth = context.measureText(label).width;
+        const letterSpacing = Number.parseFloat(computedStyles.letterSpacing);
+        if (Number.isFinite(letterSpacing) && letterSpacing !== 0) {
+            measuredWidth += letterSpacing * Math.max(0, label.length - 1);
+        }
+
+        return measuredWidth || track.scrollWidth;
+    };
 
     const syncTrack = (track) => {
         const chip = track.closest(chipSelector);
@@ -455,7 +491,11 @@ function initializeTagBoundaryMarquees() {
         const rect = chip.getBoundingClientRect();
         if (rect.width <= 0 || rect.height <= 0) return;
 
-        const overflowDistance = Math.ceil(track.scrollWidth - track.clientWidth);
+        const visibleWidth = track.getBoundingClientRect().width;
+        if (visibleWidth <= 0) return;
+
+        const contentWidth = measureTrackContentWidth(track);
+        const overflowDistance = Math.ceil(contentWidth - visibleWidth);
         if (overflowDistance <= 1) return;
 
         const duration = Math.min(16, Math.max(6, 4 + overflowDistance / 16));
@@ -473,6 +513,7 @@ function initializeTagBoundaryMarquees() {
 
     const syncAll = () => {
         frameId = 0;
+        followUpFrameId = 0;
         document.querySelectorAll(trackSelector).forEach(syncTrack);
     };
 
@@ -480,12 +521,29 @@ function initializeTagBoundaryMarquees() {
         if (frameId) {
             cancelAnimationFrame(frameId);
         }
-        frameId = requestAnimationFrame(syncAll);
+        if (followUpFrameId) {
+            cancelAnimationFrame(followUpFrameId);
+        }
+
+        frameId = requestAnimationFrame(() => {
+            frameId = 0;
+            followUpFrameId = requestAnimationFrame(syncAll);
+        });
     };
 
     requestSync();
     window.addEventListener('load', requestSync, { once: true });
     window.addEventListener('resize', requestSync, { passive: true });
+    window.addEventListener('orientationchange', requestSync, { passive: true });
+    window.addEventListener('pageshow', requestSync, { passive: true });
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', requestSync, { passive: true });
+    }
+
+    if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+        document.fonts.ready.then(requestSync).catch(() => {});
+    }
 
     if ('ResizeObserver' in window) {
         const resizeObserver = new ResizeObserver(requestSync);

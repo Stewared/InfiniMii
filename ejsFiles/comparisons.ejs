@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%
+        const pageTitle = 'Mii Website Comparisons - InfiniMii';
+        const pageDesc = 'Draft comparison of Mii websites, archives, QR code libraries, Tomodachi sharing tools, official references, and Mii creation resources.';
+        const canonicalUrl = `${baseUrl}/guides/comparisons`;
+        const keywords = 'mii websites, mii website comparison, mii qr code websites, mii library, mii archive, tomodachi mii sharing';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Mii Website Comparisons', url: '/guides/comparisons' }
+        ];
+        const schemaType = 'TechArticle';
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+    </head>
+    <body>
+        <%- include('globalStyle') %>
+        <%- include('header') %>
+        <%- include('accountDisplay') %>
+        <main class="content faq-content" role="main">
+            <%- include('sidebar') %>
+            <article class="faq-article">
+                <h1>Mii Website Comparisons</h1>
+                <p class="faq-lede">Comparing and Contrasting various Mii tools and websites so you know which one to pick.</p>
+
+                <nav class="faq-nav" aria-label="Mii Website Comparison Sections">
+                    <h2>Browse This Comparison</h2>
+                    <ul class="faq-nav-list">
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#comparison-table">Draft Website List</a></li>
+                        <li><a href="#comparison-points">Comparison Points</a></li>
+                        <li><a href="#notes">Notes to Fill In</a></li>
+                    </ul>
+                </nav>
+
+                <section id="overview" class="faq-section">
+                    <h2>Overview</h2>
+                    <div class="faq-item">
+                        <p>This page is meant to compare and contrast the various Mii tools and websites, their features, what they're good at, and where they're currently lacking.</p>
+                    </div>
+                </section>
+
+                <section id="website-list" class="faq-section">
+                    <h2>Website List</h2>
+                    <div class="faq-item">
+                        <h2><a href="/">InfiniMii</a></h2>
+                        <p>
+                            InfiniMii is designed to do everything easily. InfiniMii features real Mii processing and rendering, so there's no lengthy queues or manual processing. You can upload Miis to keep private for you to bring between devices or as a backup, or publish them to be browsable by others.
+                            InfiniMii features one of the easier Wiimote transfer tools, and is the only site at time of writing to feature a calculator to go back and forth between real world height and weight and Mii height and weight, or to allow for Tomodachi Life child generation between any two Miis at any time in the web browser.
+                            InfiniMii also has an expansive archive of Official Miis.
+                            Due to InfiniMii's ability to process Miis for real, it also has the ability to convert to any other supported format - which is nearly all of them - at any given point in time, as well as generate instructions from any Mii for any console.
+                            InfiniMii does not at this time offer Tomodachi Life: Living the Dream uploads, but may once the format is better understood.
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h2><a href="https://tomodachishare.com/">TomodachiShare</a></h2>
+                        <p>
+                            TomodachiShare is designed to be a Mii sharing website, especially as it relates to Tomodachi Life: Living the Dream.
+                            TomodachiShare features real QR download of 3DS Miis only, as the website is focused on Tomodachi Life and the LTD format is not fully understood, reverse engineered, or renderable yet. As such, much of the TomodachiShare process involves manual recreation and instructions upload when not working with the 3DS. The website features real 3DS renders, however many of the Switch renders are screenshots or photos taken from another device of the screen.
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h2><a href="https://www.miicharacters.com/">MiiCharacters</a></h2>
+                        <p>
+                            MiiCharacters was once the only name in Mii sharing websites. It is unfortunately long dead by this point. Many Miis can still be found there, however the last Mii uploaded was in 2017. Any new uploads go into a verification queue that has not been checked in many years now.
+                            For the Miis MiiCharacters does still feature, you can scan a QR for the 3DS/Wii U. MiiCharacters also features recreation instructions for the Wii, 3DS, Wii U, and the now defunct Miitomo app. If you have a .rcd file, and you rename the file extension to .mii, you can also upload this to a form on the website to get Wii recreation instructions to this day.
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h2><a href="https://www.miilibrary.com/">Mii Library</a> and <a href="https://new.miilibrary.com/">New Mii Library</a></h2>
+                        <p>
+                            Mii Library is an archival effort designed to document and keep record of all potential facts about all Miis used in an official capacity. However, the website is in many ways unfinished and still in development. Once it is complete, it will probably be the most definitive archive of all Official Miis. At time of writing however, the Mii Library features many dead links and placeholders.
+                            Mii Library features downloads in a variety of formats, renders in every needed way, detailed information about where they were found and their filenames, any individual quirks or fun facts they have, and much more.
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h2><a href="https://tomodachiplaza.app/">TomodachiPlaza</a></h2>
+                        <p>
+                            TomodachiPlaza is in many ways the same as TomodachiShare, however TomodachiShare predates TomodachiPlaza. The main differences here are that while TomodachiShare features limited Mii processing, TomodachiPlaza features none. Where TomodachiPlaza attempts to make up for this however is in recreation instructions, done by having you recreate the Mii's facial structures, toggles, sliders, and such on the website itself.
+                            TomodachiPlaza features no real Mii processing or rendering whatsoever, instead relying entirely on the upload form's expansive info collecting steps and manually uploaded screenshots or photos of the screen.
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h2><a href="https://miiwiki.org/">MiiWiki</a></h2>
+                        <p>
+                            MiiWiki is a dedicated wiki for Miis. What MiiWiki covers is done exceptionally well. However, it is still largely unfinished, as it is very new comparatively. Many articles are stubs, have not been iterated on much, and the community is smaller than other wikis. Where MiiWiki especially shines is its <a href="https://miiwiki.org/wiki/List_of_games_with_Miis">list of games with Miis</a>, and its <a href="https://miiwiki.org/wiki/List_of_official_Miis/QR_codes">Official QR list</a>, which are extensive and a great at a glance resources.
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h2><a href="https://tomodachimiis.com/">TomodachiMiis</a></h2>
+                        <p>
+                           TomodachiMiis is seemingly yet another version of TomodachiShare, however this version features none of the limited Mii processing, rendering, nor does it have any of TomodachiPlaza's recreation tedium. It is again mainly just sharing screenshots that you can use to recreate Miis from.
+                        </p>
+                    </div>
+                    <div class="faq-item">
+                        <h2><a href="https://miipedia.com/">Miipedia</a></h2>
+                        <p>
+                           Miipedia has long been focused mainly on Miitopia (Switch) Miis, however it has recently grown to allow for Tomodachi Life: Living the Dream uploads as well. For Miitopia, you can use a Mii sharing code to enter in the game to beam that Mii to your device.
+                           For Tomodachi Life: Living the Dream, it is again an extensive form in which you recreate the Miis features on the website itself. All renders on the site are again manually uploaded screenshots or photos of the screen.
+                        </p>
+                    </div>
+                </section>
+                <section>
+                    <h2>Heads Up!</h2>
+                    <p>
+                        The facts stated here about various websites are subject to change in the future! Many of these websites are in development or actively undergoing change, and will support more features in the future!<br><br>
+
+                        Does one of them already support more than we currently give it credit for? <a href="/contact">Let us know!</a> We'll be more than happy to update it.
+                    </p>
+                </section>
+            </article>
+            <%- include('featuredMiis') %>
+        </main>
+        <%- include('footer') %>
+    </body>
+</html>

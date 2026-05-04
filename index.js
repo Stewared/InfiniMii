@@ -8101,6 +8101,11 @@ site.get('/sitemap-pages.xml', async (req, res) => {
             priority: '0.7'
         },
         {
+            loc: `${resolvedBaseUrl}/guides/comparisons`,
+            changefreq: 'monthly',
+            priority: '0.6'
+        },
+        {
             loc: `${resolvedBaseUrl}/faq`,
             changefreq: 'monthly',
             priority: '0.7'
@@ -9673,6 +9678,16 @@ site.get('/faq', async (req, res) => {
 });
 site.get('/guides/formats', async (req, res) => {
     ejs.renderFile('./ejsFiles/formatGuide.ejs', await getSendables(req), {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
+site.get('/guides/comparisons', async (req, res) => {
+    ejs.renderFile('./ejsFiles/comparisons.ejs', await getSendables(req), {}, function(err, str) {
         if (err) {
             res.send(err);
             console.log(err);

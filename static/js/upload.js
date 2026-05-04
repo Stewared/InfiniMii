@@ -75,6 +75,66 @@ function syncUploadFormState(tab) {
     updateStudioNameFieldVisibility();
 }
 
+function assignDroppedUploadFiles(input, files) {
+    const selectedFiles = Array.from(files || []);
+    if (!input || input.disabled || selectedFiles.length === 0) {
+        return;
+    }
+
+    const filesToUse = input.multiple ? selectedFiles : selectedFiles.slice(0, 1);
+
+    try {
+        if (typeof DataTransfer !== "undefined") {
+            const transfer = new DataTransfer();
+            filesToUse.forEach((file) => transfer.items.add(file));
+            input.files = transfer.files;
+        } else {
+            input.files = files;
+        }
+
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+    } catch (error) {
+        console.warn("Dropped files could not be assigned to the upload input.", error);
+    }
+}
+
+function dragEventHasUploadFiles(event) {
+    return Array.from(event.dataTransfer?.types || []).includes("Files");
+}
+
+function bindUploadFormDrop(formId, inputId) {
+    const form = document.getElementById(formId);
+    const input = document.getElementById(inputId);
+
+    if (!form || !input) {
+        return;
+    }
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+        form.addEventListener(eventName, (event) => {
+            if (input.disabled || !dragEventHasUploadFiles(event)) {
+                return;
+            }
+
+            event.preventDefault();
+        });
+    });
+
+    form.addEventListener("drop", (event) => {
+        if (input.disabled || !dragEventHasUploadFiles(event)) {
+            return;
+        }
+
+        event.preventDefault();
+        assignDroppedUploadFiles(input, event.dataTransfer?.files);
+    });
+}
+
+function initializeUploadFormDrops() {
+    bindUploadFormDrop("uploadForm", "mii-upload");
+    bindUploadFormDrop("officialUploadForm", "official-mii-upload");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const codeInput = document.getElementById("upload-miiData");
     if (codeInput) {
@@ -82,5 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
         codeInput.addEventListener("change", updateStudioNameFieldVisibility);
     }
 
+    initializeUploadFormDrops();
     switchTab("file");
 });
