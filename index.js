@@ -43,6 +43,11 @@ import {
     hasCurrentMiiIdentityHashVersion,
     setMiiIdentityHash
 } from "./miiIdentityHash.js";
+import {
+    DailyTabSeparatedRequestLogger,
+    createRequestLoggingMiddleware,
+    setRequestLogContext
+} from "./securityLogging.js";
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 fs.mkdirSync(path.join(__dirname, "static", "miiImgs"), { recursive: true });
@@ -76,6 +81,9 @@ const ERRORING_FILES_DIR = path.join(__dirname, "erroringFiles");
 const ERRORING_FILE_SIZE_LIMIT_BYTES = 100 * 1024 * 1024;
 const WEBHOOK_ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
 const ERRORING_FILE_KEEP_COUNT = 10;
+const REQUEST_LOG_DIRECTORY = path.join(__dirname, "logs", "requests");
+const REQUEST_LOG_RETENTION_DAYS = 21;
+const REQUEST_LOG_RETENTION_CHECK_INTERVAL_MS = ms("1d");
 const SEO_KEYWORDS_CSV_PATH = path.join(__dirname, "seoKeywords.csv");
 const SEO_KEYWORD_META_LIMIT = 48;
 const SEO_KEYWORD_MAX_LENGTH = 80;
@@ -958,6 +966,11 @@ function rateLimitKeyGenerator(req) {
     const route = typeof req?.originalUrl === 'string' ? req.originalUrl : (typeof req?.url === 'string' ? req.url : '/');
     return `unknown:${method}:${route}:${ua}`;
 }
+
+const requestLogger = new DailyTabSeparatedRequestLogger({
+    logDirPath: REQUEST_LOG_DIRECTORY,
+    retentionDays: REQUEST_LOG_RETENTION_DAYS
+});
 
 // TODO: consider splitting lightening ratelimits if you have an account, say an extra allotment per account in addition to normal ones.
 const ratelimitOptions = {
@@ -5479,6 +5492,11 @@ site.use(async (req, res, next) => {
     }
 })
 
+site.use(createRequestLoggingMiddleware({
+    requestLogger,
+    getClientIpAddress
+}));
+
 // Ban middleware
 site.use(async (req, res, next) => {
     // Check if user is banned
@@ -5991,120 +6009,129 @@ function requireRole(roles) {
 }
 
 connectionPromise.then(() => { // TODO: server error page if DB fails
-    site.listen(process.env.PORT || 8080, async () => {
-        console.log("Starting, do not stop...");
+    requestLogger.initialize().then(() => {
+        requestLogger.startRetentionCleanupTimer({
+            intervalMs: REQUEST_LOG_RETENTION_CHECK_INTERVAL_MS
+        });
 
-        // Ensure directories exist
-        if (!fs.existsSync('./static/privateMiiImgs')) {
-            fs.mkdirSync('./static/privateMiiImgs', { recursive: true });
-        }
-        if (!fs.existsSync('./static/privateMiiQRs')) {
-            fs.mkdirSync('./static/privateMiiQRs', { recursive: true });
-        }
-        if (!fs.existsSync('./static/miiQRsWii')) {
-            fs.mkdirSync('./static/miiQRsWii', { recursive: true });
-        }
-        if (!fs.existsSync('./static/privateMiiQRsWii')) {
-            fs.mkdirSync('./static/privateMiiQRsWii', { recursive: true });
-        }
-        if (!fs.existsSync('./static/temp')) {
-            fs.mkdirSync('./static/temp', { recursive: true });
-        }
+        site.listen(process.env.PORT || 8080, async () => {
+            console.log("Starting, do not stop...");
 
-        // Initialize settings if not exists
-        const settings = await getSettings();
-        const existingCompanySources = Array.isArray(settings.officialCompanySources)
-            ? [...settings.officialCompanySources]
-            : [];
-        const normalizedCompanySources = getOfficialCompanySources(settings);
-        if (!isDeepStrictEqual(existingCompanySources, normalizedCompanySources)) {
-            await updateSettings({ officialCompanySources: normalizedCompanySources });
-        }
-        await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
-        await ensureOfficialMiiSeedLikes();
-        await backfillMissingUserPfpSetFlags();
-        setTimeout(() => {
-            backfillMiiIdentityHashes().catch((error) => {
-                console.error("[miiHash] Failed to backfill Mii identity hashes:", error);
+            // Ensure directories exist
+            if (!fs.existsSync('./static/privateMiiImgs')) {
+                fs.mkdirSync('./static/privateMiiImgs', { recursive: true });
+            }
+            if (!fs.existsSync('./static/privateMiiQRs')) {
+                fs.mkdirSync('./static/privateMiiQRs', { recursive: true });
+            }
+            if (!fs.existsSync('./static/miiQRsWii')) {
+                fs.mkdirSync('./static/miiQRsWii', { recursive: true });
+            }
+            if (!fs.existsSync('./static/privateMiiQRsWii')) {
+                fs.mkdirSync('./static/privateMiiQRsWii', { recursive: true });
+            }
+            if (!fs.existsSync('./static/temp')) {
+                fs.mkdirSync('./static/temp', { recursive: true });
+            }
+
+            // Initialize settings if not exists
+            const settings = await getSettings();
+            const existingCompanySources = Array.isArray(settings.officialCompanySources)
+                ? [...settings.officialCompanySources]
+                : [];
+            const normalizedCompanySources = getOfficialCompanySources(settings);
+            if (!isDeepStrictEqual(existingCompanySources, normalizedCompanySources)) {
+                await updateSettings({ officialCompanySources: normalizedCompanySources });
+            }
+            await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
+            await ensureOfficialMiiSeedLikes();
+            await backfillMissingUserPfpSetFlags();
+            setTimeout(() => {
+                backfillMiiIdentityHashes().catch((error) => {
+                    console.error("[miiHash] Failed to backfill Mii identity hashes:", error);
+                });
+            }, 0);
+            console.log("Settings initialized");
+            getIndexNowKey();
+
+            scheduleDailyWebhookReminder({
+                hourUtc: 12,
+                minuteUtc: 0,
+                label: "Highlighted Mii reminder",
+                task: async (currentDate) => {
+                    await sendHighlightedMiiReminderIfDue(currentDate);
+                }
             });
-        }, 0);
-        console.log("Settings initialized");
-        getIndexNowKey();
 
-        scheduleDailyWebhookReminder({
-            hourUtc: 12,
-            minuteUtc: 0,
-            label: "Highlighted Mii reminder",
-            task: async (currentDate) => {
-                await sendHighlightedMiiReminderIfDue(currentDate);
-            }
-        });
+            // For Quickly Uploading Batches of Miis
+            if (fs.existsSync('./quickUploads')) {
+                const quickUploadMetadata = getQuickUploadMetadata("./quickUploads");
+                await Promise.all(
+                    fs.readdirSync("./quickUploads").map(async (file) => {
+                        const lowerName = file.toLowerCase();
+                        if (lowerName === "upload.ini" || lowerName === "uploader.txt") return;
+                        if (lowerName.endsWith(".txt")) return;
 
-        // For Quickly Uploading Batches of Miis
-        if (fs.existsSync('./quickUploads')) {
-            const quickUploadMetadata = getQuickUploadMetadata("./quickUploads");
-            await Promise.all(
-                fs.readdirSync("./quickUploads").map(async (file) => {
-                    const lowerName = file.toLowerCase();
-                    if (lowerName === "upload.ini" || lowerName === "uploader.txt") return;
-                    if (lowerName.endsWith(".txt")) return;
+                        try {
+                            const mii = await createMiiData(`./quickUploads/${file}`);
+                            const matchingMii = await findMatchingMii(mii, { includeGeneral: quickUploadMetadata.official });
+                            if (matchingMii) {
+                                fs.unlinkSync(`./quickUploads/${file}`);
+                                console.warn(`[quickUploads] Skipping ${file}: already exists as Mii ID ${matchingMii.id}`);
+                                return;
+                            }
 
-                    try {
-                        const mii = await createMiiData(`./quickUploads/${file}`);
-                        const matchingMii = await findMatchingMii(mii, { includeGeneral: quickUploadMetadata.official });
-                        if (matchingMii) {
+                            mii.uploadedOn = Date.now();
+                            mii.uploader = quickUploadMetadata.uploader;
+                            mii.official = quickUploadMetadata.official;
+                            mii.votes = 1;
+                            mii.id = await genId();
+                            mii.desc = "Uploaded in Bulk";
+                            mii.private = false;
+                            mii.published = true;
+                            setMiiIdentityHash(mii);
+                            await applyAutomaticDecodedMiiTags(mii);
+                            ensureUploadMiiPermissions(mii);
+
+                            await Miis.create(mii);
+
                             fs.unlinkSync(`./quickUploads/${file}`);
-                            console.warn(`[quickUploads] Skipping ${file}: already exists as Mii ID ${matchingMii.id}`);
-                            return;
+                            console.log(`Added ${mii.meta?.name || file} from quick uploads`);
+                        } catch (e) {
+                            console.warn(`Couldn't process ${file}: ${e.message}`);
+                            // fs.unlinkSync(`./quickUploads/${file}`);
                         }
-
-                        mii.uploadedOn = Date.now();
-                        mii.uploader = quickUploadMetadata.uploader;
-                        mii.official = quickUploadMetadata.official;
-                        mii.votes = 1;
-                        mii.id = await genId();
-                        mii.desc = "Uploaded in Bulk";
-                        mii.private = false;
-                        mii.published = true;
-                        setMiiIdentityHash(mii);
-                        await applyAutomaticDecodedMiiTags(mii);
-                        ensureUploadMiiPermissions(mii);
-
-                        await Miis.create(mii);
-
-                        fs.unlinkSync(`./quickUploads/${file}`);
-                        console.log(`Added ${mii.meta?.name || file} from quick uploads`);
-                    } catch (e) {
-                        console.warn(`Couldn't process ${file}: ${e.message}`);
-                        // fs.unlinkSync(`./quickUploads/${file}`);
-                    }
-                })
-            );
-            console.log("Finished Checking Quick Uploads Folder");
-        }
-
-        console.log(`[average] Scheduling background average Mii refresh.`);
-        queueAverageMiiRefresh("startup");
-        setInterval(async () => {
-            try {
-                if (averageMiiRefreshPromise || averageMiiRefreshTimer) {
-                    return;
-                }
-
-                if (await hasRecentAverageAffectingUpload()) {
-                    console.log("[average] Recent public upload detected. Queueing average Mii refresh.");
-                    queueAverageMiiRefresh("recent upload");
-                }
-            } catch (error) {
-                console.error("[average] Failed to check average Mii refresh status:", error);
+                    })
+                );
+                console.log("Finished Checking Quick Uploads Folder");
             }
-        }, AVERAGE_MII_REFRESH_WINDOW_MS);
 
-        fs.readdirSync("./uploads").forEach(failedUploadFile=>{
-            fs.unlinkSync(`./uploads/${failedUploadFile}`);
+            console.log(`[average] Scheduling background average Mii refresh.`);
+            queueAverageMiiRefresh("startup");
+            setInterval(async () => {
+                try {
+                    if (averageMiiRefreshPromise || averageMiiRefreshTimer) {
+                        return;
+                    }
+
+                    if (await hasRecentAverageAffectingUpload()) {
+                        console.log("[average] Recent public upload detected. Queueing average Mii refresh.");
+                        queueAverageMiiRefresh("recent upload");
+                    }
+                } catch (error) {
+                    console.error("[average] Failed to check average Mii refresh status:", error);
+                }
+            }, AVERAGE_MII_REFRESH_WINDOW_MS);
+
+            fs.readdirSync("./uploads").forEach(failedUploadFile=>{
+                fs.unlinkSync(`./uploads/${failedUploadFile}`);
+            });
+
+            console.log(`Cleared all failed uploads\n\nAll setup finished.\nOnline`);
         });
-
-        console.log(`Cleared all failed uploads\n\nAll setup finished.\nOnline`);
+    }).catch((error) => {
+        console.error("[requestLogs] Failed to initialize request logging:", error);
+        process.exit(1);
     });
 });
 
@@ -11791,6 +11818,7 @@ site.post('/signup', async (req, res) => {
     await sendEmail(cleanEmail, "InfiniMii Verification", 
         "Welcome to InfiniMii! If you initiated this message, verify your email by clicking this link: " + link
     );
+    setRequestLogContext(req, { username: normalizedUsername });
     res.json({ message: "Check your email to verify your account!" });
 });
 site.post('/login', async (req, res) => {
@@ -11802,6 +11830,8 @@ site.post('/login', async (req, res) => {
     
     if (validatePassword(req.body.pass, user.salt, user.pass)) {
         if (user.verified) {
+            setRequestLogContext(req, { username: user.username });
+
             // Create JWT token
             const token = createToken(user);
             

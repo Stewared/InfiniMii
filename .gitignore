@@ -19,6 +19,7 @@ feedback.txt
 serveFeedback.js
 migrate.js
 erroringFiles/*
+logs/
 
 nonGitIgnoredTestFile
 deprecatedStorage.json
