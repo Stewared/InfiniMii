@@ -523,6 +523,20 @@ function getExportOptionsFromRequest(req) {
     };
 }
 
+function normalizeMiiFieldsForExport(fields) {
+    if (!fields || typeof fields !== "object") return fields;
+
+    const normalized = { ...fields };
+    normalized.meta = fields.meta && typeof fields.meta === "object" ? { ...fields.meta } : {};
+    normalized.perms = fields.perms && typeof fields.perms === "object" ? { ...fields.perms } : {};
+
+    if (!normalized.meta.type) {
+        normalized.meta.type = "Default";
+    }
+
+    return normalized;
+}
+
 function safeMiiFilename(name, fallback = "mii") {
     const base = (name || "")
         .toString()
@@ -728,16 +742,13 @@ function getQuickUploadMetadata(dirPath = "./quickUploads") {
 
 async function exportMiiToBuffer(miiInput, format, options = {}) {
     const sourceInstance = await miijs.Mii.create(miiInput);
-    let miiInstance = sourceInstance;
+    const exportFields = normalizeMiiFieldsForExport(sourceInstance.fields);
 
     if (options.special) {
-        const specialFields = structuredClone(sourceInstance.fields || {});
-        if (!specialFields.meta || typeof specialFields.meta !== "object") {
-            specialFields.meta = {};
-        }
-        specialFields.meta.type = "Special";
-        miiInstance = await miijs.Mii.create(specialFields);
+        exportFields.meta.type = "Special";
     }
+
+    const miiInstance = await miijs.Mii.create(exportFields);
 
     if (format === "qr") {
         const qrConsole = normalizeQrConsole(options.qrConsole || options.device);
