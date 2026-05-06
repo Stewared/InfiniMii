@@ -32,6 +32,7 @@
             const profileFeaturedMiis = Array.isArray(profileHighlights?.featuredMiis) ? profileHighlights.featuredMiis : [];
             const featuredNames = Array.isArray(profileHighlights?.featuredNames) ? profileHighlights.featuredNames : [];
             const selectedProfileSort = profileSort === 'latest' ? 'latest' : 'popular';
+            const isOfficialSourceProfile = Boolean(isOfficialCompanySourceProfile);
             const usesOffsetPagination = pagination?.mode === 'offset';
             const currentPageNumber = usesOffsetPagination ? null : (pagination?.currentPage || 1);
             const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
@@ -235,6 +236,9 @@
                                 <% } %>
                             <% }); %>
                         </div>
+                        <% if(isOfficialSourceProfile) { %>
+                            <p class="profile-subtext">Go to all <a href="/official">Official Miis</a></p>
+                        <% } %>
 
                         <div class="profile-stats">
                             <div class="stat-item">

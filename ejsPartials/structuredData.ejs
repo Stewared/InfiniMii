@@ -57,6 +57,38 @@ const resolvedPageImage = toAbsoluteUrl(
     ),
     '/banner.png'
 );
+const resolvedPageImagePath = (() => {
+    try {
+        return new URL(resolvedPageImage, resolvedBaseUrl || 'https://infinimii.com').pathname.toLowerCase();
+    } catch {
+        return '';
+    }
+})();
+const isGeneratedSquareImage = /\/(?:miiimgs|privatemiiimgs|miiqrs|privatemiiqrs|miiqrswii|privatemiiqrswii)\//.test(resolvedPageImagePath);
+const toPositiveInteger = (value, fallback) => {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) && numericValue > 0
+        ? Math.floor(numericValue)
+        : fallback;
+};
+const resolvedPageImageWidth = toPositiveInteger(
+    firstNonEmpty(
+        typeof ogImageWidth !== 'undefined' ? ogImageWidth : undefined,
+        typeof pageImageWidth !== 'undefined' ? pageImageWidth : undefined
+    ),
+    isGeneratedSquareImage ? 512 : 669
+);
+const resolvedPageImageHeight = toPositiveInteger(
+    firstNonEmpty(
+        typeof ogImageHeight !== 'undefined' ? ogImageHeight : undefined,
+        typeof pageImageHeight !== 'undefined' ? pageImageHeight : undefined
+    ),
+    isGeneratedSquareImage ? 512 : 373
+);
+const resolvedPageImageType = firstNonEmpty(
+    typeof ogImageType !== 'undefined' ? ogImageType : undefined,
+    'image/png'
+);
 const resolvedSchemaType = firstNonEmpty(
     typeof schemaType !== 'undefined' ? schemaType : undefined,
     'WebPage'
@@ -97,6 +129,14 @@ const pageKeywordList = typeof buildSeoKeywordList === 'function'
         asArray: true
     })
     : splitKeywordText(basePageKeywords);
+const pageImageObject = {
+    "@type": "ImageObject",
+    "url": resolvedPageImage,
+    "contentUrl": resolvedPageImage,
+    "width": resolvedPageImageWidth,
+    "height": resolvedPageImageHeight,
+    "encodingFormat": resolvedPageImageType
+};
 
 const websiteSchema = {
     "@context": "https://schema.org",
@@ -125,7 +165,11 @@ const organizationSchema = {
     "url": resolvedBaseUrl,
     "logo": {
         "@type": "ImageObject",
-        "url": `${resolvedBaseUrl}/banner.png`
+        "url": `${resolvedBaseUrl}/banner.png`,
+        "contentUrl": `${resolvedBaseUrl}/banner.png`,
+        "width": 669,
+        "height": 373,
+        "encodingFormat": "image/png"
     },
     "sameAs": sameAsLinks.length ? sameAsLinks : undefined
 };
@@ -138,7 +182,9 @@ const pageSchema = {
     "name": resolvedPageTitle,
     "description": resolvedPageDesc,
     "keywords": pageKeywordList,
-    "image": resolvedPageImage,
+    "image": pageImageObject,
+    "thumbnailUrl": resolvedPageImage,
+    "primaryImageOfPage": pageImageObject,
     "isPartOf": { "@id": `${resolvedBaseUrl}/#website` },
     "about": {
         "@type": "Thing",

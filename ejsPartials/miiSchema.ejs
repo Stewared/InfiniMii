@@ -17,6 +17,8 @@ const modifiedIso = resolvedPageUpdatedAt || publishedIso;
 const miiUrl = `${resolvedBaseUrl}/mii/${mii.id}`;
 const miiImageUrl = `${resolvedBaseUrl}/miiImgs/${mii.id}.png`;
 const miiQrUrl = `${resolvedBaseUrl}/miiQRs/${mii.id}.png`;
+const miiImageWidth = 512;
+const miiImageHeight = 512;
 const miiDescription = seo.metaDescription || mii.desc || `${miiName} Mii character${mii.official ? ` from ${officialSourceName}` : ''} for Nintendo systems.`;
 const creatorName = seo.creatorName || "";
 const baseKeywordList = Array.isArray(seo.keywordList) && seo.keywordList.length > 0
@@ -110,7 +112,13 @@ const miiPreviewSchema = {
   "@type": "ImageObject",
   "@id": `${miiUrl}#preview`,
   "name": `${miiName} Mii Preview`,
+  "url": miiImageUrl,
   "contentUrl": miiImageUrl,
+  "thumbnailUrl": miiImageUrl,
+  "width": miiImageWidth,
+  "height": miiImageHeight,
+  "encodingFormat": "image/png",
+  "representativeOfPage": true,
   "caption": `${miiName} Mii character preview image.`
 };
 
@@ -119,7 +127,11 @@ const miiQrSchema = {
   "@type": "ImageObject",
   "@id": `${miiUrl}#qr`,
   "name": `${miiName} Mii QR Code`,
+  "url": miiQrUrl,
   "contentUrl": miiQrUrl,
+  "width": miiImageWidth,
+  "height": miiImageHeight,
+  "encodingFormat": "image/png",
   "caption": `QR code for ${miiName}. Scan with compatible Nintendo systems to import the Mii.`
 };
 const scriptJson = typeof toScriptJson === 'function'

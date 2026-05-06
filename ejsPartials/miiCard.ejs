@@ -36,9 +36,12 @@ if (cardMii && cardMii.id) {
     const cardImageSrc = typeof imageSrc === 'string' && imageSrc.trim()
         ? imageSrc
         : `/miiImgs/${cardMii.id}.png`;
+    const fallbackCardImageAlt = resolvedDescription
+        ? `${miiName} Mii character: ${resolvedDescription}`
+        : `${miiName} Mii character preview`;
     const cardImageAlt = typeof imageAltText === 'string' && imageAltText.trim()
         ? imageAltText
-        : `${miiName} Mii: ${resolvedDescription}`;
+        : fallbackCardImageAlt;
     const imageOnError = typeof imageOnErrorAttr === 'string' && imageOnErrorAttr.trim()
         ? imageOnErrorAttr
         : '';
@@ -58,7 +61,12 @@ if (cardMii && cardMii.id) {
         ? Math.floor(likeIconSizeInput)
         : 19;
 
-    const metadataMode = typeof metadataType !== 'undefined' && metadataType === 'categories' ? 'categories' : 'tags';
+    const isOfficialCard = Boolean(cardMii.official);
+    const shouldUseOfficialMetadata = isOfficialCard && (
+        typeof useOfficialMetadata === 'undefined' || useOfficialMetadata !== false
+    );
+    const requestedMetadataMode = typeof metadataType !== 'undefined' && metadataType === 'categories' ? 'categories' : 'tags';
+    const metadataMode = shouldUseOfficialMetadata ? 'categories' : requestedMetadataMode;
     const metadataItemsInput = (typeof metadataItems !== 'undefined' && Array.isArray(metadataItems))
         ? metadataItems
         : (metadataMode === 'categories'
@@ -75,8 +83,11 @@ if (cardMii && cardMii.id) {
     const hiddenMetadataCount = Math.max(0, normalizedMetadataItems.length - visibleMetadataItems.length);
     const showMetadata = (typeof metadataEnabled === 'undefined' || metadataEnabled !== false) && normalizedMetadataItems.length > 0;
 
-    const showBadge = typeof badgeEnabled !== 'undefined' && badgeEnabled === true;
-    const badgeLabel = typeof badgeText === 'string' ? badgeText.trim() : '';
+    const showBadge = (typeof badgeEnabled !== 'undefined' && badgeEnabled === true)
+        || (shouldUseOfficialMetadata && (typeof officialBadgeEnabled === 'undefined' || officialBadgeEnabled !== false));
+    const badgeLabel = typeof badgeText === 'string' && badgeText.trim()
+        ? badgeText.trim()
+        : (shouldUseOfficialMetadata ? 'Official' : '');
 
     const showPrivateControls = typeof privateControls !== 'undefined' && privateControls === true;
     const isBlockedFromPublishing = Boolean(cardMii.blockedFromPublishing);
@@ -136,20 +147,20 @@ if (cardMii && cardMii.id) {
         <% if ((showBadge && badgeLabel) || showMetadata) { %>
             <div class="mii-card-tags <%= metadataMode === 'categories' ? 'mii-categories' : '' %>">
                 <% if (showBadge && badgeLabel) { %>
-                    <span class="mii-card-tag official-badge"><%= badgeLabel %></span>
+                    <span class="mii-card-tag official-badge"><span class="tag-marquee-content"><%= badgeLabel %></span></span>
                 <% } %>
 
                 <% if (showMetadata) { %>
                     <% visibleMetadataItems.forEach((item) => { %>
                         <% if (metadataMode === 'categories') { %>
-                            <span class="mii-card-tag category-tag"><%= item %></span>
+                            <span class="mii-card-tag category-tag"><span class="tag-marquee-content"><%= item %></span></span>
                         <% } else { %>
-                            <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(item) %>"><%= item %></a>
+                            <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(item) %>"><span class="tag-marquee-content"><%= item %></span></a>
                         <% } %>
                     <% }) %>
 
                     <% if (hiddenMetadataCount > 0) { %>
-                        <span class="mii-card-tag mii-card-tag-more <%= metadataMode === 'categories' ? 'category-tag more' : '' %>">+<%= hiddenMetadataCount %></span>
+                        <span class="mii-card-tag mii-card-tag-more <%= metadataMode === 'categories' ? 'category-tag more' : '' %>"><span class="tag-marquee-content">+<%= hiddenMetadataCount %></span></span>
                     <% } %>
                 <% } %>
             </div>

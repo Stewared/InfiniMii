@@ -514,14 +514,20 @@
 }
 
 .official-badge {
-    background: linear-gradient(90deg, gold 0%, #ffd700 100%);
-    color: #000;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 0;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, #caa841 70%, #afafaf 30%);
+    background: color-mix(in oklab, #e6bf4f 35%, var(--layer-2-um) 65%);
+    color: #fff5cf;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 /* Description Section */
@@ -1850,17 +1856,20 @@
 
 /* Update official badge to work in multiple contexts */
 .official-badge {
-    background: linear-gradient(90deg, gold 0%, #ffd700 100%);
-    color: #000;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 0;
+    margin: 0;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, #caa841 70%, #afafaf 30%);
+    background: color-mix(in oklab, #e6bf4f 35%, var(--layer-2-um) 65%);
+    color: #fff5cf;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
 }
 
 .download-dropdown {
@@ -2112,11 +2121,14 @@
 .mii-tag-badge {
     display: inline-flex;
     align-items: center;
+    max-width: 100%;
+    min-width: 0;
     border-radius: 999px;
     border: 1px solid color-mix(in oklab, var(--brand-color) 42%, #838383 58%);
     background: color-mix(in oklab, var(--brand-color) 20%, var(--layer-2-um) 80%);
     color: color-mix(in oklab, #ffffff 86%, var(--brand-color) 14%);
     text-decoration: none;
+    overflow: hidden;
     padding: 0.2rem 0.55rem;
     font-size: 0.78rem;
     line-height: 1.2;
@@ -2311,6 +2323,8 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    max-width: 100%;
+    min-width: 0;
     padding: 0.42rem 0.75rem;
     border-radius: 999px;
     border: 1px solid color-mix(in oklab, var(--brand-color) 48%, #858585 52%);
@@ -2318,8 +2332,9 @@
     color: var(--text-1);
     font-size: 0.88rem;
     text-decoration: none;
-    overflow-wrap: anywhere;
-    white-space: normal;
+    overflow: hidden;
+    overflow-wrap: normal;
+    white-space: nowrap;
     transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 }
 

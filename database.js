@@ -4,11 +4,11 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 mongoose.set("strictQuery", true);
 
 const DEFAULT_MONGODB_URI = "mongodb://127.0.0.1:27017/infinimii";
-const configuredMongoUri = process.env.MONGODB_URI || process.env.mongoUri;
-const shouldUseMemoryMongo =
-    !configuredMongoUri &&
-    process.env.NODE_ENV !== "production" &&
-    process.env.MONGODB_DISABLE_MEMORY_SERVER !== "true";
+const configuredMongoUri = String(process.env.MONGODB_URI || process.env.mongoUri || "").trim();
+const LOCAL_DEV_MONGODB_URIS = new Set([
+    "mongodb://127.0.0.1:27017/infinimii",
+    "mongodb://localhost:27017/infinimii"
+]);
 
 let memoryMongoServer = null;
 
@@ -68,6 +68,7 @@ const userSchema = new mongoose.Schema({
     email: String,
     votedFor: { type: [String], default: [] },
     miiPfp: { type: String, default: "00000" },
+    pfpSet: { type: Boolean, default: false },
     roles: { type: [String], default: ["basic"] },
     verified: { type: Boolean, default: false },
     isBanned: { type: Boolean, default: false },
@@ -108,23 +109,55 @@ const Settings = mongoose.model("Settings", settingsSchema);
 const ReservedUsername = mongoose.model("ReservedUsername", reservedUsernameSchema);
 
 // --- Connection --- //
-async function resolveMongoUri() {
-    if (configuredMongoUri) {
-        return configuredMongoUri;
-    }
+function isMemoryMongoAllowed() {
+    return process.env.NODE_ENV !== "production" && process.env.MONGODB_DISABLE_MEMORY_SERVER !== "true";
+}
 
-    if (!shouldUseMemoryMongo) {
-        return DEFAULT_MONGODB_URI;
-    }
+function normalizeMongoUriForComparison(uri) {
+    return String(uri || "").trim().replace(/\/+$/, "");
+}
 
+function isLocalDevMongoUri(uri) {
+    return LOCAL_DEV_MONGODB_URIS.has(normalizeMongoUriForComparison(uri));
+}
+
+async function startMemoryMongo(reason) {
     memoryMongoServer = await MongoMemoryServer.create({
         instance: {
             dbName: "infinimii"
         }
     });
 
-    console.log("[mongo] No MongoDB URI configured. Using an in-memory MongoDB instance for local development.");
+    console.log(reason);
     return memoryMongoServer.getUri();
+}
+
+async function resolveMongoUri() {
+    if (configuredMongoUri) {
+        return configuredMongoUri;
+    }
+
+    if (!isMemoryMongoAllowed()) {
+        return DEFAULT_MONGODB_URI;
+    }
+
+    return startMemoryMongo("[mongo] No MongoDB URI configured. Using an in-memory MongoDB instance for local development.");
+}
+
+function getMongoConnectOptions(mongoUri) {
+    const options = {
+        autoIndex: true
+    };
+
+    if (isMemoryMongoAllowed() && isLocalDevMongoUri(mongoUri)) {
+        options.serverSelectionTimeoutMS = 1500;
+    }
+
+    return options;
+}
+
+function shouldFallbackToMemoryMongo(mongoUri) {
+    return isMemoryMongoAllowed() && isLocalDevMongoUri(mongoUri);
 }
 
 async function cleanupMongoResources() {
@@ -156,9 +189,22 @@ for (const signal of ["SIGINT", "SIGTERM"]) {
 
 const connectionPromise = (async () => {
     const mongoUri = await resolveMongoUri();
-    return mongoose.connect(mongoUri, {
-        autoIndex: true
-    });
+
+    try {
+        return await mongoose.connect(mongoUri, getMongoConnectOptions(mongoUri));
+    } catch (error) {
+        if (!shouldFallbackToMemoryMongo(mongoUri)) {
+            throw error;
+        }
+
+        console.warn(`[mongo] Could not connect to local MongoDB at ${mongoUri}: ${error.message}`);
+        await cleanupMongoResources();
+
+        const fallbackUri = await startMemoryMongo("[mongo] Local MongoDB is unavailable. Using an in-memory MongoDB instance for local development.");
+        return mongoose.connect(fallbackUri, {
+            autoIndex: true
+        });
+    }
 })();
 
 
@@ -192,6 +238,7 @@ async function clearIndexes() {
 // clearIndexes();
 
 export {
+    cleanupMongoResources,
     connectionPromise,
     Miis,
     Users,

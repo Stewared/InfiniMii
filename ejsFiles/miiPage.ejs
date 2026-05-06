@@ -39,13 +39,17 @@
         const previewAssetVersion = Number.isFinite(previewAssetVersionRaw)
             ? previewAssetVersionRaw
             : Date.now();
-        const previewImagePath = `/${imgPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
+        const previewImageCanonicalPath = `/${imgPath}/${mii.id}.png`;
+        const previewImagePath = `${previewImageCanonicalPath}?v=${encodeURIComponent(previewAssetVersion)}`;
         const previewQr3dsPath = `/${qr3dsPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
         const previewQrWiiPath = `/${qrWiiPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
         const ogImage = isPrivate
             ? `${baseUrl}/miiImgs/00000.png`
-            : `${baseUrl}${previewImagePath}`;
+            : `${baseUrl}${previewImageCanonicalPath}`;
         const ogImageAlt = `${miiName} Mii character preview`;
+        const ogImageWidth = 512;
+        const ogImageHeight = 512;
+        const ogImageType = 'image/png';
         const ogType = 'article';
         const keywords = keywordList.length > 0
             ? keywordList.join(', ')
@@ -114,15 +118,15 @@
             : [];
         %>
         
-        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogImageAlt, ogType, keywords, publishedTime, modifiedTime, pageRobots }) %>
-        <%- include('structuredData') %>
-        <%- include('miiSchema') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogImageAlt, ogImageWidth, ogImageHeight, ogImageType, ogType, keywords, publishedTime, modifiedTime, pageRobots }) %>
+        <%- include('structuredData', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogImageAlt, ogImageWidth, ogImageHeight, ogImageType, ogType, keywords, publishedTime, modifiedTime, pageRobots, schemaType, breadcrumbs, schemaGraphs }) %>
+        <%- include('miiSchema', { mii, miiSeo: seo, pageRobots, pageUpdatedAt }) %>
         
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/miiPage.css">
         
         <!-- Preload hero image -->
-        <link rel="preload" as="image" href="<%= previewImagePath %>">
+        <link rel="preload" as="image" href="<%= previewImagePath %>" fetchpriority="high">
     </head>
     <body>
         <%- include('globalStyle') %>
@@ -160,10 +164,12 @@
                     <figure class="id-card-photo">
                         <img src="<%= previewImagePath %>" 
                             onerror="this.src='<%= previewImagePath %>'"
-                            alt="<%= miiName %> Mii character face"
+                            alt="<%= ogImageAlt %>"
                             itemprop="image"
                             width="400" 
                             height="400"
+                            loading="eager"
+                            decoding="async"
                             fetchpriority="high">
                         <figcaption class="qr-code">
                             <div class="qr-preview-window is-qr-3ds <%= showTomodachiLifeQrTab ? 'has-tomodachi-life-tab' : '' %>" data-qr-preview data-qr3ds-src="<%= previewQr3dsPath %>" data-qr-wii-src="<%= previewQrWiiPath %>" data-qr-wiiu-src="<%= previewQrWiiPath %>">
@@ -565,30 +571,35 @@
                                     }
                                 }
                                 </script>
-                            <div class="mii-tags-section">
-                                <span class="info-label">Tags</span>
-                                <% if(tagList.length > 0) { %>
-                                    <div class="mii-tags-list">
-                                        <% tagList.forEach(tag => { %>
-                                            <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
-                                        <% }); %>
+                            <% if(mii.official) { %>
+                                <div class="official-categories-section">
+                                    <span class="info-label">Official Categories</span>
+                                    <div class="categories-display mii-card-tags mii-categories">
+                                        <span class="mii-card-tag official-badge"><span class="tag-marquee-content">Official</span></span>
+                                        <% if(categoryDetails.length > 0) { %>
+                                            <% categoryDetails.forEach(category => { %>
+                                                <a class="mii-card-tag category-tag" href="<%= category.url %>" style="--category-color: <%= category.color || '#999999' %>;">
+                                                    <span class="tag-marquee-content"><%= category.fullPath || category.name %></span>
+                                                </a>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <span class="no-categories">No categories assigned.</span>
+                                        <% } %>
                                     </div>
-                                <% } else { %>
-                                    <span class="no-tags">No tags assigned.</span>
-                                <% } %>
-                            </div>
-
-                            <% if(categoryDetails.length > 0) { %>
-                            <div class="official-categories-section">
-                                <span class="info-label">Official Categories</span>
-                                <div class="categories-display">
-                                    <% categoryDetails.forEach(category => { %>
-                                        <a class="category-badge" href="<%= category.url %>" style="--category-color: <%= category.color || '#999999' %>;">
-                                            <%= category.fullPath || category.name %>
-                                        </a>
-                                    <% }); %>
                                 </div>
-                            </div>
+                            <% } else { %>
+                                <div class="mii-tags-section">
+                                    <span class="info-label">Tags</span>
+                                    <% if(tagList.length > 0) { %>
+                                        <div class="mii-tags-list">
+                                            <% tagList.forEach(tag => { %>
+                                                <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><span class="tag-marquee-content"><%= tag %></span></a>
+                                            <% }); %>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="no-tags">No tags assigned.</span>
+                                    <% } %>
+                                </div>
                             <% } %>
                         </div>
                     </div>
@@ -903,6 +914,8 @@
                                     alt="<%= officialSourceName %>'s profile Mii"
                                     onerror="this.src='/miiImgs/00000.png'"
                                     loading="lazy"
+                                    decoding="async"
+                                    fetchpriority="low"
                                     width="28"
                                     height="28"
                                 >
@@ -920,6 +933,8 @@
                                     alt="<%= mii.uploader %>'s profile Mii"
                                     onerror="this.src='/miiImgs/00000.png'"
                                     loading="lazy"
+                                    decoding="async"
+                                    fetchpriority="low"
                                     width="28"
                                     height="28"
                                 >
@@ -1018,17 +1033,17 @@
                         <h2 id="mii-links-heading">Search Topics And Related Links</h2>
                         <p>Browse by character name, creator name, uploader, tags, and official categories related to <%= miiName %>.</p>
                         <div class="mii-chip-list">
-                            <a class="mii-chip mii-chip-link" href="<%= nameSearchUrl %>"><%= miiName %> search</a>
+                            <a class="mii-chip mii-chip-link" href="<%= nameSearchUrl %>"><span class="tag-marquee-content"><%= miiName %> search</span></a>
                             <% if(creatorSearchUrl) { %>
-                                <a class="mii-chip mii-chip-link" href="<%= creatorSearchUrl %>"><%= creatorName %> creator search</a>
+                                <a class="mii-chip mii-chip-link" href="<%= creatorSearchUrl %>"><span class="tag-marquee-content"><%= creatorName %> creator search</span></a>
                             <% } %>
-                            <a class="mii-chip mii-chip-link" href="<%= archiveOwnerProfileUrl %>"><%= archiveOwnerLabel %> profile</a>
-                            <a class="mii-chip mii-chip-link" href="<%= uploaderSearchUrl %>"><%= mii.uploader %> uploader search</a>
+                            <a class="mii-chip mii-chip-link" href="<%= archiveOwnerProfileUrl %>"><span class="tag-marquee-content"><%= archiveOwnerLabel %> profile</span></a>
+                            <a class="mii-chip mii-chip-link" href="<%= uploaderSearchUrl %>"><span class="tag-marquee-content"><%= mii.uploader %> uploader search</span></a>
                             <% categoryDetails.forEach(category => { %>
-                                <a class="mii-chip mii-chip-link" href="<%= category.url %>"><%= category.name %></a>
+                                <a class="mii-chip mii-chip-link" href="<%= category.url %>"><span class="tag-marquee-content"><%= category.name %></span></a>
                             <% }) %>
                             <% tagList.forEach(tag => { %>
-                                <a class="mii-chip mii-chip-link" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
+                                <a class="mii-chip mii-chip-link" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><span class="tag-marquee-content"><%= tag %></span></a>
                             <% }) %>
                         </div>
                         <% if(searchTopics.length > 0) { %>
@@ -1065,7 +1080,7 @@
                                         <% const relatedMiiAttribution = getMiiAttribution(relatedMii); %>
                                         <article class="related-mii-card" style="--favorite-color: <%= decodeColor(relatedMii.general?.favoriteColor) || decodeColor(0) %>;">
                                             <a class="related-mii-image" href="/mii/<%= relatedMii.id %>">
-                                                <img src="/miiImgs/<%= relatedMii.id %>.png" alt="<%= relatedMii.meta?.name || relatedMii.name %> Mii character" width="256" height="256" loading="lazy" decoding="async" fetchpriority="low">
+                                                <img src="/miiImgs/<%= relatedMii.id %>.png" alt="<%= relatedMii.meta?.name || relatedMii.name %> Mii character preview" width="256" height="256" loading="lazy" decoding="async" fetchpriority="low">
                                             </a>
                                             <div class="related-mii-body">
                                                 <h3><a href="/mii/<%= relatedMii.id %>"><%= relatedMii.meta?.name || relatedMii.name %></a></h3>
