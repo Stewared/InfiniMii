@@ -5415,6 +5415,32 @@ const site = express();
 site.set("trust proxy", "loopback");
 site.use(express.json());
 site.use(express.urlencoded({ extended: true }));
+
+// Handle well-known before static.
+const wellKnownMimeMap = {
+    'traffic-advice': 'application/trafficadvice+json; charset=utf-8',
+    'security.txt': 'text/plain; charset=utf-8',
+    'openid-configuration': 'application/json',
+    'assetlinks.json': 'application/json',
+    'apple-app-site-association': 'application/json'
+};
+site.use('/.well-known', express.static(
+    path.join(__dirname, 'static', '.well-known'), {
+        dotfiles: 'allow',
+        setHeaders: (res, filePath) => {
+            const fileName = path.basename(filePath);
+
+            const type = wellKnownMimeMap[fileName];
+            if (type) {
+                res.setHeader('Content-Type', type);
+            }
+
+            // ensure no forced download
+            res.setHeader('Content-Disposition', 'inline');
+        }
+    }
+));
+
 site.use(express.static(path.join(__dirname + '/static'), {
     setHeaders: (res, filePath) => {
         if (isPublicGeneratedImagePath(filePath)) {
@@ -5430,7 +5456,6 @@ site.use(express.static(path.join(__dirname + '/static/js')));
 site.use(express.static(path.join(__dirname + '/static/assets')));
 site.use(cookieParser());
 site.use('/favicon.ico', express.static('static/favicon.ico'));
-
 
 //#region Middleware
 
