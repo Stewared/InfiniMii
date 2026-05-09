@@ -21,7 +21,8 @@ import { doubleMetaphone } from 'double-metaphone';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import { STATUS_CODES } from 'http';
-import { isDeepStrictEqual } from 'node:util';
+import { isDeepStrictEqual, format as formatConsoleOutput } from 'node:util';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import ms from 'ms';
 import dns from "dns";
@@ -81,6 +82,9 @@ const ERRORING_FILES_DIR = path.join(__dirname, "erroringFiles");
 const ERRORING_FILE_SIZE_LIMIT_BYTES = 100 * 1024 * 1024;
 const WEBHOOK_ATTACHMENT_MAX_BYTES = 8 * 1024 * 1024;
 const ERRORING_FILE_KEEP_COUNT = 10;
+const MIIJS_DEBUG_CAPTURE_MAX_CHARS = 30000;
+const MIIJS_DEBUG_USER_MAX_CHARS = 12000;
+const DISCORD_EMBED_FIELD_MAX_CHARS = 1024;
 const REQUEST_LOG_DIRECTORY = path.join(__dirname, "logs", "requests");
 const REQUEST_LOG_RETENTION_DAYS = 21;
 const REQUEST_LOG_RETENTION_CHECK_INTERVAL_MS = ms("1d");
@@ -588,6 +592,104 @@ function isQrImageInput(input) {
     return false;
 }
 
+const miijsDebugCaptureStorage = new AsyncLocalStorage();
+
+function createMiiJsDebugCapture() {
+    return {
+        lines: [],
+        totalLength: 0,
+        truncated: false
+    };
+}
+
+function addMiiJsDebugCaptureLine(capture, level, args) {
+    if (!capture || capture.truncated) return;
+
+    let line = "";
+    try {
+        line = `[${level}] ${formatConsoleOutput(...args)}`;
+    } catch (e) {
+        line = `[${level}] [Unable to format console output]`;
+    }
+
+    const remainingLength = MIIJS_DEBUG_CAPTURE_MAX_CHARS - capture.totalLength;
+    if (remainingLength <= 0) {
+        capture.truncated = true;
+        return;
+    }
+
+    if (line.length > remainingLength) {
+        capture.lines.push(line.slice(0, remainingLength));
+        capture.totalLength += remainingLength;
+        capture.truncated = true;
+        return;
+    }
+
+    capture.lines.push(line);
+    capture.totalLength += line.length + 1;
+}
+
+function installMiiJsDebugConsoleCapture() {
+    if (installMiiJsDebugConsoleCapture.installed) return;
+
+    ["log", "info", "warn", "error", "debug"].forEach((level) => {
+        const originalHandler = console[level]?.bind(console);
+        if (typeof originalHandler !== "function") return;
+
+        console[level] = (...args) => {
+            const capture = miijsDebugCaptureStorage.getStore();
+            if (capture) {
+                addMiiJsDebugCaptureLine(capture, level, args);
+                if (level === "error") {
+                    return rawConsoleError(...args);
+                }
+            }
+            return originalHandler(...args);
+        };
+    });
+
+    installMiiJsDebugConsoleCapture.installed = true;
+}
+
+function getMiiJsDebugCaptureOutput(capture) {
+    if (!capture) return "";
+
+    let output = capture.lines.join("\n").trim();
+    if (capture.truncated) {
+        output = `${output}${output ? "\n" : ""}[InfiniMii truncated MiiJS debug output after ${MIIJS_DEBUG_CAPTURE_MAX_CHARS} characters.]`;
+    }
+
+    return output;
+}
+
+function setMiiJsDebugOutputOnError(error, debugOutput) {
+    if (!error || (typeof error !== "object" && typeof error !== "function")) return;
+
+    try {
+        Object.defineProperty(error, "miiJsDebugOutput", {
+            value: debugOutput,
+            configurable: true
+        });
+    } catch (e) {
+        error.miiJsDebugOutput = debugOutput;
+    }
+}
+
+async function createMiiDataWithDebug(input) {
+    const capture = createMiiJsDebugCapture();
+
+    try {
+        const mii = await miijsDebugCaptureStorage.run(capture, () => createMiiData(input, true));
+        return {
+            mii,
+            debugOutput: getMiiJsDebugCaptureOutput(capture)
+        };
+    } catch (error) {
+        setMiiJsDebugOutputOnError(error, getMiiJsDebugCaptureOutput(capture));
+        throw error;
+    }
+}
+
 async function decodeQrImageInput(input) {
     let scanInput = input;
 
@@ -618,6 +720,8 @@ async function decodeQrImageInput(input) {
     }
     return decoded;
 }
+
+installMiiJsDebugConsoleCapture();
 
 async function createMiiData(input, debug) {
     const normalizedInput = normalizeMiiInput(input);
@@ -1381,13 +1485,84 @@ function isInvalidMiiTypeError(error) {
     return /Could not find any decode?able formats/i.test(errorMessage);
 }
 
-async function buildInvalidMiiTypeErrorPayload({ reqFile = null, rawInput = "", filePath = "" } = {}) {
-    const sizeBytes = await getSubmittedMiiSizeBytes({ reqFile, rawInput, filePath });
-    const normalizedSize = Number.isFinite(sizeBytes) && sizeBytes >= 0 ? Math.trunc(sizeBytes) : 0;
+function normalizeMiiJsDebugOutput(debugOutput, maxLength = MIIJS_DEBUG_CAPTURE_MAX_CHARS) {
+    const normalized = String(debugOutput ?? "")
+        .replace(/\r\n/g, "\n")
+        .replace(/\u0000/g, "")
+        .trim();
+
+    if (!normalized) return "";
+    return truncateText(normalized, maxLength);
+}
+
+function getMiiJsDebugOutputFromError(error) {
+    return normalizeMiiJsDebugOutput(error?.miiJsDebugOutput || "");
+}
+
+function buildMiiJsDebugDetailsHtml(debugOutput) {
+    const normalizedDebugOutput = normalizeMiiJsDebugOutput(debugOutput, MIIJS_DEBUG_USER_MAX_CHARS);
+    if (!normalizedDebugOutput) return "";
+
+    return `
+        <details class="miijs-debug-details">
+            <summary>MiiJS debug output</summary>
+            <pre class="miijs-debug-output">${escapeHtmlText(normalizedDebugOutput)}</pre>
+        </details>
+    `;
+}
+
+function buildErrorHtmlWithMiiJsDebug(errorMessage, miiJsDebugOutput) {
+    const debugDetailsHtml = buildMiiJsDebugDetailsHtml(miiJsDebugOutput);
+    if (!debugDetailsHtml) return "";
+    return `${escapeHtmlText(errorMessage)}${debugDetailsHtml}`;
+}
+
+function formatMiiJsDebugWebhookPreview(debugOutput) {
+    const normalizedDebugOutput = normalizeMiiJsDebugOutput(debugOutput);
+    if (!normalizedDebugOutput) return "";
+
+    const attachmentNote = "\n\nFull MiiJS debug output is attached as miijs-debug-output.txt.";
+    const previewLength = Math.max(0, DISCORD_EMBED_FIELD_MAX_CHARS - attachmentNote.length);
+    return `${truncateText(normalizedDebugOutput, previewLength)}${attachmentNote}`;
+}
+
+function addMiiJsDebugWebhookField(fields, debugOutput) {
+    const preview = formatMiiJsDebugWebhookPreview(debugOutput);
+    if (!preview) return;
+
+    fields.push({
+        name: "MiiJS Debug Output",
+        value: preview,
+        inline: false
+    });
+}
+
+function buildMiiJsDebugWebhookAttachment(debugOutput) {
+    const normalizedDebugOutput = normalizeMiiJsDebugOutput(debugOutput);
+    if (!normalizedDebugOutput) return null;
 
     return {
-        error: `This is not a valid Mii type. Filesize: ${normalizedSize} bytes. For support, contact Stewared.`,
-        errorHtml: `This is not a valid Mii type. Filesize: ${normalizedSize} bytes. For support, <a href="/contact">contact Stewared</a>.`
+        data: Buffer.from(normalizedDebugOutput, "utf8"),
+        filename: "miijs-debug-output.txt",
+        contentType: "text/plain; charset=utf-8"
+    };
+}
+
+function buildUploadMiiDecodeableFormatsErrorPayload(miiJsDebugOutput = "") {
+    const error = "Failed to process file. Please double-check that you selected the correct file. Could not find any decodeable formats. If this is a QR code, make sure it is clear and not blurry.";
+    const errorHtml = buildErrorHtmlWithMiiJsDebug(error, miiJsDebugOutput);
+    return errorHtml ? { error, errorHtml } : { error };
+}
+
+async function buildInvalidMiiTypeErrorPayload({ reqFile = null, rawInput = "", filePath = "", miiJsDebugOutput = "" } = {}) {
+    const sizeBytes = await getSubmittedMiiSizeBytes({ reqFile, rawInput, filePath });
+    const normalizedSize = Number.isFinite(sizeBytes) && sizeBytes >= 0 ? Math.trunc(sizeBytes) : 0;
+    const error = `This is not a valid Mii type. Filesize: ${normalizedSize} bytes. For support, contact Stewared.`;
+    const debugDetailsHtml = buildMiiJsDebugDetailsHtml(miiJsDebugOutput);
+
+    return {
+        error,
+        errorHtml: `This is not a valid Mii type. Filesize: ${normalizedSize} bytes. For support, <a href="/contact">contact Stewared</a>.${debugDetailsHtml}`
     };
 }
 
@@ -1441,12 +1616,14 @@ async function sendInvalidMiiInputToWebhook({
     context = "upload",
     reqFile = null,
     rawInput = "",
-    filePath = ""
+    filePath = "",
+    miiJsDebugOutput = ""
 } = {}) {
     try {
         const sizeBytes = await getSubmittedMiiSizeBytes({ reqFile, rawInput, filePath });
         const normalizedSize = Number.isFinite(sizeBytes) && sizeBytes >= 0 ? Math.trunc(sizeBytes) : 0;
         const attachmentInfo = await buildInvalidMiiWebhookAttachment({ reqFile, rawInput, filePath });
+        const debugAttachment = buildMiiJsDebugWebhookAttachment(miiJsDebugOutput);
         const userLabel = normalizeReportText(req?.user?.username, 80) || "Anonymous";
         const endpoint = String(req?.originalUrl || req?.path || "Unknown").trim() || "Unknown";
         const errorMessage = normalizeReportText(error?.message || error, 3000) || "Unknown error";
@@ -1500,6 +1677,12 @@ async function sendInvalidMiiInputToWebhook({
             });
         }
 
+        addMiiJsDebugWebhookField(fields, miiJsDebugOutput);
+
+        const attachments = [];
+        if (attachmentInfo?.attachment) attachments.push(attachmentInfo.attachment);
+        if (debugAttachment) attachments.push(debugAttachment);
+
         const webhookSent = await sendWebhookPayload(JSON.stringify({
             embeds: [{
                 type: "rich",
@@ -1509,7 +1692,7 @@ async function sendInvalidMiiInputToWebhook({
                 fields,
                 timestamp: new Date().toISOString()
             }]
-        }), attachmentInfo?.attachment ? [attachmentInfo.attachment] : []);
+        }), attachments);
 
         if (!webhookSent) {
             rawConsoleError("Invalid Mii input webhook skipped because hookUrl is not configured.");
@@ -1523,7 +1706,8 @@ async function sendSavedFailingUploadToWebhook({
     req,
     error,
     context = "upload",
-    dumpedUpload = null
+    dumpedUpload = null,
+    miiJsDebugOutput = ""
 } = {}) {
     if (!dumpedUpload?.destinationPath) return;
 
@@ -1535,6 +1719,7 @@ async function sendSavedFailingUploadToWebhook({
             },
             filePath: dumpedUpload.destinationPath
         });
+        const debugAttachment = buildMiiJsDebugWebhookAttachment(miiJsDebugOutput);
         const userLabel = normalizeReportText(req?.user?.username, 80) || "Anonymous";
         const endpoint = String(req?.originalUrl || req?.path || "Unknown").trim() || "Unknown";
         const errorMessage = normalizeReportText(error?.message || error, 3000) || "Unknown error";
@@ -1581,6 +1766,12 @@ async function sendSavedFailingUploadToWebhook({
             });
         }
 
+        addMiiJsDebugWebhookField(fields, miiJsDebugOutput);
+
+        const attachments = [];
+        if (attachmentInfo?.attachment) attachments.push(attachmentInfo.attachment);
+        if (debugAttachment) attachments.push(debugAttachment);
+
         const webhookSent = await sendWebhookPayload(JSON.stringify({
             embeds: [{
                 type: "rich",
@@ -1590,7 +1781,7 @@ async function sendSavedFailingUploadToWebhook({
                 fields,
                 timestamp: new Date().toISOString()
             }]
-        }), attachmentInfo?.attachment ? [attachmentInfo.attachment] : []);
+        }), attachments);
 
         if (!webhookSent) {
             rawConsoleError("Failing upload webhook skipped because hookUrl is not configured.");
@@ -10430,7 +10621,8 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                 }
 
                 try {
-                    mii = await createMiiData(tempBinPath);
+                    const decodedMii = await createMiiDataWithDebug(tempBinPath);
+                    mii = decodedMii.mii;
 
                     // Clean up temp files
                     try { fs.unlinkSync(tempBinPath); } catch (e) { }
@@ -10439,14 +10631,17 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                 } catch (e) {
                     console.error('Error reading Amiibo Mii:', e);
                     if (isInvalidMiiTypeError(e)) {
+                        const miiJsDebugOutput = getMiiJsDebugOutputFromError(e);
                         await sendInvalidMiiInputToWebhook({
                             req,
                             error: e,
                             context: "uploadMii-amiibo",
-                            filePath: tempBinPath
+                            filePath: tempBinPath,
+                            miiJsDebugOutput
                         });
                         res.json(await buildInvalidMiiTypeErrorPayload({
-                            filePath: tempBinPath
+                            filePath: tempBinPath,
+                            miiJsDebugOutput
                         }));
                         return;
                     }
@@ -10456,16 +10651,20 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             }
             else {
                 if (req.body.miiData) {
-                    mii = await createMiiData(req.body.miiData);
+                    const decodedMii = await createMiiDataWithDebug(req.body.miiData);
+                    mii = decodedMii.mii;
                 } else {
                     if (!req.file) {
                         res.json({ error: 'No file uploaded' });
                         return;
                     }
-                    mii = await createMiiData(req.file.path);
+                    const decodedMii = await createMiiDataWithDebug(req.file.path);
+                    mii = decodedMii.mii;
                 }
             }
         } catch (e) {
+            const isInvalidMiiType = isInvalidMiiTypeError(e);
+            const miiJsDebugOutput = isInvalidMiiType ? getMiiJsDebugOutputFromError(e) : "";
             const dumpedUpload = req.file?.path
                 ? await dumpFailingUploadFile(req.file, e, "uploadMii")
                 : null;
@@ -10474,11 +10673,12 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                     req,
                     error: e,
                     context: "uploadMii",
-                    dumpedUpload
+                    dumpedUpload,
+                    miiJsDebugOutput
                 });
             }
             console.error('Error processing Mii file:', e);
-            if (isInvalidMiiTypeError(e)) {
+            if (isInvalidMiiType) {
                 if (!dumpedUpload) {
                     await sendInvalidMiiInputToWebhook({
                         req,
@@ -10486,12 +10686,11 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                         context: "uploadMii",
                         reqFile: req.file,
                         rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
-                        filePath: req.file?.path || tempBinPath
+                        filePath: req.file?.path || tempBinPath,
+                        miiJsDebugOutput
                     });
                 }
-                res.json({
-                    error: "Failed to process file. Please double-check that you selected the correct file. Could not find any decodeable formats. If this is a QR code, make sure it is clear and not blurry."
-                });
+                res.json(buildUploadMiiDecodeableFormatsErrorPayload(miiJsDebugOutput));
                 return;
             }
             res.json({error: `Failed to process file. Please double-check that you selected the correct file. ${e.message || ''}`});

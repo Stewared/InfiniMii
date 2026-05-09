@@ -1582,6 +1582,59 @@ fieldset a:hover {
     border-color: color-mix(in oklab, #f2a640 62%, #9b7a45 38%);
 }
 
+.form-message .miijs-debug-details {
+    margin-top: 0.85rem;
+    border: 1px solid color-mix(in oklab, var(--brand-color) 44%, rgba(255, 255, 255, 0.18) 56%);
+    border-radius: 10px;
+    background: color-mix(in oklab, var(--layer-1-um) 72%, rgba(255, 255, 255, 0.04) 28%);
+    overflow: hidden;
+}
+
+.form-message .miijs-debug-details summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.72rem 0.85rem;
+    color: var(--text-1);
+    cursor: pointer;
+    font-weight: 600;
+    line-height: 1.35;
+    user-select: none;
+}
+
+.form-message .miijs-debug-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.form-message .miijs-debug-details summary::after {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    flex: 0 0 auto;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 0.18s ease;
+}
+
+.form-message .miijs-debug-details[open] summary::after {
+    transform: rotate(225deg);
+}
+
+.form-message .miijs-debug-output {
+    margin: 0;
+    max-height: min(18rem, 46vh);
+    overflow: auto;
+    padding: 0.85rem;
+    border-top: 1px solid color-mix(in oklab, var(--brand-color) 28%, rgba(255, 255, 255, 0.12) 72%);
+    background: color-mix(in oklab, #08070a 82%, var(--layer-2-um) 18%);
+    color: #f7eef1;
+    font: 400 0.78rem / 1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 @keyframes wipe-right {
     0% {
         clip-path: polygon(0 0, 0% 0, 0% 0%, 0 0%);
