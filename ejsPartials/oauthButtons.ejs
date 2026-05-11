@@ -1,0 +1,37 @@
+<%
+const oauthMode = typeof mode === 'string' ? mode : 'login';
+const oauthIntent = ['login', 'signup', 'link'].includes(oauthMode) ? oauthMode : 'login';
+const oauthNext = typeof next === 'string' ? next : '/';
+const linkedProviderKeyList = typeof linkedProviderKeys !== 'undefined' && Array.isArray(linkedProviderKeys) ? linkedProviderKeys : [];
+const oauthHeading = typeof heading === 'string' ? heading : 'Continue with';
+const filteredOAuthProviders = (Array.isArray(oauthProviders) ? oauthProviders : [])
+    .filter(provider => provider && provider.enabled !== false)
+    .filter(provider => oauthIntent !== 'signup' || provider.supportsSignup !== false)
+    .filter(provider => oauthIntent !== 'link' || !linkedProviderKeyList.includes(provider.key));
+%>
+<% if (filteredOAuthProviders.length > 0) { %>
+    <div class="oauth-options oauth-options-<%= oauthIntent %>">
+        <% if (oauthIntent !== 'link') { %>
+            <div class="oauth-divider" aria-hidden="true"><span>or</span></div>
+        <% } %>
+        <p class="oauth-options-title"><%= oauthHeading %></p>
+        <div class="oauth-provider-grid">
+            <% filteredOAuthProviders.forEach((provider) => {
+                const providerMarkText = provider.iconText || provider.displayName.slice(0, 1);
+                const providerIconUrl = typeof provider.iconUrl === 'string' ? provider.iconUrl.trim() : '';
+            %>
+                <a class="oauth-provider-button oauth-provider-<%= provider.key %>" href="/auth/<%= encodeURIComponent(provider.key) %>?intent=<%= encodeURIComponent(oauthIntent) %>&next=<%= encodeURIComponent(oauthNext) %>">
+                    <span class="oauth-provider-mark" aria-hidden="true">
+                        <% if (providerIconUrl) { %>
+                            <img class="oauth-provider-icon-img" src="<%= providerIconUrl %>" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+                            <span class="oauth-provider-fallback" hidden><%= providerMarkText %></span>
+                        <% } else { %>
+                            <span class="oauth-provider-fallback"><%= providerMarkText %></span>
+                        <% } %>
+                    </span>
+                    <span class="oauth-provider-label"><%= provider.displayName %></span>
+                </a>
+            <% }) %>
+        </div>
+    </div>
+<% } %>

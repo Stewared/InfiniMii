@@ -31,7 +31,7 @@
                 <form id="loginForm" class="auth-form">
                     <fieldset class="auth-fieldset">
                         <legend>Log In</legend>
-                        <div id="errorMessage" class="form-message" style="display: none;"></div>
+                        <div id="errorMessage" class="form-message <%= oauthStatus?.type || '' %>" style="display: <%= oauthStatus ? 'block' : 'none' %>;"><%= oauthStatus?.message || '' %></div>
 
                         <label class="sr-only" for="username">Username</label>
                         <input placeholder="Username" required name="username" type="text" id="username" autocomplete="username">
@@ -41,6 +41,7 @@
 
                         <input type="submit" value="Log In">
                         <p class="auth-links"><a href="/requestPasswordReset">Forgot Password?</a> <span class="auth-links-separator">/</span> <a href="/signup">Sign Up</a></p>
+                        <%- include('oauthButtons', { mode: 'login', next: next || '/', heading: 'Continue with' }) %>
                     </fieldset>
                 </form>
             </div>

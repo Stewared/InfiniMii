@@ -60,6 +60,18 @@ const miiSchema = new mongoose.Schema({
     blockReason: { type: String }
 }, { timestamps: true, minimize: false });
 
+const oauthIdentitySchema = new mongoose.Schema({
+    provider: { type: String, required: true },
+    providerUserId: { type: String, required: true },
+    email: String,
+    emailVerified: { type: Boolean, default: false },
+    displayName: String,
+    username: String,
+    avatarUrl: String,
+    linkedAt: { type: Number, default: () => Date.now() },
+    lastLoginAt: Number
+}, { _id: false, minimize: false });
+
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true, index: true },
     salt: String,
@@ -82,7 +94,16 @@ const userSchema = new mongoose.Schema({
     pendingEmail: String, // New email waiting to be verified
     pendingEmailToken: String, // Token for pending email verification
     pendingEmailExpires: Number, // Expiration time for pending email token
+    oauthIdentities: { type: [oauthIdentitySchema], default: [] },
 }, { timestamps: true, minimize: false });
+
+userSchema.index(
+    { "oauthIdentities.provider": 1, "oauthIdentities.providerUserId": 1 },
+    { unique: true, sparse: true }
+);
+userSchema.index({ email: 1 }, { sparse: true });
+userSchema.index({ pendingEmail: 1 }, { sparse: true });
+userSchema.index({ "oauthIdentities.email": 1 }, { sparse: true });
 
 const settingsSchema = new mongoose.Schema({
     _id: { type: String, required: true },

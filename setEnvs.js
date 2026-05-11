@@ -60,7 +60,43 @@ const envTemplate = readEnvs(
 
 const isBeta = Boolean(envs.beta);
 const optionalEnvs = new Set([
-    "INDEXNOW_KEY"
+    "INDEXNOW_KEY",
+    "OAUTH_AUTO_CREATE_ACCOUNTS",
+    "OAUTH_AUTO_LINK_EMAIL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "GOOGLE_CALLBACK_URL",
+    "DISCORD_CLIENT_ID",
+    "DISCORD_CLIENT_SECRET",
+    "DISCORD_CALLBACK_URL",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GITHUB_CALLBACK_URL",
+    "MICROSOFT_CLIENT_ID",
+    "MICROSOFT_CLIENT_SECRET",
+    "MICROSOFT_TENANT_ID",
+    "MICROSOFT_CALLBACK_URL",
+    "APPLE_CLIENT_ID",
+    "APPLE_CLIENT_SECRET",
+    "APPLE_TEAM_ID",
+    "APPLE_KEY_ID",
+    "APPLE_PRIVATE_KEY",
+    "APPLE_CALLBACK_URL",
+    "FACEBOOK_CLIENT_ID",
+    "FACEBOOK_CLIENT_SECRET",
+    "FACEBOOK_APP_ID",
+    "FACEBOOK_APP_SECRET",
+    "FACEBOOK_CALLBACK_URL",
+    "X_CLIENT_ID",
+    "X_CLIENT_SECRET",
+    "X_CALLBACK_URL",
+    "TWITTER_CLIENT_ID",
+    "TWITTER_CLIENT_SECRET",
+    "TWITCH_CLIENT_ID",
+    "TWITCH_CLIENT_SECRET",
+    "TWITCH_CALLBACK_URL",
+    "STEAM_CLIENT_ID",
+    "STEAM_CALLBACK_URL"
 ]);
 let compiledEnvs = structuredClone(envs); // Start with all defined so ones missing from example are still defined
 const missingEnvs = [];

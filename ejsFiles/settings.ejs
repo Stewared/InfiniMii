@@ -19,7 +19,19 @@
 		<div class="content">
 			<%- include('sidebar') %>
 			<div class="settings-container">
-				<div id="settings-message" class="form-message" style="display: none; margin-bottom: 20px;"></div>
+				<%
+				const passwordLoginEnabled = Boolean(user?.salt && user?.pass);
+				const linkedIdentities = Array.isArray(user?.oauthIdentities) ? user.oauthIdentities : [];
+				const linkedProviderKeys = linkedIdentities.map(identity => identity.provider);
+				const oauthProviderMap = Object.fromEntries((Array.isArray(oauthProviders) ? oauthProviders : []).map(provider => [provider.key, provider]));
+				const formatOAuthProviderName = (key) => oauthProviderMap[key]?.displayName || String(key || 'OAuth').split(/[-_]+/g).filter(Boolean).map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+				const getOAuthProviderIconUrl = (key) => {
+					const iconUrl = oauthProviderMap[key]?.iconUrl;
+					return typeof iconUrl === 'string' ? iconUrl.trim() : '';
+				};
+				const getOAuthProviderIconText = (key, providerName) => oauthProviderMap[key]?.iconText || providerName.slice(0, 2);
+				%>
+				<div id="settings-message" class="form-message <%= oauthStatus?.type || '' %>" style="display: <%= oauthStatus ? 'block' : 'none' %>; margin-bottom: 20px;"><%= oauthStatus?.message || '' %></div>
 				
 				<fieldset>
 					<legend>Profile Settings</legend>
@@ -57,9 +69,59 @@
 					<!-- Change Password -->
 					<div class="setting-group">
 						<label>Password</label>
-						<input type="password" placeholder="Old Password" id="oPass">
-						<input type="password" placeholder="New Password" id="nPass">
-						<button onclick="changePassword()">Change Password</button>
+						<% if (passwordLoginEnabled) { %>
+							<input type="password" placeholder="Old Password" id="oPass">
+							<input type="password" placeholder="New Password" id="nPass">
+							<button onclick="changePassword()">Change Password</button>
+						<% } else { %>
+							<small style="color: var(--text-2); display: block; margin-bottom: 6px;">Add a password if you want username/password login or password-protected account actions.</small>
+							<input type="password" placeholder="New Password" id="setPass">
+							<button onclick="setPassword()">Set Password</button>
+						<% } %>
+					</div>
+
+					<div class="setting-group">
+						<label>Connected Login Methods</label>
+						<div class="linked-oauth-list">
+							<% if (passwordLoginEnabled) { %>
+								<div class="linked-oauth-item">
+									<span class="linked-oauth-main">
+										<span class="oauth-provider-mark oauth-provider-mark-password" aria-hidden="true"><%- include('icon', { name: 'key', size: 16 }) %></span>
+										<span>Password</span>
+									</span>
+									<span class="linked-oauth-status">Enabled</span>
+								</div>
+							<% } %>
+							<% if (linkedIdentities.length === 0 && !passwordLoginEnabled) { %>
+								<p class="auth-note">No login methods are connected yet.</p>
+							<% } %>
+							<% linkedIdentities.forEach((identity) => {
+								const providerName = formatOAuthProviderName(identity.provider);
+								const providerIconUrl = getOAuthProviderIconUrl(identity.provider);
+								const providerIconText = getOAuthProviderIconText(identity.provider, providerName);
+							%>
+								<div class="linked-oauth-item oauth-provider-<%= identity.provider %>">
+									<span class="linked-oauth-main">
+										<span class="oauth-provider-mark" aria-hidden="true">
+											<% if (providerIconUrl) { %>
+												<img class="oauth-provider-icon-img" src="<%= providerIconUrl %>" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+												<span class="oauth-provider-fallback" hidden><%= providerIconText %></span>
+											<% } else { %>
+												<span class="oauth-provider-fallback"><%= providerIconText %></span>
+											<% } %>
+										</span>
+										<span>
+											<span class="linked-oauth-name"><%= providerName %></span>
+											<% if (identity.email) { %>
+												<small><%= identity.email %></small>
+											<% } %>
+										</span>
+									</span>
+									<button type="button" class="oauth-unlink-button" onclick="unlinkOAuthProvider(<%- toScriptJson(identity.provider) %>, <%- toScriptJson(providerName) %>)">Unlink</button>
+								</div>
+							<% }) %>
+						</div>
+						<%- include('oauthButtons', { mode: 'link', next: '/settings', heading: 'Link another provider', linkedProviderKeys }) %>
 					</div>
 				</fieldset>
 
@@ -184,6 +246,39 @@
 				}
 			}
 
+			async function setPassword() {
+				const newPass = document.getElementById('setPass')?.value || '';
+
+				if (!newPass) {
+					showAlert('Please enter a password', 5000, { title: 'Error', type: 'error' });
+					return;
+				}
+
+				if (newPass.length < 6) {
+					showAlert('New password must be at least 6 characters', 5000, { title: 'Error', type: 'error' });
+					return;
+				}
+
+				try {
+					const response = await fetch('/setPassword', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ newPassword: newPass })
+					});
+					const result = await response.json();
+
+					if (!result.error) {
+						showMessage(result.message || 'Password login added successfully.', 'success');
+						setTimeout(() => location.reload(), 1500);
+					} else {
+						showMessage(result.error, 'error');
+					}
+				} catch (error) {
+					console.error('Error:', error);
+					showMessage('Failed to set password', 'error');
+				}
+			}
+
 			async function changePassword() {
 				const oldPass = document.getElementById('oPass').value;
 				const newPass = document.getElementById('nPass').value;
@@ -219,6 +314,28 @@
 					console.error('Error:', error);
 					showAlert('Failed to change password', 5000, { title: 'Error', type: 'error' });
 				}
+			}
+
+			async function unlinkOAuthProvider(providerKey, providerName) {
+				showConfirm(`Unlink ${providerName} from your account?`, async () => {
+					try {
+						const response = await fetch(`/auth/${encodeURIComponent(providerKey)}/unlink`, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' }
+						});
+						const result = await response.json();
+
+						if (!result.error) {
+							showMessage(result.message || `${providerName} has been unlinked.`, 'success');
+							setTimeout(() => location.reload(), 1500);
+						} else {
+							showMessage(result.error, 'error');
+						}
+					} catch (error) {
+						console.error('Error:', error);
+						showMessage(`Failed to unlink ${providerName}`, 'error');
+					}
+				}, null, { title: 'Unlink Provider', confirmText: 'Unlink' });
 			}
 
 			async function deleteAllMiis() {

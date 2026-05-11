@@ -31,7 +31,7 @@
                 <form id="signupForm" class="auth-form">
                     <fieldset class="auth-fieldset">
                         <legend>Sign Up</legend>
-                        <div id="errorMessage" class="form-message" style="display: none;"></div>
+                        <div id="errorMessage" class="form-message <%= oauthStatus?.type || '' %>" style="display: <%= oauthStatus ? 'block' : 'none' %>;"><%= oauthStatus?.message || '' %></div>
 
                         <label class="sr-only" for="username">Username</label>
                         <input placeholder="Username" required name="username" type="text" id="username" autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_.-]{3,20}">
@@ -45,6 +45,7 @@
 
                         <input type="submit" value="Create Account">
                         <p class="auth-links">Already have an account? <a href="/login">Log In</a></p>
+                        <%- include('oauthButtons', { mode: 'signup', next: '/', heading: 'Sign up with' }) %>
                         <p class="auth-note">It can take up to 10 minutes for the verification email to arrive, especially with Gmail.</p>
                     </fieldset>
                 </form>

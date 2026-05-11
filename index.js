@@ -54,6 +54,14 @@ import {
     getMiiDescriptionValidationError,
     normalizeMiiDescription
 } from "./miiDescriptionValidation.js";
+import {
+    buildOAuthAuthorizationUrl,
+    exchangeOAuthCodeForProfile,
+    getEnabledOAuthProviderSummaries,
+    getOAuthProvider,
+    getOAuthRedirectUri,
+    normalizeOAuthEmail
+} from "./oauthProviders.js";
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 fs.mkdirSync(path.join(__dirname, "static", "miiImgs"), { recursive: true });
@@ -76,9 +84,17 @@ const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
 const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
 const baseUrl = process.env.baseUrl;
+const OAUTH_STATE_COOKIE = "oauth_state";
+const OAUTH_PKCE_COOKIE = "oauth_pkce";
+const OAUTH_DEFAULT_NEXT = "/";
+const OAUTH_AUTO_CREATE_ACCOUNTS = process.env.OAUTH_AUTO_CREATE_ACCOUNTS !== "false";
+const OAUTH_AUTO_LINK_EMAIL = process.env.OAUTH_AUTO_LINK_EMAIL === "true";
 const PAYPAL_DONATE_URL = "https://www.paypal.com/donate?business=kestron@kestron.com&no_recurring=0&item_name=Stewared&item_number=InfiniMii";
 const AVERAGE_MII_REFRESH_WINDOW_MS = ms("10m");
 const UPLOAD_WEBHOOK_IMAGE_READY_TIMEOUT_MS = ms("10s");
+const UNVERIFIED_ACCOUNT_TTL_MS = ms("7d");
+const UNVERIFIED_ACCOUNT_CLEANUP_INTERVAL_MS = ms("1h");
+const UPLOAD_VERIFICATION_REQUIRED_MESSAGE = "Verify your email before uploading. OAuth sign-in also counts as account verification.";
 const TRENDING_TIME_DECAY_EXPONENT = 1.25;
 const MII_RENDER_IMAGE_WIDTH = 512;
 const MII_RENDER_IMAGE_HEIGHT = 512;
@@ -2325,6 +2341,37 @@ async function getUserByUsername(username, lean=true) {
     return await userPromise;
 }
 
+function normalizeAccountEmail(email) {
+    return normalizeOAuthEmail(email);
+}
+
+function getOwnedEmailQuery(email) {
+    const normalizedEmail = normalizeAccountEmail(email);
+    if (!normalizedEmail) return null;
+    return {
+        $or: [
+            { email: normalizedEmail },
+            { pendingEmail: normalizedEmail },
+            { "oauthIdentities.email": normalizedEmail }
+        ]
+    };
+}
+
+async function findUserByOwnedEmail(email, {
+    excludeUserId = null,
+    lean = true
+} = {}) {
+    const query = getOwnedEmailQuery(email);
+    if (!query) return null;
+    if (excludeUserId) {
+        query._id = { $ne: excludeUserId };
+    }
+
+    let userQuery = Users.findOne(query);
+    if (lean) userQuery = userQuery.lean();
+    return await userQuery;
+}
+
 async function countUsersWhoVotedForMii(miiId) {
     const normalizedMiiId = String(miiId || "").trim();
     if (!normalizedMiiId) return 0;
@@ -2636,6 +2683,8 @@ async function getSendables(req, title, user) {
         nextUrl: undefined,
         discordInvite: process.env.discordInvite,
         githubLink: process.env.githubLink,
+        oauthProviders: getEnabledOAuthProviderSummaries(),
+        oauthStatus: getOAuthStatusMessage(req.query),
         paypalDonateUrl: PAYPAL_DONATE_URL,
         assetVersion: GLOBAL_ASSET_VERSION,
         baseUrl: resolvedBaseUrl,
@@ -2837,6 +2886,610 @@ function createToken(user) {
     return jwt.sign(payload, process.env.JWT_SECRET || "beta_testing_only_secret", { 
         expiresIn: '30d',
         algorithm: 'HS256'
+    });
+}
+
+function getJwtSecret() {
+    return process.env.JWT_SECRET || "beta_testing_only_secret";
+}
+
+function setAuthCookies(res, user) {
+    const token = createToken(user);
+
+    res.cookie('token', token, {
+        maxAge: ms("30 days"),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+    });
+    res.cookie('username', user.username, {
+        maxAge: ms("30 days"),
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+    });
+}
+
+function hasPasswordLogin(user) {
+    return Boolean(user?.salt && user?.pass);
+}
+
+function getOAuthProviderDisplayName(providerKey) {
+    const matchingProvider = getEnabledOAuthProviderSummaries()
+        .find(provider => provider.key === providerKey);
+    if (matchingProvider?.displayName) return matchingProvider.displayName;
+
+    return String(providerKey || "OAuth")
+        .split(/[-_]+/g)
+        .filter(Boolean)
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ") || "OAuth";
+}
+
+function getOAuthStatusMessage(query = {}) {
+    const providerName = getOAuthProviderDisplayName(query.provider);
+    const errorMessages = {
+        unavailable: `${providerName} sign-in is not configured yet.`,
+        provider_error: `${providerName} could not finish sign-in. Please try again.`,
+        missing_code: `${providerName} did not return an authorization code.`,
+        state_expired: "That sign-in attempt expired. Please try again.",
+        state_mismatch: "That sign-in attempt could not be verified. Please try again.",
+        link_requires_login: "Log in first, then link that provider from Settings.",
+        linked_elsewhere: `That ${providerName} account is already linked to another InfiniMii account.`,
+        already_linked: `${providerName} is already linked to your account.`,
+        provider_already_linked: `Your account already has a linked ${providerName} login.`,
+        email_conflict: `That email is already tied to an InfiniMii account. Log in to that account and link ${providerName} from Settings; two separate accounts cannot use the same email.`,
+        email_required: `${providerName} did not provide an email address, so it can only be linked to an existing account from Settings.`,
+        account_unverified: "Check your email to verify your InfiniMii account before logging in.",
+        auto_create_disabled: "OAuth signup is not enabled for new accounts yet.",
+        unlink_last_method: "Add a password or link another provider before unlinking that sign-in method.",
+        server_error: "OAuth sign-in failed. Please try again in a moment."
+    };
+    const successMessages = {
+        linked: `${providerName} is now linked to your account.`,
+        unlinked: `${providerName} has been unlinked from your account.`,
+        logged_in: `Logged in with ${providerName}.`,
+        account_created: `Your InfiniMii account was created with ${providerName}.`,
+        password_set: "Password login has been added to your account."
+    };
+
+    if (query.oauthError) {
+        return {
+            type: "error",
+            message: errorMessages[query.oauthError] || errorMessages.server_error
+        };
+    }
+
+    if (query.oauthMessage) {
+        return {
+            type: "success",
+            message: successMessages[query.oauthMessage] || successMessages.logged_in
+        };
+    }
+
+    return null;
+}
+
+function appendQueryToPath(path, params = {}) {
+    const safePath = getSafeRedirectPath(path, OAUTH_DEFAULT_NEXT);
+    const url = new URL(safePath, "https://infinimii.local");
+
+    for (const [key, value] of Object.entries(params)) {
+        if (typeof value === "undefined" || value === null || value === "") continue;
+        url.searchParams.set(key, String(value));
+    }
+
+    return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function redirectWithOAuthStatus(res, path, params = {}) {
+    return res.redirect(appendQueryToPath(path, params));
+}
+
+function base64UrlBuffer(buffer) {
+    return Buffer.from(buffer)
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "");
+}
+
+function createOAuthPkcePair() {
+    const verifier = base64UrlBuffer(crypto.randomBytes(32));
+    const challenge = base64UrlBuffer(crypto.createHash("sha256").update(verifier).digest());
+    return { verifier, challenge };
+}
+
+function normalizeOAuthIntent(value, req) {
+    const intent = String(value || "").trim().toLowerCase();
+    if (["login", "signup", "link"].includes(intent)) return intent;
+    return req.user ? "link" : "login";
+}
+
+function createOAuthState({ providerKey, intent, next }) {
+    const nonce = crypto.randomBytes(24).toString("hex");
+    const state = jwt.sign({
+        nonce,
+        provider: providerKey,
+        intent,
+        next: getSafeRedirectPath(next, OAUTH_DEFAULT_NEXT)
+    }, getJwtSecret(), {
+        expiresIn: "10m",
+        algorithm: "HS256"
+    });
+
+    return { nonce, state };
+}
+
+function readOAuthState(req, expectedProviderKey) {
+    const stateToken = String(req.body?.state || req.query?.state || "");
+    if (!stateToken) {
+        return { error: "state_expired" };
+    }
+
+    let payload;
+    try {
+        payload = jwt.verify(stateToken, getJwtSecret(), { algorithms: ["HS256"] });
+    } catch {
+        return { error: "state_expired" };
+    }
+
+    if (!payload?.nonce || payload.nonce !== req.cookies[OAUTH_STATE_COOKIE]) {
+        return { error: "state_mismatch" };
+    }
+
+    if (payload.provider !== expectedProviderKey) {
+        return { error: "state_mismatch" };
+    }
+
+    return {
+        payload: {
+            provider: payload.provider,
+            intent: normalizeOAuthIntent(payload.intent, req),
+            next: getSafeRedirectPath(payload.next, OAUTH_DEFAULT_NEXT)
+        }
+    };
+}
+
+function clearOAuthStateCookie(res) {
+    res.clearCookie(OAUTH_STATE_COOKIE);
+}
+
+function clearOAuthPkceCookie(res) {
+    res.clearCookie(OAUTH_PKCE_COOKIE);
+}
+
+function sendOAuthFragmentCallback(res) {
+    res.type("html").send(`<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Finishing sign-in - InfiniMii</title>
+</head>
+<body>
+    <p>Finishing sign-in...</p>
+    <script>
+        const params = new URLSearchParams(window.location.hash.slice(1));
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = window.location.pathname + window.location.search;
+        for (const key of ['access_token', 'token_type', 'state', 'error']) {
+            const value = params.get(key);
+            if (!value) continue;
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = value;
+            form.appendChild(input);
+        }
+        document.body.appendChild(form);
+        form.submit();
+    </script>
+    <noscript>JavaScript is required to finish this sign-in.</noscript>
+</body>
+</html>`);
+}
+
+function getOAuthIdentityRecord(providerKey, profile, linkedAt = Date.now()) {
+    return {
+        provider: providerKey,
+        providerUserId: profile.providerUserId,
+        email: normalizeAccountEmail(profile.email) || "",
+        emailVerified: Boolean(profile.emailVerified),
+        displayName: profile.displayName || "",
+        username: profile.username || "",
+        avatarUrl: profile.avatarUrl || "",
+        linkedAt,
+        lastLoginAt: Date.now()
+    };
+}
+
+async function getUserByOAuthIdentity(providerKey, providerUserId) {
+    if (!providerKey || !providerUserId) return null;
+    return await Users.findOne({
+        oauthIdentities: {
+            $elemMatch: {
+                provider: providerKey,
+                providerUserId: String(providerUserId)
+            }
+        }
+    }).lean();
+}
+
+function userHasOAuthProvider(user, providerKey) {
+    return Array.isArray(user?.oauthIdentities) &&
+        user.oauthIdentities.some(identity => identity.provider === providerKey);
+}
+
+function hasOAuthLogin(user) {
+    return Array.isArray(user?.oauthIdentities) && user.oauthIdentities.length > 0;
+}
+
+function isAccountVerifiedForUploads(user) {
+    return Boolean(user?.verified || hasOAuthLogin(user));
+}
+
+function userHasOAuthIdentity(user, providerKey, providerUserId) {
+    return Array.isArray(user?.oauthIdentities) &&
+        user.oauthIdentities.some(identity =>
+            identity.provider === providerKey &&
+            identity.providerUserId === String(providerUserId)
+        );
+}
+
+function getOAuthLoginMethodCount(user) {
+    return (hasPasswordLogin(user) ? 1 : 0) + (Array.isArray(user?.oauthIdentities) ? user.oauthIdentities.length : 0);
+}
+
+function sanitizeOAuthUsernameSeed(value) {
+    return String(value || "")
+        .trim()
+        .replace(/@.*$/g, "")
+        .replace(/[^A-Za-z0-9_.-]+/g, "-")
+        .replace(/[-_.]{2,}/g, "-")
+        .replace(/^[-_.]+|[-_.]+$/g, "")
+        .slice(0, 20);
+}
+
+async function isUsernameAvailableForOAuth(username) {
+    if (!isValidUsername(username)) return false;
+    if (isBad(username)) return false;
+    const [existingUser, reservedUsername] = await Promise.all([
+        getUserByUsername(username),
+        ReservedUsername.findOne({ username }).lean()
+    ]);
+    return !existingUser && !reservedUsername;
+}
+
+async function generateOAuthUsername(provider, profile) {
+    const seedValues = [
+        profile.username,
+        profile.displayName,
+        profile.email,
+        `${provider.key}-${profile.providerUserId}`
+    ];
+
+    for (const seedValue of seedValues) {
+        const baseSeed = sanitizeOAuthUsernameSeed(seedValue);
+        if (!baseSeed) continue;
+        const base = baseSeed.length >= 3 ? baseSeed : `${provider.key}${baseSeed}`;
+
+        for (let attempt = 0; attempt < 25; attempt++) {
+            const suffix = attempt === 0 ? "" : String(crypto.randomInt(10, 9999));
+            const candidate = `${base.slice(0, 20 - suffix.length)}${suffix}`;
+            if (await isUsernameAvailableForOAuth(candidate)) {
+                return candidate;
+            }
+        }
+    }
+
+    for (let attempt = 0; attempt < 25; attempt++) {
+        const candidate = sanitizeOAuthUsernameSeed(`user-${crypto.randomBytes(5).toString("hex")}`);
+        if (await isUsernameAvailableForOAuth(candidate)) {
+            return candidate;
+        }
+    }
+
+    throw new Error("Could not allocate a username for OAuth signup.");
+}
+
+function getOAuthIdentityEmailSet(user) {
+    const emails = new Set();
+    if (!Array.isArray(user?.oauthIdentities)) {
+        return emails;
+    }
+
+    for (const identity of user.oauthIdentities) {
+        const email = normalizeAccountEmail(identity?.email);
+        if (email) emails.add(email);
+    }
+    return emails;
+}
+
+function shouldClearPrimaryEmailForUnverifiedOAuth(user, profile) {
+    if (profile?.emailVerified) return false;
+
+    const currentEmail = normalizeAccountEmail(user?.email);
+    if (!currentEmail) return false;
+
+    return !getOAuthIdentityEmailSet(user).has(currentEmail);
+}
+
+function buildOAuthAccountTrustUpdate(user, profile, {
+    canStorePrimaryEmail = true
+} = {}) {
+    const normalizedProfileEmail = normalizeAccountEmail(profile?.email);
+    const normalizedCurrentEmail = normalizeAccountEmail(user?.email);
+    const shouldClearPrimaryEmail = shouldClearPrimaryEmailForUnverifiedOAuth(user, profile);
+
+    const $set = { verified: true };
+    const $unset = { verificationToken: "" };
+
+    if (shouldClearPrimaryEmail) {
+        $unset.email = "";
+        $unset.pendingEmail = "";
+        $unset.pendingEmailToken = "";
+        $unset.pendingEmailExpires = "";
+    } else {
+        if (canStorePrimaryEmail && normalizedProfileEmail && !normalizedCurrentEmail) {
+            $set.email = normalizedProfileEmail;
+        }
+
+        if (!profile?.emailVerified) {
+            $unset.pendingEmail = "";
+            $unset.pendingEmailToken = "";
+            $unset.pendingEmailExpires = "";
+        }
+    }
+
+    return { $set, $unset };
+}
+
+async function applyOAuthAccountTrust(user, profile) {
+    if (!user) {
+        return user;
+    }
+
+    const normalizedProfileEmail = normalizeAccountEmail(profile?.email);
+    const normalizedCurrentEmail = normalizeAccountEmail(user.email);
+    let canStorePrimaryEmail = Boolean(normalizedProfileEmail && !normalizedCurrentEmail);
+
+    if (canStorePrimaryEmail) {
+        const existingOwner = await findUserByOwnedEmail(normalizedProfileEmail, {
+            excludeUserId: user._id
+        });
+        canStorePrimaryEmail = !existingOwner;
+    }
+
+    await Users.updateOne(
+        { _id: user._id },
+        buildOAuthAccountTrustUpdate(user, profile, { canStorePrimaryEmail })
+    );
+
+    return await getUserByUsername(user.username);
+}
+
+async function linkOAuthProfileToUser(user, provider, profile) {
+    const providerKey = provider.key;
+    const providerName = provider.displayName;
+
+    if (userHasOAuthIdentity(user, providerKey, profile.providerUserId)) {
+        return { user, status: "already_linked" };
+    }
+
+    if (userHasOAuthProvider(user, providerKey)) {
+        return { error: "provider_already_linked" };
+    }
+
+    const existingLinkedUser = await getUserByOAuthIdentity(providerKey, profile.providerUserId);
+    if (existingLinkedUser && String(existingLinkedUser._id) !== String(user._id)) {
+        return { error: "linked_elsewhere" };
+    }
+
+    if (profile.email) {
+        const emailOwner = await findUserByOwnedEmail(profile.email, {
+            excludeUserId: user._id
+        });
+        if (emailOwner) {
+            return { error: "email_conflict" };
+        }
+    }
+
+    const identity = getOAuthIdentityRecord(providerKey, profile);
+    const trustUpdate = buildOAuthAccountTrustUpdate(user, profile);
+    await Users.updateOne(
+        { _id: user._id },
+        {
+            $push: { oauthIdentities: identity },
+            ...trustUpdate
+        }
+    );
+
+    const updatedUser = await getUserByUsername(user.username);
+    if (updatedUser?.email) {
+        sendEmail(
+            updatedUser.email,
+            `${providerName} Linked - InfiniMii`,
+            `Hi ${updatedUser.username}, ${providerName} was linked to your InfiniMii account. If this was not you, please reply to this email for support.`
+        );
+    }
+
+    return {
+        user: updatedUser,
+        status: "linked"
+    };
+}
+
+async function markOAuthIdentityLogin(user, provider, profile) {
+    await Users.updateOne(
+        {
+            _id: user._id,
+            "oauthIdentities.provider": provider.key,
+            "oauthIdentities.providerUserId": profile.providerUserId
+        },
+        {
+            $set: {
+                "oauthIdentities.$.email": normalizeAccountEmail(profile.email) || "",
+                "oauthIdentities.$.emailVerified": Boolean(profile.emailVerified),
+                "oauthIdentities.$.displayName": profile.displayName || "",
+                "oauthIdentities.$.username": profile.username || "",
+                "oauthIdentities.$.avatarUrl": profile.avatarUrl || "",
+                "oauthIdentities.$.lastLoginAt": Date.now()
+            }
+        }
+    );
+}
+
+async function createOAuthUser(req, provider, profile) {
+    if (!OAUTH_AUTO_CREATE_ACCOUNTS) {
+        return { error: "auto_create_disabled" };
+    }
+
+    const normalizedProfileEmail = normalizeAccountEmail(profile.email);
+    if (!normalizedProfileEmail) {
+        return { error: "email_required" };
+    }
+
+    const existingEmailUser = await findUserByOwnedEmail(normalizedProfileEmail);
+    if (existingEmailUser) {
+        return { error: "email_conflict" };
+    }
+
+    const clientIPs = [req.headers['x-forwarded-for'], req.socket.remoteAddress]
+        .filter(Boolean)
+        .map(ip => sha256(ip));
+    const settings = await getSettings();
+    if (settings.bannedIPs.some(ip => clientIPs.includes(ip))) {
+        return { error: "server_error" };
+    }
+
+    const username = await generateOAuthUsername(provider, profile);
+    const securitySalt = crypto.randomBytes(16).toString("hex");
+
+    await Users.create({
+        username,
+        salt: securitySalt,
+        pass: "",
+        verificationToken: "",
+        creationDate: Date.now(),
+        email: normalizedProfileEmail,
+        miiPfp: getDefaultUserPfpMiiId(settings),
+        pfpSet: false,
+        roles: [ROLES.BASIC],
+        verified: true,
+        oauthIdentities: [getOAuthIdentityRecord(provider.key, { ...profile, email: normalizedProfileEmail })]
+    });
+
+    const createdUser = await getUserByUsername(username);
+    setRequestLogContext(req, { username });
+
+    return {
+        user: createdUser,
+        status: "account_created"
+    };
+}
+
+async function finishOAuthCallback(req, res, provider, profile, statePayload) {
+    const next = getSafeRedirectPath(statePayload.next, OAUTH_DEFAULT_NEXT);
+
+    if (statePayload.intent === "link") {
+        if (!req.user) {
+            return redirectWithOAuthStatus(res, "/login", {
+                oauthError: "link_requires_login",
+                provider: provider.key
+            });
+        }
+
+        const linkResult = await linkOAuthProfileToUser(req.user, provider, profile);
+        if (linkResult.error) {
+            return redirectWithOAuthStatus(res, "/settings", {
+                oauthError: linkResult.error,
+                provider: provider.key
+            });
+        }
+
+        return redirectWithOAuthStatus(res, "/settings", {
+            oauthMessage: linkResult.status,
+            provider: provider.key
+        });
+    }
+
+    let linkedUser = await getUserByOAuthIdentity(provider.key, profile.providerUserId);
+
+    if (!linkedUser && profile.email && OAUTH_AUTO_LINK_EMAIL && profile.emailVerified) {
+        const emailUser = await findUserByOwnedEmail(profile.email);
+        if (emailUser) {
+            const linkResult = await linkOAuthProfileToUser(emailUser, provider, profile);
+            if (linkResult.error) {
+                return redirectWithOAuthStatus(res, "/login", {
+                    oauthError: linkResult.error,
+                    provider: provider.key
+                });
+            }
+            linkedUser = linkResult.user;
+        }
+    }
+
+    if (linkedUser && profile.email) {
+        const emailOwner = await findUserByOwnedEmail(profile.email, {
+            excludeUserId: linkedUser._id
+        });
+        if (emailOwner) {
+            return redirectWithOAuthStatus(res, "/login", {
+                oauthError: "email_conflict",
+                provider: provider.key
+            });
+        }
+    }
+
+    if (!linkedUser && profile.email) {
+        const emailUser = await findUserByOwnedEmail(profile.email);
+        if (emailUser) {
+            return redirectWithOAuthStatus(res, "/login", {
+                oauthError: "email_conflict",
+                provider: provider.key
+            });
+        }
+    }
+
+    let authUser = linkedUser;
+    let status = "logged_in";
+
+    if (!authUser) {
+        const createResult = await createOAuthUser(req, provider, profile);
+        if (createResult.error) {
+            return redirectWithOAuthStatus(res, statePayload.intent === "signup" ? "/signup" : "/login", {
+                oauthError: createResult.error,
+                provider: provider.key
+            });
+        }
+
+        authUser = createResult.user;
+        status = createResult.status;
+    } else {
+        await markOAuthIdentityLogin(authUser, provider, profile);
+        authUser = await getUserByUsername(authUser.username);
+        authUser = await applyOAuthAccountTrust(authUser, profile);
+    }
+
+    if (!isAccountVerifiedForUploads(authUser)) {
+        return redirectWithOAuthStatus(res, "/login", {
+            oauthError: "account_unverified",
+            provider: provider.key
+        });
+    }
+
+    if (await isBanned(authUser)) {
+        return redirectWithOAuthStatus(res, "/login", {
+            oauthError: "server_error",
+            provider: provider.key
+        });
+    }
+
+    setRequestLogContext(req, { username: authUser.username });
+    setAuthCookies(res, authUser);
+    return redirectWithOAuthStatus(res, next, {
+        oauthMessage: status,
+        provider: provider.key
     });
 }
 
@@ -3585,6 +4238,142 @@ async function ensureOfficialCompanySourceAccount(sourceName, settings = null) {
         if (e?.code !== 11000) {
             throw e;
         }
+    }
+}
+
+async function ensureDeletedUserAccount(settings = null) {
+    const deletedUsername = "[Deleted User]";
+    const existingUser = await getUserByUsername(deletedUsername);
+    if (existingUser) {
+        if (!existingUser.verified) {
+            await Users.updateOne(
+                { username: deletedUsername },
+                { $set: { verified: true } }
+            );
+        }
+        return existingUser;
+    }
+
+    const resolvedSettings = settings || await getSettings();
+    await Users.create({
+        username: deletedUsername,
+        salt: "",
+        pass: "",
+        creationDate: Date.now(),
+        email: "",
+        votedFor: [],
+        miiPfp: getDefaultUserPfpMiiId(resolvedSettings),
+        pfpSet: false,
+        roles: [ROLES.BASIC],
+        verified: true
+    });
+
+    return await getUserByUsername(deletedUsername);
+}
+
+async function transferUserMiisToDeletedUser(username, settings = null) {
+    await ensureDeletedUserAccount(settings);
+    return await Miis.updateMany(
+        { uploader: username },
+        { uploader: "[Deleted User]" }
+    );
+}
+
+async function deleteExpiredUnverifiedAccount(user, settings = null) {
+    const username = String(user?.username || "").trim();
+    if (!username || username === "[Deleted User]" || user.verified || hasOAuthLogin(user)) {
+        return false;
+    }
+
+    const transferResult = await transferUserMiisToDeletedUser(username, settings);
+    const deleteResult = await Users.deleteOne({
+        _id: user._id,
+        verified: { $ne: true }
+    });
+
+    if (!deleteResult.deletedCount) {
+        return false;
+    }
+
+    makeReport(JSON.stringify({
+        embeds: [{
+            type: "rich",
+            title: "Unverified Account Deleted",
+            description: `User ${username} was deleted after not verifying their email within 7 days.`,
+            color: 0xFF9900,
+            fields: [
+                {
+                    name: "Username",
+                    value: username,
+                    inline: true
+                },
+                {
+                    name: "Miis Transferred",
+                    value: String(transferResult.modifiedCount || 0),
+                    inline: true
+                }
+            ]
+        }]
+    }));
+
+    const userEmail = normalizeAccountEmail(user.email);
+    if (userEmail) {
+        sendEmail(
+            userEmail,
+            "InfiniMii Account Deleted",
+            `Hi ${username}, your InfiniMii account was deleted because the email address was not verified within 7 days.`
+        ).catch((error) => {
+            console.error(`Failed to send unverified account deletion email for ${username}:`, error);
+        });
+    }
+
+    return true;
+}
+
+async function cleanupExpiredUnverifiedAccounts() {
+    const cutoff = Date.now() - UNVERIFIED_ACCOUNT_TTL_MS;
+    const staleUsers = await Users.find({
+        username: { $ne: "[Deleted User]" },
+        verified: { $ne: true },
+        creationDate: { $lte: cutoff },
+        $or: [
+            { oauthIdentities: { $exists: false } },
+            { oauthIdentities: { $size: 0 } }
+        ]
+    }).lean();
+
+    if (!staleUsers.length) {
+        return 0;
+    }
+
+    const settings = await getSettings();
+    let deletedCount = 0;
+    for (const user of staleUsers) {
+        try {
+            if (await deleteExpiredUnverifiedAccount(user, settings)) {
+                deletedCount++;
+            }
+        } catch (error) {
+            console.error(`Failed to delete expired unverified account ${user?.username || ""}:`, error);
+        }
+    }
+
+    if (deletedCount) {
+        console.log(`[accounts] Deleted ${deletedCount} expired unverified account${deletedCount === 1 ? "" : "s"}.`);
+    }
+
+    return deletedCount;
+}
+
+function startUnverifiedAccountCleanupTimer() {
+    const timer = setInterval(() => {
+        cleanupExpiredUnverifiedAccounts().catch((error) => {
+            console.error("[accounts] Failed to clean up expired unverified accounts:", error);
+        });
+    }, UNVERIFIED_ACCOUNT_CLEANUP_INTERVAL_MS);
+
+    if (typeof timer.unref === "function") {
+        timer.unref();
     }
 }
 
@@ -5185,6 +5974,11 @@ function buildContactFollowUpEmail({
 }
 
 async function sendEmail(to, subj, cont, extraMailOptions = {}) {
+    const normalizedTo = normalizeAccountEmail(to);
+    if (!normalizedTo) {
+        return "Email skipped";
+    }
+
     const mailOptions = {};
 
     if (extraMailOptions && typeof extraMailOptions === "object" && !Array.isArray(extraMailOptions)) {
@@ -5206,7 +6000,7 @@ async function sendEmail(to, subj, cont, extraMailOptions = {}) {
             }
         }).sendMail({
             from: process.env.email,
-            to: to,
+            to: normalizedTo,
             subject: subj,
             html: cont,
             ...mailOptions
@@ -6813,6 +7607,19 @@ async function requireAuth(req, res, next) {
     }
     next();
 }
+
+async function requireVerifiedUploadAccount(req, res, next) {
+    if (isAccountVerifiedForUploads(req.user)) {
+        return next();
+    }
+
+    if (req.method === "GET") {
+        return await sendError(res, req, UPLOAD_VERIFICATION_REQUIRED_MESSAGE, 403);
+    }
+
+    return res.status(403).json({ error: UPLOAD_VERIFICATION_REQUIRED_MESSAGE });
+}
+
 function requireRole(roles) {
     // Returns middleware when called
     if (!Array.isArray(roles)) {
@@ -6870,6 +7677,13 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
             await ensureOfficialMiiSeedLikes();
             await backfillMissingUserPfpSetFlags();
+            await ensureDeletedUserAccount(settings);
+            try {
+                await cleanupExpiredUnverifiedAccounts();
+            } catch (error) {
+                console.error("[accounts] Failed to clean up expired unverified accounts during startup:", error);
+            }
+            startUnverifiedAccountCleanupTimer();
             setTimeout(() => {
                 backfillMiiIdentityHashes().catch((error) => {
                     console.error("[miiHash] Failed to backfill Mii identity hashes:", error);
@@ -7482,7 +8296,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
             return;
         }
 
-        if (!user.verified) {
+        if (!isAccountVerifiedForUploads(user)) {
             cleanupUpload();
             await renderLegacyUploadPage(req, res, {
                 error: "This account must be verified before uploading.",
@@ -7675,7 +8489,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
     }
 });
 
-site.get('/upload', requireAuth, async (req, res) => {
+site.get('/upload', requireAuth, requireVerifiedUploadAccount, async (req, res) => {
     let toSend = await getSendables(req);
     toSend.fromAmiibo = null;
     // Check if coming from Amiibo extraction
@@ -7781,6 +8595,17 @@ site.get('/verifyEmailChange', async (req, res) => {
     // Verify token
     if (validatePassword(req.query.token, user.salt, user.pendingEmailToken)) {
         const oldEmail = user.email;
+        const normalizedPendingEmail = normalizeAccountEmail(user.pendingEmail);
+        if (!normalizedPendingEmail) {
+            return await sendError(res, req, "Pending email is invalid. Please request a new email change.", 400);
+        }
+
+        const existingEmailOwner = await findUserByOwnedEmail(normalizedPendingEmail, {
+            excludeUserId: user._id
+        });
+        if (existingEmailOwner) {
+            return await sendError(res, req, "That email is already tied to another InfiniMii account.", 400);
+        }
         
         // Increment token version to invalidate old JWTs (security - email is in JWT payload)
         const newTokenVersion = (user.tokenVersion || 0) + 1;
@@ -7790,7 +8615,7 @@ site.get('/verifyEmailChange', async (req, res) => {
             { username: req.query.user },
             { 
                 $set: { 
-                    email: user.pendingEmail,
+                    email: normalizedPendingEmail,
                     tokenVersion: newTokenVersion
                 },
                 $unset: { 
@@ -9300,6 +10125,10 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
             res.json({error: "Please log in to upload Miis"});
             return;
         }
+        if (!isAccountVerifiedForUploads(req.user)) {
+            res.status(403).json({ error: UPLOAD_VERIFICATION_REQUIRED_MESSAGE });
+            return;
+        }
         const tempMiiId = req.body.miiId;
         
         // Check private Mii limit
@@ -9978,6 +10807,168 @@ site.get('/login', async (req, res) => {
             return;
         }
         res.send(str);
+    });
+});
+
+site.get('/auth/:provider', async (req, res) => {
+    const providerKey = String(req.params.provider || "").trim().toLowerCase();
+    const intent = normalizeOAuthIntent(req.query.intent || req.query.mode, req);
+    const errorTarget = intent === "link" ? "/settings" : "/login";
+    const provider = await getOAuthProvider(providerKey);
+
+    if (!provider) {
+        return redirectWithOAuthStatus(res, errorTarget, {
+            oauthError: "unavailable",
+            provider: providerKey
+        });
+    }
+
+    if (intent === "link" && !req.user) {
+        return redirectWithOAuthStatus(res, "/login", {
+            oauthError: "link_requires_login",
+            provider: provider.key
+        });
+    }
+
+    const next = getSafeRedirectPath(req.query.next, intent === "link" ? "/settings" : OAUTH_DEFAULT_NEXT);
+    const { nonce, state } = createOAuthState({
+        providerKey: provider.key,
+        intent,
+        next
+    });
+    const pkce = provider.pkce ? createOAuthPkcePair() : null;
+    const redirectUri = getOAuthRedirectUri(provider, getResolvedBaseUrlFromRequest(req));
+
+    res.cookie(OAUTH_STATE_COOKIE, nonce, {
+        maxAge: ms("10m"),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+    });
+    if (pkce) {
+        res.cookie(OAUTH_PKCE_COOKIE, pkce.verifier, {
+            maxAge: ms("10m"),
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+        });
+    } else {
+        clearOAuthPkceCookie(res);
+    }
+
+    res.redirect(buildOAuthAuthorizationUrl(provider, {
+        redirectUri,
+        state,
+        codeChallenge: pkce?.challenge
+    }));
+});
+
+async function handleOAuthCallback(req, res) {
+    const providerKey = String(req.params.provider || "").trim().toLowerCase();
+    const provider = await getOAuthProvider(providerKey);
+
+    if (!provider) {
+        return redirectWithOAuthStatus(res, "/login", {
+            oauthError: "unavailable",
+            provider: providerKey
+        });
+    }
+
+    const hasCallbackPayload = Boolean(
+        req.body?.state ||
+        req.query?.state ||
+        req.body?.code ||
+        req.query?.code ||
+        req.body?.access_token ||
+        req.query?.access_token ||
+        req.body?.error ||
+        req.query?.error
+    );
+    if (provider.tokenResponseMode === "fragment" && req.method === "GET" && !hasCallbackPayload) {
+        return sendOAuthFragmentCallback(res);
+    }
+
+    const stateResult = readOAuthState(req, providerKey);
+    clearOAuthStateCookie(res);
+    clearOAuthPkceCookie(res);
+
+    const fallbackTarget = stateResult.payload?.intent === "link" ? "/settings" : "/login";
+
+    if (stateResult.error) {
+        return redirectWithOAuthStatus(res, "/login", {
+            oauthError: stateResult.error,
+            provider: provider.key
+        });
+    }
+
+    const providerError = String(req.body?.error || req.query?.error || "");
+    if (providerError) {
+        return redirectWithOAuthStatus(res, fallbackTarget, {
+            oauthError: "provider_error",
+            provider: provider.key
+        });
+    }
+
+    const code = String(req.body?.code || req.query?.code || "");
+    const accessToken = String(req.body?.access_token || req.query?.access_token || "");
+    if (!code && !accessToken) {
+        return redirectWithOAuthStatus(res, fallbackTarget, {
+            oauthError: "missing_code",
+            provider: provider.key
+        });
+    }
+
+    try {
+        const redirectUri = getOAuthRedirectUri(provider, getResolvedBaseUrlFromRequest(req));
+        const { profile } = await exchangeOAuthCodeForProfile(provider, {
+            accessToken,
+            code,
+            redirectUri,
+            codeVerifier: provider.pkce ? String(req.cookies[OAUTH_PKCE_COOKIE] || "") : ""
+        });
+
+        return await finishOAuthCallback(req, res, provider, profile, stateResult.payload);
+    } catch (error) {
+        console.error(`[oauth] ${provider.key} callback failed:`, error);
+        return redirectWithOAuthStatus(res, fallbackTarget, {
+            oauthError: "server_error",
+            provider: provider.key
+        });
+    }
+}
+
+site.get('/auth/:provider/callback', handleOAuthCallback);
+site.post('/auth/:provider/callback', handleOAuthCallback);
+
+site.post('/auth/:provider/unlink', requireAuth, async (req, res) => {
+    const providerKey = String(req.params.provider || "").trim().toLowerCase();
+    const linkedIdentities = Array.isArray(req.user.oauthIdentities) ? req.user.oauthIdentities : [];
+
+    if (!linkedIdentities.some(identity => identity.provider === providerKey)) {
+        return res.json({ error: "That provider is not linked to your account." });
+    }
+
+    if (getOAuthLoginMethodCount(req.user) <= 1) {
+        return res.json({ error: "Add a password or link another provider before unlinking your only sign-in method." });
+    }
+
+    await Users.updateOne(
+        { _id: req.user._id },
+        { $pull: { oauthIdentities: { provider: providerKey } } }
+    );
+
+    const providerName = getOAuthProviderDisplayName(providerKey);
+    if (req.user.email) {
+        sendEmail(
+            req.user.email,
+            `${providerName} Unlinked - InfiniMii`,
+            `Hi ${req.user.username}, ${providerName} was unlinked from your InfiniMii account. If this was not you, please reply to this email for support.`
+        );
+    }
+
+    res.json({
+        okay: true,
+        message: `${providerName} has been unlinked.`
     });
 });
 
@@ -10689,16 +11680,22 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
         const { newEmail } = req.body;
         const oldEmail = req.user.email;
         const currentUsername = req.user.username;
+        const normalizedNewEmail = normalizeAccountEmail(newEmail);
 
-        // Basic email validation
-        // TODO: real email validation with library
-        if (!newEmail || !newEmail.includes('@') || !newEmail.includes('.')) {
+        if (!normalizedNewEmail) {
             return res.json({ error: 'Invalid email format' });
         }
 
         // Check if new email is same as current
-        if (req.user.email === newEmail) {
+        if (normalizeAccountEmail(req.user.email) === normalizedNewEmail) {
             return res.json({ error: 'New email is the same as current email' });
+        }
+
+        const existingEmailOwner = await findUserByOwnedEmail(normalizedNewEmail, {
+            excludeUserId: req.user._id
+        });
+        if (existingEmailOwner) {
+            return res.json({ error: 'Email already in use' });
         }
 
         var token = genToken();
@@ -10710,7 +11707,7 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
             { username: currentUsername },
             { 
                 $set: { 
-                    pendingEmail: newEmail,
+                    pendingEmail: normalizedNewEmail,
                     pendingEmailToken: hashPassword(token, req.user.salt).hash,
                     pendingEmailExpires: Date.now() + ms("24h")
                 }
@@ -10734,7 +11731,7 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
         }));
 
         sendEmail(oldEmail, "InfiniMii Email Change Request", `Hi ${currentUsername}, we received a request to change your email on InfiniMii. If this was not you, please reply to this email to receive support.`);
-        sendEmail(newEmail, "InfiniMii Email Verification", `Hi ${currentUsername}, we received a request to change your email on InfiniMii. Please verify your new email by clicking this link: ${link}. This link will expire in 24 hours. If this was not you, please ignore this email.`);
+        sendEmail(normalizedNewEmail, "InfiniMii Email Verification", `Hi ${currentUsername}, we received a request to change your email on InfiniMii. Please verify your new email by clicking this link: ${link}. This link will expire in 24 hours. If this was not you, please ignore this email.`);
 
 
         res.json({ okay: true });
@@ -10745,10 +11742,57 @@ site.post('/changeEmail', requireAuth, async (req, res) => {
 });
 
 // Change Password (User)
+site.post('/setPassword', requireAuth, async (req, res) => {
+    try {
+        const newPassword = String(req.body?.newPassword || "");
+        const currentUsername = req.user.username;
+
+        if (hasPasswordLogin(req.user)) {
+            return res.json({ error: "Password login is already enabled. Use Change Password instead." });
+        }
+
+        if (newPassword.length < 6) {
+            return res.json({ error: "New password must be at least 6 characters" });
+        }
+
+        const newHashed = hashPassword(newPassword, req.user.salt);
+        const newTokenVersion = (req.user.tokenVersion || 0) + 1;
+
+        await Users.findOneAndUpdate(
+            { username: currentUsername },
+            {
+                salt: newHashed.salt,
+                pass: newHashed.hash,
+                tokenVersion: newTokenVersion
+            }
+        );
+
+        const updatedUser = await getUserByUsername(currentUsername);
+        setAuthCookies(res, updatedUser);
+
+        if (updatedUser.email) {
+            sendEmail(
+                updatedUser.email,
+                "Password Login Added - InfiniMii",
+                `Hi ${currentUsername}, password login was added to your InfiniMii account. If this was not you, please reply to this email for support.`
+            );
+        }
+
+        res.json({ okay: true, message: "Password login added successfully." });
+    } catch (e) {
+        console.error('Error setting password:', e);
+        res.json({ error: 'Server error' });
+    }
+});
+
 site.post('/changePassword', requireAuth, async (req, res) => {
     try {
         const { oldPassword, newPassword } = req.body;
         const currentUsername = req.user.username;
+
+        if (!hasPasswordLogin(req.user)) {
+            return res.json({ error: 'Set a password before using password changes.' });
+        }
 
         // Verify old password
         if (!validatePassword(oldPassword, req.user.salt, req.user.pass)) {
@@ -10921,6 +11965,10 @@ site.post('/changeSelfUsername', requireAuth, async (req, res) => {
         const { password } = req.body;
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         
+        if (!hasPasswordLogin(req.user)) {
+            return res.json({ error: 'Set a password before changing your username.' });
+        }
+
         // Verify password
         if (!validatePassword(password, req.user.salt, req.user.pass)) {
             return res.json({ error: 'Incorrect password' });
@@ -11118,33 +12166,17 @@ site.post('/deleteAccount', requireAuth, async (req, res) => {
         const username = req.user.username;
         const { password } = req.body;
 
+        if (!hasPasswordLogin(req.user)) {
+            return res.json({ error: 'Set a password before deleting your account.' });
+        }
+
         // Verify password
         if (!validatePassword(password, req.user.salt, req.user.pass)) {
             return res.json({ error: 'Password is incorrect' });
         }
 
-        // Transfer Miis to a special "Deleted User" account
-        let deletedUser = await getUserByUsername("[Deleted User]");
-        if (!deletedUser) {
-            const settings = await getSettings();
-            await Users.create({
-                username: "[Deleted User]",
-                salt: "",
-                pass: "",
-                creationDate: Date.now(),
-                email: "",
-                votedFor: [],
-                miiPfp: getDefaultUserPfpMiiId(settings),
-                pfpSet: false,
-                roles: [ROLES.BASIC],
-            });
-        }
-
         // Transfer all Miis to deleted user account
-        await Miis.updateMany(
-            { uploader: username },
-            { uploader: "[Deleted User]" }
-        );
+        const transferResult = await transferUserMiisToDeletedUser(username);
 
         // Delete user account
         await Users.deleteOne({ username });
@@ -11167,13 +12199,15 @@ site.post('/deleteAccount', requireAuth, async (req, res) => {
                     },
                     {
                         name: 'Miis Transferred',
-                        value: (await Miis.countDocuments({ uploader: username })).toString(),
+                        value: String(transferResult.modifiedCount || 0),
                         inline: true
                     }
                 ]
             }]
         }));
-        sendEmail(req.user.email,`Account Deleted - InfiniMii`,`Hi ${username}, we received a request to delete your account. We're sorry to see you go! If this wasn't you, please reply to this email to receive support.`)
+        if (normalizeAccountEmail(req.user.email)) {
+            sendEmail(req.user.email,`Account Deleted - InfiniMii`,`Hi ${username}, we received a request to delete your account. We're sorry to see you go! If this wasn't you, please reply to this email to receive support.`)
+        }
         res.json({ okay: true });
     } catch (e) {
         console.error('Error deleting account:', e);
@@ -11230,7 +12264,7 @@ site.post('/getInstructions', upload.single('mii'), async (req, res) => {
     await handleGetInstructionsRequest(req, res, { allowFile: true });
 });
 
-site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
+site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single('mii'), async (req, res) => {
     try {
         const uploader = req.user.username;
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
@@ -12351,7 +13385,7 @@ site.post('/moveCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (re
     }
 });
 // Publish a private Mii
-site.post('/publishMii', requireAuth,  async (req, res) => {
+site.post('/publishMii', requireAuth, requireVerifiedUploadAccount,  async (req, res) => {
     try {
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const miiId = String(req.body?.miiId || "").trim();
@@ -12713,7 +13747,11 @@ site.post('/signup', async (req, res) => {
         res.json({ error: "Invalid email address" });
         return;
     }
-    const cleanEmail = validator.normalizeEmail(req.body.email);
+    const cleanEmail = normalizeAccountEmail(req.body.email);
+    if (!cleanEmail) {
+        res.json({ error: "Invalid email address" });
+        return;
+    }
 
     const normalizedUsername = normalizeUsernameInput(req.body?.username);
 
@@ -12741,7 +13779,7 @@ site.post('/signup', async (req, res) => {
     }
 
     // Account does not already exist
-    const existingUserEmail = await Users.exists({ email: cleanEmail })
+    const existingUserEmail = await findUserByOwnedEmail(cleanEmail);
     if (existingUserEmail) {
         res.json({ error: "Email already in use" });
         return;
@@ -12786,11 +13824,12 @@ site.post('/login', async (req, res) => {
     }
     
     if (validatePassword(req.body.pass, user.salt, user.pass)) {
-        if (user.verified) {
-            setRequestLogContext(req, { username: user.username });
+        if (isAccountVerifiedForUploads(user)) {
+            const authUser = user.verified ? user : await applyOAuthAccountTrust(user, {});
+            setRequestLogContext(req, { username: authUser.username });
 
             // Create JWT token
-            const token = createToken(user);
+            const token = createToken(authUser);
             
             res.cookie('token', token, {
                 maxAge: ms("30 days"), // 1 Month
@@ -12798,7 +13837,7 @@ site.post('/login', async (req, res) => {
                 secure: process.env.NODE_ENV === 'production', // HTTPS only in production
                 sameSite: 'lax' // CSRF protection
             });
-            res.cookie('username', req.body.username, {
+            res.cookie('username', authUser.username, {
                 maxAge: ms("30 days"),
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax'
