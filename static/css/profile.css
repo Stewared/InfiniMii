@@ -335,7 +335,6 @@
 
 #browse-miis .mii-card > a {
     display: block;
-    overflow: hidden;
 }
 
 #browse-miis .mii-card:hover {
@@ -363,7 +362,6 @@
     line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
-    overflow: hidden;
 }
 
 #browse-miis .mii-card .mii-card-byline {

@@ -416,7 +416,6 @@ footer ul li a:hover {
         radial-gradient(ellipse at bottom, var(--darker-color), var(--lighter-color) 80%);
     background-attachment: fixed;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    overflow: hidden;
 }
 
 .mii-card:hover {
@@ -441,7 +440,6 @@ footer ul li a:hover {
     position: relative;
     display: block;
     isolation: isolate;
-    overflow: hidden;
     border-radius: var(--mii-card-inner-radius) var(--mii-card-inner-radius) 0 0;
 }
 .mii-card > a::before,
