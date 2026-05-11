@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%
+        const dashboardPath = '/miiDashboard';
+        const pageTitle = 'Mii Dashboard, Renderer, Converter & Kidomatic - InfiniMii';
+        const pageDesc = 'Upload, paste, or load a Mii ID to render head and full body Mii images, edit MiiJS decoded JSON, convert formats, create Special Miis, generate 3DS, Wii U, and Tomodachi Life QR codes, view recreation instructions, and run Kidomatic.';
+        const canonicalUrl = `${baseUrl}${dashboardPath}`;
+        const keywords = 'mii converter, mii renderer, render mii, mii dashboard, mii qr generator, 3ds mii qr code, wii u mii qr code, special mii creator, mii kid generator, kidomatic, mii recreation instructions, mii json editor, mii file converter, wii mii converter, 3ds mii converter, switch mii tools';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Mii Dashboard', url: dashboardPath }
+        ];
+        const howToTitle = 'How to Render, Convert, Edit, and Export a Mii';
+        const howToDescription = 'Use InfiniMii to decode a Mii file, render the character, edit MiiJS JSON, generate QR codes, create Special Mii exports, and download any supported MiiJS output format.';
+        const howToDuration = 'PT2M';
+        const howToSupplies = [
+            {"@type": "HowToSupply", "name": "Mii file, Mii QR image, raw Mii data, or InfiniMii Mii ID"}
+        ];
+        const howToTools = [
+            {"@type": "HowToTool", "name": "InfiniMii Mii Dashboard and Converter", "url": `${baseUrl}${dashboardPath}`}
+        ];
+        const howToSteps = [
+            {
+                "@type": "HowToStep",
+                "name": "Decode or Load a Mii",
+                "text": "Upload a supported Mii file, paste raw Mii data, scan a QR code, or enter an InfiniMii Mii ID.",
+                "url": `${baseUrl}${dashboardPath}#dashboardMiiFile`
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Preview and Edit the Mii",
+                "text": "Inspect the renderer output, QR codes, table fields, recreation instructions, and editable MiiJS decoded JSON.",
+                "url": `${baseUrl}${dashboardPath}#dashboardResults`
+            },
+            {
+                "@type": "HowToStep",
+                "name": "Export Any Supported Format",
+                "text": "Choose a MiiJS export format, optionally create a Special Mii, and download or copy the converted output.",
+                "url": `${baseUrl}${dashboardPath}#dashboardExportModalTitle`
+            }
+        ];
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "InfiniMii Mii Dashboard and Converter",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web Browser",
+            "url": `${baseUrl}${dashboardPath}`,
+            "description": pageDesc,
+            "featureList": [
+                "Mii renderer",
+                "Full body Mii renderer",
+                "Mii format conversion",
+                "Special Mii creation",
+                "3DS, Wii U, and Tomodachi Life QR code generation",
+                "Editable MiiJS decoded JSON",
+                "Kidomatic child and life-stage generation",
+                "Recreation instructions"
+            ],
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+        <%- include('howToSchema') %>
+
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+        <link rel="stylesheet" href="/miiChild.css">
+        <link rel="stylesheet" href="/miiDashboard.css">
+    </head>
+    <body>
+        <%- include('globalStyle') %>
+        <%- include('header') %>
+        <%- include('accountDisplay') %>
+
+        <main class="content" role="main">
+            <%- include('sidebar') %>
+
+            <section class="utility-container child-maker-container mii-dashboard-container">
+                <header class="child-maker-intro mii-dashboard-intro">
+                    <h1>Mii Dashboard</h1>
+                    <p>Render, edit, convert, scan, upload, recreate, and run Kidomatic from one decoded Mii workspace.</p>
+                </header>
+
+                <form id="miiDashboardForm" method="POST" enctype="multipart/form-data" action="/miiDashboard/analyze">
+                    <fieldset>
+                        <legend>Inspect a Mii</legend>
+
+                        <p class="note">
+                            Upload any MiiJS-supported Mii file or QR image. Decode errors use the same verbose MiiJS debug output shown by the normal upload flow.
+                        </p>
+
+                        <div class="dashboard-input-grid">
+                            <div>
+                                <label for="dashboardMiiFile">Mii file or QR image</label>
+                                <input type="file" id="dashboardMiiFile" name="mii" aria-required="false">
+                            </div>
+                            <div>
+                                <label for="dashboardMiiId">InfiniMii Mii ID</label>
+                                <input type="text" id="dashboardMiiId" name="miiId" autocomplete="off" spellcheck="false" placeholder="Example: average">
+                            </div>
+                            <div>
+                                <label for="dashboardMiiData">Or paste raw Mii data</label>
+                                <textarea id="dashboardMiiData" name="miiData" rows="4" placeholder="Paste base64, hex, Studio code, or JSON..."></textarea>
+                            </div>
+                        </div>
+
+                        <div id="dashboardMessage" class="form-message" style="display: none;"></div>
+                        <input type="submit" value="Open Dashboard">
+                    </fieldset>
+                </form>
+
+                <section id="dashboardResults" class="dashboard-results" hidden>
+                    <div class="dashboard-results-header">
+                        <div>
+                            <h2 id="dashboardMiiName">Decoded Mii</h2>
+                            <p class="note" id="dashboardCreatedOn"></p>
+                        </div>
+                        <div class="dashboard-primary-actions">
+                            <button type="button" id="dashboardDownloadBtn"><%- include('icon', { name: 'download', size: 16, class: 'icon-inline' }) %> Download</button>
+                            <button type="button" id="dashboardUploadBtn" class="btn-secondary"><%- include('icon', { name: 'upload', size: 16, class: 'icon-inline' }) %> Upload</button>
+                            <button type="button" id="dashboardInstructionsBtn" class="btn-secondary"><%- include('icon', { name: 'scroll', size: 16, class: 'icon-inline' }) %> Recreation Instructions</button>
+                            <button type="button" id="dashboardKidomaticBtn" class="btn-secondary"><%- include('icon', { name: 'sparkles', size: 16, class: 'icon-inline' }) %> Kidomatic</button>
+                            <div id="dashboardActionMessage" class="form-message dashboard-local-message" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-preview-grid">
+                        <article class="dashboard-preview-card">
+                            <h3>Render</h3>
+                            <img id="dashboardRender" class="dashboard-preview-image" src="" alt="Decoded Mii render" width="512" height="512" loading="lazy" decoding="async">
+                        </article>
+
+                        <article class="dashboard-preview-card">
+                            <h3>Full Body Render</h3>
+                            <img id="dashboardFullBodyRender" class="dashboard-preview-image dashboard-full-body-image" src="" alt="Decoded Mii full body render" width="512" height="512" loading="lazy" decoding="async">
+                        </article>
+
+                        <article class="dashboard-preview-card">
+                            <h3>QR Code</h3>
+                            <div id="dashboardQrPreview" class="qr-preview-window is-qr-3ds" data-qr-preview data-qr3ds-src="" data-qr-wiiu-src="" data-qr-tomodachi-src="">
+                                <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
+                                    <button type="button" class="qr-console-tab is-active" data-qr-tab="3DS" role="tab" aria-selected="true">3DS</button>
+                                    <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false">Wii U</button>
+                                    <button type="button" class="qr-console-tab" data-qr-tab="TOMODACHI" role="tab" aria-selected="false" aria-label="Tomodachi Life QR" title="Tomodachi Life QR" hidden>TL</button>
+                                </div>
+                                <a id="dashboardQrLink" class="qr-preview-link" href="#" target="_blank" rel="noopener noreferrer" data-qr-link>
+                                    <img id="dashboardQr" class="qr-code-image" src="" alt="Decoded Mii QR code" width="150" height="150" loading="lazy" decoding="async" data-qr-image data-qr-console="3DS">
+                                </a>
+                            </div>
+                        </article>
+
+                        <article class="dashboard-info-card">
+                            <h3>Mii Fields</h3>
+                            <div id="dashboardInfoGrid" class="dashboard-info-grid"></div>
+                        </article>
+
+                        <article id="dashboardTomodachiCard" class="dashboard-info-card" hidden>
+                            <h3>Tomodachi Fields</h3>
+                            <div id="dashboardTomodachiGrid" class="dashboard-info-grid"></div>
+                        </article>
+                    </div>
+
+                    <form id="dashboardUploadForm" action="/uploadMii" method="post" class="dashboard-upload-panel" hidden>
+                        <fieldset>
+                            <legend>Upload a Mii to the Website</legend>
+                            <div id="dashboardUploadMessage" class="form-message" style="display: none;"></div>
+                            <% if (user) { %>
+                                <input type="hidden" name="miiData" id="dashboardUploadMiiData">
+                                <label for="dashboardUploadDesc">Description</label>
+                                <input id="dashboardUploadDesc" size="50" placeholder="Description..." name="desc" type="text" required aria-required="true">
+                                <input type="submit" value="Upload">
+                            <% } else { %>
+                                <p class="note">Log in to upload this Mii to your private collection.</p>
+                                <a class="btn btn-primary" href="/login?next=%2FmiiDashboard">Log In</a>
+                            <% } %>
+                        </fieldset>
+                    </form>
+
+                    <details class="dashboard-json-details">
+                        <summary>MiiJS Decoded JSON</summary>
+                        <label for="dashboardJsonOutput" class="sr-only">Editable MiiJS decoded JSON</label>
+                        <textarea id="dashboardJsonOutput" class="dashboard-json-output" rows="18" spellcheck="false"></textarea>
+                        <div class="dashboard-json-actions">
+                            <button type="button" id="dashboardApplyJsonBtn" class="btn-secondary">Apply JSON Edits</button>
+                            <button type="button" id="dashboardJsonDownloadBtn" class="btn-secondary"><%- include('icon', { name: 'download', size: 16, class: 'icon-inline' }) %> Download</button>
+                            <% if (isAdmin) { %>
+                                <button type="button" id="dashboardSaveJsonBtn" class="btn-secondary" hidden>Save</button>
+                            <% } %>
+                            <div id="dashboardJsonMessage" class="form-message dashboard-local-message" style="display: none;"></div>
+                            <p class="note">Downloads, QR exports, recreation instructions, uploads, and Kidomatic use the last applied JSON. Save checks the current editor text first.</p>
+                        </div>
+                    </details>
+                </section>
+
+                <section id="dashboardKidomaticResults" class="child-results" hidden>
+                    <h3>Kidomatic Stages</h3>
+                    <p class="note">Kidomatic returns the same six life-stage cards used by the Mii Child Generator.</p>
+                    <div id="dashboardKidomaticGrid" class="child-results-grid"></div>
+                </section>
+
+                <div id="dashboardExportModal" class="child-download-modal-overlay" hidden>
+                    <div class="child-download-modal" role="dialog" aria-modal="true" aria-labelledby="dashboardExportModalTitle">
+                        <div class="child-download-modal-header">
+                            <h4 id="dashboardExportModalTitle">Export Mii</h4>
+                            <button type="button" id="dashboardExportModalClose" class="child-download-modal-close" aria-label="Close export options">x</button>
+                        </div>
+
+                        <div class="child-download-modal-body">
+                            <p id="dashboardExportLabel" class="note child-download-stage-label"></p>
+
+                            <label for="dashboardExportFormat">Export format</label>
+                            <input type="text" id="dashboardExportFormat" name="format" list="dashboardExportFormatOptions" placeholder="QR by default, or search formats...">
+
+                            <div class="child-download-options-row">
+                                <label class="child-download-inline-label">
+                                    <input type="checkbox" id="dashboardExportSpecial" name="special">
+                                    Download as Special Mii
+                                </label>
+                                <label for="dashboardExportQrConsole" class="child-download-inline-label">
+                                    QR Console:
+                                    <select id="dashboardExportQrConsole" name="qrConsole">
+                                        <option value="3DS">3DS</option>
+                                        <option value="WIIU">Wii U</option>
+                                        <option value="TOMODACHI">Tomodachi Life</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <p class="note child-download-note">Uses the same MiiJS export formats as Mii pages. 3DS QR exports are plain 3DS QR; choose Tomodachi Life for TL QR data.</p>
+                            <div id="dashboardExportMessage" class="form-message" style="display: none;"></div>
+                        </div>
+
+                        <div class="child-download-modal-actions">
+                            <button type="button" id="dashboardExportDownloadBtn">Download</button>
+                            <button type="button" id="dashboardExportCopyHexBtn" class="btn-secondary">Copy Hex</button>
+                            <button type="button" id="dashboardExportCopyBase64Btn" class="btn-secondary">Copy Base64</button>
+                        </div>
+                    </div>
+                </div>
+
+                <datalist id="dashboardExportFormatOptions">
+                    <% exportFormats.forEach(fmt => { %>
+                        <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
+                    <% }) %>
+                </datalist>
+
+                <section class="dashboard-seo-content" hidden>
+                    <h2>Mii Renderer, Converter, QR Generator, and JSON Editor</h2>
+                    <p>InfiniMii can render Mii characters from supported MiiJS input formats with head and full body previews, convert Mii files between Wii, 3DS, Wii U, Switch-related, Studio, charinfo, Tomodachi Life, and QR workflows, and export edited decoded JSON into supported output files.</p>
+                    <p>The dashboard supports Special Mii creation, 3DS QR codes, Wii U QR codes, Tomodachi Life QR codes when TL data is present, recreation instructions for rebuilding a Mii by hand, and Kidomatic child or life-stage generation from a single decoded Mii.</p>
+                    <h2>Supported Mii Workflows</h2>
+                    <ul>
+                        <li>Mii renderer previews for uploaded files, QR images, raw data, JSON, and InfiniMii Mii IDs.</li>
+                        <li>Mii conversion with searchable MiiJS export formats, Special Mii exports, hex copy, and base64 copy.</li>
+                        <li>Mii QR support for 3DS and Wii U, including QR images generated from edited Mii JSON.</li>
+                        <li>Mii recreation instructions for 3DS, Wii U, and compatible manual rebuild workflows.</li>
+                        <li>Kidomatic Mii generation for child and life-stage previews, renders, and exports.</li>
+                    </ul>
+                </section>
+            </section>
+
+            <%- include('featuredMiis') %>
+        </main>
+
+        <%- include('footer') %>
+        <script>
+            window.miiDashboardConfig = {
+                downloadIconSvg: <%- toScriptJson(include('icon', { name: 'download', size: 18, class: 'child-stage-download-icon' })) %>,
+                isAdmin: <%= isAdmin ? 'true' : 'false' %>
+            };
+        </script>
+        <script src="/miiDashboard.js?v=<%= encodeURIComponent(assetVersion || '1') %>"></script>
+    </body>
+</html>

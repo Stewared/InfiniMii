@@ -1,0 +1,312 @@
+.mii-dashboard-container {
+    max-width: 1100px;
+}
+
+.mii-dashboard-intro {
+    margin-bottom: 1rem;
+}
+
+.dashboard-input-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.75fr) minmax(0, 1.15fr);
+    gap: 1rem;
+}
+
+.dashboard-input-grid textarea {
+    min-height: 8rem;
+    resize: vertical;
+}
+
+.dashboard-results {
+    margin-top: 2rem;
+}
+
+.dashboard-results-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-results-header h2 {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 1.6rem;
+}
+
+.dashboard-primary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    max-width: 36rem;
+}
+
+.dashboard-primary-actions button {
+    margin: 0;
+}
+
+.dashboard-preview-grid {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.85fr) minmax(180px, 0.85fr) minmax(180px, 0.75fr) minmax(280px, 1.3fr);
+    gap: 1rem;
+}
+
+.dashboard-preview-card,
+.dashboard-info-card,
+.dashboard-json-details,
+.dashboard-upload-panel fieldset {
+    background-color: var(--layer-1-um);
+    border: 1px solid var(--layer-3-um);
+    border-radius: 14px;
+    padding: 1rem;
+}
+
+.dashboard-preview-card h3,
+.dashboard-info-card h3 {
+    margin: 0 0 0.75rem;
+    color: var(--brand-color);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.dashboard-preview-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    background-color: var(--layer-2-um);
+    border: 1px solid var(--layer-3-um);
+    border-radius: 12px;
+}
+
+.qr-preview-window {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 154px;
+}
+
+.dashboard-preview-card .qr-preview-window {
+    margin: 0 auto;
+}
+
+.qr-console-tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-bottom: 0;
+    border: 2px solid var(--layer-3-um);
+    border-bottom: 0;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.qr-preview-window.has-tomodachi-qr .qr-console-tabs {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.qr-console-tab {
+    border: 0;
+    border-right: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7a8397 42%);
+    border-radius: 0;
+    background: color-mix(in oklab, var(--layer-2-um) 70%, #212d42 30%);
+    color: var(--text-2);
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.24rem 0.25rem;
+    margin: 0;
+    line-height: 1.2;
+    box-shadow: none;
+    cursor: pointer;
+    transform: translateY(0);
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.qr-console-tab[hidden] {
+    display: none !important;
+}
+
+.qr-console-tab:last-child {
+    border-right: 0;
+}
+
+.qr-console-tab:hover,
+.qr-console-tab:focus-visible {
+    outline: none;
+    background: color-mix(in oklab, var(--layer-2-um) 52%, #24324a 48%);
+    color: var(--text-1);
+    box-shadow: none;
+    transform: none;
+}
+
+.qr-console-tab.is-active {
+    background: color-mix(in oklab, var(--layer-1) 64%, #354560 36%);
+    color: var(--text-1);
+    transform: none;
+    box-shadow: none;
+}
+
+.qr-console-tabs button:hover,
+.qr-console-tabs button:focus-visible,
+.qr-console-tabs button:active {
+    transform: none;
+    box-shadow: none;
+}
+
+.qr-preview-link {
+    display: block;
+    width: 100%;
+    border-radius: 0 0 10px 10px;
+    border: 2px solid var(--layer-3-um);
+    border-top: 0;
+    overflow: hidden;
+    text-decoration: none;
+    background: color-mix(in oklab, var(--layer-1-um) 84%, #1a2334 16%);
+}
+
+.qr-code-image {
+    display: block;
+    width: 150px;
+    height: 150px;
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: opacity 0.34s ease, transform 0.34s ease, filter 0.34s ease;
+}
+
+.qr-code-image.is-switching {
+    opacity: 0.24;
+    transform: translateY(4px) scale(0.976);
+    filter: saturate(0.86);
+}
+
+.qr-code-image.is-loaded {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: none;
+}
+
+.dashboard-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+}
+
+.dashboard-info-item {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.dashboard-info-label {
+    color: var(--text-2);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.dashboard-info-value {
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+}
+
+.dashboard-upload-panel {
+    margin-top: 1rem;
+}
+
+.dashboard-upload-panel[hidden] {
+    display: none !important;
+}
+
+.dashboard-upload-panel fieldset {
+    margin: 0;
+}
+
+.dashboard-json-details {
+    margin-top: 1rem;
+}
+
+.dashboard-json-details summary {
+    cursor: pointer;
+    color: var(--brand-color);
+    font-weight: 600;
+}
+
+.dashboard-json-output {
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 32rem;
+    min-height: 22rem;
+    overflow: auto;
+    margin: 1rem 0 0;
+    padding: 1rem;
+    background-color: var(--layer-2-um);
+    border: 1px solid var(--layer-3-um);
+    border-radius: 10px;
+    color: var(--text-1);
+    font-size: 0.9rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+
+.dashboard-full-body-image {
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+
+.dashboard-json-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.dashboard-json-actions .note {
+    margin: 0;
+}
+
+.dashboard-local-message {
+    flex-basis: 100%;
+    margin: 0.25rem 0 0;
+}
+
+#dashboardKidomaticResults {
+    margin-top: 2rem;
+}
+
+@media (max-width: 1100px) {
+    .dashboard-preview-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-info-card {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 800px) {
+    .dashboard-input-grid,
+    .dashboard-preview-grid,
+    .dashboard-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-results-header {
+        flex-direction: column;
+    }
+
+    .dashboard-primary-actions {
+        justify-content: flex-start;
+    }
+}

@@ -152,7 +152,7 @@
                     }
                     centi.value=Math.round(height.centimeters);
                     
-                    weight=miiWeightToRealWeight(el.value,miiWeight.value);
+                    weight=miiWeightToMeasurements(el.value,miiWeight.value);
                     pounds.value=weight.pounds.toFixed(2);
                     kilos.value=weight.kilograms.toFixed(2);
                 break;
@@ -162,7 +162,7 @@
                     if(el.name==="miiWeightDisplay"){
                         miiWeight.value=el.value;
                     }
-                    weight=miiWeightToRealWeight(miiHeight.value,el.value);
+                    weight=miiWeightToMeasurements(miiHeight.value,el.value);
                     pounds.value=weight.pounds.toFixed(2);
                     kilos.value=weight.kilograms.toFixed(2);
                     break;

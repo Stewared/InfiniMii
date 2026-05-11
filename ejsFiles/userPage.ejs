@@ -223,18 +223,29 @@
                                     'permBanned': { label: 'Perm Banned', class: 'banned-badge' },
                                     'basic': null,
                                     'supporter': { label: 'Supporter', class: 'supporter-badge' },
-                                    'researcher': { label: 'Researcher', class: 'researcher-badge' },
-                                    'moderator': { label: 'Moderator', class: 'mod-badge' },
-                                    'administrator': { label: 'Administrator', class: 'admin-badge' }
+                                    'researcher': { label: 'Researcher', class: 'researcher-badge', href: '/mods#research' },
+                                    'moderator': { label: 'Moderator', class: 'mod-badge', href: '/mods#mods' },
+                                    'administrator': { label: 'Administrator', class: 'admin-badge', href: '/mods#admins' }
                                 };
                             %>
                             <% (targetUser.roles || ['basic']).forEach(role => { %>
                                 <% if(roleConfigs[role]) { %>
-                                    <span class="role-badge <%= roleConfigs[role].class %>" data-role="<%= role %>">
-                                        <%= roleConfigs[role].label %>
-                                    </span>
+                                    <% if(roleConfigs[role].href) { %>
+                                        <a class="role-badge <%= roleConfigs[role].class %>" data-role="<%= role %>" href="<%= roleConfigs[role].href %>">
+                                            <%= roleConfigs[role].label %>
+                                        </a>
+                                    <% } else { %>
+                                        <span class="role-badge <%= roleConfigs[role].class %>" data-role="<%= role %>">
+                                            <%= roleConfigs[role].label %>
+                                        </span>
+                                    <% } %>
                                 <% } %>
                             <% }); %>
+                            <% if(isOfficialSourceProfile) { %>
+                                <a class="role-badge official-badge" data-role="official" href="/mods#official">
+                                    Official
+                                </a>
+                            <% } %>
                         </div>
                         <% if(isOfficialSourceProfile) { %>
                             <p class="profile-subtext">Go to all <a href="/official">Official Miis</a></p>

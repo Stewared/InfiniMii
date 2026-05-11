@@ -887,6 +887,8 @@
                             </div>
 
                             <button type="button" class="btn-secondary export-instructions-btn" onclick="openMiiInstructions(event)">Recreation Instructions</button>
+                            <a class="btn-secondary export-instructions-btn" href="/miiDashboard?id=<%= encodeURIComponent(mii.id) %>">Open Dashboard</a>
+                            <a class="btn-secondary export-instructions-btn" href="/miiDashboard?id=<%= encodeURIComponent(mii.id) %>&amp;kidomatic=1">Kidomatic</a>
                         </div>
 
                         <div class="export-action-reveal" data-export-action-reveal aria-live="polite">

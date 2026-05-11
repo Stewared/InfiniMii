@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%
+        const pageTitle = 'InfiniMii Staff - Administrators, Moderators & Researchers';
+        const pageDesc = 'Meet the InfiniMii administrators, moderators, and researchers who help maintain the Mii archive, review content, and organize preservation work.';
+        const canonicalUrl = `${baseUrl}/mods`;
+        const keywords = 'InfiniMii staff, InfiniMii moderators, InfiniMii admins, InfiniMii researchers, Mii archive staff';
+        const groups = Array.isArray(staffGroups) ? staffGroups : [];
+        const accounts = Array.isArray(officialAccounts) ? officialAccounts : [];
+        const officialBlurb = typeof officialAccountsBlurb === 'string' ? officialAccountsBlurb : '';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Staff', url: '/mods' }
+        ];
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "InfiniMii Staff",
+            "url": canonicalUrl,
+            "description": pageDesc,
+            "mainEntity": {
+                "@type": "ItemList",
+                "name": "InfiniMii staff groups",
+                "itemListElement": groups.flatMap((group) => group.members.map((member, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "name": `${member.username} - ${group.label}`,
+                    "url": `${baseUrl}/user/${encodeURIComponent(member.username)}`
+                })))
+            }
+        }];
+        const groupIconNames = {
+            admins: 'crown',
+            mods: 'shield',
+            research: 'flask'
+        };
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+    </head>
+    <body>
+        <%- include('globalStyle') %>
+        <%- include('header') %>
+        <%- include('accountDisplay') %>
+
+        <main class="content faq-content mods-content" role="main">
+            <%- include('sidebar') %>
+
+            <div class="mods-main-column">
+                <article class="faq-article mods-article">
+                    <h1>InfiniMii Staff</h1>
+                    <p class="faq-lede">These are the people who help maintain this website and keep it awesome, functional, up to date, and clean!</p>
+
+                    <nav class="faq-nav" aria-label="Staff Groups">
+                        <h2>Browse Staff Groups</h2>
+                        <ul class="faq-nav-list">
+                            <li><a href="#admins">Administrators</a></li>
+                            <li><a href="#mods">Moderators</a></li>
+                            <li><a href="#research">Researchers</a></li>
+                            <li><a href="#official">Official Accounts</a></li>
+                        </ul>
+                    </nav>
+
+                    <% groups.forEach((group) => { %>
+                        <section id="<%= group.key %>" class="faq-section mods-section">
+                            <div class="mods-section-heading">
+                                <span class="mods-section-icon mods-section-icon-<%= group.key %>" aria-hidden="true">
+                                    <%- include('icon', { name: groupIconNames[group.key] || 'user', size: 22 }) %>
+                                </span>
+                                <div>
+                                    <h2><%= group.title %></h2>
+                                    <p><%- group.blurb %></p>
+                                </div>
+                            </div>
+
+                            <% if (group.members.length > 0) { %>
+                                <div class="mods-grid">
+                                    <% group.members.forEach((member) => { %>
+                                        <a class="mods-card mods-card-<%= group.key %>" href="/user/<%= encodeURIComponent(member.username) %>">
+                                            <img
+                                                class="mods-avatar"
+                                                src="/miiImgs/<%= encodeURIComponent(member.miiPfp || '00000') %>.png"
+                                                alt="<%= member.username %> profile Mii"
+                                                width="96"
+                                                height="96"
+                                                loading="lazy"
+                                                decoding="async"
+                                                onerror="this.src='/miiImgs/00000.png'"
+                                            >
+                                            <span class="mods-card-body">
+                                                <strong><%= member.username %></strong>
+                                                <span><%= group.label %></span>
+                                            </span>
+                                        </a>
+                                    <% }) %>
+                                </div>
+                            <% } else { %>
+                                <div class="faq-item mods-empty">
+                                    <h3>No <%= group.title.toLowerCase() %> listed yet</h3>
+                                    <p>This group is ready for names once the role list is updated.</p>
+                                </div>
+                            <% } %>
+                        </section>
+                    <% }) %>
+                </article>
+
+                <article id="official" class="faq-article mods-article official-accounts-article" aria-labelledby="official-accounts-heading">
+                    <span id="official-accounts" class="sr-only" aria-hidden="true"></span>
+                    <h2 id="official-accounts-heading">Official Accounts</h2>
+                    <% if (officialBlurb) { %>
+                        <p class="faq-lede"><%- officialBlurb %></p>
+                    <% } %>
+
+                    <% if (accounts.length > 0) { %>
+                        <div class="mods-grid official-accounts-grid">
+                            <% accounts.forEach((account) => { %>
+                                <a class="mods-card official-account-card" href="/user/<%= encodeURIComponent(account.username) %>">
+                                    <img
+                                        class="mods-avatar"
+                                        src="/miiImgs/<%= encodeURIComponent(account.miiPfp || '00000') %>.png"
+                                        alt="<%= account.username %> official account Mii"
+                                        width="96"
+                                        height="96"
+                                        loading="lazy"
+                                        decoding="async"
+                                        onerror="this.src='/miiImgs/00000.png'"
+                                    >
+                                    <span class="mods-card-body">
+                                        <strong><%= account.username %></strong>
+                                        <span>Official Account</span>
+                                    </span>
+                                </a>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="faq-item mods-empty">
+                            <h3>No official accounts listed yet</h3>
+                            <p>This section is ready once official accounts are configured.</p>
+                        </div>
+                    <% } %>
+                </article>
+            </div>
+
+            <%- include('featuredMiis') %>
+        </main>
+
+        <%- include('footer') %>
+    </body>
+</html>

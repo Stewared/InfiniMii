@@ -65,7 +65,7 @@ const profileMiisPerPage = 18;
 const HOME_PREVIEW_COUNT = 16;
 const FULL_ROW_BROWSE_REQUEST_LIMIT = defaultMiisPerPage + HOME_PREVIEW_COUNT;
 const FULL_ROW_PROFILE_REQUEST_LIMIT = profileMiisPerPage + HOME_PREVIEW_COUNT;
-const GLOBAL_ASSET_VERSION = "20260423-pagination-bounds-1";
+const GLOBAL_ASSET_VERSION = "20260510-mii-dashboard-applied-json-1";
 const RSS_FEED_MII_LIMIT = 50;
 const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
 const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
@@ -371,8 +371,64 @@ function getSafeRedirectPath(target, fallback = "/") {
 
 function normalizeQrConsole(input) {
     const cleaned = String(input || "").trim().toUpperCase().replace(/[\s_-]+/g, "");
+    if (["TOMODACHI", "TOMODACHILIFE", "TL", "TLE"].includes(cleaned)) return "TOMODACHI";
     if (cleaned === "WIIU") return "WIIU";
     return "3DS";
+}
+
+const MII_DATA_TOP_LEVEL_KEYS = Object.freeze([
+    "console",
+    "meta",
+    "perms",
+    "general",
+    "face",
+    "hair",
+    "eyes",
+    "eyebrows",
+    "nose",
+    "mouth",
+    "beard",
+    "glasses",
+    "mole",
+    "tl",
+    "mt"
+]);
+
+const OPTIONAL_MII_DATA_TOP_LEVEL_KEYS = Object.freeze([
+    "console",
+    "tl",
+    "mt"
+]);
+
+function cloneSerializable(value) {
+    if (value === undefined) return undefined;
+    try {
+        if (typeof structuredClone === "function") {
+            return structuredClone(value);
+        }
+    } catch (e) { }
+
+    return JSON.parse(JSON.stringify(value));
+}
+
+function isPlainObjectValue(value) {
+    return Boolean(value && typeof value === "object" && !Buffer.isBuffer(value) && !(value instanceof ArrayBuffer) && !ArrayBuffer.isView(value));
+}
+
+function toMiiDataOnly(input) {
+    if (!isPlainObjectValue(input)) return input;
+
+    const source = input.fields && isPlainObjectValue(input.fields) ? input.fields : input;
+    const miiData = {};
+    let foundMiiField = false;
+
+    for (const key of MII_DATA_TOP_LEVEL_KEYS) {
+        if (!Object.prototype.hasOwnProperty.call(source, key)) continue;
+        foundMiiField = true;
+        miiData[key] = cloneSerializable(source[key]);
+    }
+
+    return foundMiiField ? miiData : cloneSerializable(source);
 }
 
 function normalizeInstructionConsole(input) {
@@ -522,6 +578,10 @@ function normalizeMiiInput(input) {
 
     if (Object.prototype.hasOwnProperty.call(input, "miiData")) {
         return normalizeMiiInput(input.miiData);
+    }
+
+    if (MII_DATA_TOP_LEVEL_KEYS.some(key => Object.prototype.hasOwnProperty.call(input, key))) {
+        return toMiiDataOnly(input);
     }
 
     return input;
@@ -721,20 +781,122 @@ async function decodeQrImageInput(input) {
     return decoded;
 }
 
+function normalizeDetectedMiiFormats(formats) {
+    return Array.from(new Set((Array.isArray(formats) ? formats : [])
+        .map(format => String(format || "").trim().toLowerCase())
+        .filter(Boolean)));
+}
+
+function detectMiiFormatsFromValue(value) {
+    try {
+        return normalizeDetectedMiiFormats(miijs.detectMiiFormat(value));
+    } catch (e) {
+        return [];
+    }
+}
+
+async function detectMiiSourceFormats(input) {
+    const normalizedInput = normalizeMiiInput(input);
+    const formats = [];
+    const addFormats = (nextFormats) => {
+        for (const format of normalizeDetectedMiiFormats(nextFormats)) {
+            if (!formats.includes(format)) formats.push(format);
+        }
+    };
+
+    if (Buffer.isBuffer(normalizedInput) || normalizedInput instanceof ArrayBuffer || ArrayBuffer.isView(normalizedInput)) {
+        const bytes = Buffer.isBuffer(normalizedInput)
+            ? normalizedInput
+            : Buffer.from(normalizedInput.buffer || normalizedInput, normalizedInput.byteOffset || 0, normalizedInput.byteLength || undefined);
+        addFormats(detectMiiFormatsFromValue(bytes));
+        return formats;
+    }
+
+    if (typeof normalizedInput === "string") {
+        const trimmed = normalizedInput.trim();
+        if (!trimmed) return formats;
+
+        if (!/^https?:\/\//i.test(trimmed) && !/^data:/i.test(trimmed)) {
+            try {
+                const stat = fs.existsSync(trimmed) ? await fs.promises.stat(trimmed) : null;
+                if (stat?.isFile()) {
+                    addFormats(detectMiiFormatsFromValue(await fs.promises.readFile(trimmed)));
+                }
+            } catch (e) { }
+        }
+
+        addFormats(detectMiiFormatsFromValue(trimmed));
+        for (const fallbackInput of buildMiiStringFallbackCandidates(trimmed)) {
+            addFormats(detectMiiFormatsFromValue(fallbackInput));
+        }
+    }
+
+    return formats;
+}
+
+function hasAnyDetectedFormat(formatSet, values) {
+    return values.some(value => formatSet.has(value));
+}
+
+function inferMiiConsoleFromSourceFormats(formats, fields) {
+    const formatSet = new Set(normalizeDetectedMiiFormats(formats));
+    if (formatSet.size === 0) return "";
+
+    if (hasAnyDetectedFormat(formatSet, ["tl", "tlc", "tls", "tle"])) return "TL 3DS";
+    if (hasAnyDetectedFormat(formatSet, ["rcd", "rsd"])) return "Wii";
+    if (hasAnyDetectedFormat(formatSet, ["charinfo", "nfsd", "nfcd"])) return "Switch";
+    if (hasAnyDetectedFormat(formatSet, ["mnms", "miic"])) return "Mii Studio";
+    if (hasAnyDetectedFormat(formatSet, ["ncd", "nsd"])) return "DS";
+
+    const has3dsFormat = hasAnyDetectedFormat(formatSet, ["cfsd", "cfcd", "cfed"]);
+    const hasWiiUFormat = hasAnyDetectedFormat(formatSet, ["ffsd", "ffcd", "ffed"]);
+    if (has3dsFormat || hasWiiUFormat) {
+        const originalDevice = Number.parseInt(fields?.meta?.originalDevice, 10);
+        if (has3dsFormat && hasWiiUFormat) {
+            if (originalDevice === 4) return "Wii U";
+            if (originalDevice === 3) return "3DS";
+        }
+        if (has3dsFormat) return "3DS";
+        if (hasWiiUFormat) return "Wii U";
+    }
+
+    return "";
+}
+
+function applySourceConsoleToMiiFields(fields, formats) {
+    const mii = toMiiDataOnly(fields);
+    if (!mii || typeof mii !== "object") return mii;
+
+    const consoleLabel = inferMiiConsoleFromSourceFormats(formats, mii);
+    if (!consoleLabel) return mii;
+
+    mii.meta = mii.meta && typeof mii.meta === "object" ? { ...mii.meta } : {};
+    mii.meta.console = consoleLabel;
+    mii.console = consoleLabel;
+    return mii;
+}
+
 installMiiJsDebugConsoleCapture();
 
 async function createMiiData(input, debug) {
     const normalizedInput = normalizeMiiInput(input);
     const parsedInput = isQrImageInput(normalizedInput) ? await decodeQrImageInput(normalizedInput) : normalizedInput;
+    const sourceFormats = await detectMiiSourceFormats(parsedInput);
+
+    const createWithDetectedConsole = async (candidateInput, candidateFormats = sourceFormats) => {
+        const detectedFormats = candidateFormats.length ? candidateFormats : await detectMiiSourceFormats(candidateInput);
+        const mii = await miijs.Mii.create(candidateInput, debug);
+        return applySourceConsoleToMiiFields(mii.fields, detectedFormats);
+    };
+
     try {
-        const mii = await miijs.Mii.create(parsedInput, debug);
-        return mii.fields;
+        return await createWithDetectedConsole(parsedInput);
     } catch (originalError) {
         const fallbacks = buildMiiStringFallbackCandidates(parsedInput);
         for (const fallbackInput of fallbacks) {
             try {
-                const mii = await miijs.Mii.create(fallbackInput, debug);
-                return mii.fields;
+                const fallbackFormats = await detectMiiSourceFormats(fallbackInput);
+                return await createWithDetectedConsole(fallbackInput, fallbackFormats);
             } catch (e) { }
         }
         throw originalError;
@@ -864,7 +1026,11 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
 
     if (format === "qr") {
         const qrConsole = normalizeQrConsole(options.qrConsole || options.device);
-        const qrBuffer = await miiInstance.toQR(qrConsole, options.qrOptions || {});
+        const qrFormat = qrConsole === "TOMODACHI"
+            ? "tle"
+            : (qrConsole === "WIIU" ? "ffed" : "cfed");
+        const qrPayload = await miiInstance.encode(qrFormat);
+        const qrBuffer = await miijs.makeQR(qrPayload, options.qrOptions || {});
         return {
             buffer: qrBuffer,
             contentType: "image/png",
@@ -872,7 +1038,7 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
         };
     }
 
-    const buffer = miiInstance.encode(format);
+    const buffer = await miiInstance.encode(format);
     return {
         buffer,
         contentType: "application/octet-stream",
@@ -883,6 +1049,355 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
 async function writeQrPng(miiInput, outputPath, qrConsole = "3DS") {
     const { buffer } = await exportMiiToBuffer(miiInput, "qr", { qrConsole });
     await fs.promises.writeFile(outputPath, buffer);
+}
+
+function bufferToDataUri(buffer, mimeType = "image/png") {
+    return `data:${mimeType};base64,${Buffer.from(buffer).toString("base64")}`;
+}
+
+function getMiiCreationTimestamp(mii) {
+    const candidates = [
+        mii?.meta?.creationTimestamp,
+        mii?.meta?.createdOn,
+        mii?.meta?.createdAt,
+        mii?.creationTimestamp,
+        mii?.createdOn,
+        mii?.createdAt
+    ];
+
+    for (const candidate of candidates) {
+        if (candidate === null || candidate === undefined || candidate === "") continue;
+        const timestamp = candidate instanceof Date
+            ? candidate.getTime()
+            : new Date(candidate).getTime();
+        if (Number.isFinite(timestamp)) {
+            return timestamp;
+        }
+    }
+
+    return null;
+}
+
+function formatDashboardDate(timestamp) {
+    if (!Number.isFinite(timestamp)) return "";
+    try {
+        return new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            timeZone: "UTC",
+            timeZoneName: "short"
+        }).format(new Date(timestamp));
+    } catch (e) {
+        return new Date(timestamp).toISOString();
+    }
+}
+
+function getMiiOriginalDeviceLabel(value) {
+    const normalized = Number.parseInt(value, 10);
+    const labels = {
+        1: "Wii",
+        2: "DS",
+        3: "3DS",
+        4: "Wii U",
+        5: "Switch"
+    };
+
+    if (Number.isInteger(normalized) && labels[normalized]) {
+        return `${labels[normalized]} (${normalized})`;
+    }
+
+    return value === null || value === undefined || value === "" ? "" : String(value);
+}
+
+function getDashboardMonthAbbreviation(monthValue) {
+    const month = Number.parseInt(monthValue, 10);
+    if (!Number.isInteger(month) || month < 1 || month > 12) return "";
+    return ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][month - 1];
+}
+
+function getDashboardFullBirthdayLabel(monthValue, dayValue) {
+    const month = getDashboardMonthAbbreviation(monthValue);
+    const day = Number.parseInt(dayValue, 10);
+    if (!month || !Number.isInteger(day) || day < 1 || day > 31) return "";
+    return `${month} ${day}`;
+}
+
+function buildMiiDashboardTomodachiRows(mii) {
+    if (!hasDecodedTomodachiLifeData(mii)) return [];
+
+    const rows = [];
+    const addRow = (label, value) => {
+        rows.push({
+            label,
+            value: value === null || value === undefined || value === "" ? "Not Set" : String(value)
+        });
+    };
+
+    const tl = mii.tl || {};
+    const fullName = [tl.firstName, tl.lastName]
+        .map((part) => String(part || "").trim())
+        .filter(Boolean)
+        .join(" ");
+    const birthday = getDashboardFullBirthdayLabel(
+        tl.birthMonth ?? mii?.general?.birthMonth,
+        tl.birthday ?? mii?.general?.birthday
+    );
+
+    addRow("Full Name", fullName);
+    addRow("Full Birthday", birthday);
+    addRow("Island Name", tl.island?.name || "");
+    addRow("Age Group", tl.isAdult === true ? "Adult" : (tl.isAdult === false ? "Child" : ""));
+    if (tl.catchphrase !== null && tl.catchphrase !== undefined && String(tl.catchphrase).trim()) {
+        addRow("Catchphrase", tl.catchphrase);
+    }
+
+    return rows;
+}
+
+function buildMiiDashboardInfoRows(mii, heightMeasurements, weightMeasurements) {
+    const rows = [];
+    const addRow = (label, value) => {
+        const normalizedValue = value === null || value === undefined || value === ""
+            ? "Not Set"
+            : String(value);
+        rows.push({ label, value: normalizedValue });
+    };
+
+    const createdTimestamp = getMiiCreationTimestamp(mii);
+    const heightValue = mii?.general?.height !== undefined && heightMeasurements
+        ? `${heightMeasurements.feet}' ${heightMeasurements.inches}", ${heightMeasurements.centimeters}cm.`
+        : "";
+    const weightValue = mii?.general?.weight !== undefined && weightMeasurements
+        ? `${Math.round(weightMeasurements.pounds)}lbs, ${weightMeasurements.kilograms}kg.`
+        : "";
+
+    addRow("Name", getDisplayMiiName(mii));
+    addRow("Creator Name", mii?.meta?.creatorName || "");
+    addRow("Mii Type", String(mii?.meta?.type || "").trim().toLowerCase() === "special" ? "Special Mii" : "Standard Mii");
+    addRow("Gender", getMiiGenderLabel(mii?.general?.gender));
+    addRow("Birthday", getReadableBirthdayLabel(mii?.general?.birthMonth, mii?.general?.birthday));
+    addRow("Height", heightValue);
+    addRow("Weight [Experimental]", weightValue);
+    addRow("Favorite Color", getMiiFavoriteColorLabel(mii?.general?.favoriteColor));
+    addRow("Created On", formatDashboardDate(createdTimestamp));
+    addRow("Console", getConsoleLabel(mii?.meta?.console || mii?.console || ""));
+    addRow("Original Device", getMiiOriginalDeviceLabel(mii?.meta?.originalDevice));
+    addRow("Mii ID", mii?.meta?.miiId || "");
+    addRow("System ID", mii?.meta?.systemId || "");
+
+    return rows;
+}
+
+async function buildMiiDashboardResult(miiInput) {
+    const miiInstance = await miijs.Mii.create(miiInput);
+    const mii = toMiiDataOnly(miiInstance.fields || {});
+    const miiName = getDisplayMiiName(mii);
+    const miiHeight = Number(mii?.general?.height ?? 0);
+    const miiWeight = Number(mii?.general?.weight ?? 0);
+    const hasTomodachiData = hasDecodedTomodachiLifeData(mii);
+
+    const [
+        renderBuffer,
+        fullBodyRenderBuffer,
+        qr3dsExport,
+        qrWiiuExport,
+        qrTomodachiExport,
+        heightMeasurements,
+        weightMeasurements
+    ] = await Promise.all([
+        miijs.renderMii(mii),
+        miijs.renderMii(mii, { fullBody: true }),
+        exportMiiToBuffer(mii, "qr", { qrConsole: "3DS" }),
+        exportMiiToBuffer(mii, "qr", { qrConsole: "WIIU" }),
+        hasTomodachiData
+            ? exportMiiToBuffer(mii, "qr", { qrConsole: "TOMODACHI" })
+            : Promise.resolve(null),
+        miijs.miiHeightToMeasurements(miiHeight),
+        miijs.miiWeightToMeasurements(miiHeight, miiWeight)
+    ]);
+
+    return {
+        mii,
+        miiName,
+        miiData: JSON.stringify(mii),
+        miiJson: JSON.stringify(mii, null, 2),
+        renderDataUri: bufferToDataUri(renderBuffer, "image/png"),
+        fullBodyRenderDataUri: bufferToDataUri(fullBodyRenderBuffer, "image/png"),
+        qr3dsDataUri: bufferToDataUri(qr3dsExport.buffer, qr3dsExport.contentType || "image/png"),
+        qrWiiuDataUri: bufferToDataUri(qrWiiuExport.buffer, qrWiiuExport.contentType || "image/png"),
+        qrTomodachiDataUri: qrTomodachiExport
+            ? bufferToDataUri(qrTomodachiExport.buffer, qrTomodachiExport.contentType || "image/png")
+            : "",
+        infoRows: buildMiiDashboardInfoRows(mii, heightMeasurements, weightMeasurements),
+        tomodachiRows: buildMiiDashboardTomodachiRows(mii),
+        createdOn: formatDashboardDate(getMiiCreationTimestamp(mii)),
+        heightMeasurements,
+        weightMeasurements
+    };
+}
+
+function buildSavedMiiFieldUpdate(miiFields, existingMii, metadata = {}) {
+    const fieldsOnly = toMiiDataOnly(miiFields);
+    if (!fieldsOnly.console && fieldsOnly.meta?.console) {
+        fieldsOnly.console = fieldsOnly.meta.console;
+    }
+
+    const updatedMii = {
+        ...existingMii,
+        ...fieldsOnly,
+        ...metadata
+    };
+
+    for (const optionalKey of OPTIONAL_MII_DATA_TOP_LEVEL_KEYS) {
+        if (!Object.prototype.hasOwnProperty.call(fieldsOnly, optionalKey)) {
+            delete updatedMii[optionalKey];
+        }
+    }
+
+    setMiiIdentityHash(updatedMii);
+    ensureUploadMiiPermissions(updatedMii);
+
+    const $set = {};
+    const $unset = {};
+
+    for (const key of MII_DATA_TOP_LEVEL_KEYS) {
+        if (
+            Object.prototype.hasOwnProperty.call(updatedMii, key)
+            && (Object.prototype.hasOwnProperty.call(fieldsOnly, key) || !OPTIONAL_MII_DATA_TOP_LEVEL_KEYS.includes(key))
+        ) {
+            $set[key] = cloneSerializable(updatedMii[key]);
+        } else if (OPTIONAL_MII_DATA_TOP_LEVEL_KEYS.includes(key)) {
+            $unset[key] = "";
+        }
+    }
+
+    $set.miiHash = metadata.miiHash || updatedMii.miiHash;
+    $set.tags = normalizeTagList(metadata.tags || updatedMii.tags || []);
+
+    return {
+        updatedMii,
+        update: {
+            $set,
+            ...(Object.keys($unset).length ? { $unset } : {})
+        }
+    };
+}
+
+async function saveDashboardMiiFields(existingMii, miiFields) {
+    const fieldsOnly = toMiiDataOnly(miiFields);
+    if (!fieldsOnly.console && fieldsOnly.meta?.console) {
+        fieldsOnly.console = fieldsOnly.meta.console;
+    }
+
+    const mergedMii = {
+        ...existingMii,
+        ...fieldsOnly
+    };
+
+    for (const optionalKey of OPTIONAL_MII_DATA_TOP_LEVEL_KEYS) {
+        if (!Object.prototype.hasOwnProperty.call(fieldsOnly, optionalKey)) {
+            delete mergedMii[optionalKey];
+        }
+    }
+
+    const currentTags = normalizeTagList(existingMii.tags || []);
+    mergedMii.tags = hasDecodedTomodachiLifeData(mergedMii)
+        ? currentTags
+        : currentTags.filter(tag => tag.toLowerCase() !== TOMODACHI_LIFE_TAG.toLowerCase());
+    setMiiIdentityHash(mergedMii);
+    await applyAutomaticDecodedMiiTags(mergedMii);
+    ensureUploadMiiPermissions(mergedMii);
+
+    const { update } = buildSavedMiiFieldUpdate(mergedMii, existingMii, {
+        miiHash: mergedMii.miiHash,
+        tags: mergedMii.tags
+    });
+    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(existingMii.id, Boolean(existingMii.private));
+    const [renderBuffer, qr3dsExport, qrWiiuExport] = await Promise.all([
+        miijs.renderMii(mergedMii),
+        exportMiiToBuffer(mergedMii, "qr", { qrConsole: "3DS" }),
+        exportMiiToBuffer(mergedMii, "qr", { qrConsole: "WIIU" })
+    ]);
+
+    await Miis.updateOne({ id: existingMii.id }, update);
+    await Promise.all([
+        fs.promises.writeFile(imgPath, renderBuffer),
+        fs.promises.writeFile(qrPath, qr3dsExport.buffer),
+        fs.promises.writeFile(qrWiiPath, qrWiiuExport.buffer)
+    ]);
+
+    return {
+        ...mergedMii,
+        id: existingMii.id,
+        private: existingMii.private
+    };
+}
+
+async function buildMiiDashboardErrorPayload(req, error, { reqFile = null, rawInput = "", filePath = "", context = "miiDashboard" } = {}) {
+    const isInvalidMiiType = isInvalidMiiTypeError(error);
+    const miiJsDebugOutput = isInvalidMiiType ? getMiiJsDebugOutputFromError(error) : "";
+    const dumpedUpload = reqFile?.path
+        ? await dumpFailingUploadFile(reqFile, error, context)
+        : null;
+
+    if (dumpedUpload) {
+        await sendSavedFailingUploadToWebhook({
+            req,
+            error,
+            context,
+            dumpedUpload,
+            miiJsDebugOutput
+        });
+    }
+
+    if (isInvalidMiiType) {
+        if (!dumpedUpload) {
+            await sendInvalidMiiInputToWebhook({
+                req,
+                error,
+                context,
+                reqFile,
+                rawInput,
+                filePath,
+                miiJsDebugOutput
+            });
+        }
+        return buildUploadMiiDecodeableFormatsErrorPayload(miiJsDebugOutput);
+    }
+
+    const reason = error?.message ? ` ${error.message}` : "";
+    return {
+        error: `Failed to process file. Please double-check that you selected the correct file.${reason}`
+    };
+}
+
+async function enrichMiiLifeStagesForClient(stages) {
+    return await Promise.all(stages.map(async (stageInput, index) => {
+        const stage = structuredClone(stageInput);
+
+        if (typeof stage?.general?.favoriteColor === "string") {
+            const parsedColor = Number(stage.general.favoriteColor);
+            if (!Number.isNaN(parsedColor)) {
+                stage.general.favoriteColor = parsedColor;
+            }
+        }
+
+        const miiImageData = await miijs.renderMii(stage);
+        const miiHeight = Number(stage?.general?.height ?? 0);
+        const miiWeight = Number(stage?.general?.weight ?? 0);
+
+        return {
+            ...stage,
+            stageIndex: index,
+            stageLabel: MII_CHILD_STAGE_LABELS[index] || `Stage ${index + 1}`,
+            renderDataUri: bufferToDataUri(miiImageData, "image/png"),
+            heightMeasurements: await miijs.miiHeightToMeasurements(miiHeight),
+            weightMeasurements: await miijs.miiWeightToMeasurements(miiHeight, miiWeight)
+        };
+    }));
 }
 
 async function sendExportResponse(res, miiInput, format, nameHint, options = {}) {
@@ -1300,7 +1815,7 @@ async function resolveMiiIdForImport(id, req) {
 
     const publishedMii = await getMiiById(trimmedId, false);
     if (publishedMii) {
-        return { mii: publishedMii };
+        return { mii: toMiiDataOnly(publishedMii) };
     }
 
     const privateMii = await Miis.findOne({ id: trimmedId, private: true }).lean();
@@ -1315,7 +1830,7 @@ async function resolveMiiIdForImport(id, req) {
         return { error: "You do not have permission to use this private Mii" };
     }
 
-    return { mii: privateMii };
+    return { mii: toMiiDataOnly(privateMii) };
 }
 
 async function resolveMiiInputForInstructions(req, { allowFile = false } = {}) {
@@ -1328,6 +1843,10 @@ async function resolveMiiInputForInstructions(req, { allowFile = false } = {}) {
     const rawMiiData = typeof source?.miiData === "string" ? source.miiData.trim() : "";
     if (rawMiiData) {
         return rawMiiData;
+    }
+
+    if (source?.miiData && typeof source.miiData === "object") {
+        return source.miiData;
     }
 
     const miiId = typeof source?.id === "string"
@@ -2185,6 +2704,77 @@ function isAdmin(user) {
     return hasRole(user, ROLES.ADMINISTRATOR);
 }
 
+const MODS_PAGE_GROUPS = Object.freeze([
+    {
+        key: "admins",
+        role: ROLES.ADMINISTRATOR,
+        title: "Administrators",
+        label: "Administrator",
+        blurb: "Administrators have all of the power of Moderators and Researchers, in addition to extra permissions designed to keep everything in line and in check. This is the highest trust tier available."
+    },
+    {
+        key: "mods",
+        role: ROLES.MODERATOR,
+        title: "Moderators",
+        label: "Moderator",
+        blurb: "Moderators are here to keep the site clean from anything that shouldn't be here or needs changing."
+    },
+    {
+        key: "research",
+        role: ROLES.RESEARCHER,
+        title: "Researchers",
+        label: "Researcher",
+        blurb: "Researchers help document official Miis, formats, categories, and preservation details across Nintendo history. You can apply to be a Researcher in the <a href='/contact' target='_blank'>Discord server</a>."
+    }
+]);
+
+const OFFICIAL_ACCOUNTS_PAGE_BLURB = "Official Accounts are archive profiles used to group Miis created by real official sources, such as Nintendo releases, games, events, and promotions. The names and trademarks belong to their respective owners; these profiles are not operated by those brands. InfiniMii researchers maintain them as attribution buckets so official Miis stay easy to browse, credit, and preserve. If something looks incomplete or misattributed, please use the <a href='/contact'>contact page</a> to let us know.";
+
+function getStaffProfileSummary(user) {
+    return {
+        username: user.username,
+        miiPfp: user.miiPfp || BLANK_MII_ID,
+        roles: getUserRoles(user)
+    };
+}
+
+async function getModsPageGroups() {
+    const staffRoles = MODS_PAGE_GROUPS.map(group => group.role);
+    const users = await Users.find({ roles: { $in: staffRoles } })
+        .select("username roles miiPfp")
+        .sort({ username: 1 })
+        .lean();
+
+    return MODS_PAGE_GROUPS.map(group => ({
+        ...group,
+        members: users
+            .filter(user => getUserRoles(user).includes(group.role))
+            .map(getStaffProfileSummary)
+    }));
+}
+
+async function getModsPageOfficialAccounts(sourceNames) {
+    const officialSourceNames = normalizeOfficialCompanySourceList(sourceNames || []);
+    if (officialSourceNames.length === 0) return [];
+
+    const users = await Users.find({
+        $or: officialSourceNames.map(sourceName => ({
+            username: buildExactCaseInsensitiveRegex(sourceName)
+        }))
+    })
+        .select("username miiPfp")
+        .lean();
+    const userByName = new Map(users.map(user => [user.username.toLowerCase(), user]));
+
+    return officialSourceNames.map(sourceName => {
+        const user = userByName.get(sourceName.toLowerCase());
+        return {
+            username: user?.username || sourceName,
+            miiPfp: user?.miiPfp || BLANK_MII_ID
+        };
+    });
+}
+
 async function isBanned(user) {
     const roles = getUserRoles(user);
     if (roles.includes(ROLES.PERM_BANNED)) return true;
@@ -2360,9 +2950,13 @@ function getConsoleLabel(rawConsole) {
         "WII": "Wii",
         "WIIU": "Wii U",
         "SWITCH": "Switch",
+        "MII STUDIO": "Mii Studio",
+        "MIISTUDIO": "Mii Studio",
         "MIITOMO": "Miitomo",
         "DS": "DS",
         "DSI": "DSi",
+        "TL 3DS": "TL 3DS",
+        "TL3DS": "TL 3DS",
         "TOMODACHI LIFE": "Tomodachi Life"
     };
 
@@ -8325,7 +8919,7 @@ site.get('/sitemap-pages.xml', async (req, res) => {
             priority: '0.7'
         },
         {
-            loc: `${resolvedBaseUrl}/convert`,
+            loc: `${resolvedBaseUrl}/miiDashboard`,
             changefreq: 'monthly',
             priority: '0.8'
         },
@@ -8539,7 +9133,7 @@ site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) 
         }
 
         const miiInstance = await miijs.Mii.create(miiInput);
-        const wiimoteData = miiInstance.encode("rcd");
+        const wiimoteData = await miiInstance.encode("rcd");
 
         if (!wiimoteData || wiimoteData.length !== 74) {
             res.status(400).json({ error: "Converted Mii data is not valid for Wii Remote slots" });
@@ -8572,7 +9166,7 @@ site.post('/extractMiiFromAmiibo', upload.single('amiibo'), async (req, res) => 
         const amiiboDump = fs.readFileSync("./uploads/" + req.file.filename);
         
         // Extract Mii data from the Amiibo dump
-        const miiData = miijs.extractMiiFromAmiibo(amiiboDump);
+        const miiData = await miijs.extractMiiFromAmiibo(amiiboDump);
         
         // Convert to JSON
         const mii = await createMiiData(miiData);
@@ -8660,7 +9254,7 @@ site.post('/insertMiiIntoAmiibo', upload.fields([
         }
 
         // Insert Mii into Amiibo
-        const modifiedAmiibo = miijs.insertMiiIntoAmiibo(amiiboDump, miiData);
+        const modifiedAmiibo = await miijs.insertMiiIntoAmiibo(amiiboDump, miiData);
         
         // Clean up
         try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e) { }
@@ -9061,8 +9655,8 @@ site.get('/mii/:id', async (req, res) => {
     }
     
     inp.mii = mii;
-    inp.height=miijs.miiHeightToMeasurements(inp.mii.general.height);
-    inp.weight=miijs.miiWeightToMeasurements(inp.mii.general.height,inp.mii.general.weight);
+    inp.height = await miijs.miiHeightToMeasurements(inp.mii.general.height);
+    inp.weight = await miijs.miiWeightToMeasurements(inp.mii.general.height, inp.mii.general.weight);
     const uploaderUser = await getUserByUsername(mii.uploader);
     inp.uploaderPfp = uploaderUser?.miiPfp || "00000";
     inp.officialSourceName = mii.official
@@ -9408,14 +10002,10 @@ site.get('/logout', async (req, res) => { // TODO: make this a POST request to p
     }
 });
 site.get('/convert', async (req, res) => {
-    ejs.renderFile('./ejsFiles/convert.ejs', await getSendables(req), {}, function(err, str) {
-        if (err) {
-            res.send(err);
-            console.log(err);
-            return;
-        }
-        res.send(str)
-    });
+    const queryString = Object.keys(req.query || {}).length > 0
+        ? `?${new URLSearchParams(req.query).toString()}`
+        : "";
+    res.redirect(301, `/miiDashboard${queryString}`);
 });
 site.get('/calculator', async (req, res) => {
     ejs.renderFile('./ejsFiles/calc.ejs', await getSendables(req), {}, function(err, str) {
@@ -9427,6 +10017,96 @@ site.get('/calculator', async (req, res) => {
         res.send(str);
     });
 });
+site.get('/miiDashboard', async (req, res) => {
+    const sendables = await getSendables(req);
+    ejs.renderFile('./ejsFiles/miiDashboard.ejs', sendables, {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
+
+site.post('/miiDashboard/analyze', upload.single('mii'), async (req, res) => {
+    try {
+        const bodyMiiData = req.body?.miiData;
+        const rawInput = typeof bodyMiiData === "string" ? bodyMiiData.trim() : "";
+        const objectInput = bodyMiiData && typeof bodyMiiData === "object" ? bodyMiiData : null;
+        const miiId = typeof req.body?.miiId === "string" && req.body.miiId.trim()
+            ? req.body.miiId.trim()
+            : (typeof req.body?.id === "string" ? req.body.id.trim() : "");
+        let miiInput = req.file?.path || rawInput || objectInput;
+
+        if (!miiInput && miiId) {
+            const resolved = await resolveMiiIdForImport(miiId, req);
+            if (resolved.error) {
+                res.json({ error: resolved.error });
+                return;
+            }
+            miiInput = resolved.mii;
+        }
+
+        if (!miiInput) {
+            res.json({ error: "Upload a Mii file, paste raw Mii data, or enter an InfiniMii Mii ID first." });
+            return;
+        }
+
+        const decoded = await createMiiDataWithDebug(miiInput);
+        const dashboard = await buildMiiDashboardResult(decoded.mii);
+        res.json({
+            ...dashboard,
+            sourceMiiId: miiId || "",
+            message: `Decoded ${dashboard.miiName || "Mii"} successfully.`
+        });
+    } catch (e) {
+        console.error("Error decoding Mii for dashboard:", e);
+        const payload = await buildMiiDashboardErrorPayload(req, e, {
+            reqFile: req.file,
+            rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
+            filePath: req.file?.path,
+            context: "miiDashboard"
+        });
+        res.json(payload);
+    } finally {
+        try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+    }
+});
+
+site.post('/miiDashboard/saveJson', requireAuth, requireRole(ROLES.ADMINISTRATOR), async (req, res) => {
+    try {
+        const miiId = normalizeMiiIdInput(req.body?.miiId || req.body?.id);
+        if (!miiId) {
+            res.json({ error: "Mii ID required" });
+            return;
+        }
+
+        const existingMii = await getMiiById(miiId, true);
+        if (!existingMii) {
+            res.json({ error: "Mii not found" });
+            return;
+        }
+
+        if (!req.body?.miiData) {
+            res.json({ error: "MiiJS decoded JSON required" });
+            return;
+        }
+
+        const decoded = await createMiiData(req.body.miiData);
+        const dashboard = await buildMiiDashboardResult(decoded);
+        await saveDashboardMiiFields(existingMii, dashboard.mii);
+        res.json({
+            ...dashboard,
+            sourceMiiId: miiId,
+            message: `Saved ${dashboard.miiName || "Mii"} successfully.`
+        });
+    } catch (e) {
+        console.error("Error saving dashboard Mii JSON:", e);
+        res.json({ error: e?.message || "Failed to save Mii JSON." });
+    }
+});
+
 site.get('/miiChild', async (req, res) => {
     ejs.renderFile('./ejsFiles/miiChild.ejs', await getSendables(req), {}, function(err, str) {
         if (err) {
@@ -9923,7 +10603,7 @@ site.get('/miiWii',async (req,res)=>{
         miiInstance = await miijs.Mii.create(specialFields);
     }
     console.log(miiInstance.fields.meta.name);
-    const miiBuffer = miiInstance.encode(miijs.MiiFormats.RSD);
+    const miiBuffer = await miiInstance.encode(miijs.MiiFormats.RSD);
     console.log(miiBuffer);
     console.log((await miijs.Mii.create(miiBuffer))?.fields?.meta?.name);
     res.setHeader('Content-Disposition', `attachment; filename="${req.query.id}.mii"`);
@@ -9932,6 +10612,20 @@ site.get('/miiWii',async (req,res)=>{
 });
 site.get('/faq', async (req, res) => {
     ejs.renderFile('./ejsFiles/faq.ejs', await getSendables(req), {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
+site.get('/mods', async (req, res) => {
+    const sendables = await getSendables(req);
+    sendables.staffGroups = await getModsPageGroups();
+    sendables.officialAccounts = await getModsPageOfficialAccounts(sendables.officialCompanySources);
+    sendables.officialAccountsBlurb = OFFICIAL_ACCOUNTS_PAGE_BLURB;
+    ejs.renderFile('./ejsFiles/mods.ejs', sendables, {}, function(err, str) {
         if (err) {
             res.send(err);
             console.log(err);
@@ -10481,7 +11175,7 @@ async function handleGetInstructionsRequest(req, res, { allowFile = false } = {}
 
         const mii = await createMiiData(miiInput);
         const consoleType = miijs.ConsoleFormats?.[instructionConsole] || instructionConsole;
-        const instructions = miijs.makeInstructions(mii, consoleType);
+        const instructions = await miijs.makeInstructions(mii, consoleType);
 
         res.json({
             instructions,
@@ -11938,31 +12632,7 @@ site.post('/makeMiiChild', defaultRatelimiter, upload.fields([
             return;
         }
 
-        const enrichedChildren = await Promise.all(childStages.map(async (childStage, index) => {
-            const stage = structuredClone(childStage);
-
-            if (typeof stage?.general?.favoriteColor === "string") {
-                const parsedColor = Number(stage.general.favoriteColor);
-                if (!Number.isNaN(parsedColor)) {
-                    stage.general.favoriteColor = parsedColor;
-                }
-            }
-
-            const miiImageData = await miijs.renderMii(stage);
-            const renderDataUri = `data:image/png;base64,${Buffer.from(miiImageData).toString('base64')}`;
-
-            const miiHeight = Number(stage?.general?.height ?? 0);
-            const miiWeight = Number(stage?.general?.weight ?? 0);
-
-            return {
-                ...stage,
-                stageIndex: index,
-                stageLabel: MII_CHILD_STAGE_LABELS[index] || `Stage ${index + 1}`,
-                renderDataUri,
-                heightMeasurements: miijs.miiHeightToMeasurements(miiHeight),
-                weightMeasurements: miijs.miiWeightToMeasurements(miiHeight, miiWeight)
-            };
-        }));
+        const enrichedChildren = await enrichMiiLifeStagesForClient(childStages);
 
         res.json({ children: enrichedChildren });
     } catch (e) {
@@ -11972,6 +12642,36 @@ site.post('/makeMiiChild', defaultRatelimiter, upload.fields([
         for (const filePath of uploadedPaths) {
             try { fs.unlinkSync(filePath); } catch (e) { }
         }
+    }
+});
+site.post('/makeMiiKidomatic', defaultRatelimiter, upload.single('mii'), async (req, res) => {
+    try {
+        const bodyMiiData = req.body?.miiData;
+        const rawInput = typeof bodyMiiData === "string" ? bodyMiiData.trim() : "";
+        const objectInput = bodyMiiData && typeof bodyMiiData === "object" ? bodyMiiData : null;
+        const miiInput = req.file?.path || rawInput || objectInput;
+
+        if (!miiInput) {
+            res.json({ error: "Upload a Mii file or decode one in the dashboard first." });
+            return;
+        }
+
+        const miiData = objectInput && miiInput === objectInput ? objectInput : await createMiiData(miiInput);
+        const mii = await miijs.Mii.create(miiData);
+        const kidStages = await miijs.kidomatic(mii);
+
+        if (!Array.isArray(kidStages) || kidStages.length === 0) {
+            res.json({ error: "Kidomatic did not return any stages for this Mii." });
+            return;
+        }
+
+        const enrichedChildren = await enrichMiiLifeStagesForClient(kidStages);
+        res.json({ children: enrichedChildren });
+    } catch (e) {
+        console.error("Error generating Kidomatic stages:", e);
+        res.json({ error: `Failed to run Kidomatic: ${e.message}` });
+    } finally {
+        try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
     }
 });
 site.post('/signup', async (req, res) => {

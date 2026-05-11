@@ -95,7 +95,7 @@
 
                     <div class="after qr-button-row" hidden>
                         <input type="button" value="Upload Mii" onclick="after('upload')">
-                        <input type="button" value="Convert Mii" onclick="after('convert')">
+                        <input type="button" value="Open Dashboard" onclick="after('convert')">
                         <input type="button" value="Scan Again" onclick="start()">
                     </div>
 
@@ -180,23 +180,7 @@
                 
                 switch (act) {
                     case 'convert':
-                        document.querySelector(".convert-miidata").value = base64Data;
-                        const formatInput = document.getElementById('qr-output-format');
-                        if (formatInput && !formatInput.value) formatInput.value = 'qr';
-                        document.querySelector(".qr").hidden = true;
-                        document.querySelector(".convert").hidden = false;
-                        document.querySelector(".after").hidden = true;
-                        
-                        // Add AJAX handling to the convert form
-                        const convertForm = document.querySelector(".convert");
-                        if (!convertFormBound) {
-                            convertForm.addEventListener('submit', function(e) {
-                                handleFormSubmit(e, '/exportMii', 'Exporting...', 'convert-error-message', {
-                                    handleFileDownload: true
-                                });
-                            });
-                            convertFormBound = true;
-                        }
+                        window.location.href = `/miiDashboard?miiData=${encodeURIComponent(base64Data)}`;
                         break;
                         
                     case 'upload':
@@ -222,7 +206,7 @@
                 const convertForm = document.querySelector('.convert');
                 const miiData = convertForm?.querySelector('.convert-miidata')?.value?.trim() || '';
                 if (!miiData) {
-                    showAlert('Scan a QR code first, then open Convert Mii.', 4000, { title: 'Missing Input', type: 'error' });
+                    showAlert('Scan a QR code first, then open the dashboard.', 4000, { title: 'Missing Input', type: 'error' });
                     return;
                 }
 

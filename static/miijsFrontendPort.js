@@ -31,7 +31,7 @@ function bmiFromWeightSlider(w) {
         return BMI_MID + (w - 64) * (BMI_MAX - BMI_MID) / 63;
     }
 }
-function miiWeightToRealWeight(heightInches, miiWeight) {
+function miiWeightToMeasurements(heightInches, miiWeight) {
     /*
     Take the height, map it to a reasonable height 0-127 === 3'-7'.
     Get the average weight for that height.
@@ -50,6 +50,7 @@ function miiWeightToRealWeight(heightInches, miiWeight) {
         kilograms: Math.round((BMI * (H * H) / 703) * 0.4535924)
     };
 }
+const miiWeightToRealWeight = miiWeightToMeasurements;
 function imperialHeightWeightToMiiWeight(heightInches, weightLbs) {
     if (!heightInches || heightInches < 0) throw new Error("heightInches must be >= 0");
     

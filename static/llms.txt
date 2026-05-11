@@ -10,7 +10,7 @@
 - [Recent Miis](https://infinimii.com/recent): Newly uploaded public Mii characters.
 - [Official Miis](https://infinimii.com/official): Official Nintendo Miis preserved from games, promotions, and systems.
 - [Search](https://infinimii.com/search): Search form for Mii characters, uploaders, text, and tags.
-- [Mii Converter](https://infinimii.com/convert): Convert Mii data between Nintendo formats.
+- [Mii Dashboard](https://infinimii.com/miiDashboard): Render Miis, edit MiiJS decoded JSON, convert formats, create Special Mii exports, generate 3DS/Wii U/Tomodachi Life QR codes, view recreation instructions, and run Kidomatic.
 - [QR Scanner](https://infinimii.com/qr): Scan Mii QR codes and decode them into exportable data.
 - [Amiibo Tools](https://infinimii.com/amiibo): Extract or insert Miis from Amiibo backups.
 - [Wii Remote Tools](https://infinimii.com/wiimote): Read and write Wii Remote Mii slots in supported browsers.

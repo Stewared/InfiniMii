@@ -10,9 +10,9 @@
    - Type: CreativeWork / DigitalDocument
    - Related Terms: Nintendo Avatar, Mii Avatar, Virtual Character
 
-3. **Mii Converter** (Primary Tool)
+3. **Mii Dashboard** (Primary Tool)
    - Type: SoftwareApplication
-   - Function: Format conversion between Nintendo systems
+   - Function: Mii rendering, JSON editing, QR generation, recreation instructions, Kidomatic, and format conversion between Nintendo systems
 
 ## Secondary Entities (What InfiniMii Works With)
 ### Nintendo Systems
@@ -41,7 +41,7 @@
 - Avatar Customization
 
 ## Entity Relationships
-InfiniMii → offers → Mii Converter
+InfiniMii → offers → Mii Dashboard
 InfiniMii → supports → Nintendo 3DS
 InfiniMii → generates → QR Code
 Mii Character → usedIn → Tomodachi Life
