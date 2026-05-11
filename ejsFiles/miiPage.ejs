@@ -14,9 +14,7 @@
             if (typeof tlData !== 'object') return true;
             return Object.keys(tlData).length > 0;
         })();
-        const hasTomodachiLifeTag = [...tagList, ...(Array.isArray(mii?.tags) ? mii.tags : [])]
-            .some(tag => String(tag || '').trim().toLowerCase() === 'tomodachi life');
-        const showTomodachiLifeQrTab = hasTomodachiLifeData || hasTomodachiLifeTag;
+        const defaultQrConsole = hasTomodachiLifeData ? 'TOMODACHI' : '3DS';
         const searchTopics = Array.isArray(seo.searchTopicPhrases) ? seo.searchTopicPhrases : [];
         const creatorName = seo.creatorName || '';
         const consoleLabel = seo.consoleLabel || '';
@@ -43,6 +41,10 @@
         const previewImagePath = `${previewImageCanonicalPath}?v=${encodeURIComponent(previewAssetVersion)}`;
         const previewQr3dsPath = `/${qr3dsPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
         const previewQrWiiPath = `/${qrWiiPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
+        const previewQrTomodachiPath = hasTomodachiLifeData
+            ? `/exportMii?id=${encodeURIComponent(mii.id)}&format=qr&qrConsole=TOMODACHI&inline=1&v=${encodeURIComponent(previewAssetVersion)}`
+            : '';
+        const defaultQrPreviewPath = defaultQrConsole === 'TOMODACHI' ? previewQrTomodachiPath : previewQr3dsPath;
         const ogImage = isPrivate
             ? `${baseUrl}/miiImgs/00000.png`
             : `${baseUrl}${previewImageCanonicalPath}`;
@@ -172,15 +174,18 @@
                             decoding="async"
                             fetchpriority="high">
                         <figcaption class="qr-code">
-                            <div class="qr-preview-window is-qr-3ds <%= showTomodachiLifeQrTab ? 'has-tomodachi-life-tab' : '' %>" data-qr-preview data-qr3ds-src="<%= previewQr3dsPath %>" data-qr-wii-src="<%= previewQrWiiPath %>" data-qr-wiiu-src="<%= previewQrWiiPath %>">
+                            <div class="qr-preview-window <%= defaultQrConsole === 'TOMODACHI' ? 'is-qr-tomodachi has-tomodachi-qr' : 'is-qr-3ds' %>" data-qr-preview data-default-qr-console="<%= defaultQrConsole %>" data-qr3ds-src="<%= previewQr3dsPath %>" data-qr-wii-src="<%= previewQrWiiPath %>" data-qr-wiiu-src="<%= previewQrWiiPath %>" data-qr-tomodachi-src="<%= previewQrTomodachiPath %>">
                                 <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
-                                    <button type="button" class="qr-console-tab is-active" data-qr-tab="3DS" role="tab" aria-selected="true" onclick="setQrPreviewConsole(this)">3DS</button>
+                                    <button type="button" class="qr-console-tab <%= defaultQrConsole === '3DS' ? 'is-active' : '' %>" data-qr-tab="3DS" role="tab" aria-selected="<%= defaultQrConsole === '3DS' ? 'true' : 'false' %>" onclick="setQrPreviewConsole(this)">3DS</button>
                                     <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false" onclick="setQrPreviewConsole(this)">Wii U</button>
+                                    <% if(hasTomodachiLifeData) { %>
+                                        <button type="button" class="qr-console-tab <%= defaultQrConsole === 'TOMODACHI' ? 'is-active' : '' %>" data-qr-tab="TOMODACHI" role="tab" aria-selected="<%= defaultQrConsole === 'TOMODACHI' ? 'true' : 'false' %>" onclick="setQrPreviewConsole(this)" aria-label="Tomodachi Life 3DS QR" title="Tomodachi Life 3DS QR">TL</button>
+                                    <% } %>
                                 </div>
-                                <a class="qr-preview-link" href="<%= previewQr3dsPath %>" target="_blank" rel="noopener noreferrer" data-qr-link>
+                                <a class="qr-preview-link" href="<%= defaultQrPreviewPath %>" target="_blank" rel="noopener noreferrer" data-qr-link>
                                     <img
                                         class="qr-code-image"
-                                        src="<%= previewQr3dsPath %>"
+                                        src="<%= defaultQrPreviewPath %>"
                                         alt="QR Code for <%= miiName %> - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo"
                                         width="200"
                                         height="200"
@@ -188,12 +193,9 @@
                                         decoding="async"
                                         fetchpriority="low"
                                         data-qr-image
-                                        data-qr-console="3DS"
+                                        data-qr-console="<%= defaultQrConsole %>"
                                     >
                                 </a>
-                                <% if(showTomodachiLifeQrTab) { %>
-                                    <div class="qr-tomodachi-life-tab" role="note">Tomodachi Life</div>
-                                <% } %>
                             </div>
                             <form id="miiQrExportForm" method="GET" action="/exportMii" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center;">
                                 <input type="hidden" name="id" value="<%= mii.id %>">
@@ -657,7 +659,7 @@
                     <p itemprop="description" data-inline-edit-display="desc"><%= (mii.desc && mii.desc.length > 0) ? mii.desc : `${archiveIntro} ${archiveOwnerStatsLabel}`.trim() %></p>
                     <% if(canInlineEditMiiMetadata) { %>
                         <div class="inline-edit-controls inline-edit-controls-wide" data-inline-edit-controls="desc" hidden>
-                            <textarea id="inlineEditDesc" class="inline-edit-input inline-edit-textarea" data-inline-edit-input="desc" rows="4"><%= mii.desc || '' %></textarea>
+                            <textarea id="inlineEditDesc" class="inline-edit-input inline-edit-textarea" data-inline-edit-input="desc" rows="4" maxlength="<%= miiDescriptionMaxLength %>"><%= mii.desc || '' %></textarea>
                             <div class="inline-edit-actions">
                                 <button type="button" class="inline-edit-save-button" data-inline-edit-save="desc" onclick="saveInlineMiiField('desc')">
                                     <%- include('icon', { name: 'check', size: 15 }) %> Save
@@ -762,6 +764,16 @@
                                 labelText: qrFormat.label,
                                 qrConsole: 'WIIU'
                             });
+                            if (hasTomodachiLifeData) {
+                                quickExportFormats.push({
+                                    key: 'qr:TOMODACHI',
+                                    value: 'qr',
+                                    label: 'QR Code (TL 3DS)',
+                                    valueText: 'TL 3DS QR',
+                                    labelText: qrFormat.label,
+                                    qrConsole: 'TOMODACHI'
+                                });
+                            }
                             usedQuickValues.add('qr');
                         }
 
@@ -789,7 +801,7 @@
                     <form id="miiExportForm" class="export-form" method="GET" action="/exportMii">
                         <input type="hidden" name="id" value="<%= mii.id %>">
                         <input type="hidden" id="export-format-<%= mii.id %>" name="format" value="">
-                        <input type="hidden" name="qrConsole" value="3DS" data-export-qr-console-input>
+                        <input type="hidden" name="qrConsole" value="<%= defaultQrConsole %>" data-export-qr-console-input data-default-qr-console="<%= defaultQrConsole %>">
                         <input type="hidden" value="" data-export-selection-key>
 
                         <div class="export-top-row">
@@ -1224,7 +1236,7 @@
 
                                 <div class="mod-tool-item">
                                     <label>Description:</label>
-                                    <textarea id="researcherEditDesc" rows="3" placeholder="Description"><%= mii.desc %></textarea>
+                                    <textarea id="researcherEditDesc" rows="3" placeholder="Description" maxlength="<%= miiDescriptionMaxLength %>"><%= mii.desc %></textarea>
                                 </div>
 
                                 <div class="mod-tool-item">
@@ -1565,21 +1577,27 @@
             }
 
             function normalizeQrPreviewConsole(consoleType) {
-                const normalizedConsole = String(consoleType || '').trim().toUpperCase();
-                return normalizedConsole === 'WII' ? 'WIIU' : normalizedConsole;
+                const normalizedConsole = String(consoleType || '').trim().toUpperCase().replace(/[\s_-]+/g, '');
+                if (['TOMODACHI', 'TOMODACHILIFE', 'TL', 'TLE'].includes(normalizedConsole)) return 'TOMODACHI';
+                return normalizedConsole === 'WII' || normalizedConsole === 'WIIU' ? 'WIIU' : '3DS';
             }
 
             function getQrPreviewSources(preview) {
                 if (!(preview instanceof HTMLElement)) return null;
                 const source3ds = String(preview.dataset.qr3dsSrc || '').trim();
                 const sourceWiiu = String(preview.dataset.qrWiiuSrc || preview.dataset.qrWiiSrc || '').trim() || source3ds;
+                const sourceTomodachi = String(preview.dataset.qrTomodachiSrc || '').trim();
                 if (!source3ds) return null;
 
-                return {
+                const sources = {
                     '3DS': source3ds,
                     'WIIU': sourceWiiu,
                     'WII': sourceWiiu
                 };
+                if (sourceTomodachi) {
+                    sources.TOMODACHI = sourceTomodachi;
+                }
+                return sources;
             }
 
             function setQrPreviewConsole(tabOrPreview, consoleType) {
@@ -1614,6 +1632,7 @@
 
                 preview.classList.toggle('is-qr-3ds', normalizedConsole === '3DS');
                 preview.classList.toggle('is-qr-wiiu', normalizedConsole === 'WIIU');
+                preview.classList.toggle('is-qr-tomodachi', normalizedConsole === 'TOMODACHI');
 
                 tabs.forEach((tab) => {
                     const tabConsole = normalizeQrPreviewConsole(tab.dataset.qrTab || '');
@@ -1694,7 +1713,7 @@
                     image.classList.add('is-switching');
                 }
 
-                setQrPreviewConsole(preview, '3DS');
+                setQrPreviewConsole(preview, preview.dataset.defaultQrConsole || '3DS');
             }
 
             function buildQrPreviewMnmsCopyForm() {
@@ -1778,6 +1797,7 @@
                     desc: {
                         endpointField: 'desc',
                         label: 'description',
+                        maxLength: <%= miiDescriptionMaxLength %>,
                         required: true,
                         fallback: <%- toScriptJson(`${archiveIntro} ${archiveOwnerStatsLabel}`.trim()) %>
                     },

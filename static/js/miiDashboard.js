@@ -132,6 +132,16 @@
         return hasTomodachiData(mii) ? 'TOMODACHI' : '3DS';
     }
 
+    function setTomodachiQrOptionAvailability(hasTomodachiQr) {
+        const option = exportQrConsole?.querySelector?.('option[value="TOMODACHI"]');
+        if (!option) return;
+        option.hidden = !hasTomodachiQr;
+        option.disabled = !hasTomodachiQr;
+        if (!hasTomodachiQr && exportQrConsole?.value === 'TOMODACHI') {
+            exportQrConsole.value = '3DS';
+        }
+    }
+
     function dataUriToBlob(dataUri) {
         const [metadata, data] = String(dataUri || '').split(',');
         if (!metadata || !data) return null;
@@ -324,10 +334,12 @@
 
         renderInfoRows(result.infoRows || []);
         renderTomodachiRows(result.tomodachiRows || []);
+        const hasTomodachiQr = Boolean(result.qrTomodachiDataUri);
         document.querySelectorAll('[data-qr-tab="TOMODACHI"]').forEach((tab) => {
-            tab.hidden = !result.qrTomodachiDataUri;
+            tab.hidden = !hasTomodachiQr;
         });
-        setDashboardQrConsole('3DS');
+        setTomodachiQrOptionAvailability(hasTomodachiQr);
+        setDashboardQrConsole(hasTomodachiQr ? 'TOMODACHI' : '3DS');
         if (dashboardSaveJsonBtn) {
             dashboardSaveJsonBtn.hidden = !(dashboardConfig.isAdmin && result.sourceMiiId);
         }
@@ -406,7 +418,9 @@
         if (exportFormat) exportFormat.value = '';
         if (exportQrConsole) {
             const defaultMii = useEditedJson ? dashboardState?.mii : mii;
-            exportQrConsole.value = getDefaultQrConsoleForMii(defaultMii);
+            const hasTomodachiQr = hasTomodachiData(defaultMii);
+            setTomodachiQrOptionAvailability(hasTomodachiQr);
+            exportQrConsole.value = hasTomodachiQr ? 'TOMODACHI' : getDefaultQrConsoleForMii(defaultMii);
         }
         setExportMessage('');
         exportModal.hidden = false;

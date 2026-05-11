@@ -49,6 +49,11 @@ import {
     createRequestLoggingMiddleware,
     setRequestLogContext
 } from "./securityLogging.js";
+import {
+    MII_DESCRIPTION_MAX_LENGTH,
+    getMiiDescriptionValidationError,
+    normalizeMiiDescription
+} from "./miiDescriptionValidation.js";
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 fs.mkdirSync(path.join(__dirname, "static", "miiImgs"), { recursive: true });
@@ -591,7 +596,8 @@ function getExportOptionsFromRequest(req) {
     const source = req.method === "GET" ? req.query : req.body;
     return {
         special: parseBooleanLike(source?.special),
-        qrConsole: normalizeQrConsole(source?.qrConsole)
+        qrConsole: normalizeQrConsole(source?.qrConsole),
+        inline: parseBooleanLike(source?.inline)
     };
 }
 
@@ -1026,6 +1032,9 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
 
     if (format === "qr") {
         const qrConsole = normalizeQrConsole(options.qrConsole || options.device);
+        if (qrConsole === "TOMODACHI" && !hasDecodedTomodachiLifeData(exportFields)) {
+            throw new Error("Tomodachi Life QR export requires stored Tomodachi Life data.");
+        }
         const qrFormat = qrConsole === "TOMODACHI"
             ? "tle"
             : (qrConsole === "WIIU" ? "ffed" : "cfed");
@@ -1417,7 +1426,7 @@ async function sendExportResponse(res, miiInput, format, nameHint, options = {})
         filename = `${safeName}.${extension}`;
     }
 
-    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Disposition", `${options.inline ? "inline" : "attachment"}; filename="${filename}"`);
     res.setHeader("Content-Type", contentType);
     res.send(buffer);
     return true;
@@ -2630,6 +2639,7 @@ async function getSendables(req, title, user) {
         paypalDonateUrl: PAYPAL_DONATE_URL,
         assetVersion: GLOBAL_ASSET_VERSION,
         baseUrl: resolvedBaseUrl,
+        miiDescriptionMaxLength: MII_DESCRIPTION_MAX_LENGTH,
         title: title,
         exportFormats: EXPORT_FORMATS,
         favoriteColors: Array.isArray(miijs.FavoriteColors) ? miijs.FavoriteColors : [],
@@ -2724,7 +2734,7 @@ const MODS_PAGE_GROUPS = Object.freeze([
         role: ROLES.RESEARCHER,
         title: "Researchers",
         label: "Researcher",
-        blurb: "Researchers help document official Miis, formats, categories, and preservation details across Nintendo history. You can apply to be a Researcher in the <a href='/contact' target='_blank'>Discord server</a>."
+        blurb: "Researchers help document official Miis, formats, categories, and preservation details across Nintendo history. You can apply to be a Researcher by <a href='/contact' target='_blank'>contacting us</a>."
     }
 ]);
 
@@ -3691,7 +3701,11 @@ async function persistUploadedMii(mii, {
     mii.uploader = isOfficialUpload ? officialSource : uploader;
     mii.contributor = isOfficialUpload ? uploader : undefined;
     mii.officialSource = isOfficialUpload ? officialSource : undefined;
-    mii.desc = desc;
+    const descriptionError = getMiiDescriptionValidationError(desc);
+    if (descriptionError) {
+        throw new Error(descriptionError);
+    }
+    mii.desc = normalizeMiiDescription(desc);
     mii.votes = 1;
     mii.official = isOfficialUpload;
     mii.published = wantsPublic;
@@ -7343,6 +7357,7 @@ async function renderLegacyUploadPage(req, res, options = {}) {
         highlightedMiiData,
         averageMiiData,
         legacyCacheBuster: Date.now().toString(36),
+        miiDescriptionMaxLength: MII_DESCRIPTION_MAX_LENGTH,
         legacyUploadError: options.error || "",
         legacyUploadErrorHtml: options.errorHtml || "",
         legacyUploadSuccess: options.success || "",
@@ -7493,10 +7508,11 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
             return;
         }
 
-        if (!formValues.desc) {
+        const descriptionError = getMiiDescriptionValidationError(formValues.desc);
+        if (descriptionError) {
             cleanupUpload();
             await renderLegacyUploadPage(req, res, {
-                error: "A description is required.",
+                error: descriptionError,
                 formValues
             });
             return;
@@ -7566,7 +7582,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
         mii.id = await genId();
         mii.uploadedOn = Date.now();
         mii.uploader = user.username;
-        mii.desc = formValues.desc.slice(0, 250);
+        mii.desc = normalizeMiiDescription(formValues.desc);
         mii.votes = 1;
         mii.official = false;
         mii.published = wantsPublic;
@@ -8005,10 +8021,13 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                 if (typeof value !== 'string') {
                     return res.json({ error: 'Description must be a string' });
                 }
-                normalizedValue = value;
-                if (!normalizedValue.trim()) {
-                    return res.json({ error: 'Description is required' });
+                {
+                    const descriptionError = getMiiDescriptionValidationError(value);
+                    if (descriptionError) {
+                        return res.json({ error: descriptionError });
+                    }
                 }
+                normalizedValue = normalizeMiiDescription(value);
                 oldValue = mii.desc;
                 updates.desc = normalizedValue;
                 break;
@@ -8049,7 +8068,7 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                 return res.json({ error: 'Invalid field' });
         }
 
-        await Miis.findOneAndUpdate({ id }, { $set: updates });
+        await Miis.findOneAndUpdate({ id }, { $set: updates }, { runValidators: true });
 
         const actorRoleLabel = isAdmin(req.user)
             ? 'Administrator'
@@ -8921,7 +8940,7 @@ site.get('/sitemap-pages.xml', async (req, res) => {
         {
             loc: `${resolvedBaseUrl}/miiDashboard`,
             changefreq: 'monthly',
-            priority: '0.8'
+            priority: '0.9'
         },
         {
             loc: `${resolvedBaseUrl}/qr`,
@@ -11225,13 +11244,27 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
         const providedMiiName = typeof req.body.miiName === "string" ? req.body.miiName.trim() : "";
         const isNinetyTwoCharCode = normalizedRawMiiData.length === 92;
         const hasZipUpload = isZipUpload(req.file);
+        const cleanupRequestFile = () => {
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+        };
+        let uploadDescription = "";
 
         // Check if trying to upload official Mii without permission
         if (isOfficialUpload && !canUploadOfficial(req.user)) {
             res.json({'error': 'Only Researchers and Administrators can upload official Miis'});
-            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+            cleanupRequestFile();
             return;
         }
+
+        const requestedDescription = typeof req.body.desc === "string" ? req.body.desc : "";
+        const descriptionError = getMiiDescriptionValidationError(requestedDescription);
+        if (descriptionError) {
+            res.json({ error: descriptionError });
+            cleanupRequestFile();
+            return;
+        }
+        uploadDescription = normalizeMiiDescription(requestedDescription);
+
         if (isOfficialUpload) {
             wantsPublic = true;
             officialSettings = await getSettings();
@@ -11292,7 +11325,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
                 cleanupUploadedRequestFile = false;
                 startOfficialZipUploadProcessing({
                     zipFilePath: req.file.path,
-                    description: req.body.desc,
+                    description: uploadDescription,
                     rawCategories: req.body.categories,
                     uploader,
                     officialSource,
@@ -11420,7 +11453,7 @@ site.post('/uploadMii', requireAuth, upload.single('mii'), async (req, res) => {
             wantsPublic,
             isOfficialUpload,
             officialSource,
-            desc: req.body.desc,
+            desc: uploadDescription,
             officialCategories
         });
         mii = persistedUpload.mii;

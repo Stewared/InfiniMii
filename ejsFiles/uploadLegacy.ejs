@@ -60,7 +60,7 @@
                                 <input type="file" name="mii" required><br><br>
 
                                 <font color="#FFFFFF">Description</font><br>
-                                <textarea name="desc" cols="30" rows="3" maxlength="250" required><%= (legacyFormValues && legacyFormValues.desc) || '' %></textarea><br><br>
+                                <textarea name="desc" cols="30" rows="3" maxlength="<%= miiDescriptionMaxLength %>" required><%= (legacyFormValues && legacyFormValues.desc) || '' %></textarea><br><br>
 
                                 <input type="radio" name="visibility" value="private" <%= (legacyFormValues && legacyFormValues.visibility) !== 'published' ? 'checked' : '' %>> Private
                                 &nbsp;

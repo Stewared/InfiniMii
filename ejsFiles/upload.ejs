@@ -91,8 +91,8 @@
                             </div>
                         <% } %>
 
-                        <label for="mii-description">Description (Max 250 characters):</label>
-                        <textarea maxlength="250" rows="5" placeholder="Description..." name="desc" id="mii-description" required aria-required="true"></textarea>
+                        <label for="mii-description">Description (Max <%= miiDescriptionMaxLength %> characters):</label>
+                        <textarea maxlength="<%= miiDescriptionMaxLength %>" rows="5" placeholder="Description..." name="desc" id="mii-description" required aria-required="true"></textarea>
 
                         <div class="checkbox-row" style="margin-top: 12px;">
                             <input type="checkbox" name="makePublic" id="makePublic">
@@ -168,8 +168,8 @@
                                 </div>
                             </div>
 
-                            <label for="official-description">Description (Max 250 characters):</label>
-                            <textarea maxlength="250" rows="5" placeholder="Description..." name="desc" id="official-description" required aria-required="true"></textarea>
+                            <label for="official-description">Description (Max <%= miiDescriptionMaxLength %> characters):</label>
+                            <textarea maxlength="<%= miiDescriptionMaxLength %>" rows="5" placeholder="Description..." name="desc" id="official-description" required aria-required="true"></textarea>
 
                             <div class="official-fields-card official-categories-panel">
                                 <div class="official-fields-header">

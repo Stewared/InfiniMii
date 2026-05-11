@@ -184,6 +184,10 @@
         gap: 1rem;
     }
 
+    .private-mii-actions {
+        grid-template-columns: 1fr;
+    }
+
     .private-mii-actions button {
         font-size: 0.78rem;
         padding: 0.45rem 0.35rem;

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
+import { MII_DESCRIPTION_MAX_LENGTH } from "./miiDescriptionValidation.js";
 
 mongoose.set("strictQuery", true);
 
@@ -17,7 +18,7 @@ const miiSchema = new mongoose.Schema({
     id: { type: String, required: true, unique: true, index: true },
     uploader: { type: String, required: true, index: true },
     contributor: { type: String, index: true },
-    desc: { type: String, default: "No Description Provided" },
+    desc: { type: String, default: "No Description Provided", maxlength: MII_DESCRIPTION_MAX_LENGTH },
     miiHash: { type: String, index: true },
     votes: { type: Number, default: 1 },
     official: { type: Boolean, default: false, index: true },

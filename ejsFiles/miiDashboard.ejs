@@ -3,60 +3,92 @@
     <head>
         <%
         const dashboardPath = '/miiDashboard';
-        const pageTitle = 'Mii Dashboard, Renderer, Converter & Kidomatic - InfiniMii';
-        const pageDesc = 'Upload, paste, or load a Mii ID to render head and full body Mii images, edit MiiJS decoded JSON, convert formats, create Special Miis, generate 3DS, Wii U, and Tomodachi Life QR codes, view recreation instructions, and run Kidomatic.';
+        const dashboardUrl = `${baseUrl}${dashboardPath}`;
+        const pageTitle = 'Mii Converter, QR Generator & Renderer - InfiniMii';
+        const pageDesc = 'Convert Mii files and QR images, generate 3DS, Wii U, and Tomodachi Life QR codes, edit decoded JSON, and render Mii previews in your browser.';
         const canonicalUrl = `${baseUrl}${dashboardPath}`;
-        const keywords = 'mii converter, mii renderer, render mii, mii dashboard, mii qr generator, 3ds mii qr code, wii u mii qr code, special mii creator, mii kid generator, kidomatic, mii recreation instructions, mii json editor, mii file converter, wii mii converter, 3ds mii converter, switch mii tools';
+        const ogImageAlt = 'InfiniMii Mii converter, QR generator, and renderer dashboard';
+        const dashboardKeywordSeeds = [
+            'mii converter',
+            'mii qr generator',
+            'mii qr code generator',
+            'mii qr scanner',
+            'mii file converter',
+            'mii format converter',
+            'convert mii file',
+            'convert mii qr',
+            '3ds mii qr code',
+            'wii u mii qr code',
+            'tomodachi life mii qr code',
+            'mii qr png',
+            'mii renderer',
+            'render mii',
+            'mii json editor',
+            'miijs',
+            'special mii converter',
+            'wii mii converter',
+            '3ds mii converter',
+            'wii u mii converter',
+            'switch mii converter',
+            'mii studio converter',
+            'charinfo converter',
+            'mii dashboard',
+            'mii recreation instructions'
+        ];
+        const keywords = dashboardKeywordSeeds.join(', ');
         const breadcrumbs = [
             { name: 'Home', url: '/' },
             { name: 'Mii Dashboard', url: dashboardPath }
         ];
-        const howToTitle = 'How to Render, Convert, Edit, and Export a Mii';
-        const howToDescription = 'Use InfiniMii to decode a Mii file, render the character, edit MiiJS JSON, generate QR codes, create Special Mii exports, and download any supported MiiJS output format.';
-        const howToDuration = 'PT2M';
-        const howToSupplies = [
-            {"@type": "HowToSupply", "name": "Mii file, Mii QR image, raw Mii data, or InfiniMii Mii ID"}
-        ];
-        const howToTools = [
-            {"@type": "HowToTool", "name": "InfiniMii Mii Dashboard and Converter", "url": `${baseUrl}${dashboardPath}`}
-        ];
-        const howToSteps = [
-            {
-                "@type": "HowToStep",
-                "name": "Decode or Load a Mii",
-                "text": "Upload a supported Mii file, paste raw Mii data, scan a QR code, or enter an InfiniMii Mii ID.",
-                "url": `${baseUrl}${dashboardPath}#dashboardMiiFile`
-            },
-            {
-                "@type": "HowToStep",
-                "name": "Preview and Edit the Mii",
-                "text": "Inspect the renderer output, QR codes, table fields, recreation instructions, and editable MiiJS decoded JSON.",
-                "url": `${baseUrl}${dashboardPath}#dashboardResults`
-            },
-            {
-                "@type": "HowToStep",
-                "name": "Export Any Supported Format",
-                "text": "Choose a MiiJS export format, optionally create a Special Mii, and download or copy the converted output.",
-                "url": `${baseUrl}${dashboardPath}#dashboardExportModalTitle`
-            }
+        const dashboardFeatureList = [
+            'Decode uploaded Mii files, QR images, raw Mii data, and InfiniMii Mii IDs',
+            'Convert Mii data between Wii, 3DS, Wii U, Switch, Miitomo, Tomodachi Life, Mii Studio, charinfo, and QR formats',
+            'Generate 3DS, Wii U, and Tomodachi Life Mii QR codes',
+            'Export QR PNG, binary Mii files, hex data, and base64 data',
+            'Render head and full body Mii previews',
+            'Edit decoded MiiJS JSON before exporting',
+            'Create Special Mii exports',
+            'View recreation instructions',
+            'Run Kidomatic child and life-stage generation'
         ];
         const schemaGraphs = [{
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
-            "name": "InfiniMii Mii Dashboard and Converter",
+            "@id": `${dashboardUrl}#mii-converter-app`,
+            "name": "InfiniMii Mii Converter and QR Generator",
+            "alternateName": [
+                "InfiniMii Mii Dashboard",
+                "InfiniMii Mii QR Generator",
+                "InfiniMii Mii Renderer"
+            ],
             "applicationCategory": "UtilitiesApplication",
+            "applicationSubCategory": "Mii converter and QR generator",
             "operatingSystem": "Web Browser",
-            "url": `${baseUrl}${dashboardPath}`,
+            "url": dashboardUrl,
             "description": pageDesc,
-            "featureList": [
-                "Mii renderer",
-                "Full body Mii renderer",
-                "Mii format conversion",
-                "Special Mii creation",
-                "3DS, Wii U, and Tomodachi Life QR code generation",
-                "Editable MiiJS decoded JSON",
-                "Kidomatic child and life-stage generation",
-                "Recreation instructions"
+            "keywords": dashboardKeywordSeeds,
+            "featureList": dashboardFeatureList,
+            "isAccessibleForFree": true,
+            "inLanguage": "en-US",
+            "mainEntityOfPage": {
+                "@id": `${dashboardUrl}#webpage`
+            },
+            "image": {
+                "@type": "ImageObject",
+                "url": `${baseUrl}/banner.png`,
+                "contentUrl": `${baseUrl}/banner.png`,
+                "width": 669,
+                "height": 373,
+                "encodingFormat": "image/png"
+            },
+            "audience": {
+                "@type": "Audience",
+                "audienceType": "Nintendo Mii creators, collectors, and preservation users"
+            },
+            "about": [
+                { "@type": "Thing", "name": "Mii format conversion" },
+                { "@type": "Thing", "name": "Mii QR codes" },
+                { "@type": "Thing", "name": "Nintendo Mii characters" }
             ],
             "offers": {
                 "@type": "Offer",
@@ -65,9 +97,8 @@
             }
         }];
         %>
-        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
-        <%- include('structuredData') %>
-        <%- include('howToSchema') %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImageAlt, keywords }) %>
+        <%- include('structuredData', { title: pageTitle, description: pageDesc, canonicalUrl, ogImageAlt, keywords, breadcrumbs, schemaGraphs }) %>
 
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/utilityPages.css">
@@ -107,7 +138,7 @@
                             </div>
                             <div>
                                 <label for="dashboardMiiData">Or paste raw Mii data</label>
-                                <textarea id="dashboardMiiData" name="miiData" rows="4" placeholder="Paste base64, hex, Studio code, or JSON..."></textarea>
+                                <textarea id="dashboardMiiData" name="miiData" rows="4" placeholder="Paste base64, hex, or JSON..."></textarea>
                             </div>
                         </div>
 
@@ -148,7 +179,7 @@
                                 <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
                                     <button type="button" class="qr-console-tab is-active" data-qr-tab="3DS" role="tab" aria-selected="true">3DS</button>
                                     <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false">Wii U</button>
-                                    <button type="button" class="qr-console-tab" data-qr-tab="TOMODACHI" role="tab" aria-selected="false" aria-label="Tomodachi Life QR" title="Tomodachi Life QR" hidden>TL</button>
+                                    <button type="button" class="qr-console-tab" data-qr-tab="TOMODACHI" role="tab" aria-selected="false" aria-label="Tomodachi Life 3DS QR" title="Tomodachi Life 3DS QR" hidden>TL</button>
                                 </div>
                                 <a id="dashboardQrLink" class="qr-preview-link" href="#" target="_blank" rel="noopener noreferrer" data-qr-link>
                                     <img id="dashboardQr" class="qr-code-image" src="" alt="Decoded Mii QR code" width="150" height="150" loading="lazy" decoding="async" data-qr-image data-qr-console="3DS">
@@ -173,8 +204,8 @@
                             <div id="dashboardUploadMessage" class="form-message" style="display: none;"></div>
                             <% if (user) { %>
                                 <input type="hidden" name="miiData" id="dashboardUploadMiiData">
-                                <label for="dashboardUploadDesc">Description</label>
-                                <input id="dashboardUploadDesc" size="50" placeholder="Description..." name="desc" type="text" required aria-required="true">
+                                <label for="dashboardUploadDesc">Description (max <%= miiDescriptionMaxLength %> characters)</label>
+                                <input id="dashboardUploadDesc" size="50" placeholder="Description..." name="desc" type="text" maxlength="<%= miiDescriptionMaxLength %>" required aria-required="true">
                                 <input type="submit" value="Upload">
                             <% } else { %>
                                 <p class="note">Log in to upload this Mii to your private collection.</p>
@@ -228,7 +259,7 @@
                                     <select id="dashboardExportQrConsole" name="qrConsole">
                                         <option value="3DS">3DS</option>
                                         <option value="WIIU">Wii U</option>
-                                        <option value="TOMODACHI">Tomodachi Life</option>
+                                        <option value="TOMODACHI">Tomodachi Life (TL 3DS)</option>
                                     </select>
                                 </label>
                             </div>
@@ -250,20 +281,6 @@
                         <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
                     <% }) %>
                 </datalist>
-
-                <section class="dashboard-seo-content" hidden>
-                    <h2>Mii Renderer, Converter, QR Generator, and JSON Editor</h2>
-                    <p>InfiniMii can render Mii characters from supported MiiJS input formats with head and full body previews, convert Mii files between Wii, 3DS, Wii U, Switch-related, Studio, charinfo, Tomodachi Life, and QR workflows, and export edited decoded JSON into supported output files.</p>
-                    <p>The dashboard supports Special Mii creation, 3DS QR codes, Wii U QR codes, Tomodachi Life QR codes when TL data is present, recreation instructions for rebuilding a Mii by hand, and Kidomatic child or life-stage generation from a single decoded Mii.</p>
-                    <h2>Supported Mii Workflows</h2>
-                    <ul>
-                        <li>Mii renderer previews for uploaded files, QR images, raw data, JSON, and InfiniMii Mii IDs.</li>
-                        <li>Mii conversion with searchable MiiJS export formats, Special Mii exports, hex copy, and base64 copy.</li>
-                        <li>Mii QR support for 3DS and Wii U, including QR images generated from edited Mii JSON.</li>
-                        <li>Mii recreation instructions for 3DS, Wii U, and compatible manual rebuild workflows.</li>
-                        <li>Kidomatic Mii generation for child and life-stage previews, renders, and exports.</li>
-                    </ul>
-                </section>
             </section>
 
             <%- include('featuredMiis') %>
