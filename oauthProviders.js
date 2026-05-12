@@ -420,7 +420,7 @@ const PROVIDER_DEFINITIONS = [
         envPrefix: "DISCORD",
         displayName: "Discord",
         iconText: "D",
-        iconUrl: "https://discord.com/favicon.ico",
+        iconUrl: "https://discord.com/assets/847541504914fd33810e70a0ea73177e.ico",
         authorizationEndpoint: "https://discord.com/oauth2/authorize",
         tokenEndpoint: "https://discord.com/api/oauth2/token",
         userinfoEndpoint: "https://discord.com/api/users/@me",
