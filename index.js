@@ -16,6 +16,7 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import multer from 'multer';
 import { unzipSync } from "fflate";
+import sharp from "sharp";
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
 import { doubleMetaphone } from 'double-metaphone';
 import validator from 'validator';
@@ -10371,18 +10372,23 @@ site.get('/downloadMii', async (req, res) => {
     await exportMiiById(req, res);
 });
 
-// ========== 3DS HOMEBREW API ==========
+// ========== CONSOLE API ==========
 
 const HOMEBREW_API_LIST_MODES = new Set(["random", "trending", "top", "recent", "official", "search"]);
 const HOMEBREW_API_MAX_LIST_LIMIT = 24;
+const CONSOLE_API_PREFIXES = ["/api/console", "/api/3ds"];
 
-function send3dsApiText(res, body, status = 200) {
+function consoleApiRoute(pathname) {
+    return CONSOLE_API_PREFIXES.map(prefix => `${prefix}${pathname}`);
+}
+
+function sendConsoleApiText(res, body, status = 200) {
     res.status(status)
         .type("text/plain; charset=utf-8")
         .send(body.endsWith("\n") ? body : `${body}\n`);
 }
 
-function normalize3dsApiText(value, maxLength = 240) {
+function normalizeConsoleApiText(value, maxLength = 240) {
     return String(value ?? "")
         .replace(/[\t\r\n]+/g, " ")
         .replace(/\s+/g, " ")
@@ -10390,7 +10396,7 @@ function normalize3dsApiText(value, maxLength = 240) {
         .slice(0, maxLength);
 }
 
-function get3dsApiToken(req) {
+function getConsoleApiToken(req) {
     const authHeader = String(req.get("authorization") || "").trim();
     if (/^bearer\s+/i.test(authHeader)) {
         return authHeader.replace(/^bearer\s+/i, "").trim();
@@ -10400,8 +10406,8 @@ function get3dsApiToken(req) {
     return typeof source?.token === "string" ? source.token.trim() : "";
 }
 
-async function get3dsApiUser(req) {
-    const token = get3dsApiToken(req);
+async function getConsoleApiUser(req) {
+    const token = getConsoleApiToken(req);
     if (!token) return null;
 
     try {
@@ -10416,34 +10422,48 @@ async function get3dsApiUser(req) {
     }
 }
 
-function build3dsApiMiiRow(mii, req) {
+async function getConsoleApiCfsdHex(mii) {
+    try {
+        const { buffer } = await exportMiiToBuffer(mii, "cfsd");
+        return Buffer.isBuffer(buffer) && buffer.length === 0x60
+            ? buffer.toString("hex")
+            : "";
+    } catch (e) {
+        console.warn("Could not build console API preview CFSD:", e?.message || e);
+        return "";
+    }
+}
+
+async function buildConsoleApiMiiRow(mii, req) {
     if (!mii) return "";
     const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
     const imageDir = mii.private ? "privateMiiImgs" : "miiImgs";
+    const previewHex = await getConsoleApiCfsdHex(mii);
     return [
-        normalize3dsApiText(mii.id, 32),
-        normalize3dsApiText(getDisplayMiiName(mii), 80),
-        normalize3dsApiText(mii?.meta?.creatorName || "", 80),
-        normalize3dsApiText(mii.uploader || "", 80),
+        normalizeConsoleApiText(mii.id, 32),
+        normalizeConsoleApiText(getDisplayMiiName(mii), 80),
+        normalizeConsoleApiText(mii?.meta?.creatorName || "", 80),
+        normalizeConsoleApiText(mii.uploader || "", 80),
         Number.isFinite(Number(mii.votes)) ? Number(mii.votes) : 0,
         mii.official ? 1 : 0,
-        normalize3dsApiText(mii.desc || "", 240),
-        `${resolvedBaseUrl}/${imageDir}/${encodeURIComponent(mii.id)}.png`
+        normalizeConsoleApiText(mii.desc || "", 240),
+        `${resolvedBaseUrl}/${imageDir}/${encodeURIComponent(mii.id)}.png`,
+        previewHex
     ].join("\t");
 }
 
-function parse3dsApiLimit(value, fallback = 12) {
+function parseConsoleApiLimit(value, fallback = 12) {
     const parsed = Number.parseInt(value, 10);
     if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
     return Math.min(parsed, HOMEBREW_API_MAX_LIST_LIMIT);
 }
 
-function parse3dsApiStart(value) {
+function parseConsoleApiStart(value) {
     const parsed = Number.parseInt(value, 10);
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 }
 
-function decode3dsApiMiiData(value) {
+function decodeConsoleApiMiiData(value) {
     const cleaned = String(value || "").replace(/\s+/g, "");
     if (!cleaned || cleaned.length % 2 !== 0 || !/^[0-9a-f]+$/i.test(cleaned)) {
         return null;
@@ -10457,20 +10477,20 @@ function decode3dsApiMiiData(value) {
     return buffer;
 }
 
-site.get('/api/3ds/session', async (req, res) => {
-    const user = await get3dsApiUser(req);
+site.get(consoleApiRoute('/session'), async (req, res) => {
+    const user = await getConsoleApiUser(req);
     if (!user) {
-        return send3dsApiText(res, "ERR\tNot logged in", 401);
+        return sendConsoleApiText(res, "ERR\tNot logged in", 401);
     }
 
-    send3dsApiText(res, [
+    sendConsoleApiText(res, [
         "OK",
-        `username\t${normalize3dsApiText(user.username, 80)}`,
+        `username\t${normalizeConsoleApiText(user.username, 80)}`,
         `verified\t${isAccountVerifiedForUploads(user) ? 1 : 0}`
     ].join("\n"));
 });
 
-site.post('/api/3ds/login', defaultRatelimiter, async (req, res) => {
+site.post(consoleApiRoute('/login'), defaultRatelimiter, async (req, res) => {
     const username = normalizeUsernameInput(req.body?.username);
     const password = typeof req.body?.password === "string"
         ? req.body.password
@@ -10478,42 +10498,42 @@ site.post('/api/3ds/login', defaultRatelimiter, async (req, res) => {
     const user = await getUserByUsername(username);
 
     if (!user || !validatePassword(password, user.salt, user.pass)) {
-        return send3dsApiText(res, "ERR\tInvalid username or password", 401);
+        return sendConsoleApiText(res, "ERR\tInvalid username or password", 401);
     }
 
     if (!isAccountVerifiedForUploads(user)) {
-        return send3dsApiText(res, "ERR\tEmail not verified yet", 403);
+        return sendConsoleApiText(res, "ERR\tEmail not verified yet", 403);
     }
 
     if (await isBanned(user)) {
-        return send3dsApiText(res, "ERR\tThis account is banned", 403);
+        return sendConsoleApiText(res, "ERR\tThis account is banned", 403);
     }
 
     const authUser = user.verified ? user : await applyOAuthAccountTrust(user, {});
     setRequestLogContext(req, { username: authUser.username });
 
-    send3dsApiText(res, [
+    sendConsoleApiText(res, [
         "OK",
-        `username\t${normalize3dsApiText(authUser.username, 80)}`,
+        `username\t${normalizeConsoleApiText(authUser.username, 80)}`,
         `token\t${createToken(authUser)}`
     ].join("\n"));
 });
 
-site.get('/api/3ds/highlighted', miiListRatelimiter, async (req, res) => {
+site.get(consoleApiRoute('/highlighted'), miiListRatelimiter, async (req, res) => {
     const settings = await getSettings();
     const highlighted = await getMiiById(settings.highlightedMii, false);
     if (!highlighted) {
-        return send3dsApiText(res, "ERR\tHighlighted Mii not found", 404);
+        return sendConsoleApiText(res, "ERR\tHighlighted Mii not found", 404);
     }
 
-    send3dsApiText(res, `OK\n${build3dsApiMiiRow(highlighted, req)}`);
+    sendConsoleApiText(res, `OK\n${await buildConsoleApiMiiRow(highlighted, req)}`);
 });
 
-site.get('/api/3ds/list', miiListRatelimiter, async (req, res) => {
+site.get(consoleApiRoute('/list'), miiListRatelimiter, async (req, res) => {
     const requestedMode = String(req.query?.mode || "trending").trim().toLowerCase();
     const mode = HOMEBREW_API_LIST_MODES.has(requestedMode) ? requestedMode : "trending";
-    const start = parse3dsApiStart(req.query?.start);
-    const limit = parse3dsApiLimit(req.query?.limit);
+    const start = parseConsoleApiStart(req.query?.start);
+    const limit = parseConsoleApiLimit(req.query?.limit);
     const query = typeof req.query?.q === "string" ? req.query.q.trim() : "";
 
     const filter = mode === "search"
@@ -10521,7 +10541,8 @@ site.get('/api/3ds/list', miiListRatelimiter, async (req, res) => {
         : null;
     const data = await paginatedApi(mode, { start }, limit, filter);
 
-    send3dsApiText(res, [
+    const rows = await Promise.all(data.items.map(mii => buildConsoleApiMiiRow(mii, req)));
+    sendConsoleApiText(res, [
         "OK",
         [
             `mode=${mode}`,
@@ -10530,65 +10551,212 @@ site.get('/api/3ds/list', miiListRatelimiter, async (req, res) => {
             `total=${data.total}`,
             `totalPages=${data.totalPages}`
         ].join("\t"),
-        ...data.items.map(mii => build3dsApiMiiRow(mii, req))
+        ...rows
     ].join("\n"));
 });
 
-site.get('/api/3ds/mii/:id.cfsd', async (req, res) => {
+site.get(consoleApiRoute('/list_thumbs'), miiListRatelimiter, async (req, res) => {
+    let items = [];
+    const ids = typeof req.query?.ids === "string"
+        ? req.query.ids.split(",").map(id => id.trim()).filter(Boolean).slice(0, HOMEBREW_API_MAX_LIST_LIMIT)
+        : [];
+
+    if (ids.length > 0) {
+        items = (await Promise.all(ids.map(id => getMiiById(id, true)))).filter(Boolean);
+        const byId = new Map(items.map(mii => [String(mii.id), mii]));
+        items = ids.map(id => byId.get(String(id)) || null);
+    } else {
+        const requestedMode = String(req.query?.mode || "trending").trim().toLowerCase();
+        const mode = HOMEBREW_API_LIST_MODES.has(requestedMode) ? requestedMode : "trending";
+        const start = parseConsoleApiStart(req.query?.start);
+        const limit = parseConsoleApiLimit(req.query?.limit);
+        const query = typeof req.query?.q === "string" ? req.query.q.trim() : "";
+
+        const filter = mode === "search"
+            ? { query, searchIn: ["name", "description", "uploader"], searchFieldsConfigured: true }
+            : null;
+        const data = await paginatedApi(mode, { start }, limit, filter);
+        items = data.items;
+    }
+
+    try {
+        const thumbs = await Promise.all(items.map(async (mii) => {
+            try {
+                return await buildConsoleApiRgb565Thumb(await getConsoleApiRenderSource(mii));
+            } catch (e) {
+                console.warn("Could not build console list thumbnail:", mii?.id, e?.message || e);
+                return buildConsoleApiBlankRgb565Thumb();
+            }
+        }));
+
+        res.status(200)
+            .setHeader("Content-Type", "application/octet-stream")
+            .setHeader("Cache-Control", "public, max-age=900")
+            .send(Buffer.concat(thumbs));
+    } catch (e) {
+        console.error("Error building console thumbnail batch:", e);
+        sendConsoleApiText(res, "ERR\tRender batch failed", 500);
+    }
+});
+
+site.get(consoleApiRoute('/mii/:id.cfsd'), async (req, res) => {
     const mii = await getMiiById(req.params.id, true);
     if (!mii) {
-        return send3dsApiText(res, "ERR\tMii not found", 404);
+        return sendConsoleApiText(res, "ERR\tMii not found", 404);
     }
 
     if (mii.private) {
-        const user = await get3dsApiUser(req);
+        const user = await getConsoleApiUser(req);
         const isOwner = user && mii.uploader === user.username;
         const isModerator = user && canModerate(user);
         if (!isOwner && !isModerator) {
-            return send3dsApiText(res, "ERR\tAccess denied", 403);
+            return sendConsoleApiText(res, "ERR\tAccess denied", 403);
         }
     }
 
     await sendExportResponse(res, mii, "cfsd", getDisplayMiiName(mii));
 });
 
-site.post('/api/3ds/upload', defaultRatelimiter, async (req, res) => {
-    const user = await get3dsApiUser(req);
+async function getConsoleApiAccessibleMii(req, res) {
+    const mii = await getMiiById(req.params.id, true);
+    if (!mii) {
+        sendConsoleApiText(res, "ERR\tMii not found", 404);
+        return null;
+    }
+
+    if (mii.private) {
+        const user = await getConsoleApiUser(req);
+        const isOwner = user && mii.uploader === user.username;
+        const isModerator = user && canModerate(user);
+        if (!isOwner && !isModerator) {
+            sendConsoleApiText(res, "ERR\tAccess denied", 403);
+            return null;
+        }
+    }
+
+    return mii;
+}
+
+async function getConsoleApiRenderSource(mii) {
+    const { imgPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
+    return fs.existsSync(imgPath)
+        ? await fs.promises.readFile(imgPath)
+        : await miijs.renderMii(mii, { size: 128 });
+}
+
+async function buildConsoleApiRgbaThumb(source) {
+    return await sharp(source)
+        .resize(64, 64, {
+            fit: "contain",
+            background: { r: 0, g: 0, b: 0, alpha: 0 }
+        })
+        .ensureAlpha()
+        .raw()
+        .toBuffer();
+}
+
+async function buildConsoleApiRgb565Thumb(source) {
+    const { data, info } = await sharp(source)
+        .resize(64, 64, {
+            fit: "contain",
+            background: { r: 33, g: 31, b: 37, alpha: 1 }
+        })
+        .flatten({ background: { r: 33, g: 31, b: 37 } })
+        .removeAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+
+    const rgb565 = Buffer.alloc(64 * 64 * 2);
+    const channels = info.channels || 3;
+    for (let i = 0; i < 64 * 64; i++) {
+        const src = i * channels;
+        const r = data[src] || 0;
+        const g = data[src + 1] || 0;
+        const b = data[src + 2] || 0;
+        const value = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+        rgb565.writeUInt16LE(value, i * 2);
+    }
+    return rgb565;
+}
+
+function buildConsoleApiBlankRgb565Thumb() {
+    const rgb565 = Buffer.alloc(64 * 64 * 2);
+    const value = ((33 & 0xF8) << 8) | ((31 & 0xFC) << 3) | (37 >> 3);
+    for (let i = 0; i < 64 * 64; i++) {
+        rgb565.writeUInt16LE(value, i * 2);
+    }
+    return rgb565;
+}
+
+site.get(consoleApiRoute('/mii/:id.rgb565'), async (req, res) => {
+    const mii = await getConsoleApiAccessibleMii(req, res);
+    if (!mii) return;
+
+    try {
+        const rgb565 = await buildConsoleApiRgb565Thumb(await getConsoleApiRenderSource(mii));
+        res.status(200)
+            .setHeader("Content-Type", "application/octet-stream")
+            .setHeader("Cache-Control", "public, max-age=86400")
+            .send(rgb565);
+    } catch (e) {
+        console.error("Error building console RGB565 Mii render:", e);
+        sendConsoleApiText(res, "ERR\tRender failed", 500);
+    }
+});
+
+site.get(consoleApiRoute('/mii/:id.rgba'), async (req, res) => {
+    const mii = await getConsoleApiAccessibleMii(req, res);
+    if (!mii) return;
+
+    try {
+        const rgba = await buildConsoleApiRgbaThumb(await getConsoleApiRenderSource(mii));
+        res.status(200)
+            .setHeader("Content-Type", "application/octet-stream")
+            .setHeader("Cache-Control", "public, max-age=86400")
+            .send(rgba);
+    } catch (e) {
+        console.error("Error building console RGBA Mii render:", e);
+        sendConsoleApiText(res, "ERR\tRender failed", 500);
+    }
+});
+
+site.post(consoleApiRoute('/upload'), defaultRatelimiter, async (req, res) => {
+    const user = await getConsoleApiUser(req);
     if (!user) {
-        return send3dsApiText(res, "ERR\tNot logged in", 401);
+        return sendConsoleApiText(res, "ERR\tNot logged in", 401);
     }
 
     if (!isAccountVerifiedForUploads(user)) {
-        return send3dsApiText(res, `ERR\t${UPLOAD_VERIFICATION_REQUIRED_MESSAGE}`, 403);
+        return sendConsoleApiText(res, `ERR\t${UPLOAD_VERIFICATION_REQUIRED_MESSAGE}`, 403);
     }
 
     if (await isBanned(user)) {
-        return send3dsApiText(res, "ERR\tThis account is banned", 403);
+        return sendConsoleApiText(res, "ERR\tThis account is banned", 403);
     }
 
     const descriptionError = getMiiDescriptionValidationError(req.body?.desc);
     if (descriptionError) {
-        return send3dsApiText(res, `ERR\t${normalize3dsApiText(descriptionError, 240)}`, 400);
+        return sendConsoleApiText(res, `ERR\t${normalizeConsoleApiText(descriptionError, 240)}`, 400);
     }
 
     const wantsPublic = parseBooleanLike(req.body?.makePublic);
     if (!wantsPublic) {
         const privateMiisCount = await Miis.countDocuments({ uploader: user.username, private: true });
         if (privateMiisCount >= Number(PRIVATE_MII_LIMIT)) {
-            return send3dsApiText(res, `ERR\tYou have reached the private Mii limit of ${PRIVATE_MII_LIMIT}.`, 400);
+            return sendConsoleApiText(res, `ERR\tYou have reached the private Mii limit of ${PRIVATE_MII_LIMIT}.`, 400);
         }
     }
 
-    const miiInput = decode3dsApiMiiData(req.body?.miiData);
+    const miiInput = decodeConsoleApiMiiData(req.body?.miiData);
     if (!miiInput) {
-        return send3dsApiText(res, "ERR\tInvalid or missing CFSD Mii data", 400);
+        return sendConsoleApiText(res, "ERR\tInvalid or missing CFSD Mii data", 400);
     }
 
     try {
         const mii = await createMiiData(miiInput);
         const matchingMii = await findMatchingMii(mii);
         if (matchingMii) {
-            return send3dsApiText(res, `ERR\t${normalize3dsApiText(getDuplicateMiiErrorMessage(matchingMii.id), 240)}`, 409);
+            return sendConsoleApiText(res, `ERR\t${normalizeConsoleApiText(getDuplicateMiiErrorMessage(matchingMii.id), 240)}`, 409);
         }
 
         const persistedUpload = await persistUploadedMii(mii, {
@@ -10598,18 +10766,18 @@ site.post('/api/3ds/upload', defaultRatelimiter, async (req, res) => {
         });
 
         setRequestLogContext(req, { username: user.username });
-        send3dsApiText(res, [
+        sendConsoleApiText(res, [
             "OK",
             `id\t${persistedUpload.mii.id}`,
             `url\t${wantsPublic ? `/mii/${persistedUpload.mii.id}` : "/myPrivateMiis"}`,
-            `name\t${normalize3dsApiText(getDisplayMiiName(persistedUpload.mii), 80)}`
+            `name\t${normalizeConsoleApiText(getDisplayMiiName(persistedUpload.mii), 80)}`
         ].join("\n"));
     } catch (error) {
-        console.error("Error uploading Mii from 3DS API:", error);
+        console.error("Error uploading Mii from console API:", error);
         const message = isInvalidMiiTypeError(error)
             ? "Could not decode this Mii data as CFSD."
             : `Upload failed: ${error.message || "Server error"}`;
-        send3dsApiText(res, `ERR\t${normalize3dsApiText(message, 240)}`, 400);
+        sendConsoleApiText(res, `ERR\t${normalizeConsoleApiText(message, 240)}`, 400);
     }
 });
 
