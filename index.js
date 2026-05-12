@@ -10371,6 +10371,248 @@ site.get('/downloadMii', async (req, res) => {
     await exportMiiById(req, res);
 });
 
+// ========== 3DS HOMEBREW API ==========
+
+const HOMEBREW_API_LIST_MODES = new Set(["random", "trending", "top", "recent", "official", "search"]);
+const HOMEBREW_API_MAX_LIST_LIMIT = 24;
+
+function send3dsApiText(res, body, status = 200) {
+    res.status(status)
+        .type("text/plain; charset=utf-8")
+        .send(body.endsWith("\n") ? body : `${body}\n`);
+}
+
+function normalize3dsApiText(value, maxLength = 240) {
+    return String(value ?? "")
+        .replace(/[\t\r\n]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, maxLength);
+}
+
+function get3dsApiToken(req) {
+    const authHeader = String(req.get("authorization") || "").trim();
+    if (/^bearer\s+/i.test(authHeader)) {
+        return authHeader.replace(/^bearer\s+/i, "").trim();
+    }
+
+    const source = req.method === "GET" ? req.query : req.body;
+    return typeof source?.token === "string" ? source.token.trim() : "";
+}
+
+async function get3dsApiUser(req) {
+    const token = get3dsApiToken(req);
+    if (!token) return null;
+
+    try {
+        const payload = jwt.verify(token, getJwtSecret(), { algorithms: ["HS256"] });
+        return await Users.findOne({
+            username: payload.username,
+            email: payload.email,
+            tokenVersion: payload.tokenVersion
+        });
+    } catch {
+        return null;
+    }
+}
+
+function build3dsApiMiiRow(mii, req) {
+    if (!mii) return "";
+    const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
+    const imageDir = mii.private ? "privateMiiImgs" : "miiImgs";
+    return [
+        normalize3dsApiText(mii.id, 32),
+        normalize3dsApiText(getDisplayMiiName(mii), 80),
+        normalize3dsApiText(mii?.meta?.creatorName || "", 80),
+        normalize3dsApiText(mii.uploader || "", 80),
+        Number.isFinite(Number(mii.votes)) ? Number(mii.votes) : 0,
+        mii.official ? 1 : 0,
+        normalize3dsApiText(mii.desc || "", 240),
+        `${resolvedBaseUrl}/${imageDir}/${encodeURIComponent(mii.id)}.png`
+    ].join("\t");
+}
+
+function parse3dsApiLimit(value, fallback = 12) {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+    return Math.min(parsed, HOMEBREW_API_MAX_LIST_LIMIT);
+}
+
+function parse3dsApiStart(value) {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+}
+
+function decode3dsApiMiiData(value) {
+    const cleaned = String(value || "").replace(/\s+/g, "");
+    if (!cleaned || cleaned.length % 2 !== 0 || !/^[0-9a-f]+$/i.test(cleaned)) {
+        return null;
+    }
+
+    const buffer = Buffer.from(cleaned, "hex");
+    if (buffer.length !== 0x5c && buffer.length !== 0x60) {
+        return null;
+    }
+
+    return buffer;
+}
+
+site.get('/api/3ds/session', async (req, res) => {
+    const user = await get3dsApiUser(req);
+    if (!user) {
+        return send3dsApiText(res, "ERR\tNot logged in", 401);
+    }
+
+    send3dsApiText(res, [
+        "OK",
+        `username\t${normalize3dsApiText(user.username, 80)}`,
+        `verified\t${isAccountVerifiedForUploads(user) ? 1 : 0}`
+    ].join("\n"));
+});
+
+site.post('/api/3ds/login', defaultRatelimiter, async (req, res) => {
+    const username = normalizeUsernameInput(req.body?.username);
+    const password = typeof req.body?.password === "string"
+        ? req.body.password
+        : (typeof req.body?.pass === "string" ? req.body.pass : "");
+    const user = await getUserByUsername(username);
+
+    if (!user || !validatePassword(password, user.salt, user.pass)) {
+        return send3dsApiText(res, "ERR\tInvalid username or password", 401);
+    }
+
+    if (!isAccountVerifiedForUploads(user)) {
+        return send3dsApiText(res, "ERR\tEmail not verified yet", 403);
+    }
+
+    if (await isBanned(user)) {
+        return send3dsApiText(res, "ERR\tThis account is banned", 403);
+    }
+
+    const authUser = user.verified ? user : await applyOAuthAccountTrust(user, {});
+    setRequestLogContext(req, { username: authUser.username });
+
+    send3dsApiText(res, [
+        "OK",
+        `username\t${normalize3dsApiText(authUser.username, 80)}`,
+        `token\t${createToken(authUser)}`
+    ].join("\n"));
+});
+
+site.get('/api/3ds/highlighted', miiListRatelimiter, async (req, res) => {
+    const settings = await getSettings();
+    const highlighted = await getMiiById(settings.highlightedMii, false);
+    if (!highlighted) {
+        return send3dsApiText(res, "ERR\tHighlighted Mii not found", 404);
+    }
+
+    send3dsApiText(res, `OK\n${build3dsApiMiiRow(highlighted, req)}`);
+});
+
+site.get('/api/3ds/list', miiListRatelimiter, async (req, res) => {
+    const requestedMode = String(req.query?.mode || "trending").trim().toLowerCase();
+    const mode = HOMEBREW_API_LIST_MODES.has(requestedMode) ? requestedMode : "trending";
+    const start = parse3dsApiStart(req.query?.start);
+    const limit = parse3dsApiLimit(req.query?.limit);
+    const query = typeof req.query?.q === "string" ? req.query.q.trim() : "";
+
+    const filter = mode === "search"
+        ? { query, searchIn: ["name", "description", "uploader"], searchFieldsConfigured: true }
+        : null;
+    const data = await paginatedApi(mode, { start }, limit, filter);
+
+    send3dsApiText(res, [
+        "OK",
+        [
+            `mode=${mode}`,
+            `start=${data.start}`,
+            `perPage=${data.perPage}`,
+            `total=${data.total}`,
+            `totalPages=${data.totalPages}`
+        ].join("\t"),
+        ...data.items.map(mii => build3dsApiMiiRow(mii, req))
+    ].join("\n"));
+});
+
+site.get('/api/3ds/mii/:id.cfsd', async (req, res) => {
+    const mii = await getMiiById(req.params.id, true);
+    if (!mii) {
+        return send3dsApiText(res, "ERR\tMii not found", 404);
+    }
+
+    if (mii.private) {
+        const user = await get3dsApiUser(req);
+        const isOwner = user && mii.uploader === user.username;
+        const isModerator = user && canModerate(user);
+        if (!isOwner && !isModerator) {
+            return send3dsApiText(res, "ERR\tAccess denied", 403);
+        }
+    }
+
+    await sendExportResponse(res, mii, "cfsd", getDisplayMiiName(mii));
+});
+
+site.post('/api/3ds/upload', defaultRatelimiter, async (req, res) => {
+    const user = await get3dsApiUser(req);
+    if (!user) {
+        return send3dsApiText(res, "ERR\tNot logged in", 401);
+    }
+
+    if (!isAccountVerifiedForUploads(user)) {
+        return send3dsApiText(res, `ERR\t${UPLOAD_VERIFICATION_REQUIRED_MESSAGE}`, 403);
+    }
+
+    if (await isBanned(user)) {
+        return send3dsApiText(res, "ERR\tThis account is banned", 403);
+    }
+
+    const descriptionError = getMiiDescriptionValidationError(req.body?.desc);
+    if (descriptionError) {
+        return send3dsApiText(res, `ERR\t${normalize3dsApiText(descriptionError, 240)}`, 400);
+    }
+
+    const wantsPublic = parseBooleanLike(req.body?.makePublic);
+    if (!wantsPublic) {
+        const privateMiisCount = await Miis.countDocuments({ uploader: user.username, private: true });
+        if (privateMiisCount >= Number(PRIVATE_MII_LIMIT)) {
+            return send3dsApiText(res, `ERR\tYou have reached the private Mii limit of ${PRIVATE_MII_LIMIT}.`, 400);
+        }
+    }
+
+    const miiInput = decode3dsApiMiiData(req.body?.miiData);
+    if (!miiInput) {
+        return send3dsApiText(res, "ERR\tInvalid or missing CFSD Mii data", 400);
+    }
+
+    try {
+        const mii = await createMiiData(miiInput);
+        const matchingMii = await findMatchingMii(mii);
+        if (matchingMii) {
+            return send3dsApiText(res, `ERR\t${normalize3dsApiText(getDuplicateMiiErrorMessage(matchingMii.id), 240)}`, 409);
+        }
+
+        const persistedUpload = await persistUploadedMii(mii, {
+            uploader: user.username,
+            wantsPublic,
+            desc: normalizeMiiDescription(req.body.desc)
+        });
+
+        setRequestLogContext(req, { username: user.username });
+        send3dsApiText(res, [
+            "OK",
+            `id\t${persistedUpload.mii.id}`,
+            `url\t${wantsPublic ? `/mii/${persistedUpload.mii.id}` : "/myPrivateMiis"}`,
+            `name\t${normalize3dsApiText(getDisplayMiiName(persistedUpload.mii), 80)}`
+        ].join("\n"));
+    } catch (error) {
+        console.error("Error uploading Mii from 3DS API:", error);
+        const message = isInvalidMiiTypeError(error)
+            ? "Could not decode this Mii data as CFSD."
+            : `Upload failed: ${error.message || "Server error"}`;
+        send3dsApiText(res, `ERR\t${normalize3dsApiText(message, 240)}`, 400);
+    }
+});
+
 // Change User PFP (Moderator+)
 site.post('/changeUserPfp', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
     try {
