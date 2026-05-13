@@ -621,17 +621,21 @@ footer ul li a:hover {
     align-items: center;
     gap: 0.25rem;
     min-width: 0;
+    max-width: 100%;
     margin: 0.16rem 0 0.4rem;
     color: var(--text-2);
     font-size: 0.74rem;
     line-height: 1.25;
+    overflow: hidden;
 }
 
 .mii-card .mii-card-byline span {
     display: inline;
+    flex: 0 0 auto;
 }
 
 .mii-card-byline a {
+    flex: 1 1 auto;
     min-width: 0;
     max-width: 100%;
     color: var(--brand-color);
@@ -865,6 +869,96 @@ footer ul li a:hover {
     margin-bottom: 1rem;
 }
 
+.search-control-panel {
+    margin-bottom: 1rem;
+}
+
+.search-control-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.search-control-main {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.search-control-main input[type="search"] {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+}
+
+.search-control-main input[type="submit"] {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.advanced-search-dropdown {
+    border-radius: 12px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7b7b7b 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 80%, var(--layer-1-um) 20%);
+    overflow: hidden;
+}
+
+.advanced-search-dropdown > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    color: var(--text-1);
+    font-size: 0.95rem;
+    font-weight: 600;
+    user-select: none;
+}
+
+.advanced-search-dropdown > summary::-webkit-details-marker {
+    display: none;
+}
+
+.advanced-search-dropdown > summary::after {
+    content: ">";
+    color: var(--text-2);
+    font-size: 0.85rem;
+    transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.advanced-search-dropdown[open] > summary::after {
+    transform: rotate(90deg);
+    color: var(--text-1);
+}
+
+.advanced-search-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.45rem;
+    height: 1.45rem;
+    margin-left: auto;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--brand-color) 72%, var(--layer-2-um) 28%);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.advanced-search-body {
+    display: grid;
+    gap: 0.65rem;
+    padding: 0 0.7rem 0.75rem;
+}
+
+.advanced-search-body .search-fields-panel,
+.advanced-search-body .search-tags-panel,
+.advanced-search-body .search-categories-panel {
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     .mii-card-tags.mii-categories {
         gap: 0.5rem;
@@ -962,6 +1056,7 @@ footer ul li a:hover {
     border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7f7f7f 42%);
     background: color-mix(in oklab, var(--layer-2-um) 72%, var(--layer-3-um) 28%);
     color: var(--text-1);
+    font-family: inherit;
     font-size: 0.82rem;
     font-weight: 500;
     line-height: 1.2;
@@ -1022,7 +1117,8 @@ footer ul li a:hover {
     font-size: 0.8rem;
 }
 
-.search-tags-panel {
+.search-tags-panel,
+.search-categories-panel {
     margin-top: 0.4rem;
     padding: 0.75rem 0.8rem;
     border-radius: 10px;
@@ -1030,20 +1126,107 @@ footer ul li a:hover {
     background: color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%);
 }
 
-.search-tags-title {
+.search-tags-title,
+.search-categories-title {
     margin: 0 0 0.5rem;
     color: var(--text-1);
     font-size: 0.95rem;
     font-weight: 600;
 }
 
-.tag-filter-options {
+.tag-filter-options,
+.category-filter-options {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem;
 }
 
-.tag-filter-option {
+.category-filter-groups {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.category-filter-group {
+    border-radius: 10px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #777 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 74%, var(--layer-1-um) 26%);
+    overflow: hidden;
+}
+
+.category-filter-group > summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+    padding: 0.56rem 0.68rem;
+    color: var(--text-1);
+    font-size: 0.88rem;
+    font-weight: 600;
+    user-select: none;
+}
+
+.category-filter-group > summary::-webkit-details-marker {
+    display: none;
+}
+
+.category-filter-group > summary::after {
+    content: ">";
+    color: var(--text-2);
+    font-size: 0.78rem;
+    transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.category-filter-group[open] > summary::after {
+    transform: rotate(90deg);
+    color: var(--text-1);
+}
+
+.category-filter-group-counts {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.22rem;
+    margin-left: auto;
+}
+
+.category-filter-group-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--brand-color) 68%, var(--layer-2-um) 32%);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.category-filter-group-count.is-include {
+    background: color-mix(in oklab, #2f9c58 78%, var(--layer-2-um) 22%);
+}
+
+.category-filter-group-count.is-exclude {
+    background: color-mix(in oklab, #b33446 78%, var(--layer-2-um) 22%);
+}
+
+.category-filter-group .category-filter-options {
+    padding: 0 0.58rem 0.65rem;
+}
+
+.tri-filter-control {
+    display: inline-flex;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.category-filter-control-top-level {
+    width: 100%;
+}
+
+.tag-filter-option,
+.category-filter-option {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -1059,11 +1242,98 @@ footer ul li a:hover {
     font-weight: 500;
     line-height: 1.25;
     overflow: hidden;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
 
-.tag-filter-option input[type="checkbox"] {
+.tag-filter-option:hover,
+.category-filter-option:hover,
+.tag-filter-option:focus-visible,
+.category-filter-option:focus-visible {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 52%, #8a8a8a 48%);
+    outline: none;
+}
+
+.tag-filter-option:focus-visible,
+.category-filter-option:focus-visible {
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand-color) 36%, transparent 64%);
+}
+
+.tri-filter-status {
+    display: inline-grid;
+    place-items: center;
     flex: 0 0 auto;
-    margin: 0;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 72%, #9a9a9a 28%);
+    color: var(--text-2);
+}
+
+.tri-filter-icon {
+    display: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    line-height: 0;
+}
+
+.tri-filter-icon .icon {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+.tri-filter-option.is-include {
+    border-color: color-mix(in oklab, #48b76b 72%, #9a9a9a 28%);
+    background: color-mix(in oklab, #1f6f3d 42%, var(--layer-2-um) 58%);
+    color: color-mix(in oklab, #dcffe5 88%, #ffffff 12%);
+}
+
+.tri-filter-option.is-include .tri-filter-status {
+    border-color: color-mix(in oklab, #7be394 76%, #ffffff 24%);
+    background: color-mix(in oklab, #2f9c58 84%, var(--layer-2-um) 16%);
+    color: #ffffff;
+}
+
+.tri-filter-option.is-include .tri-filter-icon-include {
+    display: block;
+}
+
+.tri-filter-option.is-exclude {
+    border-color: color-mix(in oklab, #de5264 76%, #9a9a9a 24%);
+    background: color-mix(in oklab, #7b2331 44%, var(--layer-2-um) 56%);
+    color: color-mix(in oklab, #ffe4e7 88%, #ffffff 12%);
+}
+
+.tri-filter-option.is-exclude .tri-filter-status {
+    border-color: color-mix(in oklab, #ff8795 76%, #ffffff 24%);
+    background: color-mix(in oklab, #b33446 84%, var(--layer-2-um) 16%);
+    color: #ffffff;
+}
+
+.tri-filter-option.is-exclude .tri-filter-icon-exclude {
+    display: block;
+}
+
+.category-filter-option {
+    border-left: 4px solid var(--category-color, var(--brand-color));
+}
+
+.category-filter-option.is-include {
+    border-left-color: #48b76b;
+}
+
+.category-filter-option.is-exclude {
+    border-left-color: #de5264;
+}
+
+.category-filter-option-top-level {
+    width: 100%;
+    border-left-color: color-mix(in oklab, var(--brand-color) 74%, #ffffff 26%);
+    background: color-mix(in oklab, var(--brand-color) 20%, var(--layer-2-um) 80%);
+    font-weight: 600;
 }
 
 .tag-filter-empty {
@@ -1210,6 +1480,15 @@ footer ul li a:hover {
 }
 
 @media (max-width: 600px) {
+    .search-control-main {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-control-main input[type="submit"] {
+        width: 100%;
+    }
+
     #browse-miis.browse-miis-balanced {
         grid-template-columns: 1fr;
         justify-items: center;

@@ -1,7 +1,9 @@
 <%
     const safeAvailableTags = Array.isArray(availableTags) ? availableTags : [];
     const safeSelectedTags = Array.isArray(selectedTags) ? selectedTags : [];
-    const selectedTagSet = new Set(safeSelectedTags);
+    const safeExcludedTags = (typeof excludedTags !== 'undefined' && Array.isArray(excludedTags)) ? excludedTags : [];
+    const selectedTagSet = new Set(safeSelectedTags.map(tag => String(tag || '').toLowerCase()));
+    const excludedTagSet = new Set(safeExcludedTags.map(tag => String(tag || '').toLowerCase()));
     const panelPrefix = (typeof tagUiIdPrefix === 'string' && tagUiIdPrefix.trim())
         ? tagUiIdPrefix.trim()
         : 'search-tags';
@@ -14,15 +16,42 @@
         <% if (safeAvailableTags.length > 0) { %>
             <div class="tag-filter-options">
                 <% safeAvailableTags.forEach(tag => { %>
-                    <label class="tag-filter-option">
+                    <%
+                        const tagKey = String(tag || '').toLowerCase();
+                        const tagState = selectedTagSet.has(tagKey)
+                            ? 'include'
+                            : (excludedTagSet.has(tagKey) ? 'exclude' : 'neutral');
+                    %>
+                    <div
+                        class="tri-filter-control tag-filter-control"
+                        data-tri-filter
+                        data-filter-kind="tag"
+                        data-filter-label="<%= tag %>"
+                        data-include-name="tags"
+                        data-exclude-name="excludeTags"
+                        data-state="<%= tagState %>"
+                    >
                         <input
-                            type="checkbox"
-                            name="tags"
+                            type="hidden"
+                            data-tri-filter-input
+                            name="<%= tagState === 'exclude' ? 'excludeTags' : 'tags' %>"
                             value="<%= tag %>"
-                            <%= selectedTagSet.has(tag) ? 'checked' : '' %>
+                            <%= tagState === 'neutral' ? 'disabled' : '' %>
                         >
-                        <span class="tag-marquee-content"><%= tag %></span>
-                    </label>
+                        <button
+                            type="button"
+                            class="tag-filter-option tri-filter-option <%= tagState === 'include' ? 'is-include' : (tagState === 'exclude' ? 'is-exclude' : 'is-neutral') %>"
+                            data-tri-filter-button
+                            aria-pressed="<%= tagState === 'include' ? 'true' : (tagState === 'exclude' ? 'mixed' : 'false') %>"
+                            aria-label="<%= tag %> tag: <%= tagState %>. Click to <%= tagState === 'neutral' ? 'include' : (tagState === 'include' ? 'exclude' : 'reset') %>."
+                        >
+                            <span class="tri-filter-status" aria-hidden="true">
+                                <span class="tri-filter-icon tri-filter-icon-include"><%- include('icon', { name: 'check', size: 12 }) %></span>
+                                <span class="tri-filter-icon tri-filter-icon-exclude"><%- include('icon', { name: 'x', size: 12 }) %></span>
+                            </span>
+                            <span class="tag-marquee-content"><%= tag %></span>
+                        </button>
+                    </div>
                 <% }) %>
             </div>
         <% } else { %>

@@ -153,7 +153,7 @@ if (cardMii && cardMii.id) {
                 <% if (showMetadata) { %>
                     <% visibleMetadataItems.forEach((item) => { %>
                         <% if (metadataMode === 'categories') { %>
-                            <span class="mii-card-tag category-tag"><span class="tag-marquee-content"><%= item %></span></span>
+                            <a class="mii-card-tag category-tag" href="/official?category=<%= encodeURIComponent(item) %>"><span class="tag-marquee-content"><%= item %></span></a>
                         <% } else { %>
                             <a class="mii-card-tag" href="/searchResults?tags=<%= encodeURIComponent(item) %>"><span class="tag-marquee-content"><%= item %></span></a>
                         <% } %>

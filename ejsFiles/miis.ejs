@@ -8,7 +8,14 @@
             const currentPageNumber = usesOffsetPagination ? null : (pagination?.currentPage || 1);
             const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
             const hasSelectedTags = Array.isArray(selectedTags) && selectedTags.length > 0;
+            const hasExcludedTags = Array.isArray(excludedTags) && excludedTags.length > 0;
             const tagSummary = hasSelectedTags ? selectedTags.join(', ') : '';
+            const excludedTagSummary = hasExcludedTags ? excludedTags.join(', ') : '';
+            const tagFilterSummary = [
+                hasSelectedTags ? `including tags: ${tagSummary}` : '',
+                hasExcludedTags ? `excluding tags: ${excludedTagSummary}` : ''
+            ].filter(Boolean).join('; ');
+            const hasTagFilters = Boolean(tagFilterSummary);
             const safeSearchQuery = typeof searchQuery === 'string' ? searchQuery.trim() : '';
             const isLikedMiisPage = currentPathName === '/myLikedMiis';
             const likedMiisSort = query.sort === 'likes' ? 'likes' : 'latest';
@@ -65,13 +72,13 @@
                     ? `Search Results for ${safeSearchQuery}${pageSuffix} - InfiniMii`
                     : `Search Results${pageSuffix} - InfiniMii`;
                 pageDesc = safeSearchQuery
-                    ? `Search results for "${safeSearchQuery}" on InfiniMii${hasSelectedTags ? ` with tags: ${tagSummary}.` : '.'}`
+                    ? `Search results for "${safeSearchQuery}" on InfiniMii${hasTagFilters ? ` with filters ${tagFilterSummary}.` : '.'}`
                     : 'Search results from the InfiniMii Mii character database.';
-                keywords = `search miis, mii search results${safeSearchQuery ? `, ${safeSearchQuery}` : ''}${tagSummary ? `, ${tagSummary}` : ''}`;
+                keywords = `search miis, mii search results${safeSearchQuery ? `, ${safeSearchQuery}` : ''}${tagSummary ? `, ${tagSummary}` : ''}${excludedTagSummary ? `, ${excludedTagSummary}` : ''}`;
                 pageRobots = 'noindex, follow, noarchive';
                 introHeading = safeSearchQuery ? `Search Results for "${safeSearchQuery}"` : 'Search Results';
-                introBody = hasSelectedTags
-                    ? `Filtering the InfiniMii archive by search text and tags: ${tagSummary}.`
+                introBody = hasTagFilters
+                    ? `Filtering the InfiniMii archive by ${tagFilterSummary}.`
                     : 'Filtering the InfiniMii archive by your requested search terms.';
                 breadcrumbs.push({ name: 'Search', url: '/search' });
             }
@@ -99,7 +106,7 @@
         %>
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords, pageRobots, prevUrl, nextUrl }) %>
         <%- include('structuredData') %>
-        <link href="/global.css" rel="stylesheet">
+        <link href="/global.css?v=<%= encodeURIComponent(assetVersion || '20260513-tri-state-search-filters') %>" rel="stylesheet">
     </head>
 
     <body>
@@ -133,21 +140,24 @@
 
                 <% if (currentPath.startsWith('/searchResults')) { %>
                     <section class="search-results-search" aria-label="Search">
-                        <form method="GET" action="/searchResults" role="search">
-                            <label for="search-results-query" class="sr-only">Search Mii characters</label>
-                            <input
-                                id="search-results-query"
-                                name="q"
-                                type="search"
-                                autocomplete="off"
-                                placeholder="Search by text..."
-                                value="<%= query.q || '' %>"
-                            >
-                            <%- include('searchFieldFilters', { selectedSearchFields, searchFieldsExplicitlyConfigured, searchFieldUiIdPrefix: 'search-results-fields' }) %>
-                            <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: 'search-results', renderTagFilters: true, renderTagManagement: false }) %>
-                            <input type="submit" value="Search">
-                        </form>
-                        <% if (hasActiveSearchQuery || (Array.isArray(selectedTags) && selectedTags.length > 0)) { %>
+                        <%- include('advancedSearchControls', {
+                            formAction: '/searchResults',
+                            query,
+                            controlUiIdPrefix: 'search-results',
+                            searchAriaLabel: 'Search Mii characters',
+                            searchInputPlaceholder: 'Search by text...',
+                            submitLabel: 'Search',
+                            selectedSearchFields,
+                            searchFieldsExplicitlyConfigured,
+                            availableTags,
+                            selectedTags,
+                            excludedTags,
+                            isModerator,
+                            renderSearchFields: true,
+                            renderTagFilters: true,
+                            renderCategoryFilters: false
+                        }) %>
+                        <% if (hasActiveSearchQuery || (Array.isArray(selectedTags) && selectedTags.length > 0) || (Array.isArray(excludedTags) && excludedTags.length > 0)) { %>
                             <p class="search-results-summary">
                                 <%= pagination?.total ?? displayedMiis.length %> result<%= (pagination?.total ?? displayedMiis.length) === 1 ? '' : 's' %>
                                 <% if (hasActiveSearchQuery) { %>
@@ -155,6 +165,9 @@
                                 <% } %>
                                 <% if (Array.isArray(selectedTags) && selectedTags.length > 0) { %>
                                     <span class="search-results-tag-summary">with tag<%= selectedTags.length === 1 ? '' : 's' %>: <%= selectedTags.join(', ') %></span>
+                                <% } %>
+                                <% if (Array.isArray(excludedTags) && excludedTags.length > 0) { %>
+                                    <span class="search-results-tag-summary">excluding tag<%= excludedTags.length === 1 ? '' : 's' %>: <%= excludedTags.join(', ') %></span>
                                 <% } %>
                             </p>
                         <% } %>

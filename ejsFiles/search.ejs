@@ -14,7 +14,7 @@
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
         <%- include('structuredData') %>
         
-        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/global.css?v=<%= encodeURIComponent(assetVersion || '20260513-tri-state-search-filters') %>">
         <link rel="stylesheet" href="/utilityPages.css">
     </head>
     <body>
@@ -28,17 +28,26 @@
                     <h1>Search Mii Characters</h1>
                     <p>Search by character name, uploader, description, and tags to find Miis anywhere in the InfiniMii archive.</p>
                 </header>
-                <form method="GET" action="/searchResults" role="search">
-                    <fieldset>
-                        <legend id="search-heading">Search Filters</legend>
-                        <label for="search-query" class="sr-only">Enter character name or keywords</label>
-                        <input name="q" autocomplete="off" placeholder="Search by text..." type="search" id="search-query" value="<%= query.q || '' %>">
-                        <%- include('searchFieldFilters', { selectedSearchFields, searchFieldsExplicitlyConfigured, searchFieldUiIdPrefix: 'search-page-fields' }) %>
-                        <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: 'search-page', renderTagFilters: true, renderTagManagement: false }) %>
-                        <input type="submit" value="Search">
+                <%- include('advancedSearchControls', {
+                    formAction: '/searchResults',
+                    query,
+                    controlUiIdPrefix: 'search-page',
+                    searchAriaLabel: 'Search Mii characters',
+                    searchInputPlaceholder: 'Search by text...',
+                    submitLabel: 'Search',
+                    selectedSearchFields,
+                    searchFieldsExplicitlyConfigured,
+                    availableTags,
+                    selectedTags,
+                    excludedTags,
+                    isModerator,
+                    renderSearchFields: true,
+                    renderTagFilters: true,
+                    renderCategoryFilters: false
+                }) %>
 
-                        <!-- This is here for SEO/LLM-O -->
-                        <div class="search-tips" hidden>
+                <!-- This is here for SEO/LLM-O -->
+                <div class="search-tips" hidden>
                         <h3>Search Tips:</h3>
                         <ul>
                             <li>Search by character name (e.g., "Mario", "Link", "Pikachu")</li>
@@ -46,10 +55,15 @@
                             <li>Use creator names to find all Miis by a specific user</li>
                             <li>Browse by console: "Wii", "3DS", "Switch"</li>
                         </ul>
-                    </div>
-                    </fieldset>
-                </form>
-                <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: 'search-page', renderTagFilters: false, renderTagManagement: true }) %>
+                </div>
+                <%- include('tagFilters', {
+                    availableTags,
+                    selectedTags,
+                    isModerator,
+                    tagUiIdPrefix: 'search-page',
+                    renderTagFilters: false,
+                    renderTagManagement: true
+                }) %>
             </section>
             <%- include('featuredMiis') %>
         </main>

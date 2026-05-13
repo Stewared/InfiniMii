@@ -180,6 +180,24 @@
     transform: translateY(-1px);
 }
 
+.official-miis-page #browse-miis.browse-miis-balanced {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
+    justify-content: center;
+    justify-items: stretch;
+    gap: clamp(0.75rem, 1.2vw, 1rem);
+}
+
+.official-miis-page #browse-miis.browse-miis-balanced .mii-card {
+    width: 100%;
+    max-width: var(--mii-card-max-width);
+    min-width: 0;
+    margin: 0;
+}
+
+.official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-content {
+    padding: 0.9rem;
+}
+
 .official-badge {
     display: inline-flex;
     align-items: center;
@@ -193,43 +211,6 @@
     color: #fff5cf;
     font-size: 0.78rem;
     font-weight: 700;
-}
-
-.official-miis-page .mii-categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    margin-top: 0.6rem;
-}
-
-.official-card-like-button {
-    align-self: center;
-}
-
-.official-miis-page .mii-categories .category-tag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    max-width: 100%;
-    min-height: 1.65rem;
-    border-radius: 999px;
-    border: 1px solid color-mix(in oklab, var(--brand-color) 45%, #7f7f7f 55%);
-    background: color-mix(in oklab, var(--brand-color) 18%, var(--layer-2-um) 82%);
-    color: color-mix(in oklab, #ffffff 85%, var(--brand-color) 15%);
-    padding: 0.22rem 0.58rem;
-    font-size: 0.74rem;
-    line-height: 1.3;
-    gap: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.official-miis-page .mii-categories .category-tag.more {
-    border-color: color-mix(in oklab, var(--layer-3-um) 60%, #888 40%);
-    background: color-mix(in oklab, var(--layer-3-um) 50%, var(--layer-2-um) 50%);
-    color: var(--text-2);
 }
 
 .no-results {
@@ -291,57 +272,50 @@
     }
 }
 
-@media (max-width: 768px) {
-    .official-miis-page .mii-card-meta-row {
-        align-items: center;
-        gap: 0.7rem;
+@media (max-width: 600px) {
+    .official-miis-page #browse-miis.browse-miis-balanced {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--mii-card-min-width)), var(--mii-card-max-width)));
+        justify-items: stretch;
     }
 
-    .official-miis-page .mii-card-byline {
-        flex-wrap: wrap;
+    .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-content {
+        padding: 0.8rem;
+    }
+
+    .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-meta-row {
         align-items: flex-start;
-        row-gap: 0.12rem;
+        flex-wrap: wrap;
+        row-gap: 0.48rem;
     }
 
-    .official-miis-page .mii-card-byline a,
-    .official-miis-page .mii-card-byline > :last-child {
+    .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-meta {
+        flex: 1 1 9rem;
+        min-width: min(100%, 9rem);
+    }
+
+    .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-byline {
         max-width: 100%;
-        overflow-wrap: anywhere;
-        word-break: break-word;
+        overflow: hidden;
     }
 
-    .official-miis-page .mii-card-byline a {
-        overflow: visible;
-        text-overflow: clip;
-        white-space: normal;
+    .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-byline span {
+        flex: 0 0 auto;
     }
 
-    .official-miis-page .official-card-like-button {
-        gap: 0.32rem;
-        min-height: 1.8rem;
-        padding: 0.28rem 0.48rem;
-        font-size: 0.82rem;
+    .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-byline a {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
     }
 
-    .official-miis-page .official-card-like-button .icon,
-    .official-miis-page .official-card-like-button .like-icon {
-        width: 17px;
-        height: 17px;
+    .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-meta-row .mii-card-like-button {
+        margin-left: auto;
     }
+}
 
-    .official-miis-page .official-card-like-button .vote-count {
-        font-size: 0.82rem;
-    }
-
-    .official-miis-page .mii-categories {
-        gap: 0.5rem;
-    }
-
-    .official-miis-page .mii-categories .category-tag {
-        min-height: 1.9rem;
-        padding: 0.34rem 0.72rem;
-        font-size: 0.78rem;
-        font-weight: 500;
-        line-height: 1.25;
+@media (max-width: 400px) {
+    .official-miis-page #browse-miis.browse-miis-balanced {
+        grid-template-columns: 1fr;
+        justify-items: center;
     }
 }

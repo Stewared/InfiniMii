@@ -1,0 +1,159 @@
+<%
+    const resolvedFormAction = (typeof formAction === 'string' && formAction.trim())
+        ? formAction.trim()
+        : '/searchResults';
+    const resolvedQuery = (typeof query !== 'undefined' && query) ? query : {};
+    const searchControlIdPrefix = (typeof controlUiIdPrefix === 'string' && controlUiIdPrefix.trim())
+        ? controlUiIdPrefix.trim()
+        : 'search-controls';
+    const searchInputId = `${searchControlIdPrefix}-query`;
+    const searchValue = typeof searchQueryValue === 'string'
+        ? searchQueryValue
+        : (typeof resolvedQuery.q === 'string' ? resolvedQuery.q : '');
+    const searchPlaceholder = (typeof searchInputPlaceholder === 'string' && searchInputPlaceholder.trim())
+        ? searchInputPlaceholder.trim()
+        : 'Search by text...';
+    const resolvedSubmitLabel = (typeof submitLabel === 'string' && submitLabel.trim())
+        ? submitLabel.trim()
+        : 'Search';
+    const resolvedSearchAriaLabel = (typeof searchAriaLabel === 'string' && searchAriaLabel.trim())
+        ? searchAriaLabel.trim()
+        : 'Search Mii characters';
+    const showSearchFields = typeof renderSearchFields === 'undefined' || renderSearchFields !== false;
+    const showTagFilters = typeof renderTagFilters !== 'undefined' && renderTagFilters === true;
+    const showCategoryFilters = typeof renderCategoryFilters !== 'undefined' && renderCategoryFilters === true;
+    const selectedTagList = (typeof selectedTags !== 'undefined' && Array.isArray(selectedTags)) ? selectedTags : [];
+    const excludedTagList = (typeof excludedTags !== 'undefined' && Array.isArray(excludedTags)) ? excludedTags : [];
+    const selectedTagCount = selectedTagList.length;
+    const excludedTagCount = excludedTagList.length;
+    const selectedCategoryList = (typeof selectedCategories !== 'undefined' && Array.isArray(selectedCategories))
+        ? selectedCategories
+        : ((typeof selectedOfficialCategories !== 'undefined' && Array.isArray(selectedOfficialCategories)) ? selectedOfficialCategories : []);
+    const excludedCategoryList = (typeof excludedCategories !== 'undefined' && Array.isArray(excludedCategories))
+        ? excludedCategories
+        : ((typeof excludedOfficialCategories !== 'undefined' && Array.isArray(excludedOfficialCategories)) ? excludedOfficialCategories : []);
+    const selectedCategoryCount = selectedCategoryList.length;
+    const excludedCategoryCount = excludedCategoryList.length;
+    const selectedFieldSource = (typeof selectedSearchFields !== 'undefined' && Array.isArray(selectedSearchFields)) ? selectedSearchFields : [];
+    const searchFieldsWereConfigured = Boolean(typeof searchFieldsExplicitlyConfigured !== 'undefined' && searchFieldsExplicitlyConfigured);
+    const hasAdvancedSelections = searchFieldsWereConfigured || selectedTagCount > 0 || excludedTagCount > 0 || selectedCategoryCount > 0 || excludedCategoryCount > 0;
+    const shouldOpenAdvanced = typeof advancedOpen === 'boolean' ? advancedOpen : hasAdvancedSelections;
+    const advancedCount = selectedTagCount + excludedTagCount + selectedCategoryCount + excludedCategoryCount;
+%>
+
+<section class="search-control-panel" aria-label="<%= resolvedSearchAriaLabel %>">
+    <form class="search-control-form" method="GET" action="<%= resolvedFormAction %>" role="search">
+        <div class="search-control-main">
+            <label for="<%= searchInputId %>" class="sr-only"><%= resolvedSearchAriaLabel %></label>
+            <input
+                id="<%= searchInputId %>"
+                name="q"
+                autocomplete="off"
+                placeholder="<%= searchPlaceholder %>"
+                type="search"
+                value="<%= searchValue %>"
+            >
+            <input type="submit" value="<%= resolvedSubmitLabel %>">
+        </div>
+
+        <% if (showSearchFields || showTagFilters || showCategoryFilters) { %>
+            <details class="advanced-search-dropdown" <%= shouldOpenAdvanced ? 'open' : '' %>>
+                <summary>
+                    <span>Advanced Search</span>
+                    <% if (advancedCount > 0) { %>
+                        <span class="advanced-search-count"><%= advancedCount %></span>
+                    <% } %>
+                </summary>
+                <div class="advanced-search-body">
+                    <% if (showSearchFields) { %>
+                        <%- include('searchFieldFilters', {
+                            selectedSearchFields: selectedFieldSource,
+                            searchFieldsExplicitlyConfigured,
+                            searchFieldUiIdPrefix: `${searchControlIdPrefix}-fields`
+                        }) %>
+                    <% } %>
+
+                    <% if (showTagFilters) { %>
+                        <%- include('tagFilters', {
+                            availableTags: typeof availableTags !== 'undefined' ? availableTags : [],
+                            selectedTags: selectedTagList,
+                            excludedTags: excludedTagList,
+                            isModerator: Boolean(typeof isModerator !== 'undefined' && isModerator),
+                            tagUiIdPrefix: `${searchControlIdPrefix}-tags`,
+                            renderTagFilters: true,
+                            renderTagManagement: false
+                        }) %>
+                    <% } %>
+
+                    <% if (showCategoryFilters) { %>
+                        <%- include('categoryFilters', {
+                            availableCategories: typeof availableCategories !== 'undefined' ? availableCategories : [],
+                            selectedCategories: selectedCategoryList,
+                            excludedCategories: excludedCategoryList,
+                            categoryName: typeof categoryName === 'string' ? categoryName : 'category',
+                            excludeCategoryName: typeof excludeCategoryName === 'string' ? excludeCategoryName : 'excludeCategory'
+                        }) %>
+                    <% } %>
+                </div>
+            </details>
+        <% } %>
+    </form>
+
+    <% if (showTagFilters || showCategoryFilters) { %>
+        <script>
+            (() => {
+                const STATES = ['neutral', 'include', 'exclude'];
+                const STATE_CLASS_NAMES = ['is-neutral', 'is-include', 'is-exclude'];
+
+                const getNextState = (state) => {
+                    const currentIndex = STATES.indexOf(state);
+                    return STATES[(currentIndex + 1) % STATES.length];
+                };
+
+                const getActionLabel = (state) => {
+                    if (state === 'neutral') return 'include';
+                    if (state === 'include') return 'exclude';
+                    return 'reset';
+                };
+
+                const syncControl = (control) => {
+                    const state = STATES.includes(control.dataset.state) ? control.dataset.state : 'neutral';
+                    const button = control.querySelector('[data-tri-filter-button]');
+                    const input = control.querySelector('[data-tri-filter-input]');
+                    if (!button || !input) return;
+
+                    const includeName = control.dataset.includeName || input.name;
+                    const excludeName = control.dataset.excludeName || input.name;
+                    const label = control.dataset.filterLabel || input.value;
+                    const kind = control.dataset.filterKind || 'filter';
+
+                    input.disabled = state === 'neutral';
+                    input.name = state === 'exclude' ? excludeName : includeName;
+
+                    button.classList.remove(...STATE_CLASS_NAMES);
+                    button.classList.add(`is-${state}`);
+                    button.dataset.state = state;
+                    button.setAttribute('aria-pressed', state === 'include' ? 'true' : (state === 'exclude' ? 'mixed' : 'false'));
+                    button.setAttribute('aria-label', `${label} ${kind}: ${state}. Click to ${getActionLabel(state)}.`);
+                };
+
+                document.querySelectorAll('[data-tri-filter]').forEach(syncControl);
+
+                if (window.__infiniMiiTriFilterBound) return;
+                window.__infiniMiiTriFilterBound = true;
+
+                document.addEventListener('click', (event) => {
+                    const button = event.target.closest('[data-tri-filter-button]');
+                    if (!button) return;
+
+                    const control = button.closest('[data-tri-filter]');
+                    if (!control) return;
+
+                    event.preventDefault();
+                    control.dataset.state = getNextState(control.dataset.state);
+                    syncControl(control);
+                });
+            })();
+        </script>
+    <% } %>
+</section>

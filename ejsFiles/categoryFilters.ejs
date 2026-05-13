@@ -1,0 +1,168 @@
+<%
+    const safeAvailableCategories = (typeof availableCategories !== 'undefined' && Array.isArray(availableCategories)) ? availableCategories : [];
+    const safeSelectedCategories = (typeof selectedCategories !== 'undefined' && Array.isArray(selectedCategories))
+        ? selectedCategories
+        : ((typeof selectedOfficialCategories !== 'undefined' && Array.isArray(selectedOfficialCategories)) ? selectedOfficialCategories : []);
+    const safeExcludedCategories = (typeof excludedCategories !== 'undefined' && Array.isArray(excludedCategories))
+        ? excludedCategories
+        : ((typeof excludedOfficialCategories !== 'undefined' && Array.isArray(excludedOfficialCategories)) ? excludedOfficialCategories : []);
+    const selectedCategorySet = new Set(safeSelectedCategories.map(category => String(category || '').toLowerCase()));
+    const excludedCategorySet = new Set(safeExcludedCategories.map(category => String(category || '').toLowerCase()));
+    const categoryInputName = (typeof categoryName === 'string' && categoryName.trim())
+        ? categoryName.trim()
+        : 'category';
+    const excludeCategoryInputName = (typeof excludeCategoryName === 'string' && excludeCategoryName.trim())
+        ? excludeCategoryName.trim()
+        : 'excludeCategory';
+    const categoryGroupMap = new Map();
+
+    safeAvailableCategories.forEach(category => {
+        const categoryPath = String(category?.path || category || '').trim();
+        if (!categoryPath) return;
+
+        const categoryLabel = String(category?.fullPath || category?.name || categoryPath).trim();
+        const categoryColor = String(category?.color || '#999999').trim();
+        const pathSegments = categoryPath.split('/').map(segment => segment.trim()).filter(Boolean);
+        const groupName = pathSegments[0] || categoryLabel || categoryPath;
+        const groupKey = groupName.toLowerCase();
+        const isSelected = selectedCategorySet.has(categoryPath.toLowerCase());
+
+        if (!categoryGroupMap.has(groupKey)) {
+            categoryGroupMap.set(groupKey, {
+                name: groupName,
+                path: groupName,
+                included: selectedCategorySet.has(groupName.toLowerCase()),
+                excluded: excludedCategorySet.has(groupName.toLowerCase()),
+                includedCount: 0,
+                excludedCount: 0,
+                categories: []
+            });
+        }
+
+        const group = categoryGroupMap.get(groupKey);
+        const groupPrefix = `${groupName}/`;
+        const displayLabel = categoryLabel.startsWith(groupPrefix)
+            ? categoryLabel.slice(groupPrefix.length)
+            : categoryLabel;
+
+        group.categories.push({
+            path: categoryPath,
+            label: displayLabel || categoryLabel || categoryPath,
+            color: categoryColor,
+            included: isSelected,
+            excluded: excludedCategorySet.has(categoryPath.toLowerCase())
+        });
+
+        if (isSelected) {
+            group.includedCount += 1;
+        }
+        if (excludedCategorySet.has(categoryPath.toLowerCase())) {
+            group.excludedCount += 1;
+        }
+    });
+
+    const categoryGroups = [...categoryGroupMap.values()];
+%>
+
+<section class="search-categories-panel" aria-label="Filter by categories">
+    <h3 class="search-categories-title">Filter by Categories</h3>
+    <% if (categoryGroups.length > 0) { %>
+        <div class="category-filter-groups">
+            <% categoryGroups.forEach(group => { %>
+                <%
+                    const shouldRenderTopLevelOption = !(group.categories.length === 1 && group.categories[0].path.toLowerCase() === group.path.toLowerCase());
+                    const hasIncludedCategories = group.included || group.includedCount > 0;
+                    const hasExcludedCategories = group.excluded || group.excludedCount > 0;
+                    const groupIncludedBadge = group.included && shouldRenderTopLevelOption ? 'All' : group.includedCount;
+                    const groupExcludedBadge = group.excluded && shouldRenderTopLevelOption ? 'All' : group.excludedCount;
+                %>
+                <details class="category-filter-group" <%= hasIncludedCategories || hasExcludedCategories ? 'open' : '' %>>
+                    <summary>
+                        <span><%= group.name %></span>
+                        <% if (hasIncludedCategories || hasExcludedCategories) { %>
+                            <span class="category-filter-group-counts">
+                                <% if (hasIncludedCategories) { %>
+                                    <span class="category-filter-group-count is-include"><%= groupIncludedBadge %></span>
+                                <% } %>
+                                <% if (hasExcludedCategories) { %>
+                                    <span class="category-filter-group-count is-exclude"><%= groupExcludedBadge %></span>
+                                <% } %>
+                            </span>
+                        <% } %>
+                    </summary>
+                    <div class="category-filter-options">
+                        <% if (shouldRenderTopLevelOption) { %>
+                            <% const groupState = group.included ? 'include' : (group.excluded ? 'exclude' : 'neutral'); %>
+                            <div
+                                class="tri-filter-control category-filter-control category-filter-control-top-level"
+                                data-tri-filter
+                                data-filter-kind="category"
+                                data-filter-label="All <%= group.name %>"
+                                data-include-name="<%= categoryInputName %>"
+                                data-exclude-name="<%= excludeCategoryInputName %>"
+                                data-state="<%= groupState %>"
+                            >
+                                <input
+                                    type="hidden"
+                                    data-tri-filter-input
+                                    name="<%= groupState === 'exclude' ? excludeCategoryInputName : categoryInputName %>"
+                                    value="<%= group.path %>"
+                                    <%= groupState === 'neutral' ? 'disabled' : '' %>
+                                >
+                                <button
+                                    type="button"
+                                    class="tag-filter-option category-filter-option category-filter-option-top-level tri-filter-option <%= groupState === 'include' ? 'is-include' : (groupState === 'exclude' ? 'is-exclude' : 'is-neutral') %>"
+                                    data-tri-filter-button
+                                    aria-pressed="<%= groupState === 'include' ? 'true' : (groupState === 'exclude' ? 'mixed' : 'false') %>"
+                                    aria-label="All <%= group.name %> category: <%= groupState %>. Click to <%= groupState === 'neutral' ? 'include' : (groupState === 'include' ? 'exclude' : 'reset') %>."
+                                >
+                                    <span class="tri-filter-status" aria-hidden="true">
+                                        <span class="tri-filter-icon tri-filter-icon-include"><%- include('icon', { name: 'check', size: 12 }) %></span>
+                                        <span class="tri-filter-icon tri-filter-icon-exclude"><%- include('icon', { name: 'x', size: 12 }) %></span>
+                                    </span>
+                                    <span class="tag-marquee-content">All <%= group.name %></span>
+                                </button>
+                            </div>
+                        <% } %>
+                        <% group.categories.forEach(category => { %>
+                            <% const categoryState = category.included ? 'include' : (category.excluded ? 'exclude' : 'neutral'); %>
+                            <div
+                                class="tri-filter-control category-filter-control"
+                                data-tri-filter
+                                data-filter-kind="category"
+                                data-filter-label="<%= category.label %>"
+                                data-include-name="<%= categoryInputName %>"
+                                data-exclude-name="<%= excludeCategoryInputName %>"
+                                data-state="<%= categoryState %>"
+                            >
+                                <input
+                                    type="hidden"
+                                    data-tri-filter-input
+                                    name="<%= categoryState === 'exclude' ? excludeCategoryInputName : categoryInputName %>"
+                                    value="<%= category.path %>"
+                                    <%= categoryState === 'neutral' ? 'disabled' : '' %>
+                                >
+                                <button
+                                    type="button"
+                                    class="tag-filter-option category-filter-option tri-filter-option <%= categoryState === 'include' ? 'is-include' : (categoryState === 'exclude' ? 'is-exclude' : 'is-neutral') %>"
+                                    style="--category-color: <%= category.color %>;"
+                                    data-tri-filter-button
+                                    aria-pressed="<%= categoryState === 'include' ? 'true' : (categoryState === 'exclude' ? 'mixed' : 'false') %>"
+                                    aria-label="<%= category.label %> category: <%= categoryState %>. Click to <%= categoryState === 'neutral' ? 'include' : (categoryState === 'include' ? 'exclude' : 'reset') %>."
+                                >
+                                    <span class="tri-filter-status" aria-hidden="true">
+                                        <span class="tri-filter-icon tri-filter-icon-include"><%- include('icon', { name: 'check', size: 12 }) %></span>
+                                        <span class="tri-filter-icon tri-filter-icon-exclude"><%- include('icon', { name: 'x', size: 12 }) %></span>
+                                    </span>
+                                    <span class="tag-marquee-content"><%= category.label %></span>
+                                </button>
+                            </div>
+                        <% }) %>
+                    </div>
+                </details>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <p class="tag-filter-empty">No categories are available yet.</p>
+    <% } %>
+</section>

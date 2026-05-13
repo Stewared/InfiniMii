@@ -5,30 +5,42 @@
             const usesOffsetPagination = pagination?.mode === 'offset';
             const currentPageNumber = usesOffsetPagination ? null : (pagination?.currentPage || 1);
             const pageSuffix = currentPageNumber > 1 ? ` - Page ${currentPageNumber}` : '';
-            const pageTitle = currentFilter
-                ? `Official Mii Characters in ${currentFilter}${pageSuffix} - InfiniMii`
+            const selectedOfficialCategoryPaths = (typeof selectedOfficialCategories !== 'undefined' && Array.isArray(selectedOfficialCategories))
+                ? selectedOfficialCategories
+                : (currentFilter ? [currentFilter] : []);
+            const excludedOfficialCategoryPaths = (typeof excludedOfficialCategories !== 'undefined' && Array.isArray(excludedOfficialCategories))
+                ? excludedOfficialCategories
+                : [];
+            const officialSearchQuery = typeof searchQuery === 'string' ? searchQuery.trim() : '';
+            const officialCategoryByPath = new Map((Array.isArray(availableCategories) ? availableCategories : []).map(category => [category.path, category]));
+            const selectedOfficialCategoryLabels = selectedOfficialCategoryPaths.map(path => (
+                officialCategoryByPath.get(path)?.fullPath || officialCategoryByPath.get(path)?.name || path
+            ));
+            const excludedOfficialCategoryLabels = excludedOfficialCategoryPaths.map(path => (
+                officialCategoryByPath.get(path)?.fullPath || officialCategoryByPath.get(path)?.name || path
+            ));
+            const hasOfficialFilters = Boolean(officialSearchQuery || selectedOfficialCategoryLabels.length > 0 || excludedOfficialCategoryLabels.length > 0);
+            const officialFilterSummary = [
+                officialSearchQuery ? `"${officialSearchQuery}"` : '',
+                ...selectedOfficialCategoryLabels,
+                ...excludedOfficialCategoryLabels.map(label => `not ${label}`)
+            ].filter(Boolean).join(', ');
+            const pageTitle = hasOfficialFilters
+                ? `Official Mii Characters Matching ${officialFilterSummary}${pageSuffix} - InfiniMii`
                 : `Official Nintendo Mii Characters${pageSuffix} - InfiniMii`;
-            const pageDesc = currentFilter
-                ? `Browse official Mii characters filed under ${currentFilter} on InfiniMii.`
+            const pageDesc = hasOfficialFilters
+                ? `Browse official Mii characters matching ${officialFilterSummary} on InfiniMii.`
                 : 'Browse official Nintendo Mii characters from games, promotions, and system sources preserved on InfiniMii.';
-            const canonicalCategoryPrefix = currentFilter ? `?category=${encodeURIComponent(currentFilter)}` : '';
-            const canonicalOffsetSuffix = usesOffsetPagination && pagination?.start > 0
-                ? `${currentFilter ? '&' : '?'}start=${pagination.start}`
-                : '';
-            const canonicalPageSuffix = !usesOffsetPagination && currentPageNumber > 1
-                ? `${currentFilter ? '&' : '?'}page=${currentPageNumber}`
-                : '';
-            const canonicalQuery = `${canonicalCategoryPrefix}${usesOffsetPagination ? canonicalOffsetSuffix : canonicalPageSuffix}`;
-            const canonicalUrl = `${baseUrl}/official${canonicalQuery}`;
-            const keywords = currentFilter
-                ? `official miis, ${currentFilter}, nintendo miis`
+            const canonicalUrl = `${baseUrl}${currentPath || '/official'}`;
+            const keywords = hasOfficialFilters
+                ? `official miis, ${officialFilterSummary}, nintendo miis`
                 : 'official miis, official nintendo miis, preserved miis';
             const breadcrumbs = [
                 { name: 'Home', url: '/' },
                 { name: 'Official Miis', url: '/official' }
             ];
-            if (currentFilter) {
-                breadcrumbs.push({ name: currentFilter, url: `/official?category=${encodeURIComponent(currentFilter)}` });
+            if (selectedOfficialCategoryLabels.length === 1) {
+                breadcrumbs.push({ name: selectedOfficialCategoryLabels[0], url: `/official?category=${encodeURIComponent(selectedOfficialCategoryPaths[0])}` });
             }
             const schemaType = 'CollectionPage';
             const listOffset = usesOffsetPagination
@@ -38,7 +50,7 @@
                 ? [{
                     "@context": "https://schema.org",
                     "@type": "ItemList",
-                    "name": currentFilter ? `Official Miis in ${currentFilter}` : 'Official Mii Characters',
+                    "name": hasOfficialFilters ? `Official Miis Matching ${officialFilterSummary}` : 'Official Mii Characters',
                     "numberOfItems": pagination?.total || displayedMiis.length,
                     "itemListElement": displayedMiis
                         .filter((miiItem) => miiItem && miiItem.id)
@@ -53,9 +65,9 @@
         %>
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords, prevUrl, nextUrl }) %>
         <%- include('structuredData') %>
-        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/global.css?v=<%= encodeURIComponent(assetVersion || '20260513-tri-state-search-filters') %>">
         <link rel="stylesheet" href="/utilityPages.css">
-        <link rel="stylesheet" href="/official.css?v=20260411-mobile-fix">
+        <link rel="stylesheet" href="/official.css?v=<%= encodeURIComponent(assetVersion || '20260513-home-mobile-cards') %>">
     </head>
     <body>
         <%- include('globalStyle') %>
@@ -72,36 +84,30 @@
                     </p>
                 </div>
 
-                <!-- Category Filter -->
-                <div class="category-filter">
-                    <details class="category-dropdown" <%= currentFilter ? 'open' : '' %>>
-                        <summary>
-                            <span class="summary-label">Filter by Category</span>
-                            <span class="summary-current"><%= currentFilter || 'All Categories' %></span>
-                        </summary>
-                        <div class="filter-buttons">
-                            <a href="/official" class="filter-btn <%= !currentFilter ? 'active' : '' %>">
-                                All (<%= displayedMiis.length %>)
-                                <span class="category-path">Everything</span>
-                            </a>
-                            <% availableCategories.forEach(category => { %>
-                                <a href="/official?category=<%= encodeURIComponent(category.path) %>" 
-                                class="filter-btn <%= currentFilter === category.path ? 'active' : '' %>"
-                                style="--category-color: <%= category.color || '#999999' %>;">
-                                    <%= category.name %>
-                                    <% if(category.fullPath) { %>
-                                        <span class="category-path"><%= category.fullPath %></span>
-                                    <% } %>
-                                </a>
-                            <% }); %>
-                        </div>
-                    </details>
-                </div>
+                <%- include('advancedSearchControls', {
+                    formAction: '/official',
+                    query,
+                    controlUiIdPrefix: 'official-search',
+                    searchAriaLabel: 'Search official Miis',
+                    searchInputPlaceholder: 'Search official Miis...',
+                    submitLabel: 'Search',
+                    selectedSearchFields,
+                    searchFieldsExplicitlyConfigured,
+                    availableCategories,
+                    selectedCategories: selectedOfficialCategoryPaths,
+                    excludedCategories: excludedOfficialCategoryPaths,
+                    categoryName: 'category',
+                    excludeCategoryName: 'excludeCategory',
+                    renderSearchFields: true,
+                    renderTagFilters: false,
+                    renderCategoryFilters: true,
+                    advancedOpen: hasOfficialFilters
+                }) %>
 
-                <% if(currentFilter) { %>
+                <% if(hasOfficialFilters) { %>
                     <div class="current-filter">
-                        Showing: <strong><%= currentFilter %></strong>
-                        <a href="/official" class="clear-filter"><%- include('icon', { name: 'x', size: 14 }) %> Clear Filter</a>
+                        Showing: <strong><%= officialFilterSummary %></strong>
+                        <a href="/official" class="clear-filter"><%- include('icon', { name: 'x', size: 14 }) %> Clear Search</a>
                     </div>
                 <% } %>
 
@@ -130,14 +136,8 @@
                                 imageEagerLoad: shouldEagerLoadImage,
                                 imagePriorityLoad: shouldPrioritizeImage,
                                 descriptionMaxLength: 75,
-                                includeLikeButton: true,
-                                likeButtonClass: 'official-card-like-button',
-                                likeIconSize: 18,
-                                metadataType: 'categories',
-                                metadataItems: officialMii.officialCategories,
-                                metadataItemLimit: 3,
-                                badgeEnabled: true,
-                                badgeText: 'Official'
+                                metadataType: 'tags',
+                                metadataItemLimit: 3
                             }) %>
                         <% } %>
                     </div>
@@ -188,8 +188,8 @@
                     <% } %>
                 <% } else { %>
                     <div class="no-results">
-                        <h3>No official Miis found<% if(currentFilter) { %> in <%= currentFilter %><% } %></h3>
-                        <% if(currentFilter) { %>
+                        <h3>No official Miis found<% if(hasOfficialFilters) { %> for <%= officialFilterSummary %><% } %></h3>
+                        <% if(hasOfficialFilters) { %>
                             <a href="/official" class="btn-primary">View All Official Miis</a>
                         <% } %>
                     </div>

@@ -79,7 +79,7 @@ const profileMiisPerPage = 18;
 const HOME_PREVIEW_COUNT = 16;
 const FULL_ROW_BROWSE_REQUEST_LIMIT = defaultMiisPerPage + HOME_PREVIEW_COUNT;
 const FULL_ROW_PROFILE_REQUEST_LIMIT = profileMiisPerPage + HOME_PREVIEW_COUNT;
-const GLOBAL_ASSET_VERSION = "20260510-mii-dashboard-applied-json-1";
+const GLOBAL_ASSET_VERSION = "20260513-tri-state-search-filters";
 const RSS_FEED_MII_LIMIT = 50;
 const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
 const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
@@ -2637,6 +2637,10 @@ async function getSendables(req, title, user) {
     const settings = await getSettings();
     const availableTags = getMiiTags(settings);
     const selectedTags = mapRequestedTagsToCatalog(req.query?.tags, availableTags);
+    const excludedTags = removeIncludedFilterConflicts(
+        mapRequestedTagsToCatalog(req.query?.excludeTags ?? req.query?.excludedTags, availableTags),
+        selectedTags
+    );
     const searchFieldsExplicitlyConfigured = parseBooleanLike(req.query?.searchFieldsConfigured);
     const selectedSearchFields = getRequestedSearchFields(req.query);
 
@@ -2668,6 +2672,7 @@ async function getSendables(req, title, user) {
         officialCompanySources: getOfficialCompanySources(settings),
         availableTags,
         selectedTags,
+        excludedTags,
         selectedSearchFields,
         searchFieldsExplicitlyConfigured,
         howToTitle: "How To",
@@ -4909,6 +4914,65 @@ function mapRequestedTagsToCatalog(requestedTags, catalogTags) {
     return mapped;
 }
 
+function removeIncludedFilterConflicts(excludedItems, includedItems) {
+    const includedSet = new Set((Array.isArray(includedItems) ? includedItems : [])
+        .map(item => String(item || "").toLowerCase()));
+
+    return (Array.isArray(excludedItems) ? excludedItems : [])
+        .filter(item => !includedSet.has(String(item || "").toLowerCase()));
+}
+
+function mapRequestedCategoriesToCatalog(requestedCategories, catalogCategories) {
+    const requested = normalizeCategoryPaths(requestedCategories);
+    if (!requested.length) return [];
+
+    const catalog = Array.isArray(catalogCategories) ? catalogCategories : [];
+    const byLower = new Map(catalog
+        .map(category => {
+            const path = typeof category === "string" ? category : category?.path;
+            const normalizedPath = String(path || "").trim();
+            return normalizedPath ? [normalizedPath.toLowerCase(), normalizedPath] : null;
+        })
+        .filter(Boolean));
+    const mapped = [];
+
+    for (const requestedCategory of requested) {
+        const canonical = byLower.get(requestedCategory.toLowerCase());
+        if (canonical && !mapped.includes(canonical)) {
+            mapped.push(canonical);
+        }
+    }
+
+    return mapped;
+}
+
+function buildOfficialCategoryFilterCatalog(leafCategories) {
+    const catalog = [];
+    const seen = new Set();
+
+    const addPath = (path) => {
+        const normalizedPath = String(path || "").trim();
+        if (!normalizedPath) return;
+
+        const key = normalizedPath.toLowerCase();
+        if (seen.has(key)) return;
+
+        seen.add(key);
+        catalog.push({ path: normalizedPath });
+    };
+
+    (Array.isArray(leafCategories) ? leafCategories : []).forEach(category => {
+        const categoryPath = String(category?.path || category || "").trim();
+        if (!categoryPath) return;
+
+        addPath(categoryPath);
+        const topLevelPath = categoryPath.split("/").map(segment => segment.trim()).filter(Boolean)[0];
+        addPath(topLevelPath);
+    });
+
+    return catalog;
+}
+
 function getRequestedSearchFields(source = {}) {
     const hasExplicitFieldConfig = parseBooleanLike(source?.searchFieldsConfigured);
     return normalizeSearchFieldSelection(source?.searchIn, {
@@ -5566,6 +5630,61 @@ async function getFallbackSearchPaginatedResult(baseQuery, searchPlan, page, per
     };
 }
 
+function getOfficialCategoryIncludeClauses(selectedCategories) {
+    return normalizeCategoryPaths(selectedCategories).map(categoryPath => {
+        if (categoryPath.includes("/")) {
+            return { officialCategories: categoryPath };
+        }
+
+        return {
+            officialCategories: new RegExp(`^${escapeRegex(categoryPath)}(?:/|$)`, "i")
+        };
+    });
+}
+
+function getOfficialCategoryExcludeClauses(excludedCategories) {
+    return normalizeCategoryPaths(excludedCategories).map(categoryPath => {
+        if (categoryPath.includes("/")) {
+            return { $nor: [{ officialCategories: categoryPath }] };
+        }
+
+        return {
+            $nor: [{
+                officialCategories: new RegExp(`^${escapeRegex(categoryPath)}(?:/|$)`, "i")
+            }]
+        };
+    });
+}
+
+function applyOfficialCategoryFilters(query, selectedCategories, excludedCategories = []) {
+    const categoryClauses = [
+        ...getOfficialCategoryIncludeClauses(selectedCategories),
+        ...getOfficialCategoryExcludeClauses(excludedCategories)
+    ];
+    if (categoryClauses.length === 0) return;
+
+    query.$and = [
+        ...(Array.isArray(query.$and) ? query.$and : []),
+        ...categoryClauses
+    ];
+}
+
+function buildOfficialSearchMatchClauses(searchPlan) {
+    if (!searchPlan?.active) return [];
+
+    return searchPlan.tokenRegexes.map((tokenRegex) => ({
+        $or: [
+            ...searchPlan.fieldSpecs.map((fieldSpec) => ({
+                [fieldSpec.path]: tokenRegex
+            })),
+            { officialSource: tokenRegex },
+            { console: tokenRegex },
+            { "meta.console": tokenRegex },
+            { officialCategories: tokenRegex }
+        ]
+    }));
+}
+
 function normalizePaginationWindow(pageOrOptions = 1, perPage = defaultMiisPerPage) {
     const normalizedPerPage = Number.isFinite(Number(perPage)) && Number(perPage) > 0
         ? Math.floor(Number(perPage))
@@ -5679,9 +5798,16 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
 
         case "officialTrending": {
             query.official = true;
-            if (filter) {
-                query.officialCategories = filter;
-            }
+            const filterObject =
+                filter && typeof filter === "object" && !Array.isArray(filter)
+                    ? filter
+                    : { categories: filter };
+            const selectedCategories = normalizeCategoryPaths(filterObject.categories ?? filterObject.category);
+            const excludedCategories = removeIncludedFilterConflicts(
+                normalizeCategoryPaths(filterObject.excludeCategories ?? filterObject.excludeCategory),
+                selectedCategories
+            );
+            applyOfficialCategoryFilters(query, selectedCategories, excludedCategories);
             return getTrendingPaginatedResult(query, page, perPage, skip);
         }
 
@@ -5693,13 +5819,66 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
             sort = getStableRecencySort();
             break;
         
-        case "official":
+        case "official": {
             query.official = true;
-            if (filter) {
-                query.officialCategories = filter;
+
+            const filterObject =
+                filter && typeof filter === "object" && !Array.isArray(filter)
+                    ? filter
+                    : { categories: filter };
+            const selectedCategories = normalizeCategoryPaths(filterObject.categories ?? filterObject.category);
+            const excludedCategories = removeIncludedFilterConflicts(
+                normalizeCategoryPaths(filterObject.excludeCategories ?? filterObject.excludeCategory),
+                selectedCategories
+            );
+            const searchText = typeof filterObject.query === "string"
+                ? filterObject.query.trim()
+                : "";
+            const selectedSearchFields = normalizeSearchFieldSelection(filterObject.searchIn, {
+                defaultToAll: !parseBooleanLike(filterObject.searchFieldsConfigured)
+            });
+            const searchPlan = buildMiiSearchPlan(searchText, selectedSearchFields);
+
+            applyOfficialCategoryFilters(query, selectedCategories, excludedCategories);
+
+            if (searchPlan.active) {
+                const baseSearchQuery = { ...query };
+                const searchMatchClauses = buildOfficialSearchMatchClauses(searchPlan);
+                if (searchMatchClauses.length > 0) {
+                    query.$and = [
+                        ...(Array.isArray(query.$and) ? query.$and : []),
+                        ...searchMatchClauses
+                    ];
+                }
+
+                const [items, totalCount] = await Promise.all([
+                    Miis.aggregate([
+                        { $match: query },
+                        { $addFields: { searchScore: buildMiiSearchScoreExpression(searchPlan) } },
+                        { $sort: getMiiSearchSort() },
+                        { $skip: skip },
+                        { $limit: requestLimit }
+                    ]),
+                    Miis.countDocuments(query)
+                ]);
+
+                if (totalCount > 0) {
+                    return {
+                        items,
+                        total: totalCount,
+                        page,
+                        perPage: requestLimit,
+                        start: skip,
+                        totalPages: Math.ceil(totalCount / requestLimit)
+                    };
+                }
+
+                return getFallbackSearchPaginatedResult(baseSearchQuery, searchPlan, page, requestLimit, skip);
             }
+
             sort = getStablePopularitySort();
             break;
+        }
         
         case "search": {
             const filterObject =
@@ -5711,13 +5890,20 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                 ? filterObject.query.trim()
                 : "";
             const selectedTags = mapRequestedTagsToCatalog(filterObject.tags, getMiiTags(settings));
+            const excludedTags = removeIncludedFilterConflicts(
+                mapRequestedTagsToCatalog(filterObject.excludeTags ?? filterObject.excludedTags, getMiiTags(settings)),
+                selectedTags
+            );
             const selectedSearchFields = normalizeSearchFieldSelection(filterObject.searchIn, {
                 defaultToAll: !parseBooleanLike(filterObject.searchFieldsConfigured)
             });
             const searchPlan = buildMiiSearchPlan(searchText, selectedSearchFields);
 
-            if (selectedTags.length > 0) {
-                query.tags = { $all: selectedTags };
+            if (selectedTags.length > 0 || excludedTags.length > 0) {
+                query.tags = {
+                    ...(selectedTags.length > 0 ? { $all: selectedTags } : {}),
+                    ...(excludedTags.length > 0 ? { $nin: excludedTags } : {})
+                };
             }
 
             if (searchPlan.active) {
@@ -7895,7 +8081,8 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
-    const filterCategory = req.query.category;
+    const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    const selectedSearchFields = getRequestedSearchFields(req.query);
     
     // Get settings for categories
     const settings = await getSettings();
@@ -7914,9 +8101,26 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
     
     // Sort categories by path
     toSend.availableCategories.sort((a, b) => a.path.localeCompare(b.path));
+    const selectedOfficialCategories = mapRequestedCategoriesToCatalog(
+        req.query.category,
+        buildOfficialCategoryFilterCatalog(toSend.availableCategories)
+    );
+    const excludedOfficialCategories = removeIncludedFilterConflicts(
+        mapRequestedCategoriesToCatalog(
+            req.query.excludeCategory ?? req.query.excludeCategories,
+            buildOfficialCategoryFilterCatalog(toSend.availableCategories)
+        ),
+        selectedOfficialCategories
+    );
     
     // Get paginated official Miis
-    const paginatedData = await paginatedApi("official", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, filterCategory);
+    const paginatedData = await paginatedApi("official", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, {
+        query: searchQuery,
+        categories: selectedOfficialCategories,
+        excludeCategories: excludedOfficialCategories,
+        searchIn: selectedSearchFields,
+        searchFieldsConfigured: true
+    });
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -7924,13 +8128,18 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
     toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
     toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
+    toSend.searchQuery = searchQuery;
+    toSend.selectedOfficialCategories = selectedOfficialCategories;
+    toSend.excludedOfficialCategories = excludedOfficialCategories;
+    toSend.currentFilter = selectedOfficialCategories.length === 1 ? selectedOfficialCategories[0] : "";
+    const officialFilterTitle = [
+        searchQuery,
+        ...selectedOfficialCategories,
+        ...excludedOfficialCategories.map(category => `not ${category}`)
+    ].filter(Boolean).join(" + ");
     
-    if (filterCategory) {
-        toSend.currentFilter = filterCategory;
-    }
-    
-    toSend.title = filterCategory 
-        ? `Official Miis - ${filterCategory} - InfiniMii`
+    toSend.title = officialFilterTitle
+        ? `Official Miis - ${officialFilterTitle} - InfiniMii`
         : "Official Miis - InfiniMii";
     
     ejs.renderFile('./ejsFiles/official.ejs', toSend, {}, function(err, str) {
@@ -7947,11 +8156,13 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
     const selectedTags = Array.isArray(toSend.selectedTags) ? toSend.selectedTags : [];
+    const excludedTags = Array.isArray(toSend.excludedTags) ? toSend.excludedTags : [];
     const selectedSearchFields = getRequestedSearchFields(req.query);
     
     const paginatedData = await paginatedApi("search", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, {
         query: searchQuery,
         tags: selectedTags,
+        excludeTags: excludedTags,
         searchIn: selectedSearchFields,
         searchFieldsConfigured: true
     });
@@ -7965,11 +8176,12 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     toSend.searchQuery = searchQuery;
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     const hasActiveSearchQuery = Boolean(searchQuery && selectedSearchFields.length > 0);
-    if (hasActiveSearchQuery && selectedTags.length) {
+    const hasTagFilters = selectedTags.length > 0 || excludedTags.length > 0;
+    if (hasActiveSearchQuery && hasTagFilters) {
         toSend.title = `Search '${searchQuery}' + Tags - InfiniMii`;
     } else if (hasActiveSearchQuery) {
         toSend.title = `Search '${searchQuery}' - InfiniMii`;
-    } else if (selectedTags.length) {
+    } else if (hasTagFilters) {
         toSend.title = `Tagged Miis - InfiniMii`;
     } else {
         toSend.title = "Search - InfiniMii";
