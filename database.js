@@ -95,6 +95,9 @@ const userSchema = new mongoose.Schema({
     pendingEmailToken: String, // Token for pending email verification
     pendingEmailExpires: Number, // Expiration time for pending email token
     oauthIdentities: { type: [oauthIdentitySchema], default: [] },
+    blockedTags: { type: [String], default: [] },
+    blockedOfficialCategories: { type: [String], default: [] },
+    hiddenMiiIds: { type: [String], default: [] },
 }, { timestamps: true, minimize: false });
 
 userSchema.index(

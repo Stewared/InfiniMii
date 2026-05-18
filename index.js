@@ -316,6 +316,26 @@ const MAX_COMPANY_SOURCE_NAME_LENGTH = 15;
 const DEFAULT_OFFICIAL_COMPANY_SOURCE = "Nintendo";
 const AVERAGE_MII_EXCLUDED_TAGS = ["Face Art","Animal"];
 const TOMODACHI_LIFE_TAG = "Tomodachi Life";
+const CONTROVERSIAL_MII_TAG = "Controversial";
+const MAX_USER_BLOCKED_TAGS = 200;
+const MAX_USER_BLOCKED_CATEGORIES = 200;
+const MAX_USER_HIDDEN_MIIS = 500;
+const MII_DIMENSION_MIN = 0;
+const MII_DIMENSION_MAX = 127;
+const MII_FAVORITE_COLOR_LABELS = Object.freeze([
+    "Red",
+    "Orange",
+    "Yellow",
+    "Lime",
+    "Green",
+    "Blue",
+    "Cyan",
+    "Pink",
+    "Purple",
+    "Brown",
+    "White",
+    "Black"
+]);
 
 function normalizeExportFormat(input) {
     if (!input) return null;
@@ -1513,6 +1533,11 @@ async function exportMiiById(req, res) {
         }
     }
 
+    if (mii && !mii.private && isMiiHiddenFromViewer(mii, req.user)) {
+        res.json({ error: "Invalid Mii ID" });
+        return;
+    }
+
     if (!mii) {
         const tempPath = `./static/temp/${miiId}.bin`;
         if (fs.existsSync(tempPath)) {
@@ -1886,6 +1911,9 @@ async function resolveMiiIdForImport(id, req) {
 
     const publishedMii = await getMiiById(trimmedId, false);
     if (publishedMii) {
+        if (isMiiHiddenFromViewer(publishedMii, req.user)) {
+            return { error: "Invalid Mii ID - Mii not found" };
+        }
         return { mii: toMiiDataOnly(publishedMii) };
     }
 
@@ -2680,7 +2708,12 @@ async function getSendables(req, title, user) {
         : '';
     const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
     const settings = await getSettings();
-    const availableTags = getMiiTags(settings);
+    const blockableTags = getBlockableMiiTags(settings);
+    const blockableOfficialCategories = getBlockableOfficialCategoryOptions(settings);
+    const userBlockedTags = normalizeUserBlockedTags(req.user?.blockedTags, blockableTags);
+    const userBlockedTagKeys = new Set(userBlockedTags.map(tag => tag.toLowerCase()));
+    const availableTags = getVisibleMiiTagCatalog(settings)
+        .filter(tag => !userBlockedTagKeys.has(tag.toLowerCase()));
     const selectedTags = mapRequestedTagsToCatalog(req.query?.tags, availableTags);
     const excludedTags = removeIncludedFilterConflicts(
         mapRequestedTagsToCatalog(req.query?.excludeTags ?? req.query?.excludedTags, availableTags),
@@ -2688,6 +2721,7 @@ async function getSendables(req, title, user) {
     );
     const searchFieldsExplicitlyConfigured = parseBooleanLike(req.query?.searchFieldsConfigured);
     const selectedSearchFields = getRequestedSearchFields(req.query);
+    const advancedSearchFilters = getRequestedAdvancedSearchFilters(req.query);
 
     // Build information related to the current user
     let userPfpMiiColor = null;
@@ -2703,6 +2737,10 @@ async function getSendables(req, title, user) {
         req.user ? getMiiById(pfp, true) : Promise.resolve(null)
     ]);
 
+    const visibleHighlightedMiiData = highlightedMiiData && !isMiiHiddenFromViewer(highlightedMiiData, req.user)
+        ? highlightedMiiData
+        : null;
+
     if (req.user) {
         userPfpMiiColor = (userPfpMii || averageMiiData)?.general?.favoriteColor ?? null;
     }
@@ -2716,10 +2754,22 @@ async function getSendables(req, title, user) {
         officialCategories: settings.officialCategories,
         officialCompanySources: getOfficialCompanySources(settings),
         availableTags,
+        blockableTags,
+        blockableOfficialCategories,
+        blockedTags: userBlockedTags,
+        blockedOfficialCategories: normalizeUserBlockedCategories(
+            req.user?.blockedOfficialCategories,
+            blockableOfficialCategories.map(category => category.path)
+        ),
+        hiddenMiiIds: normalizeUserHiddenMiiIds(req.user?.hiddenMiiIds),
         selectedTags,
         excludedTags,
         selectedSearchFields,
         searchFieldsExplicitlyConfigured,
+        advancedSearchFilters,
+        favoriteColorOptions: getMiiFavoriteColorOptions(),
+        birthdayMonthOptions: getBirthdayMonthOptions(),
+        birthdayDayOptions: getBirthdayDayOptions(),
         howToTitle: "How To",
         currentPath: currentPath + queryString,
         thisUser: currentUser, // *username
@@ -2744,7 +2794,7 @@ async function getSendables(req, title, user) {
         exportFormats: EXPORT_FORMATS,
         favoriteColors: Array.isArray(miijs.FavoriteColors) ? miijs.FavoriteColors : [],
         userPfpMiiColor: userPfpMiiColor ?? "#111111",
-        highlightedMiiData,
+        highlightedMiiData: visibleHighlightedMiiData,
         averageMiiData,
     };
 
@@ -3627,23 +3677,9 @@ function uniqueTextValues(values) {
 }
 
 function getMiiFavoriteColorLabel(colorIndex) {
-    const favoriteColors = [
-        "Red",
-        "Orange",
-        "Yellow",
-        "Lime",
-        "Green",
-        "Blue",
-        "Cyan",
-        "Pink",
-        "Purple",
-        "Brown",
-        "White",
-        "Black"
-    ];
     const parsedIndex = Number.parseInt(colorIndex, 10);
-    return Number.isInteger(parsedIndex) && favoriteColors[parsedIndex]
-        ? favoriteColors[parsedIndex]
+    return Number.isInteger(parsedIndex) && MII_FAVORITE_COLOR_LABELS[parsedIndex]
+        ? MII_FAVORITE_COLOR_LABELS[parsedIndex]
         : "";
 }
 
@@ -3741,7 +3777,7 @@ function buildMiiSeoDetails(mii, categoryConfig, options = {}) {
     const birthdayLabel = getReadableBirthdayLabel(mii?.general?.birthMonth, mii?.general?.birthday);
     const categoryDetails = getMiiCategoryDetails(mii?.officialCategories || [], categoryConfig);
     const categoryNames = categoryDetails.map(category => category.name);
-    const tagList = uniqueTextValues(normalizeTagList(mii?.tags || []));
+    const tagList = uniqueTextValues(getVisibleMiiTags(mii?.tags || []));
     const archiveTypeLabel = mii?.private
         ? "Private Mii"
         : (mii?.official ? "Official Mii" : "Community Mii");
@@ -4151,20 +4187,7 @@ function buildTomodachiLifeUploadWebhookFields(mii) {
 
 async function applyAutomaticDecodedMiiTags(mii) {
     if (!mii || typeof mii !== "object") return mii;
-    if (!hasDecodedTomodachiLifeData(mii)) return mii;
-
-    const autoTags = [TOMODACHI_LIFE_TAG];
-    const autoTagKeys = new Set(autoTags.map(tag => tag.toLowerCase()));
-    const existingTags = normalizeTagList(mii.tags || []).filter(
-        tag => !autoTagKeys.has(tag.toLowerCase())
-    );
-
-    mii.tags = [...existingTags, ...autoTags];
-    await updateSettings({
-        $addToSet: {
-            miiTags: { $each: autoTags }
-        }
-    });
+    mii.tags = normalizeTagList(mii.tags || []).filter(tag => !isTomodachiLifeMiiTag(tag));
     return mii;
 }
 
@@ -5115,6 +5138,195 @@ function getMiiTags(settings) {
     return settings.miiTags;
 }
 
+function isControversialMiiTag(tag) {
+    return String(tag || "").trim().toLowerCase() === CONTROVERSIAL_MII_TAG.toLowerCase();
+}
+
+function isTomodachiLifeMiiTag(tag) {
+    return String(tag || "").trim().toLowerCase() === TOMODACHI_LIFE_TAG.toLowerCase();
+}
+
+function isVisibleMiiTag(tag) {
+    return !isControversialMiiTag(tag) && !isTomodachiLifeMiiTag(tag);
+}
+
+function getVisibleMiiTags(tags) {
+    return normalizeTagList(tags).filter(isVisibleMiiTag);
+}
+
+function getVisibleMiiTagCatalog(settingsOrTags) {
+    const tags = Array.isArray(settingsOrTags)
+        ? settingsOrTags
+        : getMiiTags(settingsOrTags || {});
+    return getVisibleMiiTags(tags);
+}
+
+function getBlockableMiiTags(settings) {
+    const tags = getMiiTags(settings).filter(tag => !isTomodachiLifeMiiTag(tag));
+    if (!tags.some(isControversialMiiTag)) {
+        tags.push(CONTROVERSIAL_MII_TAG);
+    }
+    return normalizeTagList(tags)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+}
+
+function normalizeUserBlockedTags(tags, catalogTags = null) {
+    const normalizedTags = normalizeTagList(tags).slice(0, MAX_USER_BLOCKED_TAGS);
+    if (!Array.isArray(catalogTags)) {
+        return normalizedTags;
+    }
+    return mapRequestedTagsToCatalog(normalizedTags, catalogTags);
+}
+
+function normalizeUserBlockedCategories(categories, validCategoryPaths = null) {
+    const normalizedCategories = uniqueTextValues(
+        Array.isArray(categories) ? categories : []
+    ).slice(0, MAX_USER_BLOCKED_CATEGORIES);
+    if (!Array.isArray(validCategoryPaths)) {
+        return normalizedCategories;
+    }
+
+    const validByLower = new Map(validCategoryPaths.map(path => [String(path).toLowerCase(), path]));
+    return normalizedCategories
+        .map(categoryPath => validByLower.get(String(categoryPath).toLowerCase()))
+        .filter(Boolean);
+}
+
+function normalizeUserHiddenMiiIds(miiIds) {
+    return uniqueTextValues(Array.isArray(miiIds) ? miiIds : [])
+        .map(normalizeMiiIdInput)
+        .filter(Boolean)
+        .slice(0, MAX_USER_HIDDEN_MIIS);
+}
+
+function getBlockableOfficialCategoryOptions(settings) {
+    const categories = getAllCategoriesFlat(getOfficialCategoryTree(settings), []);
+    return categories
+        .map(category => ({
+            name: String(category?.name || "").trim(),
+            path: String(category?.path || "").trim(),
+            color: String(category?.color || "").trim()
+        }))
+        .filter(category => category.path)
+        .sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: 'base' }));
+}
+
+function getBlockedTagsForViewer(user) {
+    if (!user) {
+        return [CONTROVERSIAL_MII_TAG];
+    }
+    return normalizeUserBlockedTags(user.blockedTags);
+}
+
+function buildArrayExcludesExactTextCondition(fieldName, value) {
+    return {
+        [fieldName]: {
+            $not: {
+                $elemMatch: {
+                    $regex: `^${escapeRegExp(value)}$`,
+                    $options: "i"
+                }
+            }
+        }
+    };
+}
+
+function buildArrayExcludesCategoryPathCondition(fieldName, categoryPath) {
+    return {
+        [fieldName]: {
+            $not: {
+                $elemMatch: {
+                    $regex: `^${escapeRegExp(categoryPath)}(?:/|$)`,
+                    $options: "i"
+                }
+            }
+        }
+    };
+}
+
+function getMiiVisibilityConditionsForUser(user, { includeHiddenMiiIds = true } = {}) {
+    const conditions = [];
+    const blockedTags = getBlockedTagsForViewer(user);
+    const blockedCategories = user
+        ? normalizeUserBlockedCategories(user.blockedOfficialCategories)
+        : [];
+    const hiddenMiiIds = user && includeHiddenMiiIds
+        ? normalizeUserHiddenMiiIds(user.hiddenMiiIds)
+        : [];
+
+    blockedTags.forEach(tag => {
+        conditions.push(buildArrayExcludesExactTextCondition("tags", tag));
+    });
+    blockedCategories.forEach(categoryPath => {
+        conditions.push(buildArrayExcludesCategoryPathCondition("officialCategories", categoryPath));
+    });
+    if (hiddenMiiIds.length > 0) {
+        conditions.push({ id: { $nin: hiddenMiiIds } });
+    }
+
+    return conditions;
+}
+
+function applyMiiVisibilityFilters(query, user, options = {}) {
+    const conditions = getMiiVisibilityConditionsForUser(user, options);
+    if (conditions.length === 0) {
+        return query;
+    }
+    query.$and = [
+        ...(Array.isArray(query.$and) ? query.$and : []),
+        ...conditions
+    ];
+    return query;
+}
+
+function isMiiBlockedByCategoryForUser(mii, user) {
+    const blockedCategories = user
+        ? normalizeUserBlockedCategories(user.blockedOfficialCategories)
+        : [];
+    if (!blockedCategories.length) return false;
+
+    const categories = Array.isArray(mii?.officialCategories) ? mii.officialCategories : [];
+    return categories.some(category => isCategoryPathBlockedByList(category, blockedCategories));
+}
+
+function isCategoryPathBlockedByList(categoryPath, blockedCategories) {
+    const normalizedCategory = String(categoryPath || "").toLowerCase();
+    if (!normalizedCategory) return false;
+    return (Array.isArray(blockedCategories) ? blockedCategories : []).some(blocked => {
+        const normalizedBlocked = String(blocked || "").toLowerCase();
+        return normalizedCategory === normalizedBlocked
+            || normalizedCategory.startsWith(`${normalizedBlocked}/`);
+    });
+}
+
+function isCategoryPathBlockedForUser(categoryPath, user) {
+    if (!user) return false;
+    return isCategoryPathBlockedByList(categoryPath, normalizeUserBlockedCategories(user.blockedOfficialCategories));
+}
+
+function isMiiHiddenFromViewer(mii, user, { includeHiddenMiiIds = true } = {}) {
+    if (!mii) return true;
+
+    const tagSet = new Set(normalizeTagList(mii.tags || []).map(tag => tag.toLowerCase()));
+    if (getBlockedTagsForViewer(user).some(tag => tagSet.has(String(tag).toLowerCase()))) {
+        return true;
+    }
+
+    if (isMiiBlockedByCategoryForUser(mii, user)) {
+        return true;
+    }
+
+    if (
+        user
+        && includeHiddenMiiIds
+        && normalizeUserHiddenMiiIds(user.hiddenMiiIds).includes(normalizeMiiIdInput(mii.id))
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
 function mapRequestedTagsToCatalog(requestedTags, catalogTags) {
     const requested = normalizeTagList(requestedTags);
     if (!requested.length) return [];
@@ -5197,6 +5409,155 @@ function getRequestedSearchFields(source = {}) {
     return normalizeSearchFieldSelection(source?.searchIn, {
         defaultToAll: !hasExplicitFieldConfig
     });
+}
+
+function getMiiFavoriteColorOptions() {
+    return MII_FAVORITE_COLOR_LABELS.map((label, value) => ({ value, label }));
+}
+
+function getBirthdayMonthOptions() {
+    return [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    ].map((label, index) => ({ value: index + 1, label }));
+}
+
+function getBirthdayDayOptions() {
+    return Array.from({ length: 31 }, (_, index) => {
+        const value = index + 1;
+        return { value, label: String(value) };
+    });
+}
+
+function normalizeIntegerFilterValue(value, min, max) {
+    const rawValue = Array.isArray(value) ? value[0] : value;
+    const parsed = Number.parseInt(rawValue, 10);
+    if (!Number.isInteger(parsed) || parsed < min || parsed > max) {
+        return "";
+    }
+    return String(parsed);
+}
+
+function normalizeRangeFilterValues(rawMinValue, rawMaxValue, minimum = MII_DIMENSION_MIN, maximum = MII_DIMENSION_MAX) {
+    const normalizedMin = normalizeIntegerFilterValue(rawMinValue, minimum, maximum);
+    const normalizedMax = normalizeIntegerFilterValue(rawMaxValue, minimum, maximum);
+    let minValue = normalizedMin ? Number(normalizedMin) : minimum;
+    let maxValue = normalizedMax ? Number(normalizedMax) : maximum;
+
+    if (minValue > maxValue) {
+        [minValue, maxValue] = [maxValue, minValue];
+    }
+
+    return {
+        min: String(minValue),
+        max: String(maxValue),
+        isActive: minValue > minimum || maxValue < maximum
+    };
+}
+
+function getRequestedAdvancedSearchFilters(source = {}) {
+    const gender = normalizeIntegerFilterValue(source?.gender, 0, 1);
+    const favoriteColor = normalizeIntegerFilterValue(source?.favoriteColor, 0, MII_FAVORITE_COLOR_LABELS.length - 1);
+    const birthMonth = normalizeIntegerFilterValue(source?.birthMonth, 1, 12);
+    const birthday = normalizeIntegerFilterValue(source?.birthday, 1, 31);
+    const heightRange = normalizeRangeFilterValues(source?.heightMin, source?.heightMax);
+    const weightRange = normalizeRangeFilterValues(source?.weightMin, source?.weightMax);
+    const mustHaveTomodachiLifeData = parseBooleanLike(source?.hasTlData ?? source?.mustHaveTomodachiLifeData);
+
+    return {
+        gender,
+        favoriteColor,
+        birthMonth,
+        birthday,
+        heightMin: heightRange.min,
+        heightMax: heightRange.max,
+        weightMin: weightRange.min,
+        weightMax: weightRange.max,
+        mustHaveTomodachiLifeData,
+        isActive: Boolean(
+            gender
+            || favoriteColor
+            || birthMonth
+            || birthday
+            || heightRange.isActive
+            || weightRange.isActive
+            || mustHaveTomodachiLifeData
+        )
+    };
+}
+
+function getTomodachiLifeDataPresentCondition() {
+    return {
+        tl: {
+            $exists: true,
+            $ne: null
+        }
+    };
+}
+
+function applyAdvancedMiiSearchFilters(query, filters = {}) {
+    if (!filters || typeof filters !== "object") {
+        return query;
+    }
+
+    const gender = normalizeIntegerFilterValue(filters.gender, 0, 1);
+    const favoriteColor = normalizeIntegerFilterValue(filters.favoriteColor, 0, MII_FAVORITE_COLOR_LABELS.length - 1);
+    const birthMonth = normalizeIntegerFilterValue(filters.birthMonth, 1, 12);
+    const birthday = normalizeIntegerFilterValue(filters.birthday, 1, 31);
+    const heightRange = normalizeRangeFilterValues(filters.heightMin, filters.heightMax);
+    const weightRange = normalizeRangeFilterValues(filters.weightMin, filters.weightMax);
+    const conditions = [];
+
+    if (gender) {
+        conditions.push({ "general.gender": Number(gender) });
+    }
+    if (favoriteColor) {
+        conditions.push({ "general.favoriteColor": Number(favoriteColor) });
+    }
+    if (birthMonth) {
+        conditions.push({ "general.birthMonth": Number(birthMonth) });
+    }
+    if (birthday) {
+        conditions.push({ "general.birthday": Number(birthday) });
+    }
+    if (heightRange.isActive) {
+        conditions.push({
+            "general.height": {
+                $gte: Number(heightRange.min),
+                $lte: Number(heightRange.max)
+            }
+        });
+    }
+    if (weightRange.isActive) {
+        conditions.push({
+            "general.weight": {
+                $gte: Number(weightRange.min),
+                $lte: Number(weightRange.max)
+            }
+        });
+    }
+    if (parseBooleanLike(filters.mustHaveTomodachiLifeData ?? filters.hasTlData)) {
+        conditions.push(getTomodachiLifeDataPresentCondition());
+    }
+
+    if (conditions.length > 0) {
+        query.$and = [
+            ...(Array.isArray(query.$and) ? query.$and : []),
+            ...conditions
+        ];
+    }
+
+    return query;
 }
 
 function escapeRegex(input) {
@@ -5949,14 +6310,14 @@ function getRequestedStartOffset(query, perPage = defaultMiisPerPage) {
 }
 
 // Paginated API that queries database directly with skip/limit
-async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPage, filter = null) {
+async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPage, filter = null, viewerUser = null) {
     const paginationWindow = normalizePaginationWindow(pageOrOptions, perPage);
     const page = paginationWindow.page;
     const requestLimit = paginationWindow.perPage;
     const skip = paginationWindow.start;
     const settings = await getSettings();
     
-    let query = { private: false, id: { $ne: "average" } };
+    let query = applyMiiVisibilityFilters({ private: false, id: { $ne: "average" } }, viewerUser);
     let sort = {};
     
     switch(what) {
@@ -6108,14 +6469,16 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
             const searchText = typeof filterObject.query === "string"
                 ? filterObject.query.trim()
                 : "";
-            const selectedTags = mapRequestedTagsToCatalog(filterObject.tags, getMiiTags(settings));
+            const visibleTagCatalog = getVisibleMiiTagCatalog(settings);
+            const selectedTags = mapRequestedTagsToCatalog(filterObject.tags, visibleTagCatalog);
             const excludedTags = removeIncludedFilterConflicts(
-                mapRequestedTagsToCatalog(filterObject.excludeTags ?? filterObject.excludedTags, getMiiTags(settings)),
+                mapRequestedTagsToCatalog(filterObject.excludeTags ?? filterObject.excludedTags, visibleTagCatalog),
                 selectedTags
             );
             const selectedSearchFields = normalizeSearchFieldSelection(filterObject.searchIn, {
                 defaultToAll: !parseBooleanLike(filterObject.searchFieldsConfigured)
             });
+            const advancedSearchFilters = getRequestedAdvancedSearchFilters(filterObject);
             const searchPlan = buildMiiSearchPlan(searchText, selectedSearchFields);
 
             if (selectedTags.length > 0 || excludedTags.length > 0) {
@@ -6124,6 +6487,7 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                     ...(excludedTags.length > 0 ? { $nin: excludedTags } : {})
                 };
             }
+            applyAdvancedMiiSearchFilters(query, advancedSearchFilters);
 
             if (searchPlan.active) {
                 const baseSearchQuery = { ...query };
@@ -7440,7 +7804,21 @@ site.use('/.well-known', express.static(
     }
 ));
 
-site.use(express.static(path.join(__dirname + '/static'), {
+const generatedMiiAssetRoutePrefixes = [
+    "/miiImgs",
+    "/miiQRs",
+    "/miiQRsWii",
+    "/privateMiiImgs",
+    "/privateMiiQRs",
+    "/privateMiiQRsWii"
+];
+function shouldDeferGeneratedMiiAssetStatic(req) {
+    const requestPath = String(req.path || "");
+    return generatedMiiAssetRoutePrefixes.some(prefix => (
+        requestPath === prefix || requestPath.startsWith(`${prefix}/`)
+    ));
+}
+const staticRootMiddleware = express.static(path.join(__dirname + '/static'), {
     setHeaders: (res, filePath) => {
         if (isPublicGeneratedImagePath(filePath)) {
             applyPublicImageSeoHeaders(res);
@@ -7449,7 +7827,13 @@ site.use(express.static(path.join(__dirname + '/static'), {
             applyNoCacheHeaders(res);
         }
     }
-}));
+});
+site.use((req, res, next) => {
+    if (shouldDeferGeneratedMiiAssetStatic(req)) {
+        return next();
+    }
+    return staticRootMiddleware(req, res, next);
+});
 site.use(express.static(path.join(__dirname + '/static/css')));
 site.use(express.static(path.join(__dirname + '/static/js')));
 site.use(express.static(path.join(__dirname + '/static/assets')));
@@ -7689,6 +8073,7 @@ function shouldSendJsonError(req) {
 //#region Static handling
 
 const privateAssetMiiCacheKey = Symbol("privateAssetMii");
+const publicAssetMiiCacheKey = Symbol("publicAssetMii");
 const assetGenerationTasks = new Map();
 
 function getRequestedMiiId(req) {
@@ -7816,6 +8201,18 @@ async function resolvePrivateAssetMii(req) {
     return req[privateAssetMiiCacheKey];
 }
 
+async function resolvePublicAssetMii(req) {
+    if (Object.prototype.hasOwnProperty.call(req, publicAssetMiiCacheKey)) {
+        return req[publicAssetMiiCacheKey];
+    }
+
+    const miiId = getRequestedMiiId(req);
+    req[publicAssetMiiCacheKey] = miiId
+        ? await Miis.findOne({ id: miiId, private: false }).lean()
+        : null;
+    return req[publicAssetMiiCacheKey];
+}
+
 async function requirePrivateMiiAssetAccess(req, res, next) {
     const privateMii = await resolvePrivateAssetMii(req);
     if (!privateMii) {
@@ -7840,6 +8237,20 @@ async function requirePrivateMiiAssetAccess(req, res, next) {
     return res.status(403).json({ error: 'Access denied' });
 }
 
+async function requireVisiblePublicMiiAssetAccess(req, res, next) {
+    const publicMii = await resolvePublicAssetMii(req);
+    if (!publicMii) {
+        return next();
+    }
+
+    if (isMiiHiddenFromViewer(publicMii, req.user)) {
+        applyNoCacheHeaders(res);
+        return res.status(404).send("Not found");
+    }
+
+    return next();
+}
+
 async function writeRenderedMiiImage(mii, assetPath) {
     await fs.promises.writeFile(assetPath, await miijs.renderMii(mii));
 }
@@ -7851,6 +8262,9 @@ async function writeRenderedMiiQr(mii, assetPath, qrConsole = "3DS") {
 site.use('/privateMiiImgs', requirePrivateMiiAssetAccess);
 site.use('/privateMiiQRs', requirePrivateMiiAssetAccess);
 site.use('/privateMiiQRsWii', requirePrivateMiiAssetAccess);
+site.use('/miiImgs', requireVisiblePublicMiiAssetAccess);
+site.use('/miiQRs', requireVisiblePublicMiiAssetAccess);
+site.use('/miiQRsWii', requireVisiblePublicMiiAssetAccess);
 
 // Render missing private Mii images on demand
 site.use('/privateMiiImgs', async (req, res, next) => {
@@ -8212,11 +8626,11 @@ site.get('/', highGeneralRatelimit, async (req, res) => {
     let toSend = await getSendables(req, "InfiniMii");
     toSend.title = "InfiniMii";
     toSend.miiCategories={
-        "Random": { miis: (await paginatedApi("random", 1, HOME_PREVIEW_COUNT)).items, link: "./random" },
-        "Trending": { miis: (await paginatedApi("trending", 1, HOME_PREVIEW_COUNT)).items, link: "./trending" },
-        "Top": { miis: (await paginatedApi("top", 1, HOME_PREVIEW_COUNT)).items, link: "./top" },
-        "Recent": { miis: (await paginatedApi("recent", 1, HOME_PREVIEW_COUNT)).items, link: "./recent" },
-        "Official": { miis: (await paginatedApi("officialTrending", 1, HOME_PREVIEW_COUNT)).items, link: "./official" }
+        "Random": { miis: (await paginatedApi("random", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./random" },
+        "Trending": { miis: (await paginatedApi("trending", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./trending" },
+        "Top": { miis: (await paginatedApi("top", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./top" },
+        "Recent": { miis: (await paginatedApi("recent", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./recent" },
+        "Official": { miis: (await paginatedApi("officialTrending", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./official" }
     };
     
     ejs.renderFile('./ejsFiles/index.ejs', toSend, {}, function (err, str) {
@@ -8234,7 +8648,7 @@ site.get('/random', miiListRatelimiter, async (req, res) => {
     const perPage = FULL_ROW_BROWSE_REQUEST_LIMIT;
     const seed = Math.floor(Math.random() * 1000000).toString();
 
-    const paginatedData = await paginatedApi("random", 1, perPage, seed);
+    const paginatedData = await paginatedApi("random", 1, perPage, seed, req.user);
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = {
         mode: "random",
@@ -8260,7 +8674,7 @@ site.get('/trending', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("trending", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
+    const paginatedData = await paginatedApi("trending", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -8283,7 +8697,7 @@ site.get('/top', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("top", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
+    const paginatedData = await paginatedApi("top", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -8306,7 +8720,7 @@ site.get('/recent', miiListRatelimiter, async (req, res) => {
     let toSend = await getSendables(req);
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("recent", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT);
+    const paginatedData = await paginatedApi("recent", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -8331,6 +8745,10 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
     const selectedSearchFields = getRequestedSearchFields(req.query);
+    const requestedOfficialCategories = normalizeCategoryPaths(req.query.category);
+    if (requestedOfficialCategories.some(categoryPath => isCategoryPathBlockedForUser(categoryPath, req.user))) {
+        return res.redirect('/official');
+    }
     
     // Get settings for categories
     const settings = await getSettings();
@@ -8340,12 +8758,14 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
     const leafCategories = getAllLeafCategories(categories);
     
     // Create category info with paths for display
-    toSend.availableCategories = leafCategories.map(cat => ({
-        name: cat.name,
-        path: cat.path,
-        color: cat.color,
-        fullPath: cat.path // Show full path for clarity
-    }));
+    toSend.availableCategories = leafCategories
+        .filter(cat => !isCategoryPathBlockedForUser(cat.path, req.user))
+        .map(cat => ({
+            name: cat.name,
+            path: cat.path,
+            color: cat.color,
+            fullPath: cat.path // Show full path for clarity
+        }));
     
     // Sort categories by path
     toSend.availableCategories.sort((a, b) => a.path.localeCompare(b.path));
@@ -8368,7 +8788,7 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
         excludeCategories: excludedOfficialCategories,
         searchIn: selectedSearchFields,
         searchFieldsConfigured: true
-    });
+    }, req.user);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -8406,14 +8826,16 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     const selectedTags = Array.isArray(toSend.selectedTags) ? toSend.selectedTags : [];
     const excludedTags = Array.isArray(toSend.excludedTags) ? toSend.excludedTags : [];
     const selectedSearchFields = getRequestedSearchFields(req.query);
+    const advancedSearchFilters = getRequestedAdvancedSearchFilters(req.query);
     
     const paginatedData = await paginatedApi("search", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, {
         query: searchQuery,
         tags: selectedTags,
         excludeTags: excludedTags,
         searchIn: selectedSearchFields,
-        searchFieldsConfigured: true
-    });
+        searchFieldsConfigured: true,
+        ...advancedSearchFilters
+    }, req.user);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -8622,10 +9044,13 @@ async function renderLegacyUploadPage(req, res, options = {}) {
     const settings = await getSettings();
     const highlightedMii = settings?.highlightedMii || null;
 
-    const [highlightedMiiData, averageMiiData] = await Promise.all([
+    let [highlightedMiiData, averageMiiData] = await Promise.all([
         highlightedMii ? getMiiById(highlightedMii, false) : Promise.resolve(null),
         getMiiById("average", false)
     ]);
+    if (highlightedMiiData && isMiiHiddenFromViewer(highlightedMiiData, req.user)) {
+        highlightedMiiData = null;
+    }
 
     const toSend = {
         title: "Legacy Upload - InfiniMii",
@@ -8666,14 +9091,17 @@ async function sendLegacyHighlightedPreview(req, res) {
     applyLegacyResponseCompatibilityHeaders(res);
     const settings = await getSettings();
     const highlightedId = settings?.highlightedMii;
-    const highlightedMii = highlightedId ? await getMiiById(highlightedId, true) : null;
+    let highlightedMii = highlightedId ? await getMiiById(highlightedId, true) : null;
+    if (highlightedMii && isMiiHiddenFromViewer(highlightedMii, req.user)) {
+        highlightedMii = null;
+    }
 
     const rendered = await renderLegacyPreviewImage(highlightedMii);
     if (rendered) {
         return sendLegacyImageBuffer(res, rendered.data, rendered.mime);
     }
 
-    if (highlightedId) {
+    if (highlightedMii && highlightedId) {
         const publicPath = path.join(__dirname, "static", "miiImgs", `${highlightedId}.png`);
         const publicImage = await readLegacyImageFromFile(publicPath);
         if (publicImage) {
@@ -10981,8 +11409,9 @@ site.post(consoleApiRoute('/login'), defaultRatelimiter, async (req, res) => {
 
 site.get(consoleApiRoute('/highlighted'), miiListRatelimiter, async (req, res) => {
     const settings = await getSettings();
+    const viewerUser = await getConsoleApiUser(req);
     const highlighted = await getMiiById(settings.highlightedMii, false);
-    if (!highlighted) {
+    if (!highlighted || isMiiHiddenFromViewer(highlighted, viewerUser)) {
         return sendConsoleApiText(res, "ERR\tHighlighted Mii not found", 404);
     }
 
@@ -10995,11 +11424,12 @@ site.get(consoleApiRoute('/list'), miiListRatelimiter, async (req, res) => {
     const start = parseConsoleApiStart(req.query?.start);
     const limit = parseConsoleApiLimit(req.query?.limit);
     const query = typeof req.query?.q === "string" ? req.query.q.trim() : "";
+    const viewerUser = await getConsoleApiUser(req);
 
     const filter = mode === "search"
-        ? { query, searchIn: ["name", "description", "uploader"], searchFieldsConfigured: true }
+        ? { query, searchIn: ["name", "creatorName", "description", "uploader"], searchFieldsConfigured: true }
         : null;
-    const data = await paginatedApi(mode, { start }, limit, filter);
+    const data = await paginatedApi(mode, { start }, limit, filter, viewerUser);
 
     const rows = await Promise.all(data.items.map(mii => buildConsoleApiMiiRow(mii, req)));
     sendConsoleApiText(res, [
@@ -11017,13 +11447,16 @@ site.get(consoleApiRoute('/list'), miiListRatelimiter, async (req, res) => {
 
 site.get(consoleApiRoute('/list_thumbs'), miiListRatelimiter, async (req, res) => {
     let items = [];
+    const viewerUser = await getConsoleApiUser(req);
     const ids = typeof req.query?.ids === "string"
         ? req.query.ids.split(",").map(id => id.trim()).filter(Boolean).slice(0, HOMEBREW_API_MAX_LIST_LIMIT)
         : [];
 
     if (ids.length > 0) {
         items = (await Promise.all(ids.map(id => getMiiById(id, true)))).filter(Boolean);
-        const byId = new Map(items.map(mii => [String(mii.id), mii]));
+        const byId = new Map(items
+            .filter(mii => !isMiiHiddenFromViewer(mii, viewerUser))
+            .map(mii => [String(mii.id), mii]));
         items = ids.map(id => byId.get(String(id)) || null);
     } else {
         const requestedMode = String(req.query?.mode || "trending").trim().toLowerCase();
@@ -11031,11 +11464,10 @@ site.get(consoleApiRoute('/list_thumbs'), miiListRatelimiter, async (req, res) =
         const start = parseConsoleApiStart(req.query?.start);
         const limit = parseConsoleApiLimit(req.query?.limit);
         const query = typeof req.query?.q === "string" ? req.query.q.trim() : "";
-
         const filter = mode === "search"
-            ? { query, searchIn: ["name", "description", "uploader"], searchFieldsConfigured: true }
+            ? { query, searchIn: ["name", "creatorName", "description", "uploader"], searchFieldsConfigured: true }
             : null;
-        const data = await paginatedApi(mode, { start }, limit, filter);
+        const data = await paginatedApi(mode, { start }, limit, filter, viewerUser);
         items = data.items;
     }
 
@@ -11065,8 +11497,12 @@ site.get(consoleApiRoute('/mii/:id.cfsd'), async (req, res) => {
         return sendConsoleApiText(res, "ERR\tMii not found", 404);
     }
 
+    const user = await getConsoleApiUser(req);
+    if (!mii.private && isMiiHiddenFromViewer(mii, user)) {
+        return sendConsoleApiText(res, "ERR\tMii not found", 404);
+    }
+
     if (mii.private) {
-        const user = await getConsoleApiUser(req);
         const isOwner = user && mii.uploader === user.username;
         const isModerator = user && canModerate(user);
         if (!isOwner && !isModerator) {
@@ -11084,8 +11520,13 @@ async function getConsoleApiAccessibleMii(req, res) {
         return null;
     }
 
+    const user = await getConsoleApiUser(req);
+    if (!mii.private && isMiiHiddenFromViewer(mii, user)) {
+        sendConsoleApiText(res, "ERR\tMii not found", 404);
+        return null;
+    }
+
     if (mii.private) {
-        const user = await getConsoleApiUser(req);
         const isOwner = user && mii.uploader === user.username;
         const isModerator = user && canModerate(user);
         if (!isOwner && !isModerator) {
@@ -11371,6 +11812,10 @@ site.get('/mii/:id', async (req, res) => {
     } else {
         inp.isPrivate = false;
     }
+
+    if (!mii.private && isMiiHiddenFromViewer(mii, req.user)) {
+        return sendError(res, req, "404 Mii not found", 404);
+    }
     
     inp.mii = mii;
     inp.height = await miijs.miiHeightToMeasurements(inp.mii.general.height);
@@ -11390,17 +11835,22 @@ site.get('/mii/:id', async (req, res) => {
     });
     inp.reportMiiCategories = REPORT_MII_CATEGORIES;
 
-    const relatedVisibilityFilter = {
+    const relatedVisibilityFilter = applyMiiVisibilityFilters({
         private: false,
         published: true,
         id: { $ne: miiId }
-    };
+    }, req.user);
     const sameArchiveOwnerQuery = mii.official
         ? {
             official: true,
             officialSource: mii.officialSource || mii.uploader
         }
         : { uploader: mii.uploader };
+    const archiveOwnerVisibilityFilter = applyMiiVisibilityFilters({
+        uploader: mii.uploader,
+        private: false,
+        published: true
+    }, req.user);
 
     const [sameArchiveOwnerMiis, similarMiis, relatedCategoryMiis, archiveOwnerSummary] = await Promise.all([
         Miis.find({ ...relatedVisibilityFilter, ...sameArchiveOwnerQuery })
@@ -11419,11 +11869,7 @@ site.get('/mii/:id', async (req, res) => {
             : Promise.resolve([]),
         Miis.aggregate([
             {
-                $match: {
-                    uploader: mii.uploader,
-                    private: false,
-                    published: true
-                }
+                $match: archiveOwnerVisibilityFilter
             },
             {
                 $group: {
@@ -11491,11 +11937,11 @@ site.get('/user/:username', async (req, res) => {
     const selectedProfileSort = req.query.sort === "latest" ? "latest" : "popular";
     const profileStart = getRequestedStartOffset(req.query, profileMiisPerPage);
 
-    const profileFilter = {
+    const profileFilter = applyMiiVisibilityFilters({
         uploader: targetUsername,
         private: false,
         published: true
-    };
+    }, req.user);
     const profileListSort = selectedProfileSort === "popular"
         ? getStablePopularitySort()
         : getStableRecencySort();
@@ -11608,7 +12054,7 @@ site.get('/user/:username', async (req, res) => {
         memberSince: getUserJoinTimestamp(targetUser)
     };
     inp.profileHighlights = {
-        topTags: topTagsRows.map(row => row?._id).filter(Boolean),
+        topTags: getVisibleMiiTags(topTagsRows.map(row => row?._id).filter(Boolean)),
         topCategories,
         creatorNames: topCreatorRows.map(row => row?._id).filter(Boolean),
         featuredMiis,
@@ -12042,6 +12488,22 @@ site.get('/settings', async (req, res) => {
         return;
     }
     var toSend= await getSendables(req);
+    const hiddenMiiIds = normalizeUserHiddenMiiIds(req.user.hiddenMiiIds);
+    if (hiddenMiiIds.length > 0) {
+        const hiddenMiiRecords = await Miis.find({ id: { $in: hiddenMiiIds } })
+            .select("id meta.name name")
+            .lean();
+        const hiddenMiiById = new Map(hiddenMiiRecords.map(mii => [String(mii.id), mii]));
+        toSend.hiddenMiis = hiddenMiiIds.map(id => {
+            const mii = hiddenMiiById.get(id);
+            return {
+                id,
+                name: mii?.meta?.name || mii?.name || "Unknown Mii"
+            };
+        });
+    } else {
+        toSend.hiddenMiis = [];
+    }
     ejs.renderFile('./ejsFiles/settings.ejs', toSend, {}, function(err, str) {
         if (err) {
             res.send(err);
@@ -12050,6 +12512,109 @@ site.get('/settings', async (req, res) => {
         }
         res.send(str)
     });
+});
+
+site.post('/updateContentPreferences', requireAuth, async (req, res) => {
+    try {
+        const settings = await getSettings();
+        const blockableTags = getBlockableMiiTags(settings);
+        const blockableTagByLower = new Map(blockableTags.map(tag => [tag.toLowerCase(), tag]));
+        const requestedTags = normalizeTagList(req.body?.blockedTags).slice(0, MAX_USER_BLOCKED_TAGS);
+        const invalidTags = requestedTags.filter(tag => !blockableTagByLower.has(tag.toLowerCase()));
+
+        if (invalidTags.length > 0) {
+            return res.status(400).json({ error: "One or more tags are invalid." });
+        }
+
+        const categoryOptions = getBlockableOfficialCategoryOptions(settings);
+        const categoryPathByLower = new Map(categoryOptions.map(category => [category.path.toLowerCase(), category.path]));
+        const requestedCategories = uniqueTextValues(
+            Array.isArray(req.body?.blockedOfficialCategories)
+                ? req.body.blockedOfficialCategories
+                : (typeof req.body?.blockedOfficialCategories === "string" ? [req.body.blockedOfficialCategories] : [])
+        ).slice(0, MAX_USER_BLOCKED_CATEGORIES);
+        const invalidCategories = requestedCategories.filter(categoryPath => !categoryPathByLower.has(categoryPath.toLowerCase()));
+
+        if (invalidCategories.length > 0) {
+            return res.status(400).json({ error: "One or more categories are invalid." });
+        }
+
+        const blockedTags = requestedTags.map(tag => blockableTagByLower.get(tag.toLowerCase()));
+        const blockedOfficialCategories = requestedCategories.map(categoryPath => categoryPathByLower.get(categoryPath.toLowerCase()));
+
+        await Users.findOneAndUpdate(
+            { username: req.user.username },
+            {
+                $set: {
+                    blockedTags,
+                    blockedOfficialCategories
+                }
+            }
+        );
+
+        req.user.blockedTags = blockedTags;
+        req.user.blockedOfficialCategories = blockedOfficialCategories;
+        res.json({ okay: true, blockedTags, blockedOfficialCategories });
+    } catch (e) {
+        console.error('Error updating content preferences:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+site.post('/hideMii', requireAuth, async (req, res) => {
+    try {
+        const miiId = normalizeMiiIdInput(req.body?.id || req.body?.miiId);
+        if (!miiId) {
+            return res.status(400).json({ error: "Mii ID required" });
+        }
+
+        const mii = await getMiiById(miiId, false);
+        if (!mii) {
+            return res.status(404).json({ error: "Mii not found" });
+        }
+
+        const currentHiddenMiiIds = normalizeUserHiddenMiiIds(req.user.hiddenMiiIds);
+        if (!currentHiddenMiiIds.includes(miiId) && currentHiddenMiiIds.length >= MAX_USER_HIDDEN_MIIS) {
+            return res.status(400).json({ error: `You can hide up to ${MAX_USER_HIDDEN_MIIS} Miis.` });
+        }
+
+        await Users.findOneAndUpdate(
+            { username: req.user.username },
+            { $addToSet: { hiddenMiiIds: miiId } }
+        );
+
+        req.user.hiddenMiiIds = normalizeUserHiddenMiiIds([...(req.user.hiddenMiiIds || []), miiId]);
+        res.json({
+            okay: true,
+            hiddenMii: {
+                id: mii.id,
+                name: mii?.meta?.name || mii?.name || "Unknown Mii"
+            }
+        });
+    } catch (e) {
+        console.error('Error hiding Mii:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+site.post('/unhideMii', requireAuth, async (req, res) => {
+    try {
+        const miiId = normalizeMiiIdInput(req.body?.id || req.body?.miiId);
+        if (!miiId) {
+            return res.status(400).json({ error: "Mii ID required" });
+        }
+
+        await Users.findOneAndUpdate(
+            { username: req.user.username },
+            { $pull: { hiddenMiiIds: miiId } }
+        );
+
+        req.user.hiddenMiiIds = normalizeUserHiddenMiiIds(req.user.hiddenMiiIds).filter(id => id !== miiId);
+        res.json({ okay: true, id: miiId });
+    } catch (e) {
+        console.error('Error unhiding Mii:', e);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 site.get('/myPrivateMiis', requireAuth, async (req, res) => {
     var toSend = await getSendables(req, undefined, req.user);
@@ -12075,7 +12640,7 @@ site.get('/myLikedMiis', requireAuth, async (req, res) => {
     const likedMiiIds = Array.isArray(req.user?.votedFor)
         ? req.user.votedFor.map(id => String(id || "").trim()).filter(Boolean)
         : [];
-    const likedMiisQuery = {
+    const likedMiisQuery = applyMiiVisibilityFilters({
         private: false,
         published: true,
         id: {
@@ -12084,7 +12649,7 @@ site.get('/myLikedMiis', requireAuth, async (req, res) => {
         },
         uploader: { $ne: req.user.username },
         contributor: { $ne: req.user.username }
-    };
+    }, req.user);
     const sort = likedSort === "likes"
         ? getStablePopularitySort()
         : getStableRecencySort();
@@ -12502,6 +13067,9 @@ site.post('/contact', defaultRatelimiter, upload.none(), async (req, res) => {
 });
 site.get('/miiWii',async (req,res)=>{
     const fetchedMii = await getMiiById(req.query.id, false);
+    if (!fetchedMii || isMiiHiddenFromViewer(fetchedMii, req.user)) {
+        return res.status(404).json({ error: "Mii not found" });
+    }
     let miiInstance = await miijs.Mii.create(fetchedMii);
     if (parseBooleanLike(req.query.special)) {
         const specialFields = structuredClone(miiInstance.fields || {});
@@ -13676,7 +14244,10 @@ site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER
 site.get('/getMiiTags', async (req, res) => {
     try {
         const settings = await getSettings();
-        res.json({ tags: getMiiTags(settings) });
+        const blockedTagKeys = new Set(normalizeUserBlockedTags(req.user?.blockedTags).map(tag => tag.toLowerCase()));
+        const tags = getVisibleMiiTagCatalog(settings)
+            .filter(tag => !blockedTagKeys.has(tag.toLowerCase()));
+        res.json({ tags });
     } catch (e) {
         console.error('Error getting Mii tags:', e);
         res.json({ error: 'Server error' });
@@ -13694,6 +14265,9 @@ site.post('/addMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req, r
         }
         if (tag.includes(',')) {
             return res.json({ error: 'Tag names cannot include commas' });
+        }
+        if (isTomodachiLifeMiiTag(tag)) {
+            return res.json({ error: 'Tomodachi Life data is managed through Advanced Search now.' });
         }
         if (tag.length > MAX_MII_TAG_LENGTH) {
             return res.json({ error: `Tag names must be ${MAX_MII_TAG_LENGTH} characters or fewer` });
@@ -13749,6 +14323,9 @@ site.post('/renameMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req
         }
         if (nextTag.includes(',')) {
             return res.json({ error: 'Tag names cannot include commas' });
+        }
+        if (isTomodachiLifeMiiTag(nextTag)) {
+            return res.json({ error: 'Tomodachi Life data is managed through Advanced Search now.' });
         }
         if (nextTag.length > MAX_MII_TAG_LENGTH) {
             return res.json({ error: `Tag names must be ${MAX_MII_TAG_LENGTH} characters or fewer` });
@@ -13964,7 +14541,7 @@ site.post('/updateMiiTags', requireAuth, requireRole(ROLES.MODERATOR), async (re
         }
 
         const settings = await getSettings();
-        const availableTags = getMiiTags(settings);
+        const availableTags = getBlockableMiiTags(settings);
         const requestedTags = normalizeTagList(rawTags);
         const normalizedTags = mapRequestedTagsToCatalog(requestedTags, availableTags);
 

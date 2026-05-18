@@ -320,10 +320,10 @@
                                 <a class="profile-chip" href="<%= category.url %>"><%= category.name %></a>
                             <% }) %>
                             <% creatorNames.forEach((name) => { %>
-                                <a class="profile-chip" href="/searchResults?q=<%= encodeURIComponent(name) %>&searchFieldsConfigured=1&searchIn=name"><%= name %></a>
+                                <a class="profile-chip" href="/searchResults?q=<%= encodeURIComponent(name) %>&searchFieldsConfigured=1&searchIn=creatorName"><%= name %></a>
                             <% }) %>
                             <% featuredNames.forEach((name) => { %>
-                                <a class="profile-chip" href="/searchResults?q=<%= encodeURIComponent(name) %>&searchFieldsConfigured=1&searchIn=name"><%= name %></a>
+                                <a class="profile-chip" href="/searchResults?q=<%= encodeURIComponent(name) %>&searchFieldsConfigured=1&searchIn=name&searchIn=creatorName"><%= name %></a>
                             <% }) %>
                         </div>
                     </section>

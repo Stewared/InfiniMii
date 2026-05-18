@@ -2,6 +2,7 @@
     const searchFieldCatalog = [
         { value: 'uploader', label: 'Uploader' },
         { value: 'name', label: 'Name' },
+        { value: 'creatorName', label: 'Creator Name' },
         { value: 'description', label: 'Description' }
     ];
     const selectedFieldSource = Array.isArray(selectedSearchFields) ? selectedSearchFields : [];
@@ -27,11 +28,10 @@
                     type="checkbox"
                     name="searchIn"
                     value="<%= field.value %>"
-                    <%= selectedFieldSet.has(field.value) ? 'checked' : '' %>
+                    <%= selectedFieldSet.has(field.value.toLowerCase()) ? 'checked' : '' %>
                 >
                 <span><%= field.label %></span>
             </label>
         <% }) %>
     </div>
-    <p class="search-fields-help">Name also searches the Mii's Creator Name.</p>
 </section>

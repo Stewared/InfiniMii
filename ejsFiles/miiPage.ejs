@@ -66,6 +66,7 @@
         const isMiiUploader = Boolean(user?.username && mii.uploader === user.username);
         const isMiiUserEditLocked = Boolean(mii.lockedFromUserEdits);
         const canInlineEditMiiMetadata = Boolean(isModerator || (isMiiUploader && !isMiiUserEditLocked));
+        const canHideMiiFromAccount = Boolean(user?.username && !isPrivate);
         const shouldShowCreatorName = creatorName.length > 0 || canInlineEditMiiMetadata;
         const breadcrumbs = [
             { name: 'Home', url: '/' },
@@ -82,9 +83,9 @@
         const archiveSearchIntro = searchTopics.length > 0
             ? `People often search for this entry using phrases like ${searchTopics.slice(0, 8).join(', ')}.`
             : '';
-        const nameSearchUrl = `/searchResults?q=${encodeURIComponent(miiName)}&searchFieldsConfigured=1&searchIn=name`;
+        const nameSearchUrl = `/searchResults?q=${encodeURIComponent(miiName)}&searchFieldsConfigured=1&searchIn=name&searchIn=creatorName`;
         const creatorSearchUrl = creatorName
-            ? `/searchResults?q=${encodeURIComponent(creatorName)}&searchFieldsConfigured=1&searchIn=name`
+            ? `/searchResults?q=${encodeURIComponent(creatorName)}&searchFieldsConfigured=1&searchIn=creatorName`
             : '';
         const uploaderSearchUrl = `/searchResults?q=${encodeURIComponent(mii.uploader)}&searchFieldsConfigured=1&searchIn=uploader`;
         const archiveOwnerProfileUrl = `/user/${encodeURIComponent(mii.uploader)}`;
@@ -315,8 +316,8 @@
                             <% } %>
                                 <script>
                                 const currentCategories = <%- toScriptJson(mii.officialCategories || []) %>;
-                                const currentMiiTags = <%- toScriptJson(mii.tags || []) %>;
-                                const availableMiiTags = <%- toScriptJson(availableTags || []) %>;
+                                const currentMiiTags = <%- toScriptJson(isModerator ? (mii.tags || []).filter((tag) => String(tag || '').toLowerCase() !== 'tomodachi life') : tagList) %>;
+                                const availableMiiTags = <%- toScriptJson(isModerator ? (blockableTags || []) : (availableTags || [])) %>;
                                 const reportMiiCategories = <%- toScriptJson(reportMiiCategories || []) %>;
                                 const reportProblemContext = Object.freeze({
                                     miiId: <%- toScriptJson(mii.id) %>,
@@ -711,6 +712,12 @@
                                 </svg>
                                 <span class="report-button-label">Report Problem</span>
                             </button>
+                            <% if(canHideMiiFromAccount) { %>
+                                <button type="button" class="report-button hide-mii-button" onclick="hideCurrentMii(event, this)" aria-label="Hide this Mii from your account">
+                                    <%- include('icon', { name: 'ban', size: 20, class: 'hide-icon' }) %>
+                                    <span class="report-button-label">Hide</span>
+                                </button>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -1285,6 +1292,52 @@
                     }
                 });
             }
+
+            function hideCurrentMii(event, button = null) {
+                event?.preventDefault?.();
+
+                const runHide = async () => {
+                    if (button) button.disabled = true;
+                    try {
+                        const response = await fetch('/hideMii', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: <%- toScriptJson(mii.id) %> })
+                        });
+                        const result = await response.json();
+
+                        if (result.error) {
+                            showAlert(result.error, 5000, { title: 'Error', type: 'error' });
+                            if (button) button.disabled = false;
+                            return;
+                        }
+
+                        showAlert('Mii hidden. You can unhide it from Settings.', 2500, { title: 'Hidden', type: 'success' });
+                        setTimeout(() => {
+                            window.location.href = '/settings';
+                        }, 900);
+                    } catch (error) {
+                        console.error('Error hiding Mii:', error);
+                        showAlert('Failed to hide Mii', 5000, { title: 'Error', type: 'error' });
+                        if (button) button.disabled = false;
+                    }
+                };
+
+                if (typeof showConfirm === 'function') {
+                    showConfirm(
+                        'Hide this Mii from your account?',
+                        runHide,
+                        null,
+                        { title: 'Hide Mii', confirmText: 'Hide' }
+                    );
+                    return;
+                }
+
+                if (window.confirm('Hide this Mii from your account?')) {
+                    runHide();
+                }
+            }
+
             function openReportProblemModal(event, triggerButton = null) {
                 event?.preventDefault?.();
 

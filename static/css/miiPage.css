@@ -2372,15 +2372,21 @@
 }
 
 .related-mii-card {
+    position: relative;
+    z-index: 0;
     border-radius: 15px;
-    overflow: hidden;
+    overflow: visible;
     border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #7a7a7a 42%);
     background: color-mix(in oklab, var(--layer-1-um) 82%, var(--layer-2-um) 18%);
 }
 
+.related-mii-card:hover {
+    z-index: 2;
+}
+
 .related-mii-image {
     display: block;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .related-mii-image img {
@@ -2389,6 +2395,7 @@
     object-fit: cover;
     display: block;
     transition: transform 0.4s ease;
+    transform-origin: bottom;
     --darker-color: color-mix(in oklab, #222 60%, var(--favorite-color) 30%);
     --lighter-color: color-mix(in oklab, #555 90%, var(--favorite-color) 60%);
     background: radial-gradient(circle, var(--lighter-color) 26%, var(--darker-color) 100%);
@@ -2402,6 +2409,7 @@
     display: grid;
     gap: 0.4rem;
     padding: 0.78rem 0.82rem 0.9rem;
+    overflow: hidden;
 }
 
 .related-mii-body h3 {
@@ -2420,6 +2428,7 @@
     justify-content: space-between;
     gap: 0.5rem;
     min-width: 0;
+    overflow: hidden;
 }
 
 .related-mii-meta .mii-card-byline {

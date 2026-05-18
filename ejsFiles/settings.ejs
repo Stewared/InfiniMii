@@ -24,6 +24,13 @@
 				const linkedIdentities = Array.isArray(user?.oauthIdentities) ? user.oauthIdentities : [];
 				const linkedProviderKeys = linkedIdentities.map(identity => identity.provider);
 				const oauthProviderMap = Object.fromEntries((Array.isArray(oauthProviders) ? oauthProviders : []).map(provider => [provider.key, provider]));
+				const safeBlockableTags = Array.isArray(blockableTags) ? blockableTags : [];
+				const safeBlockedTags = Array.isArray(blockedTags) ? blockedTags : [];
+				const blockedTagSet = new Set(safeBlockedTags);
+				const safeBlockableCategories = Array.isArray(blockableOfficialCategories) ? blockableOfficialCategories : [];
+				const safeBlockedCategories = Array.isArray(blockedOfficialCategories) ? blockedOfficialCategories : [];
+				const blockedCategorySet = new Set(safeBlockedCategories);
+				const safeHiddenMiis = Array.isArray(hiddenMiis) ? hiddenMiis : [];
 				const formatOAuthProviderName = (key) => oauthProviderMap[key]?.displayName || String(key || 'OAuth').split(/[-_]+/g).filter(Boolean).map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 				const getOAuthProviderIconUrl = (key) => {
 					const iconUrl = oauthProviderMap[key]?.iconUrl;
@@ -125,6 +132,49 @@
 					</div>
 				</fieldset>
 
+				<fieldset>
+					<legend>Content Preferences</legend>
+
+					<div class="setting-group">
+						<label>Hidden Tags</label>
+						<div class="preference-selector-list">
+							<% if (safeBlockableTags.length > 0) { %>
+								<% safeBlockableTags.forEach((tag) => { %>
+									<label class="preference-selector-option">
+										<input type="checkbox" data-blocked-tag value="<%= tag %>" <%= blockedTagSet.has(tag) ? 'checked' : '' %>>
+										<span><%= tag %></span>
+									</label>
+								<% }) %>
+							<% } else { %>
+								<p class="preference-empty">No tags are available yet.</p>
+							<% } %>
+						</div>
+					</div>
+
+					<div class="setting-group">
+						<label>Hidden Official Categories</label>
+						<div class="preference-selector-list preference-selector-list-tall">
+							<% if (safeBlockableCategories.length > 0) { %>
+								<% safeBlockableCategories.forEach((category) => { %>
+									<label class="preference-selector-option" style="--category-color: <%= category.color || '#999999' %>;">
+										<input type="checkbox" data-blocked-category value="<%= category.path %>" <%= blockedCategorySet.has(category.path) ? 'checked' : '' %>>
+										<span><%= category.path %></span>
+									</label>
+								<% }) %>
+							<% } else { %>
+								<p class="preference-empty">No official categories are available yet.</p>
+							<% } %>
+						</div>
+					</div>
+
+					<div class="setting-group content-preference-actions">
+						<button type="button" onclick="saveContentPreferences()">Save Content Preferences</button>
+						<% if (safeHiddenMiis.length > 0) { %>
+							<button type="button" class="secondary-settings-button" id="openHiddenMiisButton" onclick="openHiddenMiisModal()">Manage Hidden Miis</button>
+						<% } %>
+					</div>
+				</fieldset>
+
 				<fieldset class="danger-zone">
 					<legend><%- include('icon', { name: 'alert-triangle', size: 20, class: 'icon-warning' }) %> Danger Zone</legend>
 
@@ -147,6 +197,30 @@
 
             <%- include('featuredMiis') %>
 		</div>
+		<% if (safeHiddenMiis.length > 0) { %>
+			<div id="hiddenMiisModal" class="custom-modal-overlay" aria-hidden="true">
+				<div class="custom-modal hidden-miis-modal" role="dialog" aria-modal="true" aria-labelledby="hiddenMiisTitle">
+					<div class="custom-modal-header">
+						<h3 id="hiddenMiisTitle">Hidden Miis</h3>
+						<button type="button" class="custom-modal-close" onclick="closeHiddenMiisModal()" aria-label="Close">&times;</button>
+					</div>
+					<div class="custom-modal-body">
+						<div class="hidden-miis-list" id="hiddenMiisList">
+							<% safeHiddenMiis.forEach((hiddenMii) => { %>
+								<div class="hidden-mii-row" data-hidden-mii-id="<%= hiddenMii.id %>">
+									<span class="hidden-mii-id"><%= hiddenMii.id %></span>
+									<span class="hidden-mii-name"><%= hiddenMii.name %></span>
+									<button type="button" class="hidden-mii-unhide" onclick="unhideMiiFromSettings(<%- toScriptJson(hiddenMii.id) %>, this)">Unhide</button>
+								</div>
+							<% }) %>
+						</div>
+					</div>
+					<div class="custom-modal-footer">
+						<button type="button" class="custom-modal-btn custom-modal-btn-secondary" onclick="closeHiddenMiisModal()">Close</button>
+					</div>
+				</div>
+			</div>
+		<% } %>
 		<%- include('footer') %>
 		<script>
 			function showMessage(text, type = 'error') {
@@ -158,6 +232,78 @@
 					window.scrollToUserError(messageDiv);
 				} else {
 					messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+				}
+			}
+
+			async function saveContentPreferences() {
+				const blockedTags = Array.from(document.querySelectorAll('[data-blocked-tag]:checked')).map(input => input.value);
+				const blockedOfficialCategories = Array.from(document.querySelectorAll('[data-blocked-category]:checked')).map(input => input.value);
+
+				try {
+					const response = await fetch('/updateContentPreferences', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ blockedTags, blockedOfficialCategories })
+					});
+					const result = await response.json();
+
+					if (result.error) {
+						showMessage(result.error, 'error');
+						return;
+					}
+
+					showMessage('Content preferences saved.', 'success');
+				} catch (error) {
+					console.error('Error saving content preferences:', error);
+					showMessage('Failed to save content preferences', 'error');
+				}
+			}
+
+			function openHiddenMiisModal() {
+				const modal = document.getElementById('hiddenMiisModal');
+				if (!modal) return;
+				modal.classList.add('active');
+				modal.setAttribute('aria-hidden', 'false');
+			}
+
+			function closeHiddenMiisModal() {
+				const modal = document.getElementById('hiddenMiisModal');
+				if (!modal) return;
+				modal.classList.remove('active');
+				modal.setAttribute('aria-hidden', 'true');
+			}
+
+			async function unhideMiiFromSettings(miiId, button) {
+				if (!miiId) return;
+				if (button) button.disabled = true;
+
+				try {
+					const response = await fetch('/unhideMii', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ id: miiId })
+					});
+					const result = await response.json();
+
+					if (result.error) {
+						showMessage(result.error, 'error');
+						if (button) button.disabled = false;
+						return;
+					}
+
+					const escapedId = window.CSS && typeof CSS.escape === 'function'
+						? CSS.escape(miiId)
+						: String(miiId).replace(/"/g, '\\"');
+					document.querySelector(`[data-hidden-mii-id="${escapedId}"]`)?.remove();
+					if (!document.querySelector('[data-hidden-mii-id]')) {
+						document.getElementById('openHiddenMiisButton')?.remove();
+						closeHiddenMiisModal();
+					}
+					showMessage('Mii unhidden.', 'success');
+				} catch (error) {
+					console.error('Error unhiding Mii:', error);
+					showMessage('Failed to unhide Mii', 'error');
+					if (button) button.disabled = false;
 				}
 			}
 			

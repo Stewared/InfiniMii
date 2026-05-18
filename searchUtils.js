@@ -1,7 +1,8 @@
 import { doubleMetaphone } from "double-metaphone";
 
-export const SEARCH_FIELD_VALUES = ["uploader", "name", "description"];
+export const SEARCH_FIELD_VALUES = ["uploader", "name", "creatorName", "description"];
 export const SEARCH_FIELD_SET = new Set(SEARCH_FIELD_VALUES);
+const SEARCH_FIELD_BY_KEY = new Map(SEARCH_FIELD_VALUES.map(field => [field.toLowerCase(), field]));
 export const SEARCH_FALLBACK_CANDIDATE_LIMIT = 3000;
 
 const SEARCH_TOKEN_LIMIT = 8;
@@ -34,7 +35,7 @@ const SEARCH_FIELD_SPECS = Object.freeze([
         getValue: (mii) => mii?.meta?.name
     },
     {
-        field: "name",
+        field: "creatorName",
         path: "meta.creatorName",
         weight: 320,
         getValue: (mii) => mii?.meta?.creatorName
@@ -80,8 +81,8 @@ export function normalizeSearchFieldSelection(requestedFields, { defaultToAll = 
     const seen = new Set();
 
     for (const rawField of source) {
-        const field = String(rawField || "").trim().toLowerCase();
-        if (!SEARCH_FIELD_SET.has(field)) continue;
+        const field = SEARCH_FIELD_BY_KEY.get(String(rawField || "").trim().toLowerCase());
+        if (!field) continue;
         if (seen.has(field)) continue;
 
         seen.add(field);

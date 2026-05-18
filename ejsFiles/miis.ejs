@@ -129,6 +129,7 @@
                         ? '&searchFieldsConfigured=1' + selectedSearchFieldParams.map(field => '&searchIn=' + encodeURIComponent(field)).join('')
                         : '';
                     const hasActiveSearchQuery = Boolean(query.q && selectedSearchFieldParams.length > 0);
+                    const hasActiveAdvancedSearch = Boolean(advancedSearchFilters?.isActive);
                     const shouldUseFullRowGrid = usesOffsetPagination || isRandomPage;
                     const fullRowGridStart = usesOffsetPagination ? (pagination?.start || 0) : 0;
                     const fullRowGridTotal = usesOffsetPagination ? (pagination?.total ?? displayedMiis.length) : displayedMiis.length;
@@ -154,10 +155,15 @@
                             excludedTags,
                             isModerator,
                             renderSearchFields: true,
+                            renderMiiAdvancedFilters: true,
                             renderTagFilters: true,
-                            renderCategoryFilters: false
+                            renderCategoryFilters: false,
+                            advancedSearchFilters,
+                            favoriteColorOptions,
+                            birthdayMonthOptions,
+                            birthdayDayOptions
                         }) %>
-                        <% if (hasActiveSearchQuery || (Array.isArray(selectedTags) && selectedTags.length > 0) || (Array.isArray(excludedTags) && excludedTags.length > 0)) { %>
+                        <% if (hasActiveSearchQuery || (Array.isArray(selectedTags) && selectedTags.length > 0) || (Array.isArray(excludedTags) && excludedTags.length > 0) || hasActiveAdvancedSearch) { %>
                             <p class="search-results-summary">
                                 <%= pagination?.total ?? displayedMiis.length %> result<%= (pagination?.total ?? displayedMiis.length) === 1 ? '' : 's' %>
                                 <% if (hasActiveSearchQuery) { %>
@@ -168,6 +174,9 @@
                                 <% } %>
                                 <% if (Array.isArray(excludedTags) && excludedTags.length > 0) { %>
                                     <span class="search-results-tag-summary">excluding tag<%= excludedTags.length === 1 ? '' : 's' %>: <%= excludedTags.join(', ') %></span>
+                                <% } %>
+                                <% if (hasActiveAdvancedSearch) { %>
+                                    <span class="search-results-tag-summary">with advanced filters</span>
                                 <% } %>
                             </p>
                         <% } %>

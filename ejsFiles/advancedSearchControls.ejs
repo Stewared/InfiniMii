@@ -20,8 +20,19 @@
         ? searchAriaLabel.trim()
         : 'Search Mii characters';
     const showSearchFields = typeof renderSearchFields === 'undefined' || renderSearchFields !== false;
+    const showMiiAdvancedFilters = typeof renderMiiAdvancedFilters !== 'undefined' && renderMiiAdvancedFilters === true;
     const showTagFilters = typeof renderTagFilters !== 'undefined' && renderTagFilters === true;
     const showCategoryFilters = typeof renderCategoryFilters !== 'undefined' && renderCategoryFilters === true;
+    const filters = (typeof advancedSearchFilters !== 'undefined' && advancedSearchFilters)
+        ? advancedSearchFilters
+        : {};
+    const safeFavoriteColorOptions = (typeof favoriteColorOptions !== 'undefined' && Array.isArray(favoriteColorOptions)) ? favoriteColorOptions : [];
+    const safeBirthdayMonthOptions = (typeof birthdayMonthOptions !== 'undefined' && Array.isArray(birthdayMonthOptions)) ? birthdayMonthOptions : [];
+    const safeBirthdayDayOptions = (typeof birthdayDayOptions !== 'undefined' && Array.isArray(birthdayDayOptions)) ? birthdayDayOptions : [];
+    const heightMinValue = filters.heightMin || '0';
+    const heightMaxValue = filters.heightMax || '127';
+    const weightMinValue = filters.weightMin || '0';
+    const weightMaxValue = filters.weightMax || '127';
     const selectedTagList = (typeof selectedTags !== 'undefined' && Array.isArray(selectedTags)) ? selectedTags : [];
     const excludedTagList = (typeof excludedTags !== 'undefined' && Array.isArray(excludedTags)) ? excludedTags : [];
     const selectedTagCount = selectedTagList.length;
@@ -35,10 +46,7 @@
     const selectedCategoryCount = selectedCategoryList.length;
     const excludedCategoryCount = excludedCategoryList.length;
     const selectedFieldSource = (typeof selectedSearchFields !== 'undefined' && Array.isArray(selectedSearchFields)) ? selectedSearchFields : [];
-    const searchFieldsWereConfigured = Boolean(typeof searchFieldsExplicitlyConfigured !== 'undefined' && searchFieldsExplicitlyConfigured);
-    const hasAdvancedSelections = searchFieldsWereConfigured || selectedTagCount > 0 || excludedTagCount > 0 || selectedCategoryCount > 0 || excludedCategoryCount > 0;
-    const shouldOpenAdvanced = typeof advancedOpen === 'boolean' ? advancedOpen : hasAdvancedSelections;
-    const advancedCount = selectedTagCount + excludedTagCount + selectedCategoryCount + excludedCategoryCount;
+    const advancedCount = selectedTagCount + excludedTagCount + selectedCategoryCount + excludedCategoryCount + (filters.isActive ? 1 : 0);
 %>
 
 <section class="search-control-panel" aria-label="<%= resolvedSearchAriaLabel %>">
@@ -56,8 +64,8 @@
             <input type="submit" value="<%= resolvedSubmitLabel %>">
         </div>
 
-        <% if (showSearchFields || showTagFilters || showCategoryFilters) { %>
-            <details class="advanced-search-dropdown" <%= shouldOpenAdvanced ? 'open' : '' %>>
+        <% if (showSearchFields || showMiiAdvancedFilters || showTagFilters || showCategoryFilters) { %>
+            <details class="advanced-search-dropdown">
                 <summary>
                     <span>Advanced Search</span>
                     <% if (advancedCount > 0) { %>
@@ -71,6 +79,76 @@
                             searchFieldsExplicitlyConfigured,
                             searchFieldUiIdPrefix: `${searchControlIdPrefix}-fields`
                         }) %>
+                    <% } %>
+
+                    <% if (showMiiAdvancedFilters) { %>
+                        <section class="advanced-search-options" aria-label="Advanced filters">
+                            <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-gender">
+                                <span>Gender</span>
+                                <select id="<%= searchControlIdPrefix %>-gender" name="gender">
+                                    <option value="">Any</option>
+                                    <option value="0" <%= filters.gender === '0' ? 'selected' : '' %>>Male</option>
+                                    <option value="1" <%= filters.gender === '1' ? 'selected' : '' %>>Female</option>
+                                </select>
+                            </label>
+
+                            <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-favorite-color">
+                                <span>Favorite Color</span>
+                                <select id="<%= searchControlIdPrefix %>-favorite-color" name="favoriteColor">
+                                    <option value="">Any</option>
+                                    <% safeFavoriteColorOptions.forEach((color) => { %>
+                                        <option value="<%= color.value %>" <%= filters.favoriteColor === String(color.value) ? 'selected' : '' %>><%= color.label %></option>
+                                    <% }) %>
+                                </select>
+                            </label>
+
+                            <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-birth-month">
+                                <span>Birthday Month</span>
+                                <select id="<%= searchControlIdPrefix %>-birth-month" name="birthMonth">
+                                    <option value="">Any</option>
+                                    <% safeBirthdayMonthOptions.forEach((month) => { %>
+                                        <option value="<%= month.value %>" <%= filters.birthMonth === String(month.value) ? 'selected' : '' %>><%= month.label %></option>
+                                    <% }) %>
+                                </select>
+                            </label>
+
+                            <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-birthday">
+                                <span>Birthday Day</span>
+                                <select id="<%= searchControlIdPrefix %>-birthday" name="birthday">
+                                    <option value="">Any</option>
+                                    <% safeBirthdayDayOptions.forEach((day) => { %>
+                                        <option value="<%= day.value %>" <%= filters.birthday === String(day.value) ? 'selected' : '' %>><%= day.label %></option>
+                                    <% }) %>
+                                </select>
+                            </label>
+
+                            <label class="advanced-search-check">
+                                <input type="checkbox" name="hasTlData" value="1" <%= filters.mustHaveTomodachiLifeData ? 'checked' : '' %>>
+                                <span>Must Have Tomodachi Life Data</span>
+                            </label>
+
+                            <div class="advanced-range-control" data-advanced-range>
+                                <div class="advanced-range-heading">
+                                    <span>Height</span>
+                                    <output data-range-output for="<%= searchControlIdPrefix %>-height-min <%= searchControlIdPrefix %>-height-max"><%= heightMinValue %>-<%= heightMaxValue %></output>
+                                </div>
+                                <div class="advanced-range-sliders">
+                                    <input id="<%= searchControlIdPrefix %>-height-min" type="range" name="heightMin" min="0" max="127" value="<%= heightMinValue %>" data-range-min aria-label="Minimum height">
+                                    <input id="<%= searchControlIdPrefix %>-height-max" type="range" name="heightMax" min="0" max="127" value="<%= heightMaxValue %>" data-range-max aria-label="Maximum height">
+                                </div>
+                            </div>
+
+                            <div class="advanced-range-control" data-advanced-range>
+                                <div class="advanced-range-heading">
+                                    <span>Weight</span>
+                                    <output data-range-output for="<%= searchControlIdPrefix %>-weight-min <%= searchControlIdPrefix %>-weight-max"><%= weightMinValue %>-<%= weightMaxValue %></output>
+                                </div>
+                                <div class="advanced-range-sliders">
+                                    <input id="<%= searchControlIdPrefix %>-weight-min" type="range" name="weightMin" min="0" max="127" value="<%= weightMinValue %>" data-range-min aria-label="Minimum weight">
+                                    <input id="<%= searchControlIdPrefix %>-weight-max" type="range" name="weightMax" min="0" max="127" value="<%= weightMaxValue %>" data-range-max aria-label="Maximum weight">
+                                </div>
+                            </div>
+                        </section>
                     <% } %>
 
                     <% if (showTagFilters) { %>
@@ -98,6 +176,44 @@
             </details>
         <% } %>
     </form>
+
+    <% if (showMiiAdvancedFilters) { %>
+        <script>
+            (() => {
+                document.querySelectorAll('[data-advanced-range]').forEach((rangeControl) => {
+                    const minInput = rangeControl.querySelector('[data-range-min]');
+                    const maxInput = rangeControl.querySelector('[data-range-max]');
+                    const output = rangeControl.querySelector('[data-range-output]');
+                    if (!minInput || !maxInput || !output) return;
+
+                    const updateRangeOutput = (changedInput = null) => {
+                        let minValue = Number.parseInt(minInput.value, 10);
+                        let maxValue = Number.parseInt(maxInput.value, 10);
+
+                        if (Number.isNaN(minValue)) minValue = 0;
+                        if (Number.isNaN(maxValue)) maxValue = 127;
+
+                        if (minValue > maxValue) {
+                            if (changedInput === minInput) {
+                                maxValue = minValue;
+                                maxInput.value = String(maxValue);
+                            } else {
+                                minValue = maxValue;
+                                minInput.value = String(minValue);
+                            }
+                        }
+
+                        output.value = `${minValue}-${maxValue}`;
+                        output.textContent = output.value;
+                    };
+
+                    minInput.addEventListener('input', () => updateRangeOutput(minInput));
+                    maxInput.addEventListener('input', () => updateRangeOutput(maxInput));
+                    updateRangeOutput();
+                });
+            })();
+        </script>
+    <% } %>
 
     <% if (showTagFilters || showCategoryFilters) { %>
         <script>

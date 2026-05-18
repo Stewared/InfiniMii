@@ -1,0 +1,131 @@
+<%
+    const filters = (typeof advancedSearchFilters !== 'undefined' && advancedSearchFilters)
+        ? advancedSearchFilters
+        : {};
+    const safeFavoriteColorOptions = Array.isArray(favoriteColorOptions) ? favoriteColorOptions : [];
+    const safeBirthdayMonthOptions = Array.isArray(birthdayMonthOptions) ? birthdayMonthOptions : [];
+    const safeBirthdayDayOptions = Array.isArray(birthdayDayOptions) ? birthdayDayOptions : [];
+    const heightMinValue = filters.heightMin || '0';
+    const heightMaxValue = filters.heightMax || '127';
+    const weightMinValue = filters.weightMin || '0';
+    const weightMaxValue = filters.weightMax || '127';
+    const advancedPrefix = (typeof advancedSearchUiIdPrefix === 'string' && advancedSearchUiIdPrefix.trim())
+        ? advancedSearchUiIdPrefix.trim()
+        : 'advanced-search';
+%>
+
+<details class="advanced-search-panel">
+    <summary class="advanced-search-summary">Advanced Search</summary>
+    <div class="advanced-search-content">
+        <%- include('searchFieldFilters', { selectedSearchFields, searchFieldsExplicitlyConfigured, searchFieldUiIdPrefix: `${advancedPrefix}-fields` }) %>
+
+        <section class="advanced-search-options" aria-label="Advanced filters">
+            <label class="advanced-search-control" for="<%= advancedPrefix %>-gender">
+                <span>Gender</span>
+                <select id="<%= advancedPrefix %>-gender" name="gender">
+                    <option value="">Any</option>
+                    <option value="0" <%= filters.gender === '0' ? 'selected' : '' %>>Male</option>
+                    <option value="1" <%= filters.gender === '1' ? 'selected' : '' %>>Female</option>
+                </select>
+            </label>
+
+            <label class="advanced-search-control" for="<%= advancedPrefix %>-favorite-color">
+                <span>Favorite Color</span>
+                <select id="<%= advancedPrefix %>-favorite-color" name="favoriteColor">
+                    <option value="">Any</option>
+                    <% safeFavoriteColorOptions.forEach((color) => { %>
+                        <option value="<%= color.value %>" <%= filters.favoriteColor === String(color.value) ? 'selected' : '' %>><%= color.label %></option>
+                    <% }) %>
+                </select>
+            </label>
+
+            <label class="advanced-search-control" for="<%= advancedPrefix %>-birth-month">
+                <span>Birthday Month</span>
+                <select id="<%= advancedPrefix %>-birth-month" name="birthMonth">
+                    <option value="">Any</option>
+                    <% safeBirthdayMonthOptions.forEach((month) => { %>
+                        <option value="<%= month.value %>" <%= filters.birthMonth === String(month.value) ? 'selected' : '' %>><%= month.label %></option>
+                    <% }) %>
+                </select>
+            </label>
+
+            <label class="advanced-search-control" for="<%= advancedPrefix %>-birthday">
+                <span>Birthday Day</span>
+                <select id="<%= advancedPrefix %>-birthday" name="birthday">
+                    <option value="">Any</option>
+                    <% safeBirthdayDayOptions.forEach((day) => { %>
+                        <option value="<%= day.value %>" <%= filters.birthday === String(day.value) ? 'selected' : '' %>><%= day.label %></option>
+                    <% }) %>
+                </select>
+            </label>
+
+            <label class="advanced-search-check">
+                <input type="checkbox" name="hasTlData" value="1" <%= filters.mustHaveTomodachiLifeData ? 'checked' : '' %>>
+                <span>Must Have Tomodachi Life Data</span>
+            </label>
+
+            <div class="advanced-range-control" data-advanced-range>
+                <div class="advanced-range-heading">
+                    <span>Height</span>
+                    <output data-range-output for="<%= advancedPrefix %>-height-min <%= advancedPrefix %>-height-max"><%= heightMinValue %>-<%= heightMaxValue %></output>
+                </div>
+                <div class="advanced-range-sliders">
+                    <input id="<%= advancedPrefix %>-height-min" type="range" name="heightMin" min="0" max="127" value="<%= heightMinValue %>" data-range-min aria-label="Minimum height">
+                    <input id="<%= advancedPrefix %>-height-max" type="range" name="heightMax" min="0" max="127" value="<%= heightMaxValue %>" data-range-max aria-label="Maximum height">
+                </div>
+            </div>
+
+            <div class="advanced-range-control" data-advanced-range>
+                <div class="advanced-range-heading">
+                    <span>Weight</span>
+                    <output data-range-output for="<%= advancedPrefix %>-weight-min <%= advancedPrefix %>-weight-max"><%= weightMinValue %>-<%= weightMaxValue %></output>
+                </div>
+                <div class="advanced-range-sliders">
+                    <input id="<%= advancedPrefix %>-weight-min" type="range" name="weightMin" min="0" max="127" value="<%= weightMinValue %>" data-range-min aria-label="Minimum weight">
+                    <input id="<%= advancedPrefix %>-weight-max" type="range" name="weightMax" min="0" max="127" value="<%= weightMaxValue %>" data-range-max aria-label="Maximum weight">
+                </div>
+            </div>
+        </section>
+
+        <%- include('tagFilters', { availableTags, selectedTags, isModerator, tagUiIdPrefix: advancedPrefix, renderTagFilters: true, renderTagManagement: false }) %>
+    </div>
+</details>
+
+<script>
+    (() => {
+        const root = document.querySelector('.advanced-search-panel .advanced-search-content');
+        if (!root) return;
+
+        root.querySelectorAll('[data-advanced-range]').forEach((rangeControl) => {
+            const minInput = rangeControl.querySelector('[data-range-min]');
+            const maxInput = rangeControl.querySelector('[data-range-max]');
+            const output = rangeControl.querySelector('[data-range-output]');
+            if (!minInput || !maxInput || !output) return;
+
+            const updateRangeOutput = (changedInput = null) => {
+                let minValue = Number.parseInt(minInput.value, 10);
+                let maxValue = Number.parseInt(maxInput.value, 10);
+
+                if (Number.isNaN(minValue)) minValue = 0;
+                if (Number.isNaN(maxValue)) maxValue = 127;
+
+                if (minValue > maxValue) {
+                    if (changedInput === minInput) {
+                        maxValue = minValue;
+                        maxInput.value = String(maxValue);
+                    } else {
+                        minValue = maxValue;
+                        minInput.value = String(minValue);
+                    }
+                }
+
+                output.value = `${minValue}-${maxValue}`;
+                output.textContent = output.value;
+            };
+
+            minInput.addEventListener('input', () => updateRangeOutput(minInput));
+            maxInput.addEventListener('input', () => updateRangeOutput(maxInput));
+            updateRangeOutput();
+        });
+    })();
+</script>

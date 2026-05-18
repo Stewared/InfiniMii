@@ -74,7 +74,8 @@ if (cardMii && cardMii.id) {
             : (Array.isArray(cardMii.tags) ? cardMii.tags : []));
     const normalizedMetadataItems = metadataItemsInput
         .map((value) => String(value || '').trim())
-        .filter(Boolean);
+        .filter(Boolean)
+        .filter((value) => metadataMode !== 'tags' || !['controversial', 'tomodachi life'].includes(value.toLowerCase()));
     const metadataItemLimitInput = typeof metadataItemLimit !== 'undefined' ? Number(metadataItemLimit) : NaN;
     const metadataLimit = Number.isFinite(metadataItemLimitInput) && metadataItemLimitInput > 0
         ? Math.max(1, Math.floor(metadataItemLimitInput))
