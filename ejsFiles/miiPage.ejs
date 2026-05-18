@@ -66,6 +66,8 @@
         const isMiiUploader = Boolean(user?.username && mii.uploader === user.username);
         const isMiiUserEditLocked = Boolean(mii.lockedFromUserEdits);
         const canInlineEditMiiMetadata = Boolean(isModerator || (isMiiUploader && !isMiiUserEditLocked));
+        const canEditMiiTags = Boolean(isModerator || isMiiUploader || (mii.official && isResearcher));
+        const canEditMiiCategories = Boolean(mii.official && (isModerator || isResearcher || isMiiUploader));
         const canHideMiiFromAccount = Boolean(user?.username && !isPrivate);
         const shouldShowCreatorName = creatorName.length > 0 || canInlineEditMiiMetadata;
         const breadcrumbs = [
@@ -358,6 +360,7 @@
                                 let selectedPaths = new Set(currentCategories);
                                 let expandedNodes = new Set();
                                 let modalSelectedPaths = null;
+                                let modalSelectedMiiTags = null;
 
                                 function sortComparableValues(values) {
                                     return [...new Set((values || []).map((value) => String(value ?? '')))].sort();
@@ -376,6 +379,16 @@
                                         ? `(${selectedCount} selected)`
                                         : '(none selected)';
                                     document.querySelectorAll('.category-trigger-summary').forEach((el) => {
+                                        el.textContent = summary;
+                                    });
+                                }
+
+                                function updateTagEditorTriggers() {
+                                    const selectedCount = sortComparableValues(Array.from(selectedMiiTags)).length;
+                                    const summary = selectedCount > 0
+                                        ? `(${selectedCount} selected)`
+                                        : '(none selected)';
+                                    document.querySelectorAll('.tag-trigger-summary').forEach((el) => {
                                         el.textContent = summary;
                                     });
                                 }
@@ -449,8 +462,8 @@
                                             <button onclick="closeCategoryModal()" class="category-modal-btn category-modal-btn-cancel">
                                                 Cancel
                                             </button>
-                                            <button onclick="saveCategoriesFromModal()" class="category-modal-btn category-modal-btn-save">
-                                                Apply Categories
+                                            <button onclick="saveCategoriesFromModal(this)" class="category-modal-btn category-modal-btn-save">
+                                                Save Categories
                                             </button>
                                         </div>
                                     `;
@@ -550,10 +563,27 @@
                                     document.getElementById('categoryModal')?.remove();
                                 }
 
-                                async function saveCategoriesFromModal() {
-                                    selectedPaths = new Set(modalSelectedPaths || selectedPaths);
-                                    updateCategoryEditorTriggers();
-                                    closeCategoryModal();
+                                async function saveCategoriesFromModal(button = null) {
+                                    const categories = Array.from(modalSelectedPaths || selectedPaths);
+                                    setSaveButtonBusy(button, true);
+                                    try {
+                                        const result = await updateCategories(categories);
+                                        if (result?.error) {
+                                            showAlert(`Error: ${result.error}`, 6000, { title: 'Error', type: 'error' });
+                                            return;
+                                        }
+
+                                        selectedPaths = new Set(result.categories || categories);
+                                        updateCategoryEditorTriggers();
+                                        closeCategoryModal();
+                                        showAlert('Categories saved.', 2500, { title: 'Success', type: 'success' });
+                                        setTimeout(() => location.reload(), 900);
+                                    } catch (error) {
+                                        console.error('Error saving categories:', error);
+                                        showAlert('Failed to save categories.', 6000, { title: 'Error', type: 'error' });
+                                    } finally {
+                                        setSaveButtonBusy(button, false);
+                                    }
                                 }
 
                                 async function updateCategories(categories) {
@@ -573,10 +603,129 @@
                                         return { error: 'Error updating categories' };
                                     }
                                 }
+
+                                function openMiiTagEditor() {
+                                    const modal = document.createElement('div');
+                                    modal.className = 'category-modal-overlay';
+                                    modal.id = 'miiTagModal';
+
+                                    const modalContent = document.createElement('div');
+                                    modalContent.className = 'category-modal-panel tag-modal-panel';
+
+                                    modalSelectedMiiTags = new Set(selectedMiiTags);
+                                    modalContent.innerHTML = `
+                                        <h3 class="category-modal-title">Select Tags</h3>
+                                        <p class="category-modal-help">Check all tags that apply. Only existing tags can be assigned.</p>
+                                        <div class="category-modal-tree-wrap tag-modal-list-wrap">
+                                            <div id="modalMiiTagList" class="tag-modal-list"></div>
+                                        </div>
+                                        <div class="category-modal-actions">
+                                            <button onclick="closeMiiTagModal()" class="category-modal-btn category-modal-btn-cancel">
+                                                Cancel
+                                            </button>
+                                            <button onclick="saveMiiTagsFromModal(this)" class="category-modal-btn category-modal-btn-save">
+                                                Save Tags
+                                            </button>
+                                        </div>
+                                    `;
+
+                                    modal.appendChild(modalContent);
+                                    document.body.appendChild(modal);
+                                    renderMiiTagModalList();
+
+                                    modal.addEventListener('click', (e) => {
+                                        if (e.target === modal) {
+                                            closeMiiTagModal();
+                                        }
+                                    });
+                                }
+
+                                function renderMiiTagModalList() {
+                                    const container = document.getElementById('modalMiiTagList');
+                                    if (!container) return;
+
+                                    container.innerHTML = '';
+
+                                    if (!Array.isArray(availableMiiTags) || availableMiiTags.length === 0) {
+                                        const emptyState = document.createElement('p');
+                                        emptyState.className = 'mod-tag-empty';
+                                        emptyState.textContent = 'No tags have been created yet.';
+                                        container.appendChild(emptyState);
+                                        return;
+                                    }
+
+                                    const activeSelectedTags = modalSelectedMiiTags || selectedMiiTags;
+                                    availableMiiTags.forEach((tag) => {
+                                        const label = document.createElement('label');
+                                        label.className = 'tag-modal-option';
+
+                                        const checkbox = document.createElement('input');
+                                        checkbox.type = 'checkbox';
+                                        checkbox.value = tag;
+                                        checkbox.checked = activeSelectedTags.has(tag);
+                                        checkbox.addEventListener('change', (event) => {
+                                            updateModalMiiTagSelection(tag, event.target.checked);
+                                        });
+
+                                        const text = document.createElement('span');
+                                        text.textContent = tag;
+
+                                        label.appendChild(checkbox);
+                                        label.appendChild(text);
+                                        container.appendChild(label);
+                                    });
+                                }
+
+                                function updateModalMiiTagSelection(tag, checked) {
+                                    if (!modalSelectedMiiTags) {
+                                        modalSelectedMiiTags = new Set(selectedMiiTags);
+                                    }
+
+                                    if (checked) {
+                                        modalSelectedMiiTags.add(tag);
+                                    } else {
+                                        modalSelectedMiiTags.delete(tag);
+                                    }
+                                }
+
+                                function closeMiiTagModal() {
+                                    modalSelectedMiiTags = null;
+                                    document.getElementById('miiTagModal')?.remove();
+                                }
+
+                                async function saveMiiTagsFromModal(button = null) {
+                                    const tags = Array.from(modalSelectedMiiTags || selectedMiiTags);
+                                    setSaveButtonBusy(button, true);
+                                    try {
+                                        const result = await submitMiiTagsUpdate(tags);
+                                        if (result?.error) {
+                                            showAlert(`Error: ${result.error}`, 6000, { title: 'Error', type: 'error' });
+                                            return;
+                                        }
+
+                                        selectedMiiTags = new Set(result.tags || tags);
+                                        updateTagEditorTriggers();
+                                        closeMiiTagModal();
+                                        showAlert('Tags saved.', 2500, { title: 'Success', type: 'success' });
+                                        setTimeout(() => location.reload(), 900);
+                                    } catch (error) {
+                                        console.error('Error saving tags:', error);
+                                        showAlert('Failed to save tags.', 6000, { title: 'Error', type: 'error' });
+                                    } finally {
+                                        setSaveButtonBusy(button, false);
+                                    }
+                                }
                                 </script>
                             <% if(mii.official) { %>
                                 <div class="official-categories-section">
-                                    <span class="info-label">Official Categories</span>
+                                    <div class="mii-classification-header">
+                                        <span class="info-label">Official Categories</span>
+                                        <% if(canEditMiiCategories) { %>
+                                            <button type="button" class="mii-classification-edit-button" onclick="openCategoryEditor()" aria-label="Edit official categories" title="Edit official categories">
+                                                <%- include('icon', { name: 'edit', size: 14 }) %>
+                                            </button>
+                                        <% } %>
+                                    </div>
                                     <div class="categories-display mii-card-tags mii-categories">
                                         <span class="mii-card-tag official-badge"><span class="tag-marquee-content">Official</span></span>
                                         <% if(categoryDetails.length > 0) { %>
@@ -590,20 +739,26 @@
                                         <% } %>
                                     </div>
                                 </div>
-                            <% } else { %>
-                                <div class="mii-tags-section">
+                            <% } %>
+                            <div class="mii-tags-section">
+                                <div class="mii-classification-header">
                                     <span class="info-label">Tags</span>
-                                    <% if(tagList.length > 0) { %>
-                                        <div class="mii-tags-list">
-                                            <% tagList.forEach(tag => { %>
-                                                <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><span class="tag-marquee-content"><%= tag %></span></a>
-                                            <% }); %>
-                                        </div>
-                                    <% } else { %>
-                                        <span class="no-tags">No tags assigned.</span>
+                                    <% if(canEditMiiTags) { %>
+                                        <button type="button" class="mii-classification-edit-button" onclick="openMiiTagEditor()" aria-label="Edit tags" title="Edit tags">
+                                            <%- include('icon', { name: 'edit', size: 14 }) %>
+                                        </button>
                                     <% } %>
                                 </div>
-                            <% } %>
+                                <% if(tagList.length > 0) { %>
+                                    <div class="mii-tags-list">
+                                        <% tagList.forEach(tag => { %>
+                                            <a class="mii-tag-badge" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><span class="tag-marquee-content"><%= tag %></span></a>
+                                        <% }); %>
+                                    </div>
+                                <% } else { %>
+                                    <span class="no-tags">No tags assigned.</span>
+                                <% } %>
+                            </div>
                         </div>
                     </div>
                     <% if(isPrivate) { %>
@@ -1165,11 +1320,11 @@
                                 <!-- Edit Tags -->
                                 <div class="mod-tool-item mod-tag-selector">
                                     <label>Mii Tags:</label>
-                                    <div id="modMiiTagList" class="mod-tag-list"></div>
+                                    <button type="button" class="tag-editor-trigger" onclick="openMiiTagEditor()">Edit Tags <span class="tag-trigger-summary"></span></button>
                                     <p class="mod-tag-hint">Only existing tags can be assigned. Create or delete tags from the Search page.</p>
                                 </div>
 
-                                <% if(canManageOfficialCategories) { %>
+                                <% if(canEditMiiCategories) { %>
                                 <div class="mod-tool-item">
                                     <label>Official Categories:</label>
                                     <p class="mod-tag-hint">Assign and update leaf categories for this official entry.</p>
@@ -2179,6 +2334,7 @@
             function initializeMiiPageEditorState() {
                 initializeInlineMiiEditors();
                 updateCategoryEditorTriggers();
+                updateTagEditorTriggers();
                 updateOfficialCheckboxLabel();
                 try {
                     initializeQrPreviewTabs();
@@ -2355,51 +2511,6 @@
                     
                     content.classList.toggle('expanded');
                     arrow.classList.toggle('rotated');
-                }
-
-                function renderModMiiTagList() {
-                    const container = document.getElementById('modMiiTagList');
-                    if (!container) return;
-
-                    container.innerHTML = '';
-
-                    if (!Array.isArray(availableMiiTags) || availableMiiTags.length === 0) {
-                        const emptyState = document.createElement('p');
-                        emptyState.className = 'mod-tag-empty';
-                        emptyState.innerHTML = 'No tags created yet. <a href="/search">Create tags on the Search page</a>.';
-                        container.appendChild(emptyState);
-                        return;
-                    }
-
-                    availableMiiTags.forEach((tag) => {
-                        const label = document.createElement('label');
-                        label.className = 'mod-tag-option';
-
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.value = tag;
-                        checkbox.checked = selectedMiiTags.has(tag);
-                        checkbox.addEventListener('change', (event) => {
-                            if (event.target.checked) {
-                                selectedMiiTags.add(tag);
-                            } else {
-                                selectedMiiTags.delete(tag);
-                            }
-                        });
-
-                        const text = document.createElement('span');
-                        text.textContent = tag;
-
-                        label.appendChild(checkbox);
-                        label.appendChild(text);
-                        container.appendChild(label);
-                    });
-                }
-
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', renderModMiiTagList);
-                } else {
-                    renderModMiiTagList();
                 }
 
                 async function regenerateQR() {

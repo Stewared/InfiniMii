@@ -11826,7 +11826,11 @@ site.get('/mii/:id', async (req, res) => {
         ? (normalizeCompanySourceName(mii.officialSource || mii.uploader) || DEFAULT_OFFICIAL_COMPANY_SOURCE)
         : "";
     inp.canEditOfficialMii = mii.official && (canModerate(req.user) || isResearcher(req.user));
-    inp.canManageOfficialCategories = mii.official && isResearcher(req.user);
+    inp.canManageOfficialCategories = mii.official && (
+        canModerate(req.user)
+        || isResearcher(req.user)
+        || Boolean(req.user?.username && mii.uploader === req.user.username)
+    );
     inp.pageUpdatedAt = mii?.updatedAt
         ? new Date(mii.updatedAt).toISOString()
         : (mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined);
@@ -14173,8 +14177,8 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
         try { if (req.file) fs.unlinkSync("./uploads/" + req.file.filename); } catch (e2) { }
     }
 });
-// Update Official Mii Categories (Researcher+)
-site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER), async (req, res) => {
+// Update Official Mii Categories (Moderator+, uploader, or Researcher on official Miis)
+site.post('/updateOfficialCategories', requireAuth, async (req, res) => {
     try {
         const { miiId, categories } = req.body;
 
@@ -14189,6 +14193,11 @@ site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER
 
         if (!mii.official) {
             return res.json({ error: 'This is not an official Mii' });
+        }
+
+        const canUploaderUpdateCategories = Boolean(req.user?.username && mii.uploader === req.user.username);
+        if (!canModerate(req.user) && !isResearcher(req.user) && !canUploaderUpdateCategories) {
+            return res.json({ error: 'Insufficient permissions' });
         }
 
         const oldCategories = mii.officialCategories || [];
@@ -14233,7 +14242,7 @@ site.post('/updateOfficialCategories', requireAuth, requireRole(ROLES.RESEARCHER
             }]
         }));
 
-        res.json({ okay: true });
+        res.json({ okay: true, categories: newCategories });
     } catch (e) {
         console.error('Error updating official categories:', e);
         res.json({ error: 'Server error' });
@@ -14522,8 +14531,8 @@ site.post('/deleteMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req
     }
 });
 
-// Update tag assignments for a Mii (Moderator+)
-site.post('/updateMiiTags', requireAuth, requireRole(ROLES.MODERATOR), async (req, res) => {
+// Update tag assignments for a Mii (Moderator+, uploader, or Researcher on official Miis)
+site.post('/updateMiiTags', requireAuth, async (req, res) => {
     try {
         const miiId = typeof req.body?.miiId === "string" ? req.body.miiId.trim() : "";
         const rawTags = req.body?.tags;
@@ -14540,8 +14549,18 @@ site.post('/updateMiiTags', requireAuth, requireRole(ROLES.MODERATOR), async (re
             return res.json({ error: 'Mii not found' });
         }
 
+        const canUseModeratorTags = canModerate(req.user);
+        const canUploaderUpdateTags = Boolean(req.user?.username && mii.uploader === req.user.username);
+        const canResearchOfficialTags = Boolean(mii.official && isResearcher(req.user));
+
+        if (!canUseModeratorTags && !canUploaderUpdateTags && !canResearchOfficialTags) {
+            return res.json({ error: 'Insufficient permissions' });
+        }
+
         const settings = await getSettings();
-        const availableTags = getBlockableMiiTags(settings);
+        const availableTags = canUseModeratorTags
+            ? getBlockableMiiTags(settings)
+            : getVisibleMiiTagCatalog(settings);
         const requestedTags = normalizeTagList(rawTags);
         const normalizedTags = mapRequestedTagsToCatalog(requestedTags, availableTags);
 
@@ -14550,10 +14569,15 @@ site.post('/updateMiiTags', requireAuth, requireRole(ROLES.MODERATOR), async (re
         }
 
         const oldTags = normalizeTagList(mii.tags || []);
+        const manageableTagKeys = new Set(availableTags.map(tag => tag.toLowerCase()));
+        const preservedRestrictedTags = canUseModeratorTags
+            ? []
+            : oldTags.filter(tag => !manageableTagKeys.has(tag.toLowerCase()));
+        const nextTags = normalizeTagList([...preservedRestrictedTags, ...normalizedTags]);
 
         await Miis.findOneAndUpdate(
             { id: miiId },
-            { $set: { tags: normalizedTags } }
+            { $set: { tags: nextTags } }
         );
 
         makeReport(JSON.stringify({
@@ -14575,14 +14599,14 @@ site.post('/updateMiiTags', requireAuth, requireRole(ROLES.MODERATOR), async (re
                     },
                     {
                         name: 'New Tags',
-                        value: normalizedTags.length ? normalizedTags.join(', ') : 'None',
+                        value: nextTags.length ? nextTags.join(', ') : 'None',
                         inline: false
                     }
                 ]
             }]
         }));
 
-        res.json({ okay: true, tags: normalizedTags });
+        res.json({ okay: true, tags: nextTags });
     } catch (e) {
         console.error('Error updating Mii tags:', e);
         res.json({ error: 'Server error' });

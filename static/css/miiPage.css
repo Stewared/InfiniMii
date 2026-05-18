@@ -2103,10 +2103,41 @@
 /* Tag styling */
 .mii-tags-section {
     /* margin-top: 1rem; */
+    grid-column: 1 / -1;
     padding: 0.7rem 0.8rem;
     border-radius: 10px;
     border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #797979 42%);
     background: color-mix(in oklab, var(--layer-2-um) 84%, var(--layer-1-um) 16%);
+}
+
+.mii-classification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.55rem;
+}
+
+.mii-classification-edit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    margin: 0;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 62%, #858585 38%);
+    background: color-mix(in oklab, var(--layer-3-um) 70%, var(--layer-2-um) 30%);
+    color: var(--text-1);
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.mii-classification-edit-button:hover,
+.mii-classification-edit-button:focus-visible {
+    transform: translateY(-1px);
+    border-color: color-mix(in oklab, var(--brand-color) 62%, #858585 38%);
+    background: color-mix(in oklab, var(--brand-color) 28%, var(--layer-3-um) 72%);
 }
 
 .mii-tags-list {
@@ -2446,7 +2477,8 @@
 }
 
 .edit-categories-btn,
-.manage-cats-btn {
+.manage-cats-btn,
+.tag-editor-trigger {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
@@ -2465,7 +2497,8 @@
 }
 
 .edit-categories-btn:hover,
-.manage-cats-btn:hover {
+.manage-cats-btn:hover,
+.tag-editor-trigger:hover {
     transform: translateY(-1px);
     border-color: color-mix(in oklab, var(--brand-color) 60%, #8b8b8b 40%);
     background: color-mix(in oklab, var(--brand-color) 30%, var(--layer-3-um) 70%);
@@ -2520,6 +2553,31 @@
     background: color-mix(in oklab, var(--layer-1-um) 84%, var(--layer-2-um) 16%);
     padding: 0.75rem;
     overflow-y: auto;
+}
+
+.tag-modal-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag-modal-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 58%, #818181 42%);
+    background: color-mix(in oklab, var(--layer-2-um) 74%, var(--layer-3-um) 26%);
+    color: var(--text-1);
+    font-size: 0.84rem;
+    font-weight: 500;
+}
+
+.tag-modal-option input[type="checkbox"] {
+    margin: 0;
 }
 
 .category-modal-actions {
