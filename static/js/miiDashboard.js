@@ -58,6 +58,9 @@
         element.className = message ? `form-message ${type}` : 'form-message';
         element.style.display = message ? 'block' : 'none';
         element.textContent = message || '';
+        if (message && type === 'error' && typeof window.scrollToUserError === 'function') {
+            window.scrollToUserError(element);
+        }
     }
 
     function setExportMessage(message, type = 'error') {
@@ -65,6 +68,9 @@
         exportMessage.className = message ? `form-message ${type}` : 'form-message';
         exportMessage.style.display = message ? 'block' : 'none';
         exportMessage.textContent = message || '';
+        if (message && type === 'error' && typeof window.scrollToUserError === 'function') {
+            window.scrollToUserError(exportMessage);
+        }
     }
 
     function getDashboardJsonText() {

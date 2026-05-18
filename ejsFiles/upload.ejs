@@ -192,7 +192,12 @@
                                 </p>
                             </div>
 
-                            <input type="submit" value="Upload Official Mii">
+                            <div class="official-upload-actions">
+                                <input type="submit" value="Upload Official Mii">
+                                <button type="submit" name="reuploadExistingMii" value="true" formnovalidate class="official-reupload-button">
+                                    Reupload Over Existing
+                                </button>
+                            </div>
                         </form>
                     </fieldset>
                 <% } %>
@@ -247,19 +252,27 @@
                         });
                         const data = await response.json();
 
-                        if (!data.error) {
-                            uploadOfficialCategories = data.categories?.categories || data.categories || [];
-                            renderOfficialCategoryTree();
-                        } else {
-                            document.getElementById('officialCategoriesContainer').innerHTML =
-                                '<p class="upload-category-state upload-category-state-error">Error loading categories</p>';
-                        }
-                    } catch (error) {
-                        console.error('Error loading categories:', error);
-                        document.getElementById('officialCategoriesContainer').innerHTML =
-                            '<p class="upload-category-state upload-category-state-error">Error loading categories</p>';
-                    }
-                }
+	                        if (!data.error) {
+	                            uploadOfficialCategories = data.categories?.categories || data.categories || [];
+	                            renderOfficialCategoryTree();
+	                        } else {
+	                            document.getElementById('officialCategoriesContainer').innerHTML =
+	                                '<p class="upload-category-state upload-category-state-error">Error loading categories</p>';
+	                            const categoryError = document.querySelector('#officialCategoriesContainer .upload-category-state-error');
+	                            if (categoryError && typeof window.scrollToUserError === 'function') {
+	                                window.scrollToUserError(categoryError);
+	                            }
+	                        }
+	                    } catch (error) {
+	                        console.error('Error loading categories:', error);
+	                        document.getElementById('officialCategoriesContainer').innerHTML =
+	                            '<p class="upload-category-state upload-category-state-error">Error loading categories</p>';
+	                        const categoryError = document.querySelector('#officialCategoriesContainer .upload-category-state-error');
+	                        if (categoryError && typeof window.scrollToUserError === 'function') {
+	                            window.scrollToUserError(categoryError);
+	                        }
+	                    }
+	                }
 
                 function renderOfficialCategoryTree() {
                     const container = document.getElementById('officialCategoriesContainer');
@@ -339,7 +352,8 @@
                 }
 
                 document.getElementById('officialUploadForm').addEventListener('submit', function(e) {
-                    handleFormSubmit(e, '/uploadMii', 'Uploading Official Mii...', 'official-error-message', {
+                    const isReupload = e.submitter?.name === 'reuploadExistingMii';
+                    handleFormSubmit(e, '/uploadMii', isReupload ? 'Reuploading...' : 'Uploading Official Mii...', 'official-error-message', {
                         onSuccess: (result, messageDiv) => {
                             if (result.notice) {
                                 showAlert(result.notice, 7000, { title: 'Notice', type: 'info' });

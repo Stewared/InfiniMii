@@ -581,6 +581,11 @@
 
 .export-section-title {
     margin: 0 0 0.35rem;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--brand-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .export-top-row {

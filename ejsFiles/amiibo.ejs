@@ -341,11 +341,20 @@
         <script>
             let extractedMiiData = null;
 
+            function showAmiiboError(elementId, message) {
+                const errorElement = document.getElementById(elementId);
+                if (!errorElement) return;
+                errorElement.textContent = message;
+                errorElement.classList.add('active');
+                if (typeof window.scrollToUserError === 'function') {
+                    window.scrollToUserError(errorElement);
+                }
+            }
+
             function openExtractedInstructions() {
                 const extractedId = document.getElementById('extractedMiiId')?.value?.trim() || '';
                 if (!extractedId) {
-                    document.getElementById('extractError').textContent = 'Extract a Mii first before requesting instructions.';
-                    document.getElementById('extractError').classList.add('active');
+                    showAmiiboError('extractError', 'Extract a Mii first before requesting instructions.');
                     return;
                 }
 
@@ -368,8 +377,7 @@
                 const rawMiiData = document.getElementById('insertRawMiiData')?.value?.trim() || '';
 
                 if (!miiFile && !miiId && !rawMiiData) {
-                    document.getElementById('insertError').textContent = 'Provide a Mii source first (file, Mii ID, or raw data).';
-                    document.getElementById('insertError').classList.add('active');
+                    showAmiiboError('insertError', 'Provide a Mii source first (file, Mii ID, or raw data).');
                     return;
                 }
 
@@ -415,15 +423,12 @@
                         if (formatInput) formatInput.value = 'qr';
                         document.getElementById('extractedMii').classList.add('active');
                         document.getElementById('extractError').classList.remove('active');
-                    }
-                    else {
-                        document.getElementById('extractError').textContent = result.error || 'Failed to extract Mii';
-                        document.getElementById('extractError').classList.add('active');
+                    } else {
+                        showAmiiboError('extractError', result.error || 'Failed to extract Mii');
                         document.getElementById('extractedMii').classList.remove('active');
                     }
                 } catch (error) {
-                    document.getElementById('extractError').textContent = 'Error: ' + error.message;
-                    document.getElementById('extractError').classList.add('active');
+                    showAmiiboError('extractError', 'Error: ' + error.message);
                 }
             });
             
@@ -449,20 +454,17 @@
                         a.click();
                         window.URL.revokeObjectURL(url);
                         document.body.removeChild(a);
-                        
+
                         document.getElementById('insertSuccess').textContent = 'Amiibo modified successfully! Download started.';
                         document.getElementById('insertSuccess').classList.add('active');
                         document.getElementById('insertError').classList.remove('active');
-                    }
-                    else {
+                    } else {
                         const result = await response.json();
-                        document.getElementById('insertError').textContent = result.error || 'Failed to insert Mii';
-                        document.getElementById('insertError').classList.add('active');
+                        showAmiiboError('insertError', result.error || 'Failed to insert Mii');
                         document.getElementById('insertSuccess').classList.remove('active');
                     }
                 } catch (error) {
-                    document.getElementById('insertError').textContent = 'Error: ' + error.message;
-                    document.getElementById('insertError').classList.add('active');
+                    showAmiiboError('insertError', 'Error: ' + error.message);
                 }
             });
             

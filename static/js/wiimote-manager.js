@@ -45,6 +45,9 @@ function log(message, type = 'normal') {
     p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
     logArea.appendChild(p);
     logArea.scrollTop = logArea.scrollHeight;
+    if (type === 'error' && typeof window.scrollToUserError === 'function') {
+        window.scrollToUserError(p);
+    }
 }
 
 function updateStatus(connected) {

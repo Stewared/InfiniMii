@@ -618,6 +618,128 @@ function closeModal(overlay = null) {
     }, 200);
 }
 
+const USER_ERROR_SCROLL_SELECTOR = [
+    '.form-message.error',
+    '.error-message.active',
+    '.upload-category-state-error',
+    '.instructions-status-error',
+    '[data-type="error"]',
+    '.log-area .error'
+].join(', ');
+const userErrorScrollSignatures = new WeakMap();
+
+function isVisibleUserErrorElement(element) {
+    if (!element || !element.isConnected || element.hidden) return false;
+    if (!String(element.textContent || '').trim()) return false;
+
+    const style = window.getComputedStyle(element);
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
+
+    return element.getClientRects().length > 0;
+}
+
+function getUserErrorScrollTarget(element) {
+    return element.closest?.('.log-area') || element;
+}
+
+function scrollToUserError(element, options = {}) {
+    const errorElement = typeof element === 'string'
+        ? (document.getElementById(element) || document.querySelector(element))
+        : element;
+    if (!errorElement?.scrollIntoView) return;
+
+    requestAnimationFrame(() => {
+        if (!options.force && !isVisibleUserErrorElement(errorElement)) return;
+
+        const scrollTarget = getUserErrorScrollTarget(errorElement);
+        try {
+            scrollTarget.scrollIntoView({
+                behavior: options.behavior || 'smooth',
+                block: options.block || 'center',
+                inline: 'nearest'
+            });
+        } catch (e) {
+            scrollTarget.scrollIntoView();
+        }
+    });
+}
+
+function maybeScrollToShownUserError(element) {
+    if (!element?.matches?.(USER_ERROR_SCROLL_SELECTOR)) return;
+    if (!isVisibleUserErrorElement(element)) return;
+
+    const signature = [
+        String(element.textContent || '').trim(),
+        element.className || '',
+        element.hidden ? 'hidden' : 'visible',
+        element.getAttribute('style') || '',
+        element.dataset?.type || ''
+    ].join('|');
+
+    if (userErrorScrollSignatures.get(element) === signature) return;
+    userErrorScrollSignatures.set(element, signature);
+    scrollToUserError(element);
+}
+
+function scanUserErrors(root = document) {
+    if (!root) return;
+
+    if (root.nodeType === Node.ELEMENT_NODE && root.matches?.(USER_ERROR_SCROLL_SELECTOR)) {
+        maybeScrollToShownUserError(root);
+    }
+
+    root.querySelectorAll?.(USER_ERROR_SCROLL_SELECTOR).forEach(maybeScrollToShownUserError);
+}
+
+function installUserErrorScrollObserver() {
+    if (window.__infinimiiUserErrorScrollObserver || !window.MutationObserver) return;
+
+    const observer = new MutationObserver((mutations) => {
+        const roots = new Set();
+
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'characterData') {
+                if (mutation.target.parentElement) roots.add(mutation.target.parentElement);
+                return;
+            }
+
+            if (mutation.type === 'attributes') {
+                roots.add(mutation.target);
+                return;
+            }
+
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    roots.add(node);
+                }
+            });
+        });
+
+        if (roots.size === 0) return;
+        requestAnimationFrame(() => roots.forEach(scanUserErrors));
+    });
+
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ['class', 'style', 'hidden', 'data-type']
+    });
+
+    window.__infinimiiUserErrorScrollObserver = observer;
+}
+
+window.scrollToUserError = scrollToUserError;
+window.maybeScrollToShownUserError = maybeScrollToShownUserError;
+installUserErrorScrollObserver();
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => scanUserErrors(document), { once: true });
+} else {
+    scanUserErrors(document);
+}
+
 /**
  * Show a confirmation dialog with custom message
  * @param {string} message - The message to display
@@ -813,6 +935,7 @@ function deleteMii(id){
 					errorDiv.textContent = d.error;
 					errorDiv.className = 'form-message error';
 					errorDiv.style.display = 'block';
+					scrollToUserError(errorDiv);
 				} else {
 					// Ideally not used
 					showAlert(d.error, 5000, { title: 'Error', type: 'error' });
@@ -875,15 +998,37 @@ function getSafeClientRedirectTarget(target, fallback = '/') {
  * @param {Function} options.bodyFormatter - Function to format FormData before sending
  * @param {Function} options.onSuccess - Custom success handler (result, messageDiv, response)
  * @param {boolean} options.handleFileDownload - Whether this endpoint returns a file download
-* @param {String} options.next - Where to go instead of response.redirect
+ * @param {String} options.next - Where to go instead of response.redirect
  */
 async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
     e.preventDefault();
     
     const form = e.target;
-    const formData = new FormData(form);
-    const submitBtn = form.querySelector('input[type="submit"], button[type="submit"]');
-    const originalText = submitBtn.value || submitBtn.textContent;
+    const submitter = e.submitter && e.submitter.form === form ? e.submitter : null;
+    let formData;
+    try {
+        formData = submitter ? new FormData(form, submitter) : new FormData(form);
+    } catch {
+        formData = new FormData(form);
+        if (submitter?.name && !formData.has(submitter.name)) {
+            formData.append(submitter.name, submitter.value || '');
+        }
+    }
+    const submitBtn = submitter?.matches?.('input[type="submit"], button[type="submit"]')
+        ? submitter
+        : form.querySelector('input[type="submit"], button[type="submit"]');
+    const getButtonText = (button) => button?.tagName === 'INPUT'
+        ? button.value
+        : (button?.textContent || '');
+    const setButtonText = (button, text) => {
+        if (!button) return;
+        if (button.tagName === 'INPUT') {
+            button.value = text;
+        } else {
+            button.textContent = text;
+        }
+    };
+    const originalText = getButtonText(submitBtn);
     const messageDiv = document.getElementById(errorDivId);
 
     const setMessage = (content = '', type = '', html = '') => {
@@ -892,21 +1037,22 @@ async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
         messageDiv.style.display = content || html ? 'block' : 'none';
         if (html) {
             messageDiv.innerHTML = html;
-            return;
+        } else {
+            messageDiv.textContent = content;
         }
-        messageDiv.textContent = content;
+        if (type === 'error' && (content || html)) {
+            scrollToUserError(messageDiv);
+        }
     };
     
     // Clear any previous messages
     setMessage('', '');
     
     // Update button state
-    if (submitBtn.tagName === 'INPUT') {
-        submitBtn.value = loadingText;
-    } else {
-        submitBtn.textContent = loadingText;
+    setButtonText(submitBtn, loadingText);
+    if (submitBtn) {
+        submitBtn.disabled = true;
     }
-    submitBtn.disabled = true;
     
     try {
         const fetchOptions = {
@@ -938,12 +1084,10 @@ async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
                 document.body.removeChild(a);
                 
                 // Reset button
-                if (submitBtn.tagName === 'INPUT') {
-                    submitBtn.value = originalText;
-                } else {
-                    submitBtn.textContent = originalText;
+                setButtonText(submitBtn, originalText);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
                 }
-                submitBtn.disabled = false;
                 return;
             }
         }
@@ -967,12 +1111,10 @@ async function handleFormSubmit(e, url, loadingText, errorDivId, options = {}) {
         setMessage('An error occurred. Please try again.', 'error');
     } finally {
         // Reset button if not redirecting
-        if (submitBtn.tagName === 'INPUT') {
-            submitBtn.value = originalText;
-        } else {
-            submitBtn.textContent = originalText;
+        setButtonText(submitBtn, originalText);
+        if (submitBtn) {
+            submitBtn.disabled = false;
         }
-        submitBtn.disabled = false;
     }
 }
 
@@ -1136,6 +1278,7 @@ window.showMiiInstructionsModal = function(loader, options = {}) {
             errorLine.className = 'instructions-status instructions-status-error';
             errorLine.textContent = error.message || 'Failed to load instructions';
             output.appendChild(errorLine);
+            scrollToUserError(errorLine);
             latestPayload = null;
             latestEntries = [];
         }

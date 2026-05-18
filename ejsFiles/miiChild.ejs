@@ -219,6 +219,9 @@
                 childDownloadMessage.textContent = message;
                 childDownloadMessage.className = `form-message ${type}`;
                 childDownloadMessage.style.display = 'block';
+                if (type === 'error' && typeof window.scrollToUserError === 'function') {
+                    window.scrollToUserError(childDownloadMessage);
+                }
             }
 
             function openChildDownloadModal(stage, stageLabelText) {
@@ -462,6 +465,9 @@
                             messageDiv.textContent = 'No child stages were returned.';
                             messageDiv.className = 'form-message error';
                             messageDiv.style.display = 'block';
+                            if (typeof window.scrollToUserError === 'function') {
+                                window.scrollToUserError(messageDiv);
+                            }
                             childResults.hidden = true;
                             childResultsGrid.innerHTML = '';
                             return;

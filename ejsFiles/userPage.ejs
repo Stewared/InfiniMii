@@ -23,6 +23,10 @@
             const communityCount = typeof profileStats?.communityCount === 'number'
                 ? profileStats.communityCount
                 : Math.max(0, totalUploaded - officialCount);
+            const hasResearcherRole = Array.isArray(targetUser?.roles) && targetUser.roles.includes('researcher');
+            const researcherOfficialUploadCount = hasResearcherRole && typeof profileStats?.researcherOfficialUploadCount === 'number'
+                ? profileStats.researcherOfficialUploadCount
+                : 0;
             const memberSince = profileStats?.memberSince;
             const latestUploadOn = profileStats?.latestUploadOn;
             const firstUploadOn = profileStats?.firstUploadOn;
@@ -264,6 +268,14 @@
                                     <%= totalLikes-totalUploaded %>
                                 </span>
                             </div>
+                            <% if(hasResearcherRole) { %>
+                                <div class="stat-item">
+                                    <span class="stat-label">Official Miis Uploaded</span>
+                                    <span class="stat-value">
+                                        <%= researcherOfficialUploadCount %>
+                                    </span>
+                                </div>
+                            <% } %>
                             <% if(memberSinceLabel) { %>
                                 <!-- div class="stat-item">
                                     <span class="stat-label">Member Since</span>

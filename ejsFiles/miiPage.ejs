@@ -797,7 +797,7 @@
                                 qrConsole: ''
                             }));
                     %>
-                    <h3 class="info-label export-section-title">Download / Export Mii</h3>
+                    <h3 class="info-label export-section-title">Download / Convert / Export Mii</h3>
                     <form id="miiExportForm" class="export-form" method="GET" action="/exportMii">
                         <input type="hidden" name="id" value="<%= mii.id %>">
                         <input type="hidden" id="export-format-<%= mii.id %>" name="format" value="">
@@ -1404,6 +1404,9 @@
                     statusEl.textContent = message;
                     statusEl.hidden = !message;
                     statusEl.dataset.type = message ? type : '';
+                    if (message && type === 'error' && typeof window.scrollToUserError === 'function') {
+                        window.scrollToUserError(statusEl);
+                    }
                 };
 
                 const setSubmitting = (nextSubmitting) => {
@@ -2371,12 +2374,18 @@
                             else {
                                 statusEl.textContent = `Error: ${result.error}`;
                                 statusEl.style.color = '#f44336';
+                                if (typeof window.scrollToUserError === 'function') {
+                                    window.scrollToUserError(statusEl, { force: true });
+                                }
                             }
                         }
                         catch (error) {
                             console.error('Error:', error);
                             statusEl.textContent = '✗ Failed';
                             statusEl.style.color = '#f44336';
+                            if (typeof window.scrollToUserError === 'function') {
+                                window.scrollToUserError(statusEl, { force: true });
+                            }
                         }
                     }, null, { title: 'Regenerate QR Code', confirmText: 'Regenerate' });
                 }
@@ -2405,12 +2414,18 @@
                             else {
                                 statusEl.textContent = `Error: ${result.error}`;
                                 statusEl.style.color = '#f44336';
+                                if (typeof window.scrollToUserError === 'function') {
+                                    window.scrollToUserError(statusEl, { force: true });
+                                }
                             }
                         }
                         catch (error) {
                             console.error('Error:', error);
                             statusEl.textContent = '✗ Failed';
                             statusEl.style.color = '#f44336';
+                            if (typeof window.scrollToUserError === 'function') {
+                                window.scrollToUserError(statusEl, { force: true });
+                            }
                         }
                     }, null, { title: 'Regenerate Render', confirmText: 'Regenerate' });
                 }

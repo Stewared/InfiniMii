@@ -42,6 +42,8 @@ import {
 import {
     MII_IDENTITY_HASH_PREFIX,
     getMiiIdentityHash,
+    getMiiIdentityHashPayload,
+    getMiiIdentityHashVersion,
     hasCurrentMiiIdentityHashVersion,
     setMiiIdentityHash
 } from "./miiIdentityHash.js";
@@ -79,7 +81,7 @@ const profileMiisPerPage = 18;
 const HOME_PREVIEW_COUNT = 16;
 const FULL_ROW_BROWSE_REQUEST_LIMIT = defaultMiisPerPage + HOME_PREVIEW_COUNT;
 const FULL_ROW_PROFILE_REQUEST_LIMIT = profileMiisPerPage + HOME_PREVIEW_COUNT;
-const GLOBAL_ASSET_VERSION = "20260513-tri-state-search-filters";
+const GLOBAL_ASSET_VERSION = "20260518-error-scroll-and-zip-preflight";
 const RSS_FEED_MII_LIMIT = 50;
 const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
 const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
@@ -953,6 +955,49 @@ async function findMatchingMii(candidateMii, { includePrivate = true, excludeId,
     }
 
     return null;
+}
+
+function getMiiIdentityHashWithoutFaceFeatureMakeup(mii, options = {}) {
+    const payload = getMiiIdentityHashPayload(mii, options);
+    if (!payload || typeof payload !== "object") return "";
+
+    if (payload.face && typeof payload.face === "object" && !Array.isArray(payload.face)) {
+        delete payload.face.feature;
+        delete payload.face.makeup;
+    }
+
+    const hashVersion = getMiiIdentityHashVersion(options);
+    if (!hashVersion) return "";
+
+    const digest = crypto
+        .createHash("sha256")
+        .update(`${hashVersion}:${JSON.stringify(payload)}`)
+        .digest("hex");
+
+    return `${hashVersion}:${digest}`;
+}
+
+async function findMatchingMiisWithoutFaceFeatureMakeup(candidateMii, {
+    includePrivate = true,
+    excludeId,
+    includeGeneral = false,
+    baseQuery = {}
+} = {}) {
+    const candidateHash = getMiiIdentityHashWithoutFaceFeatureMakeup(candidateMii, { includeGeneral });
+    if (!candidateHash) return [];
+
+    const query = { ...baseQuery };
+    if (!includePrivate) {
+        query.private = false;
+    }
+    if (excludeId) {
+        query.id = { $ne: excludeId };
+    }
+
+    const existingMiis = await Miis.find(query).lean();
+    return existingMiis.filter((existingMii) => (
+        getMiiIdentityHashWithoutFaceFeatureMakeup(existingMii, { includeGeneral }) === candidateHash
+    ));
 }
 
 async function backfillMiiIdentityHashes() {
@@ -4639,6 +4684,59 @@ function buildOfficialZipUploadFailureMessage({
     return parts.join(" ");
 }
 
+function buildOfficialZipReuploadSummary({
+    updatedCount = 0,
+    noMatchCount = 0,
+    ambiguousCount = 0,
+    duplicateTargetCount = 0,
+    invalidCount = 0,
+    failedCount = 0
+} = {}) {
+    const parts = [`Reuploaded ${updatedCount} official Mii${updatedCount === 1 ? "" : "s"} from the ZIP archive.`];
+    if (noMatchCount > 0) {
+        parts.push(`Skipped ${noMatchCount} file${noMatchCount === 1 ? "" : "s"} with no matching official Mii.`);
+    }
+    if (ambiguousCount > 0) {
+        parts.push(`Skipped ${ambiguousCount} file${ambiguousCount === 1 ? "" : "s"} that matched multiple official Miis.`);
+    }
+    if (duplicateTargetCount > 0) {
+        parts.push(`Skipped ${duplicateTargetCount} extra file${duplicateTargetCount === 1 ? "" : "s"} for Miis already updated by this ZIP.`);
+    }
+    if (invalidCount > 0) {
+        parts.push(`Skipped ${invalidCount} file${invalidCount === 1 ? "" : "s"} that could not be decoded.`);
+    }
+    if (failedCount > 0) {
+        parts.push(`Skipped ${failedCount} file${failedCount === 1 ? "" : "s"} that failed during processing.`);
+    }
+    return parts.join(" ");
+}
+
+function buildOfficialZipReuploadFailureMessage({
+    noMatchCount = 0,
+    ambiguousCount = 0,
+    duplicateTargetCount = 0,
+    invalidCount = 0,
+    failedCount = 0
+} = {}) {
+    const parts = ["No existing official Miis were reuploaded from this ZIP archive."];
+    if (noMatchCount > 0) {
+        parts.push(`${noMatchCount} file${noMatchCount === 1 ? "" : "s"} had no matching official Mii.`);
+    }
+    if (ambiguousCount > 0) {
+        parts.push(`${ambiguousCount} file${ambiguousCount === 1 ? "" : "s"} matched multiple official Miis.`);
+    }
+    if (duplicateTargetCount > 0) {
+        parts.push(`${duplicateTargetCount} extra file${duplicateTargetCount === 1 ? "" : "s"} pointed at Miis already updated by this ZIP.`);
+    }
+    if (invalidCount > 0) {
+        parts.push(`${invalidCount} file${invalidCount === 1 ? "" : "s"} could not be decoded as Miis.`);
+    }
+    if (failedCount > 0) {
+        parts.push(`${failedCount} file${failedCount === 1 ? "" : "s"} failed during processing.`);
+    }
+    return parts.join(" ");
+}
+
 async function sendOfficialZipUploadReport({
     uploader,
     officialSource,
@@ -4724,6 +4822,7 @@ async function sendOfficialZipUploadReport({
 
 async function processOfficialZipUpload({
     zipFilePath,
+    archiveEntries: providedArchiveEntries,
     description,
     rawCategories,
     uploader,
@@ -4732,7 +4831,9 @@ async function processOfficialZipUpload({
     officialSettings,
     resolvedBaseUrl
 }) {
-    const archiveEntries = await extractOfficialZipEntries(zipFilePath);
+    const archiveEntries = Array.isArray(providedArchiveEntries)
+        ? providedArchiveEntries
+        : await extractOfficialZipEntries(zipFilePath);
     if (archiveEntries.length === 0) {
         return { error: "The ZIP archive did not contain any files to process." };
     }
@@ -4869,6 +4970,105 @@ async function processOfficialZipUpload({
     };
 }
 
+async function processOfficialZipReupload({ zipFilePath, archiveEntries: providedArchiveEntries, resolvedBaseUrl }) {
+    const archiveEntries = Array.isArray(providedArchiveEntries)
+        ? providedArchiveEntries
+        : await extractOfficialZipEntries(zipFilePath);
+    if (archiveEntries.length === 0) {
+        return { error: "The ZIP archive did not contain any files to process." };
+    }
+
+    const existingMiis = await Miis.find({ official: true, private: false }).lean();
+    const existingMiisByMaskedHash = new Map();
+    for (const existingMii of existingMiis) {
+        const maskedHash = getMiiIdentityHashWithoutFaceFeatureMakeup(existingMii, { includeGeneral: true });
+        if (!maskedHash) continue;
+        const bucket = existingMiisByMaskedHash.get(maskedHash) || [];
+        bucket.push(existingMii);
+        existingMiisByMaskedHash.set(maskedHash, bucket);
+    }
+
+    const updatedMiis = [];
+    const updatedMiiIds = new Set();
+    const noMatchEntries = [];
+    const ambiguousEntries = [];
+    const duplicateTargetEntries = [];
+    const invalidEntries = [];
+    const failedEntries = [];
+
+    for (const entry of archiveEntries) {
+        try {
+            const replacementMii = await createMiiData(entry.data);
+            const maskedHash = getMiiIdentityHashWithoutFaceFeatureMakeup(replacementMii, { includeGeneral: true });
+            const matchingMiis = maskedHash ? (existingMiisByMaskedHash.get(maskedHash) || []) : [];
+
+            if (matchingMiis.length === 0) {
+                noMatchEntries.push(entry.name);
+                continue;
+            }
+
+            if (matchingMiis.length > 1) {
+                ambiguousEntries.push(entry.name);
+                continue;
+            }
+
+            const matchingMii = matchingMiis[0];
+            if (updatedMiiIds.has(matchingMii.id)) {
+                duplicateTargetEntries.push(entry.name);
+                continue;
+            }
+
+            try {
+                const updatedMii = await saveDashboardMiiFields(matchingMii, replacementMii);
+                updatedMiiIds.add(matchingMii.id);
+                updatedMiis.push({ ...updatedMii, private: false, published: true });
+            } catch (error) {
+                console.error(`[official zip reupload] Failed to save ${entry.name}:`, error);
+                failedEntries.push(entry.name);
+            }
+        } catch (error) {
+            invalidEntries.push(entry.name);
+        }
+
+        if ((updatedMiis.length + noMatchEntries.length + ambiguousEntries.length + duplicateTargetEntries.length + invalidEntries.length + failedEntries.length) % 10 === 0) {
+            await yieldToEventLoop();
+        }
+    }
+
+    if (updatedMiis.length === 0) {
+        return {
+            error: buildOfficialZipReuploadFailureMessage({
+                noMatchCount: noMatchEntries.length,
+                ambiguousCount: ambiguousEntries.length,
+                duplicateTargetCount: duplicateTargetEntries.length,
+                invalidCount: invalidEntries.length,
+                failedCount: failedEntries.length
+            })
+        };
+    }
+
+    notifyIndexNow(
+        buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedMiis),
+        resolvedBaseUrl,
+        "upload-mii-zip-reupload-existing"
+    );
+
+    const summaryNotice = buildOfficialZipReuploadSummary({
+        updatedCount: updatedMiis.length,
+        noMatchCount: noMatchEntries.length,
+        ambiguousCount: ambiguousEntries.length,
+        duplicateTargetCount: duplicateTargetEntries.length,
+        invalidCount: invalidEntries.length,
+        failedCount: failedEntries.length
+    });
+
+    return {
+        redirect: "/official",
+        notice: summaryNotice,
+        message: summaryNotice
+    };
+}
+
 function startOfficialZipUploadProcessing(options) {
     const zipFilePath = options?.zipFilePath;
 
@@ -4880,6 +5080,25 @@ function startOfficialZipUploadProcessing(options) {
             }
         } catch (error) {
             console.error("[official zip upload] Background processing failed:", error);
+        } finally {
+            if (zipFilePath) {
+                try { await fs.promises.unlink(zipFilePath); } catch (cleanupError) { }
+            }
+        }
+    })();
+}
+
+function startOfficialZipReuploadProcessing(options) {
+    const zipFilePath = options?.zipFilePath;
+
+    void (async () => {
+        try {
+            const result = await processOfficialZipReupload(options);
+            if (result?.error) {
+                console.warn(`[official zip reupload] ${result.error}`);
+            }
+        } catch (error) {
+            console.error("[official zip reupload] Background processing failed:", error);
         } finally {
             if (zipFilePath) {
                 try { await fs.promises.unlink(zipFilePath); } catch (cleanupError) { }
@@ -7436,6 +7655,35 @@ async function sendError(res, req, message, status) {
         status: `${status} ${STATUS_CODES[status]}`,
         ...(await getSendables(req))
     }));
+}
+
+function isConsoleApiRequestPath(requestPath) {
+    return CONSOLE_API_PREFIXES.some(prefix => requestPath === prefix || requestPath.startsWith(`${prefix}/`));
+}
+
+function shouldRenderHtmlErrorPage(req) {
+    if (isConsoleApiRequestPath(req.path) || req.path.startsWith("/api/")) return false;
+    if (!req.accepts("html")) return false;
+
+    const fetchDest = String(req.get("sec-fetch-dest") || "").toLowerCase();
+    if (fetchDest && fetchDest !== "document" && fetchDest !== "empty") return false;
+
+    const acceptHeader = String(req.get("accept") || "").toLowerCase();
+    const isDocumentAccept =
+        acceptHeader.includes("text/html") ||
+        acceptHeader.includes("application/xhtml+xml");
+
+    if (path.extname(req.path) && !isDocumentAccept) return false;
+
+    return true;
+}
+
+function shouldSendJsonError(req) {
+    const acceptHeader = String(req.get("accept") || "").toLowerCase();
+    return req.path.startsWith("/api/") ||
+        acceptHeader.includes("application/json") ||
+        acceptHeader.includes("+json") ||
+        req.xhr;
 }
 
 //#region Static handling
@@ -11238,6 +11486,8 @@ site.get('/user/:username', async (req, res) => {
     inp.targetUser = targetUser;
     inp.isOfficialCompanySourceProfile = (Array.isArray(inp.officialCompanySources) ? inp.officialCompanySources : [])
         .some(sourceName => String(sourceName).toLowerCase() === targetUsername.toLowerCase());
+    const targetUserRoles = getUserRoles(targetUser);
+    const targetUserHasResearcherRole = targetUserRoles.includes(ROLES.RESEARCHER);
     const selectedProfileSort = req.query.sort === "latest" ? "latest" : "popular";
     const profileStart = getRequestedStartOffset(req.query, profileMiisPerPage);
 
@@ -11250,7 +11500,30 @@ site.get('/user/:username', async (req, res) => {
         ? getStablePopularitySort()
         : getStableRecencySort();
 
-    const [profileSummaryRows, topTagsRows, topCategoryRows, topCreatorRows, featuredMiis] = await Promise.all([
+    const researcherOfficialUploadFilter = {
+        official: true,
+        private: false,
+        $or: [
+            { contributor: targetUser.username },
+            {
+                uploader: targetUser.username,
+                $or: [
+                    { contributor: { $exists: false } },
+                    { contributor: null },
+                    { contributor: "" }
+                ]
+            }
+        ]
+    };
+
+    const [
+        profileSummaryRows,
+        topTagsRows,
+        topCategoryRows,
+        topCreatorRows,
+        featuredMiis,
+        researcherOfficialUploadCount
+    ] = await Promise.all([
         Miis.aggregate([
             { $match: profileFilter },
             {
@@ -11296,7 +11569,10 @@ site.get('/user/:username', async (req, res) => {
         Miis.find(profileFilter)
             .sort(getStablePopularitySort())
             .limit(4)
-            .lean()
+            .lean(),
+        targetUserHasResearcherRole
+            ? Miis.countDocuments(researcherOfficialUploadFilter)
+            : Promise.resolve(0)
     ]);
 
     const profileSummary = profileSummaryRows?.[0] || {
@@ -11326,6 +11602,7 @@ site.get('/user/:username', async (req, res) => {
         totalLikes: profileSummary.totalLikes || 0,
         officialCount: profileSummary.officialCount || 0,
         communityCount: Math.max(0, totalMiis - (profileSummary.officialCount || 0)),
+        researcherOfficialUploadCount: targetUserHasResearcherRole ? researcherOfficialUploadCount : 0,
         latestUploadOn: profileSummary.latestUploadOn,
         firstUploadOn: profileSummary.firstUploadOn,
         memberSince: getUserJoinTimestamp(targetUser)
@@ -12900,6 +13177,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
         const providedMiiName = typeof req.body.miiName === "string" ? req.body.miiName.trim() : "";
         const isNinetyTwoCharCode = normalizedRawMiiData.length === 92;
         const hasZipUpload = isZipUpload(req.file);
+        const reuploadExistingMii = parseBooleanLike(req.body.reuploadExistingMii);
         const cleanupRequestFile = () => {
             try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
         };
@@ -12909,6 +13187,121 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
         if (isOfficialUpload && !canUploadOfficial(req.user)) {
             res.json({'error': 'Only Researchers and Administrators can upload official Miis'});
             cleanupRequestFile();
+            return;
+        }
+
+        if (reuploadExistingMii && !isOfficialUpload) {
+            res.json({ error: "Use the Official Mii upload form to reupload over an existing Mii." });
+            cleanupRequestFile();
+            return;
+        }
+
+        if (reuploadExistingMii) {
+            if (!req.file) {
+                res.json({ error: "Upload a Mii file to reupload over an existing Mii." });
+                return;
+            }
+
+            if (normalizedRawMiiData || req.body.fromAmiibo) {
+                res.json({ error: "Temporary reupload only accepts the file input." });
+                cleanupRequestFile();
+                return;
+            }
+
+            if (hasZipUpload) {
+                let archiveEntries;
+                try {
+                    archiveEntries = await extractOfficialZipEntries(req.file.path);
+                } catch (error) {
+                    res.json({ error: error.message || "Could not process the ZIP archive." });
+                    cleanupRequestFile();
+                    return;
+                }
+
+                if (archiveEntries.length === 0) {
+                    res.json({ error: "The ZIP archive did not contain any files to process." });
+                    cleanupRequestFile();
+                    return;
+                }
+
+                startOfficialZipReuploadProcessing({
+                    zipFilePath: req.file.path,
+                    archiveEntries,
+                    resolvedBaseUrl
+                });
+                res.json({ redirect: "/official" });
+                return;
+            }
+
+            let replacementMii;
+            try {
+                const decodedMii = await createMiiDataWithDebug(req.file.path);
+                replacementMii = decodedMii.mii;
+            } catch (e) {
+                const isInvalidMiiType = isInvalidMiiTypeError(e);
+                const miiJsDebugOutput = isInvalidMiiType ? getMiiJsDebugOutputFromError(e) : "";
+                const dumpedUpload = req.file?.path
+                    ? await dumpFailingUploadFile(req.file, e, "uploadMii-reupload-existing")
+                    : null;
+                if (dumpedUpload) {
+                    await sendSavedFailingUploadToWebhook({
+                        req,
+                        error: e,
+                        context: "uploadMii-reupload-existing",
+                        dumpedUpload,
+                        miiJsDebugOutput
+                    });
+                }
+                console.error('Error processing Mii reupload file:', e);
+                if (isInvalidMiiType) {
+                    if (!dumpedUpload) {
+                        await sendInvalidMiiInputToWebhook({
+                            req,
+                            error: e,
+                            context: "uploadMii-reupload-existing",
+                            reqFile: req.file,
+                            filePath: req.file?.path,
+                            miiJsDebugOutput
+                        });
+                    }
+                    res.json(buildUploadMiiDecodeableFormatsErrorPayload(miiJsDebugOutput));
+                    return;
+                }
+                res.json({ error: `Failed to process file. Please double-check that you selected the correct file. ${e.message || ''}` });
+                return;
+            } finally {
+                cleanupRequestFile();
+            }
+
+            const matchingMiis = await findMatchingMiisWithoutFaceFeatureMakeup(replacementMii, {
+                includePrivate: false,
+                includeGeneral: true,
+                baseQuery: { official: true }
+            });
+
+            if (matchingMiis.length === 0) {
+                res.json({ error: "No existing official Mii matched this file." });
+                return;
+            }
+
+            if (matchingMiis.length > 1) {
+                const matchingIds = matchingMiis.map(mii => mii.id).filter(Boolean).join(", ");
+                res.json({ error: `This file matched multiple official Miis (${matchingIds}). Nothing was overwritten.` });
+                return;
+            }
+
+            const matchingMii = matchingMiis[0];
+            const updatedMii = await saveDashboardMiiFields(matchingMii, replacementMii);
+            res.json({
+                message: `Reuploaded Mii data over existing Mii ID ${matchingMii.id}.`,
+                redirect: `/mii/${encodeURIComponent(matchingMii.id)}`
+            });
+
+            notifyIndexNow(
+                buildIndexNowUrlsForMiis(resolvedBaseUrl, { ...updatedMii, private: false, published: true }),
+                resolvedBaseUrl,
+                "upload-mii-reupload-existing"
+            );
             return;
         }
 
@@ -12978,9 +13371,23 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                     return;
                 }
 
+                let archiveEntries;
+                try {
+                    archiveEntries = await extractOfficialZipEntries(req.file.path);
+                } catch (error) {
+                    res.json({ error: error.message || "Could not process the ZIP archive." });
+                    return;
+                }
+
+                if (archiveEntries.length === 0) {
+                    res.json({ error: "The ZIP archive did not contain any files to process." });
+                    return;
+                }
+
                 cleanupUploadedRequestFile = false;
                 startOfficialZipUploadProcessing({
                     zipFilePath: req.file.path,
+                    archiveEntries,
                     description: uploadDescription,
                     rawCategories: req.body.categories,
                     uploader,
@@ -14483,6 +14890,24 @@ site.get("/error", async(req, res) => {
         throw new Error('Intentional test error route');
     }
     return sendError(res, req, "This diagnostic route is disabled outside development.", 404);
+});
+
+site.use(async (req, res) => {
+    const message = "Page not found";
+
+    if (isConsoleApiRequestPath(req.path)) {
+        return sendConsoleApiText(res, `ERR\t${message}`, 404);
+    }
+
+    if (shouldRenderHtmlErrorPage(req)) {
+        return sendError(res, req, message, 404);
+    }
+
+    if (shouldSendJsonError(req)) {
+        return res.status(404).json({ error: message });
+    }
+
+    return res.status(404).type("text/plain; charset=utf-8").send(`${message}\n`);
 });
 
 // Error-handling middleware at the bottom of the stack

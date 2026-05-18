@@ -154,7 +154,11 @@
 				messageDiv.textContent = text;
 				messageDiv.className = `form-message ${type}`;
 				messageDiv.style.display = 'block';
-				messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+				if (type === 'error' && typeof window.scrollToUserError === 'function') {
+					window.scrollToUserError(messageDiv);
+				} else {
+					messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+				}
 			}
 			
 			async function changePfp() {

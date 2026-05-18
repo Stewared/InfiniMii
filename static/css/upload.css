@@ -346,6 +346,22 @@
     margin-top: 0.2rem;
 }
 
+.official-upload-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.official-reupload-button {
+    background-color: #365f7d;
+}
+
+.official-reupload-button:hover {
+    background-color: #2f536e;
+    box-shadow: 0 5px 15px rgba(54, 95, 125, 0.36);
+}
+
 @media (max-width: 700px) {
     .official-fields-header {
         flex-direction: column;

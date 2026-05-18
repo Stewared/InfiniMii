@@ -196,6 +196,7 @@ export {
     areMiisTheSame,
     getMiiIdentityHash,
     getMiiIdentityHashPayload,
+    getMiiIdentityHashVersion,
     hasCurrentMiiIdentityHashVersion,
     setMiiIdentityHash
 };
