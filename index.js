@@ -964,17 +964,36 @@ async function findMatchingMii(candidateMii, { includePrivate = true, excludeId,
     }
 
     const existingMiis = await Miis.find(query).lean();
+    let firstMatchingMiiWithId = null;
+    let idlessMatchLogged = false;
 
     for (const existingMii of existingMiis) {
         const existingHash = !includeGeneral && hasCurrentMiiIdentityHashVersion(existingMii.miiHash)
             ? existingMii.miiHash
             : getMiiIdentityHash(existingMii, { includeGeneral });
         if (candidateHash && existingHash === candidateHash) {
-            return existingMii;
+            const existingMiiId = normalizeMiiIdInput(existingMii.id);
+            if (!existingMiiId) {
+                if (!idlessMatchLogged) {
+                    console.warn(`[duplicateMii] Ignoring matching Mii document without a usable id: ${existingMii._id || "unknown _id"}`);
+                    idlessMatchLogged = true;
+                }
+                continue;
+            }
+
+            const normalizedExistingMii = existingMii.id === existingMiiId
+                ? existingMii
+                : { ...existingMii, id: existingMiiId };
+            if (normalizedExistingMii.private === false) {
+                return normalizedExistingMii;
+            }
+            if (!firstMatchingMiiWithId) {
+                firstMatchingMiiWithId = normalizedExistingMii;
+            }
         }
     }
 
-    return null;
+    return firstMatchingMiiWithId;
 }
 
 function getMiiIdentityHashWithoutFaceFeatureMakeup(mii, options = {}) {
@@ -1045,11 +1064,18 @@ async function backfillMiiIdentityHashes() {
 }
 
 function getDuplicateMiiErrorMessage(matchingMiiId) {
-    return `This Mii already exists (Mii ID: ${matchingMiiId}). If you believe this is incorrect, you can dispute it by contacting Stewared at /contact.`;
+    const duplicateMiiId = normalizeMiiIdInput(matchingMiiId);
+    if (!duplicateMiiId) {
+        return "This Mii already exists, but the existing Mii ID could not be determined. If you believe this is incorrect, you can dispute it by contacting Stewared at /contact.";
+    }
+    return `This Mii already exists (Mii ID: ${duplicateMiiId}). If you believe this is incorrect, you can dispute it by contacting Stewared at /contact.`;
 }
 
 function getDuplicateMiiErrorHtml(matchingMiiId) {
-    const duplicateMiiId = String(matchingMiiId ?? "");
+    const duplicateMiiId = normalizeMiiIdInput(matchingMiiId);
+    if (!duplicateMiiId) {
+        return 'This Mii already exists, but the existing Mii ID could not be determined. If you believe this is incorrect, you can dispute it by <a href="/contact">contacting Stewared</a>.';
+    }
     const duplicateMiiUrl = `/mii/${encodeURIComponent(duplicateMiiId)}`;
     return `This Mii already exists (<a href="${duplicateMiiUrl}">Mii ID: ${escapeHtmlText(duplicateMiiId)}</a>). If you believe this is incorrect, you can dispute it by <a href="/contact">contacting Stewared</a>.`;
 }
@@ -1901,6 +1927,13 @@ async function getMiiById(id, includePrivate = false) {
     const query = { id };
     if (!includePrivate) query.private = false;
     return await Miis.findOne(query).lean();
+}
+
+function hasRenderableMiiPageData(mii) {
+    if (!mii || typeof mii !== "object") return false;
+    if (!normalizeMiiIdInput(mii.id)) return false;
+    if (!mii.general || typeof mii.general !== "object") return false;
+    return Number.isFinite(Number(mii.general.height)) && Number.isFinite(Number(mii.general.weight));
 }
 
 async function resolveMiiIdForImport(id, req) {
@@ -11797,6 +11830,11 @@ site.get('/mii/:id', async (req, res) => {
     const mii = await getMiiById(miiId, true);
     
     if (!mii) {
+        return sendError(res, req, "404 Mii not found", 404);
+    }
+
+    if (!hasRenderableMiiPageData(mii)) {
+        console.warn(`[miiPage] Refusing to render malformed Mii record ${miiId}: ${mii._id || "unknown _id"}`);
         return sendError(res, req, "404 Mii not found", 404);
     }
     
