@@ -127,11 +127,18 @@ const reservedUsernameSchema = new mongoose.Schema({
     expiresAt: { type: Date, required: true, index: { expires: 0 } } // auto-deletes when expired
 });
 
+// Queue of mii IDs to be rerendered
+const rerenderQueueSchema = new mongoose.Schema({
+    miiId: { type: String, required: true, unique: true, index: true },
+    addedAt: { type: Number, default: () => Date.now() }
+});
+
 // --- Models --- //
 const Miis = mongoose.model("Mii", miiSchema);
 const Users = mongoose.model("User", userSchema);
 const Settings = mongoose.model("Settings", settingsSchema);
 const ReservedUsername = mongoose.model("ReservedUsername", reservedUsernameSchema);
+const RerenderQueue = mongoose.model("RerenderQueue", rerenderQueueSchema);
 
 // --- Connection --- //
 function isMemoryMongoAllowed() {
@@ -268,5 +275,6 @@ export {
     Miis,
     Users,
     Settings,
-    ReservedUsername
+    ReservedUsername,
+    RerenderQueue,
 };

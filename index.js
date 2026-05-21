@@ -28,6 +28,7 @@ import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import ms from 'ms';
 import dns from "dns";
 import { connectionPromise, Miis, Users, Settings, ReservedUsername } from "./database.js";
+import { startRerenderer } from "./rerenderer.js";
 import { renderIcon, icons } from "./icons.js";
 import {
     SEARCH_FALLBACK_CANDIDATE_LIMIT,
@@ -8646,6 +8647,8 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             fs.readdirSync("./uploads").forEach(failedUploadFile=>{
                 fs.unlinkSync(`./uploads/${failedUploadFile}`);
             });
+
+            startRerenderer();
 
             console.log(`Cleared all failed uploads\n\nAll setup finished.\nOnline`);
         });
