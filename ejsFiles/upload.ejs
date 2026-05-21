@@ -81,8 +81,8 @@
 
                         <% if (!fromAmiibo) { %>
                             <div id="codeTab" class="tab-content">
-                                <label for="upload-miiData">Paste raw Mii data (base64 or hex):</label>
-                                <textarea id="upload-miiData" name="miiData" rows="4" placeholder="Paste Base64 or Hex string..."></textarea>
+                                <label for="upload-miiData">Paste raw Mii data or MiiJS JSON:</label>
+                                <textarea id="upload-miiData" name="miiData" rows="4" placeholder="Paste Base64, hex, or MiiJS JSON..."></textarea>
 
                                 <div id="upload-miiName-group" class="studio-name-field" style="display: none;">
                                     <label for="upload-miiName">Mii Name:</label>
@@ -161,8 +161,8 @@
                                     <small class="code-length-hint">Single-file uploads, QR images, and official-only <code>.zip</code> batches are supported here. Provide one input method.</small>
                                 </div>
                                 <div class="official-upload-input-card">
-                                    <label for="official-miiData">Or paste raw Mii data (base64 or hex):</label>
-                                    <textarea id="official-miiData" name="miiData" rows="4" placeholder="Paste base64 or hex string (hex may contain spaces)"></textarea>
+                                    <label for="official-miiData">Or paste raw Mii data or MiiJS JSON:</label>
+                                    <textarea id="official-miiData" name="miiData" rows="4" placeholder="Paste base64, hex, or MiiJS JSON (hex may contain spaces)"></textarea>
                                     <label for="official-miiName">Mii Name (required for Mii Studio codes):</label>
                                     <input type="text" id="official-miiName" name="miiName" maxlength="10" placeholder="Enter the Mii name if needed">
                                 </div>

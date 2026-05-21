@@ -20,6 +20,47 @@ function normalizeCodeLength(rawCode) {
     return String(rawCode || "").replace(/\s+/g, "").length;
 }
 
+function looksLikeJsonMiiData(rawCode) {
+    const trimmed = String(rawCode || "").trim();
+    return (trimmed.startsWith("{") && trimmed.endsWith("}"))
+        || (trimmed.startsWith("[") && trimmed.endsWith("]"));
+}
+
+function showUploadJsonError(form, message) {
+    const messageId = form?.id === "officialUploadForm" ? "official-error-message" : "error-message";
+    const messageDiv = document.getElementById(messageId);
+    if (!messageDiv) {
+        return;
+    }
+
+    messageDiv.className = "form-message error";
+    messageDiv.style.display = "block";
+    messageDiv.textContent = message;
+    if (typeof window.scrollToUserError === "function") {
+        window.scrollToUserError(messageDiv);
+    }
+}
+
+function normalizeUploadJsonField(form) {
+    const codeInput = form?.querySelector?.('textarea[name="miiData"]');
+    if (!codeInput || codeInput.disabled) {
+        return true;
+    }
+
+    const rawCode = codeInput.value.trim();
+    if (!rawCode || !looksLikeJsonMiiData(rawCode)) {
+        return true;
+    }
+
+    try {
+        codeInput.value = JSON.stringify(JSON.parse(rawCode));
+        return true;
+    } catch (error) {
+        showUploadJsonError(form, `The pasted MiiJS JSON is not valid JSON: ${error.message}`);
+        return false;
+    }
+}
+
 function updateStudioNameFieldVisibility() {
     const codeInput = document.getElementById("upload-miiData");
     const nameGroup = document.getElementById("upload-miiName-group");
@@ -30,7 +71,8 @@ function updateStudioNameFieldVisibility() {
         return;
     }
 
-    const needsName = normalizeCodeLength(codeInput.value) === 92||normalizeCodeLength(codeInput.value)===64;
+    const codeLength = normalizeCodeLength(codeInput.value);
+    const needsName = !looksLikeJsonMiiData(codeInput.value) && (codeLength === 92 || codeLength === 64);
     const isCodeTabActive = codeTab.classList.contains("active");
     const shouldShow = needsName && isCodeTabActive;
 
@@ -145,3 +187,15 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeUploadFormDrops();
     switchTab("file");
 });
+
+document.addEventListener("submit", (event) => {
+    const form = event.target;
+    if (!["uploadForm", "officialUploadForm"].includes(form?.id)) {
+        return;
+    }
+
+    if (!normalizeUploadJsonField(form)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+}, true);

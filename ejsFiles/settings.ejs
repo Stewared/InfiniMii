@@ -30,6 +30,66 @@
 				const safeBlockableCategories = Array.isArray(blockableOfficialCategories) ? blockableOfficialCategories : [];
 				const safeBlockedCategories = Array.isArray(blockedOfficialCategories) ? blockedOfficialCategories : [];
 				const blockedCategorySet = new Set(safeBlockedCategories);
+				const categoryGroupMap = new Map();
+				safeBlockableCategories.forEach((category) => {
+					const categoryPath = String(category?.path || category || '').trim();
+					if (!categoryPath) return;
+
+					const categoryName = String(category?.name || categoryPath.split('/').filter(Boolean).pop() || categoryPath).trim();
+					const categoryColor = String(category?.color || '#999999').trim();
+					const pathSegments = categoryPath.split('/').map(segment => segment.trim()).filter(Boolean);
+					const groupName = pathSegments[0] || categoryName || categoryPath;
+					const groupKey = groupName.toLowerCase();
+					const groupPath = groupName;
+
+					if (!categoryGroupMap.has(groupKey)) {
+						categoryGroupMap.set(groupKey, {
+							name: groupName,
+							path: groupPath,
+							color: categoryColor,
+							topLevel: null,
+							selectedCount: 0,
+							categories: []
+						});
+					}
+
+					const group = categoryGroupMap.get(groupKey);
+					const isTopLevel = categoryPath.toLowerCase() === groupPath.toLowerCase();
+					const categoryLabel = String(category?.fullPath || categoryPath).trim();
+					const groupPrefix = `${groupName}/`;
+					const displayLabel = isTopLevel
+						? categoryName
+						: (categoryLabel.startsWith(groupPrefix) ? categoryLabel.slice(groupPrefix.length) : categoryLabel);
+					const option = {
+						path: categoryPath,
+						label: displayLabel || categoryName || categoryPath,
+						color: categoryColor,
+						checked: blockedCategorySet.has(categoryPath)
+					};
+
+					if (option.checked) {
+						group.selectedCount += 1;
+					}
+					if (isTopLevel) {
+						group.topLevel = option;
+						group.color = categoryColor;
+					} else {
+						group.categories.push(option);
+					}
+				});
+				const safeBlockableCategoryGroups = [...categoryGroupMap.values()].map((group) => {
+					if (!group.topLevel) {
+						group.topLevel = {
+							path: group.path,
+							label: group.name,
+							color: group.color || '#999999',
+							checked: blockedCategorySet.has(group.path)
+						};
+						if (group.topLevel.checked) group.selectedCount += 1;
+					}
+					group.categories.sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: 'base' }));
+					return group;
+				}).sort((a, b) => a.path.localeCompare(b.path, undefined, { sensitivity: 'base' }));
 				const safeHiddenMiis = Array.isArray(hiddenMiis) ? hiddenMiis : [];
 				const formatOAuthProviderName = (key) => oauthProviderMap[key]?.displayName || String(key || 'OAuth').split(/[-_]+/g).filter(Boolean).map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
 				const getOAuthProviderIconUrl = (key) => {
@@ -153,14 +213,41 @@
 
 					<div class="setting-group">
 						<label>Hidden Official Categories</label>
-						<div class="preference-selector-list preference-selector-list-tall">
-							<% if (safeBlockableCategories.length > 0) { %>
-								<% safeBlockableCategories.forEach((category) => { %>
-									<label class="preference-selector-option" style="--category-color: <%= category.color || '#999999' %>;">
-										<input type="checkbox" data-blocked-category value="<%= category.path %>" <%= blockedCategorySet.has(category.path) ? 'checked' : '' %>>
-										<span><%= category.path %></span>
-									</label>
-								<% }) %>
+						<div class="preference-selector-list preference-selector-list-tall preference-category-selector">
+							<% if (safeBlockableCategoryGroups.length > 0) { %>
+								<div class="preference-category-groups category-filter-groups">
+									<% safeBlockableCategoryGroups.forEach((group) => { %>
+										<%
+											const groupTopLevel = group.topLevel;
+											const groupHasChildren = group.categories.length > 0;
+											const groupHasSelection = group.selectedCount > 0;
+											const groupBadge = groupTopLevel.checked && groupHasChildren ? 'All' : group.selectedCount;
+											const topLevelLabel = groupHasChildren ? `All ${group.name}` : groupTopLevel.label;
+										%>
+										<details class="category-filter-group preference-category-group" <%= groupHasSelection ? 'open' : '' %>>
+											<summary>
+												<span><%= group.name %></span>
+												<% if (groupHasSelection) { %>
+													<span class="category-filter-group-counts">
+														<span class="category-filter-group-count is-include"><%= groupBadge %></span>
+													</span>
+												<% } %>
+											</summary>
+											<div class="category-filter-options preference-category-options">
+												<label class="preference-selector-option preference-category-option preference-category-option-top-level" style="--category-color: <%= groupTopLevel.color || '#999999' %>;">
+													<input type="checkbox" data-blocked-category value="<%= groupTopLevel.path %>" <%= groupTopLevel.checked ? 'checked' : '' %>>
+													<span><%= topLevelLabel %></span>
+												</label>
+												<% group.categories.forEach((category) => { %>
+													<label class="preference-selector-option preference-category-option" style="--category-color: <%= category.color || '#999999' %>;">
+														<input type="checkbox" data-blocked-category value="<%= category.path %>" <%= category.checked ? 'checked' : '' %>>
+														<span><%= category.label %></span>
+													</label>
+												<% }) %>
+											</div>
+										</details>
+									<% }) %>
+								</div>
 							<% } else { %>
 								<p class="preference-empty">No official categories are available yet.</p>
 							<% } %>

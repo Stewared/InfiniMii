@@ -13782,7 +13782,11 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
         let officialSource = null;
         let officialSourceNotice = null;
         let officialSettings = null;
-        const rawMiiDataInput = typeof req.body.miiData === "string" ? req.body.miiData : "";
+        const submittedMiiData = req.body?.miiData;
+        const rawMiiDataInput = typeof submittedMiiData === "string" ? submittedMiiData : "";
+        const hasSubmittedMiiData = typeof submittedMiiData === "string"
+            ? Boolean(submittedMiiData.trim())
+            : Boolean(submittedMiiData && typeof submittedMiiData === "object");
         const normalizedRawMiiData = rawMiiDataInput.replace(/\s+/g, "");
         const providedMiiName = typeof req.body.miiName === "string" ? req.body.miiName.trim() : "";
         const isNinetyTwoCharCode = normalizedRawMiiData.length === 92;
@@ -13812,7 +13816,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                 return;
             }
 
-            if (normalizedRawMiiData || req.body.fromAmiibo) {
+            if (hasSubmittedMiiData || req.body.fromAmiibo) {
                 res.json({ error: "Temporary reupload only accepts the file input." });
                 cleanupRequestFile();
                 return;
@@ -13939,8 +13943,8 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
             officialSourceNotice = sourceResolution.notice;
         }
 
-        if (hasZipUpload && normalizedRawMiiData) {
-            res.json({ error: "Use either a ZIP file upload or raw Mii data, not both in the same submission." });
+        if (hasZipUpload && hasSubmittedMiiData) {
+            res.json({ error: "Use either a ZIP file upload or raw Mii data or MiiJS JSON, not both in the same submission." });
             try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
             return;
         }
@@ -14010,7 +14014,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                 return;
             }
 
-            if (fromAmiiboId && !req.file && !req.body.miiData) {
+            if (fromAmiiboId && !req.file && !hasSubmittedMiiData) {
                 // Uploading from Amiibo extraction
                 const tempMiiId = fromAmiiboId;
                 tempBinPath = `./static/temp/${tempMiiId}.bin`;
@@ -14050,8 +14054,8 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                 }
             }
             else {
-                if (req.body.miiData) {
-                    const decodedMii = await createMiiDataWithDebug(req.body.miiData);
+                if (hasSubmittedMiiData) {
+                    const decodedMii = await createMiiDataWithDebug(submittedMiiData);
                     mii = decodedMii.mii;
                 } else {
                     if (!req.file) {
@@ -14085,7 +14089,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                         error: e,
                         context: "uploadMii",
                         reqFile: req.file,
-                        rawInput: typeof req.body?.miiData === "string" ? req.body.miiData : "",
+                        rawInput: typeof submittedMiiData === "string" ? submittedMiiData : "",
                         filePath: req.file?.path || tempBinPath,
                         miiJsDebugOutput
                     });

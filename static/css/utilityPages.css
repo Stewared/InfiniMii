@@ -279,6 +279,18 @@ h6 b,
     max-height: 20rem;
 }
 
+.preference-category-selector {
+    display: block;
+}
+
+.preference-category-groups {
+    width: 100%;
+}
+
+.preference-category-group .category-filter-options {
+    padding: 0 0.58rem 0.65rem;
+}
+
 .preference-selector-option {
     display: inline-flex !important;
     align-items: center;
@@ -304,6 +316,17 @@ h6 b,
 
 .preference-selector-option span {
     overflow-wrap: anywhere;
+}
+
+.preference-category-option {
+    border-left: 4px solid var(--category-color, var(--brand-color));
+}
+
+.preference-category-option-top-level {
+    width: 100%;
+    border-left-color: color-mix(in oklab, var(--brand-color) 74%, #ffffff 26%);
+    background: color-mix(in oklab, var(--brand-color) 20%, var(--layer-2-um) 80%);
+    font-weight: 600 !important;
 }
 
 .preference-empty {
