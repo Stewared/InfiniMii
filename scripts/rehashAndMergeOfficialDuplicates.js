@@ -49,20 +49,26 @@ function compareUploadAge(a, b) {
 function getMiiAssetPaths(miiId, isPrivate) {
     const qr3dsDir = isPrivate ? "privateMiiQRs" : "miiQRs";
     const qrWiiDir = isPrivate ? "privateMiiQRsWii" : "miiQRsWii";
+    const qrTomodachiDir = isPrivate ? "privateMiiQRsTomodachi" : "miiQRsTomodachi";
+    const qrMiitopiaDir = isPrivate ? "privateMiiQRsMiitopia" : "miiQRsMiitopia";
 
     return {
         imgPath: isPrivate ? `./static/privateMiiImgs/${miiId}.png` : `./static/miiImgs/${miiId}.png`,
         qrPath: `./static/${qr3dsDir}/${miiId}.png`,
-        qrWiiPath: `./static/${qrWiiDir}/${miiId}.png`
+        qrWiiPath: `./static/${qrWiiDir}/${miiId}.png`,
+        qrTomodachiPath: `./static/${qrTomodachiDir}/${miiId}.png`,
+        qrMiitopiaPath: `./static/${qrMiitopiaDir}/${miiId}.png`
     };
 }
 
 async function deleteMiiAssets(miiId, isPrivate) {
-    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(miiId, isPrivate);
+    const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(miiId, isPrivate);
     await Promise.all([
         fs.promises.unlink(imgPath).catch(() => {}),
         fs.promises.unlink(qrPath).catch(() => {}),
-        fs.promises.unlink(qrWiiPath).catch(() => {})
+        fs.promises.unlink(qrWiiPath).catch(() => {}),
+        fs.promises.unlink(qrTomodachiPath).catch(() => {}),
+        fs.promises.unlink(qrMiitopiaPath).catch(() => {})
     ]);
 }
 

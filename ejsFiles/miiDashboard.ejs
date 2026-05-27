@@ -175,11 +175,13 @@
 
                         <article class="dashboard-preview-card">
                             <h3>QR Code</h3>
-                            <div id="dashboardQrPreview" class="qr-preview-window is-qr-3ds" data-qr-preview data-qr3ds-src="" data-qr-wiiu-src="" data-qr-tomodachi-src="">
+                            <div id="dashboardQrPreview" class="qr-preview-window is-qr-3ds" data-qr-preview data-qr3ds-src="" data-qr-wiiu-src="" data-qr-tomodachi-src="" data-qr-miitopia-src="">
                                 <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
                                     <button type="button" class="qr-console-tab is-active" data-qr-tab="3DS" role="tab" aria-selected="true">3DS</button>
                                     <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false">Wii U</button>
                                     <button type="button" class="qr-console-tab" data-qr-tab="TOMODACHI" role="tab" aria-selected="false" aria-label="Tomodachi Life 3DS QR" title="Tomodachi Life 3DS QR" hidden>TL</button>
+                                    <% /* MT QR tab temporarily disabled on the InfiniMii site. */ %>
+                                    <!-- <button type="button" class="qr-console-tab" data-qr-tab="MIITOPIA" role="tab" aria-selected="false" aria-label="Miitopia 3DS QR" title="Miitopia 3DS QR" hidden>MT</button> -->
                                 </div>
                                 <a id="dashboardQrLink" class="qr-preview-link" href="#" target="_blank" rel="noopener noreferrer" data-qr-link>
                                     <img id="dashboardQr" class="qr-code-image" src="" alt="Decoded Mii QR code" width="150" height="150" loading="lazy" decoding="async" data-qr-image data-qr-console="3DS">
@@ -260,11 +262,13 @@
                                         <option value="3DS">3DS</option>
                                         <option value="WIIU">Wii U</option>
                                         <option value="TOMODACHI">Tomodachi Life (TL 3DS)</option>
+                                        <% /* MT QR export temporarily disabled on the InfiniMii site. */ %>
+                                        <!-- <option value="MIITOPIA">Miitopia (MT 3DS)</option> -->
                                     </select>
                                 </label>
                             </div>
 
-                            <p class="note child-download-note">Uses the same MiiJS export formats as Mii pages. 3DS QR exports are plain 3DS QR; choose Tomodachi Life for TL QR data.</p>
+                            <p class="note child-download-note">Uses the same MiiJS export formats as Mii pages. The 3DS option exports CFED; TL exports game-specific 3DS data.</p>
                             <div id="dashboardExportMessage" class="form-message" style="display: none;"></div>
                         </div>
 

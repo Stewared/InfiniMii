@@ -140,8 +140,13 @@
     z-index: 1;
 }
 
-.qr-preview-window.has-tomodachi-qr .qr-console-tabs {
+.qr-preview-window.has-tomodachi-qr .qr-console-tabs,
+.qr-preview-window.has-miitopia-qr .qr-console-tabs {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.qr-preview-window.has-tomodachi-qr.has-miitopia-qr .qr-console-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .qr-console-tab {
@@ -170,7 +175,8 @@
     transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
-.qr-preview-window.has-tomodachi-qr .qr-console-tab {
+.qr-preview-window.has-tomodachi-qr .qr-console-tab,
+.qr-preview-window.has-miitopia-qr .qr-console-tab {
     font-size: 0.7rem;
     letter-spacing: 0;
     padding-inline: 0.12rem;
@@ -438,6 +444,137 @@
     outline: none;
     background: #6d666b;
     transform: translateY(-1px);
+}
+
+.tomodachi-life-panel {
+    --tl-accent: var(--brand-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.35rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--layer-2-um);
+}
+
+.tomodachi-life-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tomodachi-life-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.tomodachi-life-title-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 60%, #8b909b 40%);
+    background: color-mix(in oklab, var(--layer-2-um) 78%, #202a3b 22%);
+    color: var(--brand-color);
+}
+
+.tomodachi-life-title-icon .icon,
+.tomodachi-life-title-icon .icon:hover {
+    cursor: default;
+    transform: none;
+}
+
+.tomodachi-life-title-copy {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.tomodachi-life-eyebrow,
+.tomodachi-field-label {
+    color: var(--text-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.tomodachi-life-title-copy h3 {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 1.25rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.tomodachi-life-content {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.45fr);
+    gap: 0.8rem;
+    align-items: stretch;
+}
+
+.tomodachi-life-content.without-address {
+    grid-template-columns: 1fr;
+}
+
+.tomodachi-island-address,
+.tomodachi-field {
+    min-width: 0;
+    border-radius: 8px;
+    border: 1px solid var(--layer-3-um);
+    background: color-mix(in oklab, var(--layer-2-um) 84%, var(--layer-1-um) 16%);
+}
+
+.tomodachi-island-address {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.95rem 1rem;
+}
+
+.tomodachi-island-address-value {
+    margin: 0;
+    color: var(--text-1);
+    font-size: 1.02rem;
+    font-weight: 600;
+    line-height: 1.45;
+    white-space: pre-line;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.tomodachi-fields-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.tomodachi-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.78rem 0.85rem;
+}
+
+.tomodachi-field-value {
+    color: var(--text-1);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.tomodachi-field-value.is-multiline {
+    white-space: pre-line;
 }
 
 /* Footer Section */
@@ -1533,6 +1670,20 @@
 
     .id-card-description {
         padding: 1.15rem 1rem 1rem;
+    }
+
+    .tomodachi-life-panel {
+        padding: 1.15rem 1rem;
+    }
+
+    .tomodachi-life-panel-header,
+    .tomodachi-life-content {
+        grid-template-columns: 1fr;
+    }
+
+    .tomodachi-life-panel-header {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .id-card-actions {

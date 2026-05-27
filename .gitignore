@@ -9,6 +9,11 @@ static/privateMiiImgs/*
 static/privateMiiQRs/*
 static/miiQRsWii/*
 static/privateMiiQRsWii/*
+static/miiQRsTomodachi/*
+static/privateMiiQRsTomodachi/*
+# MT QR caches are temporarily disabled on the InfiniMii site.
+static/miiQRsMiitopia/*
+static/privateMiiQRsMiitopia/*
 static/temp/*
 TODO.md
 env.json

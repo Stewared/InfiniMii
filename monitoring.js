@@ -80,8 +80,13 @@ function isRelevantSitePagePath(pathname) {
         || normalizedPath.startsWith("/privatemiiimgs/")
         || normalizedPath.startsWith("/miiqrs/")
         || normalizedPath.startsWith("/miiqrswii/")
+        || normalizedPath.startsWith("/miiqrstomodachi/")
+        // MT QR image routes are temporarily disabled on the InfiniMii site.
+        // || normalizedPath.startsWith("/miiqrsmiitopia/")
         || normalizedPath.startsWith("/privatemiiqrs/")
         || normalizedPath.startsWith("/privatemiiqrswii/")
+        || normalizedPath.startsWith("/privatemiiqrstomodachi/")
+        // || normalizedPath.startsWith("/privatemiiqrsmiitopia/")
         || normalizedPath.startsWith("/static/")
         || normalizedPath === "/favicon.ico"
     ) {

@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Island ID Search</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f8fb;
+      --fg: #151923;
+      --muted: #5d6678;
+      --line: #d6dae3;
+      --accent: #0b7a75;
+      --accent-strong: #095f5b;
+      --warn: #a64b00;
+      --panel: #ffffff;
+      --code: #111827;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #101217;
+        --fg: #edf1f7;
+        --muted: #a7b0c0;
+        --line: #303746;
+        --accent: #2cb5a9;
+        --accent-strong: #65d3ca;
+        --warn: #ffb15c;
+        --panel: #171b23;
+        --code: #f7f8fb;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(980px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: 24px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .address {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .address-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      max-width: 100%;
+    }
+
+    .address-line.ocean-line {
+      max-width: 100%;
+    }
+
+    .dash,
+    .suffix {
+      color: var(--muted);
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input {
+      width: auto;
+      min-width: 1ch;
+      max-width: min(100%, 36rem);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--fg);
+      font: inherit;
+      padding: 10px 11px;
+    }
+
+    input.number {
+      text-align: center;
+      -moz-appearance: textfield;
+    }
+
+    input.number::-webkit-outer-spin-button,
+    input.number::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      outline: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    }
+
+    .combo {
+      position: relative;
+      display: inline-flex;
+      width: max-content;
+    }
+
+    .options {
+      position: absolute;
+      z-index: 10;
+      top: calc(100% + 6px);
+      left: 50%;
+      width: min(280px, calc(100vw - 32px));
+      max-height: 260px;
+      overflow-y: auto;
+      transform: translateX(-50%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 14px 34px color-mix(in srgb, #000 18%, transparent);
+      padding: 5px;
+    }
+
+    .option {
+      width: 100%;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--fg);
+      display: block;
+      font: inherit;
+      font-weight: 400;
+      min-width: 0;
+      padding: 7px 9px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .option:hover,
+    .option[aria-selected="true"] {
+      background: color-mix(in srgb, var(--accent) 16%, transparent);
+    }
+
+    .option.is-match {
+      background: color-mix(in srgb, var(--accent) 10%, transparent);
+      font-weight: 650;
+    }
+
+    .option.is-match:hover,
+    .option.is-match[aria-selected="true"] {
+      background: color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+
+    .option mark {
+      border-radius: 3px;
+      background: color-mix(in srgb, var(--accent) 32%, transparent);
+      color: inherit;
+      padding: 0 1px;
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      min-width: 96px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 650;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: var(--accent-strong);
+    }
+
+    button:disabled {
+      border-color: var(--line);
+      background: color-mix(in srgb, var(--line) 45%, transparent);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    .fixed {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .status {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 18px;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+
+    .result {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 58px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      color: var(--code);
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .warning {
+      margin-top: 12px;
+      color: var(--warn);
+    }
+
+    .measure {
+      position: fixed;
+      left: -10000px;
+      top: -10000px;
+      visibility: hidden;
+      white-space: pre;
+      font: inherit;
+    }
+
+    @media (max-width: 720px) {
+      .status {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .address-line {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 460px) {
+      main {
+        width: min(100vw - 20px, 980px);
+        padding: 18px 0;
+      }
+
+      .status {
+        grid-template-columns: 1fr;
+      }
+
+      .actions,
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Island ID Search</h1>
+    <section class="panel">
+      <div class="address">
+        <div class="address-line">
+          <input id="num1" class="number" type="number" min="0" max="999" step="1" value="148" inputmode="numeric" aria-label="Number 1">
+          <span class="dash">-</span>
+          <input id="num2" class="number" type="number" min="0" max="999" step="1" value="148" inputmode="numeric" aria-label="Number 2">
+          <span class="combo">
+            <input id="isles" class="word" type="text" value="Creamy Stew" aria-label="Isles" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="islesOptions" autocomplete="off">
+            <span id="islesOptions" class="options" role="listbox" hidden></span>
+          </span>
+          <span class="suffix">Isles</span>
+        </div>
+        <div class="address-line ocean-line">
+          <span class="combo">
+            <input id="ocean" class="word" type="text" value="Avocado" aria-label="Ocean" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="oceanOptions" autocomplete="off">
+            <span id="oceanOptions" class="options" role="listbox" hidden></span>
+          </span>
+          <span class="suffix">Ocean</span>
+        </div>
+      </div>
+      <span id="measure" class="measure" aria-hidden="true"></span>
+
+      <div class="bar">
+        <div class="fixed">Word count: 100</div>
+        <div class="actions">
+          <button id="start">Start</button>
+          <button id="stop" class="secondary" disabled>Stop</button>
+        </div>
+      </div>
+
+      <div id="warning" class="warning" hidden></div>
+
+      <div class="status">
+        <div class="metric"><span>Status</span><strong id="state">Idle</strong></div>
+        <div class="metric"><span>Checked</span><strong id="checked">0</strong></div>
+        <div class="metric"><span>Rate</span><strong id="rate">0/s</strong></div>
+      </div>
+
+      <div id="result" class="result">No result yet.</div>
+    </section>
+  </main>
+
+  <script type="module">
+    const WORKGROUP_SIZE = 256;
+    const DISPATCH_GROUPS = 512;
+    const ITERATIONS_PER_THREAD = 256;
+    const STRIDE = WORKGROUP_SIZE * DISPATCH_GROUPS;
+    const CHUNK_CANDIDATES = BigInt(STRIDE) * BigInt(ITERATIONS_PER_THREAD);
+    const MASK_128 = (1n << 128n) - 1n;
+    const ISLAND_WORDS = [
+      "Ice-Cream Cone",
+      "Apple Pie",
+      "Strawberry",
+      "Prawn Salad",
+      "Sashimi",
+      "Orange Juice",
+      "Chocolate GÃ¢teau",
+      "Chewing Gum",
+      "Fried Chicken",
+      "Mushroom",
+      "Caviar",
+      "Gummy Candy",
+      "Gratin",
+      "Creamy Stew",
+      "Crepe",
+      "Grapefruit",
+      "Croissant",
+      "Coffee",
+      "Cheese",
+      "Rice",
+      "Cherries",
+      "Salad",
+      "Sandwich",
+      "Buttered Potato",
+      "Strawberry Shortcake",
+      "Watermelon",
+      "Steak",
+      "Sausage",
+      "Soft-Serve Ice Cream",
+      "Tacos",
+      "Roasted Chestnuts",
+      "Red Chili Pepper",
+      "Fried Tofu",
+      "Corn on the Cob",
+      "Doughnut",
+      "Banana",
+      "Cheeseburger",
+      "Salisbury Steak",
+      "Pizza",
+      "Cracker",
+      "Grapes",
+      "French Fries",
+      "Barbecue",
+      "Blue Cheese",
+      "French Toast",
+      "Potato Chips",
+      "Macadamia Nuts",
+      "Orange",
+      "Peach",
+      "Hard-Boiled Egg",
+      "Ramen",
+      "Apple",
+      "Tomato Juice",
+      "Avocado",
+      "Bacon",
+      "Broccoli",
+      "Calamari",
+      "Quiche",
+      "Cotton Candy",
+      "Cappuccino",
+      "Coconut",
+      "Cornflakes",
+      "Cheesecake",
+      "Kiwi",
+      "Lasagna",
+      "Macaron",
+      "Meatballs",
+      "Melon",
+      "Muffin",
+      "Paella",
+      "Peanuts",
+      "Pretzel",
+      "Risotto",
+      "Roast Beef",
+      "Salami",
+      "Escargot",
+      "Spaghetti Peperoncino",
+      "Tiramisu",
+      "Truffle",
+      "Waffle",
+      "Yogurt",
+      "Gelatin Snack",
+      "Soda",
+      "Pancakes",
+      "Instant Noodles",
+      "Stuffed Cabbage Roll",
+      "Tomato",
+      "Apple Juice",
+      "Mango",
+      "Hot Dog",
+      "Pineapple",
+      "Octopus",
+      "Green Pepper",
+      "Sushi",
+      "Pot-au-Feu",
+      "Celery",
+      "Popcorn",
+      "Durian",
+      "Garlic",
+      "Fried Egg",
+    ];
+    const WORD_INDEX = new Map(ISLAND_WORDS.map((word, index) => [normalizeWord(word), index]));
+
+    const shaderSource = `
+struct Params {
+  ocean: u32,
+  isles: u32,
+  num1: u32,
+  num2: u32,
+  base0: u32,
+  base1: u32,
+  base2: u32,
+  base3: u32,
+  iterations: u32,
+  stride: u32,
+  pad0: u32,
+  pad1: u32,
+};
+
+struct Result {
+  found: atomic<u32>,
+  id0: u32,
+  id1: u32,
+  id2: u32,
+  id3: u32,
+};
+
+struct ShaState {
+  s0: u32,
+  s1: u32,
+  s2: u32,
+  s3: u32,
+  s4: u32,
+};
+
+struct HashWords {
+  lo: u32,
+  hi: u32,
+};
+
+@group(0) @binding(0) var<uniform> params: Params;
+@group(0) @binding(1) var<storage, read_write> result: Result;
+
+fn rotl32(x: u32, n: u32) -> u32 {
+  return (x << n) | (x >> (32u - n));
+}
+
+fn bswap32(x: u32) -> u32 {
+  return ((x & 0x000000ffu) << 24u) |
+         ((x & 0x0000ff00u) << 8u) |
+         ((x & 0x00ff0000u) >> 8u) |
+         ((x & 0xff000000u) >> 24u);
+}
+
+fn sha1Compress(
+  s0: u32, s1: u32, s2: u32, s3: u32, s4: u32,
+  w0: u32, w1: u32, w2: u32, w3: u32,
+  w4: u32, w5: u32, w6: u32, w7: u32,
+  w8: u32, w9: u32, w10: u32, w11: u32,
+  w12: u32, w13: u32, w14: u32, w15: u32
+) -> ShaState {
+  var w = array<u32, 16>(w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15);
+  var a = s0;
+  var b = s1;
+  var c = s2;
+  var d = s3;
+  var e = s4;
+
+  for (var i = 0u; i < 80u; i = i + 1u) {
+    var wi: u32;
+    if (i < 16u) {
+      wi = w[i];
+    } else {
+      wi = rotl32(w[(i - 3u) & 15u] ^ w[(i - 8u) & 15u] ^ w[(i - 14u) & 15u] ^ w[i & 15u], 1u);
+      w[i & 15u] = wi;
+    }
+    var f: u32;
+    var k: u32;
+
+    if (i < 20u) {
+      f = d ^ (b & (c ^ d));
+      k = 0x5A827999u;
+    } else if (i < 40u) {
+      f = b ^ c ^ d;
+      k = 0x6ED9EBA1u;
+    } else if (i < 60u) {
+      f = (b & c) | (d & (b | c));
+      k = 0x8F1BBCDCu;
+    } else {
+      f = b ^ c ^ d;
+      k = 0xCA62C1D6u;
+    }
+
+    let t = rotl32(a, 5u) + f + e + k + wi;
+    e = d;
+    d = c;
+    c = rotl32(b, 30u);
+    b = a;
+    a = t;
+  }
+
+  return ShaState(s0 + a, s1 + b, s2 + c, s3 + d, s4 + e);
+}
+
+fn computeH(id0: u32, id1: u32, id2: u32, id3: u32) -> HashWords {
+  let inner = sha1Compress(
+    0x533fef0cu, 0xc1343d17u, 0x2d61508fu, 0xdacf4115u, 0xfc8c1f9eu,
+    bswap32(id0), bswap32(id1), bswap32(id2), bswap32(id3),
+    0x80000000u, 0u, 0u, 0u,
+    0u, 0u, 0u, 0u,
+    0u, 0u, 0u, 640u
+  );
+
+  let outer = sha1Compress(
+    0xc07a55d3u, 0x8ea667fcu, 0x51cb0b28u, 0x7a02c8c9u, 0xa8a200eeu,
+    inner.s0, inner.s1, inner.s2, inner.s3, inner.s4,
+    0x80000000u, 0u, 0u, 0u,
+    0u, 0u, 0u, 0u,
+    0u, 0u, 672u
+  );
+
+  return HashWords(bswap32(outer.s0), bswap32(outer.s1));
+}
+
+fn mod1000Shift20(hlo: u32, hhi: u32) -> u32 {
+  return (((hhi % 1000u) * 96u) + (hlo >> 20u)) % 1000u;
+}
+
+fn mod1000Shift30(hlo: u32, hhi: u32) -> u32 {
+  return (((hhi % 1000u) * 4u) + (hlo >> 30u)) % 1000u;
+}
+
+fn mod100(hlo: u32, hhi: u32) -> u32 {
+  return (((hhi % 100u) * 96u) + (hlo % 100u)) % 100u;
+}
+
+fn mod100Shift10(hlo: u32, hhi: u32) -> u32 {
+  return (((hhi % 100u) * 4u) + ((hlo >> 10u) % 100u)) % 100u;
+}
+
+fn addCarry(a: u32, b: u32) -> vec2<u32> {
+  let sum = a + b;
+  return vec2<u32>(sum, select(0u, 1u, sum < a));
+}
+
+@compute @workgroup_size(256)
+fn main(@builtin(global_invocation_id) globalId: vec3<u32>) {
+  let idx = globalId.x;
+
+  let s0 = addCarry(params.base0, idx);
+  var c0 = s0.x;
+  let s1 = addCarry(params.base1, s0.y);
+  var c1 = s1.x;
+  let s2 = addCarry(params.base2, s1.y);
+  var c2 = s2.x;
+  var c3 = params.base3 + s2.y;
+
+  for (var iter = 0u; iter < params.iterations; iter = iter + 1u) {
+    if (atomicLoad(&result.found) != 0u) {
+      return;
+    }
+
+    let id0 = c0 ^ 0x7F4A7C15u;
+    let id1 = c1 ^ 0x9E3779B9u;
+    let id2 = c2 ^ 0x07BB0142u;
+    let id3 = c3 ^ 0x6C62272Eu;
+    let h = computeH(id0, id1, id2, id3);
+
+    if (mod1000Shift20(h.lo, h.hi) == params.num1 &&
+        mod1000Shift30(h.lo, h.hi) == params.num2 &&
+        mod100(h.lo, h.hi) == params.ocean &&
+        mod100Shift10(h.lo, h.hi) == params.isles) {
+      let claim = atomicCompareExchangeWeak(&result.found, 0u, 1u);
+      if (claim.exchanged) {
+        result.id0 = id0;
+        result.id1 = id1;
+        result.id2 = id2;
+        result.id3 = id3;
+      }
+      return;
+    }
+
+    let n0 = addCarry(c0, params.stride);
+    c0 = n0.x;
+    let n1 = addCarry(c1, n0.y);
+    c1 = n1.x;
+    let n2 = addCarry(c2, n1.y);
+    c2 = n2.x;
+    c3 = c3 + n2.y;
+  }
+}
+`;
+
+    const ui = {
+      ocean: document.getElementById("ocean"),
+      isles: document.getElementById("isles"),
+      num1: document.getElementById("num1"),
+      num2: document.getElementById("num2"),
+      start: document.getElementById("start"),
+      stop: document.getElementById("stop"),
+      state: document.getElementById("state"),
+      checked: document.getElementById("checked"),
+      rate: document.getElementById("rate"),
+      result: document.getElementById("result"),
+      warning: document.getElementById("warning"),
+      islesOptions: document.getElementById("islesOptions"),
+      oceanOptions: document.getElementById("oceanOptions"),
+      measure: document.getElementById("measure"),
+    };
+
+    let device;
+    let pipeline;
+    let bindGroup;
+    let paramsBuffer;
+    let resultBuffer;
+    let readbackBuffer;
+    let running = false;
+    let stopRequested = false;
+    let baseCounter = 0n;
+    let checked = 0n;
+    let startedAt = 0;
+
+    function foldText(value) {
+      return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+    }
+
+    function normalizeWord(value) {
+      return foldText(value.trim());
+    }
+
+    function resizeInput(input) {
+      const computed = getComputedStyle(input);
+      ui.measure.style.font = computed.font;
+      ui.measure.style.letterSpacing = computed.letterSpacing;
+      ui.measure.textContent = input.value || input.placeholder || "0";
+      const textWidth = ui.measure.getBoundingClientRect().width;
+      const padding = Number.parseFloat(computed.paddingLeft) + Number.parseFloat(computed.paddingRight);
+      const border = Number.parseFloat(computed.borderLeftWidth) + Number.parseFloat(computed.borderRightWidth);
+      input.style.width = `${Math.ceil(textWidth + padding + border + 2)}px`;
+    }
+
+    function resizeAddressInputs() {
+      for (const input of [ui.num1, ui.num2, ui.isles, ui.ocean]) {
+        resizeInput(input);
+      }
+    }
+
+    function bindAutoWidth(input) {
+      input.addEventListener("input", () => resizeInput(input));
+      input.addEventListener("change", () => resizeInput(input));
+    }
+
+    function matchRange(word, query) {
+      const needle = normalizeWord(query);
+      if (!needle) {
+        return null;
+      }
+
+      let folded = "";
+      const offsets = [];
+      let offset = 0;
+      for (const character of word) {
+        const piece = foldText(character);
+        for (let i = 0; i < piece.length; i++) {
+          offsets.push([offset, offset + character.length]);
+        }
+        folded += piece;
+        offset += character.length;
+      }
+
+      const start = folded.indexOf(needle);
+      if (start < 0) {
+        return null;
+      }
+      return [offsets[start][0], offsets[start + needle.length - 1][1]];
+    }
+
+    function sortedWordRows(query) {
+      const needle = normalizeWord(query);
+      const hasQuery = needle.length > 0;
+      return ISLAND_WORDS
+        .map((word, index) => ({ word, index, range: matchRange(word, query) }))
+        .sort((a, b) => {
+          const aExact = hasQuery && normalizeWord(a.word) === needle;
+          const bExact = hasQuery && normalizeWord(b.word) === needle;
+          if (aExact !== bExact) {
+            return aExact ? -1 : 1;
+          }
+          const aMatches = hasQuery && a.range !== null;
+          const bMatches = hasQuery && b.range !== null;
+          if (aMatches !== bMatches) {
+            return aMatches ? -1 : 1;
+          }
+          if (aMatches && a.range[0] !== b.range[0]) {
+            return a.range[0] - b.range[0];
+          }
+          return a.index - b.index;
+        });
+    }
+
+    function appendHighlightedWord(option, word, range) {
+      if (!range) {
+        option.textContent = word;
+        return;
+      }
+
+      const [start, end] = range;
+      option.append(document.createTextNode(word.slice(0, start)));
+      const mark = document.createElement("mark");
+      mark.textContent = word.slice(start, end);
+      option.append(mark, document.createTextNode(word.slice(end)));
+    }
+
+    function setActiveOption(input, list, option) {
+      for (const item of list.querySelectorAll(".option")) {
+        item.setAttribute("aria-selected", "false");
+      }
+      option.setAttribute("aria-selected", "true");
+      input.setAttribute("aria-activedescendant", option.id);
+      option.scrollIntoView({ block: "nearest" });
+    }
+
+    function renderWordOptions(input, list) {
+      const rows = sortedWordRows(input.value);
+      const exactIndex = WORD_INDEX.get(normalizeWord(input.value));
+      const fragment = document.createDocumentFragment();
+      let activeOption = null;
+
+      for (const row of rows) {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.id = `${list.id}-${row.index}`;
+        option.className = "option";
+        option.dataset.index = String(row.index);
+        option.setAttribute("role", "option");
+        option.setAttribute("aria-selected", "false");
+        if (row.range) {
+          option.classList.add("is-match");
+        }
+        appendHighlightedWord(option, row.word, row.range);
+        fragment.append(option);
+
+        if (!activeOption && (row.index === exactIndex || exactIndex === undefined)) {
+          activeOption = option;
+        }
+      }
+
+      list.replaceChildren(fragment);
+      if (activeOption) {
+        setActiveOption(input, list, activeOption);
+      } else {
+        input.removeAttribute("aria-activedescendant");
+      }
+    }
+
+    function closeWordPicker(input, list) {
+      list.hidden = true;
+      input.setAttribute("aria-expanded", "false");
+      input.removeAttribute("aria-activedescendant");
+    }
+
+    function closeAllWordPickers() {
+      closeWordPicker(ui.isles, ui.islesOptions);
+      closeWordPicker(ui.ocean, ui.oceanOptions);
+    }
+
+    function openWordPicker(input, list) {
+      closeAllWordPickers();
+      renderWordOptions(input, list);
+      list.hidden = false;
+      input.setAttribute("aria-expanded", "true");
+    }
+
+    function selectWord(input, list, index) {
+      input.value = ISLAND_WORDS[index];
+      resizeInput(input);
+      renderWordOptions(input, list);
+      closeWordPicker(input, list);
+      input.focus({ preventScroll: true });
+    }
+
+    function moveActiveOption(input, list, delta) {
+      const options = Array.from(list.querySelectorAll(".option"));
+      if (options.length === 0) {
+        return;
+      }
+      const current = Math.max(0, options.findIndex((option) => option.getAttribute("aria-selected") === "true"));
+      const next = (current + delta + options.length) % options.length;
+      setActiveOption(input, list, options[next]);
+    }
+
+    function bindWordPicker(input, list) {
+      input.addEventListener("focus", () => openWordPicker(input, list));
+      input.addEventListener("click", () => openWordPicker(input, list));
+      input.addEventListener("input", () => {
+        renderWordOptions(input, list);
+        list.hidden = false;
+        input.setAttribute("aria-expanded", "true");
+      });
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          if (list.hidden) {
+            openWordPicker(input, list);
+          } else {
+            moveActiveOption(input, list, event.key === "ArrowDown" ? 1 : -1);
+          }
+          return;
+        }
+        if (event.key === "Enter" && !list.hidden) {
+          const active = list.querySelector('[aria-selected="true"]');
+          if (active) {
+            event.preventDefault();
+            selectWord(input, list, Number(active.dataset.index));
+          }
+          return;
+        }
+        if (event.key === "Escape") {
+          closeWordPicker(input, list);
+          return;
+        }
+        if (event.key === "Tab") {
+          closeWordPicker(input, list);
+        }
+      });
+      list.addEventListener("pointerdown", (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        const option = target?.closest(".option");
+        if (!option) {
+          return;
+        }
+        event.preventDefault();
+        selectWord(input, list, Number(option.dataset.index));
+      });
+    }
+
+    function readNumber(input, min, max) {
+      const value = Number(input.value);
+      if (!Number.isInteger(value) || value < min || value > max) {
+        throw new Error(`${input.getAttribute("aria-label")} must be ${min}..${max}`);
+      }
+      return value;
+    }
+
+    function readWordIndex(input, fieldName) {
+      const index = WORD_INDEX.get(normalizeWord(input.value));
+      if (index === undefined) {
+        throw new Error(`${fieldName} must be selected from the word list.`);
+      }
+      input.value = ISLAND_WORDS[index];
+      resizeInput(input);
+      return index;
+    }
+
+    function random128() {
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      let value = 0n;
+      for (let i = 15; i >= 0; i--) {
+        value = (value << 8n) | BigInt(bytes[i]);
+      }
+      return value;
+    }
+
+    function writeParams(target) {
+      const bytes = new ArrayBuffer(48);
+      const view = new DataView(bytes);
+      view.setUint32(0, target.ocean, true);
+      view.setUint32(4, target.isles, true);
+      view.setUint32(8, target.num1, true);
+      view.setUint32(12, target.num2, true);
+      view.setUint32(16, Number(baseCounter & 0xffffffffn), true);
+      view.setUint32(20, Number((baseCounter >> 32n) & 0xffffffffn), true);
+      view.setUint32(24, Number((baseCounter >> 64n) & 0xffffffffn), true);
+      view.setUint32(28, Number((baseCounter >> 96n) & 0xffffffffn), true);
+      view.setUint32(32, ITERATIONS_PER_THREAD, true);
+      view.setUint32(36, STRIDE, true);
+      device.queue.writeBuffer(paramsBuffer, 0, bytes);
+    }
+
+    function wordsToHex(words) {
+      let hex = "";
+      for (const word of words) {
+        for (let shift = 0; shift < 32; shift += 8) {
+          hex += ((word >>> shift) & 0xff).toString(16).padStart(2, "0").toUpperCase();
+        }
+      }
+      return hex;
+    }
+
+    function hexToBytes(hex) {
+      const out = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < out.length; i++) {
+        out[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+      }
+      return out;
+    }
+
+    async function verifyResult(hex) {
+      const key = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode("this is a tempolary key.\0"),
+        { name: "HMAC", hash: "SHA-1" },
+        false,
+        ["sign"]
+      );
+      const digest = new Uint8Array(await crypto.subtle.sign("HMAC", key, hexToBytes(hex)));
+      const hLo = digest[0] | (digest[1] << 8) | (digest[2] << 16) | (digest[3] << 24);
+      const hHi = digest[4] | (digest[5] << 8) | (digest[6] << 16) | (digest[7] << 24);
+      return {
+        ocean: ((((hHi >>> 0) % 100) * 96) + ((hLo >>> 0) % 100)) % 100,
+        isles: ((((hHi >>> 0) % 100) * 4) + (((hLo >>> 10) >>> 0) % 100)) % 100,
+        num1: ((((hHi >>> 0) % 1000) * 96) + (hLo >>> 20)) % 1000,
+        num2: ((((hHi >>> 0) % 1000) * 4) + (hLo >>> 30)) % 1000,
+      };
+    }
+
+    function formatCount(value) {
+      return new Intl.NumberFormat().format(value);
+    }
+
+    function updateStats() {
+      const seconds = Math.max((performance.now() - startedAt) / 1000, 0.001);
+      const rate = Number(checked) / seconds;
+      ui.checked.textContent = formatCount(checked);
+      ui.rate.textContent = `${formatCount(Math.round(rate))}/s`;
+    }
+
+    async function initWebGpu() {
+      if (!navigator.gpu) {
+        throw new Error("WebGPU is not available in this browser.");
+      }
+
+      const adapter = await navigator.gpu.requestAdapter();
+      if (!adapter) {
+        throw new Error("No WebGPU adapter was found.");
+      }
+
+      device = await adapter.requestDevice();
+      const module = device.createShaderModule({ code: shaderSource });
+      pipeline = await device.createComputePipelineAsync({
+        layout: "auto",
+        compute: { module, entryPoint: "main" },
+      });
+
+      paramsBuffer = device.createBuffer({
+        size: 48,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+      });
+      resultBuffer = device.createBuffer({
+        size: 32,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+      });
+      readbackBuffer = device.createBuffer({
+        size: 32,
+        usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+      });
+
+      bindGroup = device.createBindGroup({
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+          { binding: 0, resource: { buffer: paramsBuffer } },
+          { binding: 1, resource: { buffer: resultBuffer } },
+        ],
+      });
+    }
+
+    async function runChunk(target) {
+      writeParams(target);
+
+      const encoder = device.createCommandEncoder();
+      const pass = encoder.beginComputePass();
+      pass.setPipeline(pipeline);
+      pass.setBindGroup(0, bindGroup);
+      pass.dispatchWorkgroups(DISPATCH_GROUPS);
+      pass.end();
+      encoder.copyBufferToBuffer(resultBuffer, 0, readbackBuffer, 0, 32);
+      device.queue.submit([encoder.finish()]);
+      await readbackBuffer.mapAsync(GPUMapMode.READ);
+      const words = new Uint32Array(readbackBuffer.getMappedRange().slice(0));
+      readbackBuffer.unmap();
+
+      baseCounter = (baseCounter + CHUNK_CANDIDATES) & MASK_128;
+      checked += CHUNK_CANDIDATES;
+      return words;
+    }
+
+    async function startSearch() {
+      if (running) {
+        return;
+      }
+
+      let target;
+      try {
+        target = {
+          ocean: readWordIndex(ui.ocean, "Ocean"),
+          isles: readWordIndex(ui.isles, "Isles"),
+          num1: readNumber(ui.num1, 0, 999),
+          num2: readNumber(ui.num2, 0, 999),
+        };
+      } catch (error) {
+        ui.warning.hidden = false;
+        ui.warning.textContent = error.message;
+        return;
+      }
+
+      running = true;
+      stopRequested = false;
+      checked = 0n;
+      baseCounter = random128();
+      startedAt = performance.now();
+      ui.warning.hidden = true;
+      ui.result.textContent = "Searching...";
+      ui.state.textContent = "Running";
+      ui.start.disabled = true;
+      ui.stop.disabled = false;
+      device.queue.writeBuffer(resultBuffer, 0, new Uint32Array(8));
+
+      try {
+        while (!stopRequested) {
+          const words = await runChunk(target);
+          updateStats();
+
+          if (words[0] !== 0) {
+            const hex = wordsToHex(words.slice(1, 5));
+            const decoded = await verifyResult(hex);
+            ui.state.textContent = "Found";
+            ui.result.textContent = `${hex}\n${decoded.num1}-${decoded.num2} ${ISLAND_WORDS[decoded.isles]} Isles\n${ISLAND_WORDS[decoded.ocean]} Ocean`;
+            break;
+          }
+
+          await new Promise(requestAnimationFrame);
+        }
+
+        if (stopRequested) {
+          ui.state.textContent = "Stopped";
+          ui.result.textContent = "Stopped before a result was found.";
+        }
+      } catch (error) {
+        ui.state.textContent = "Error";
+        ui.result.textContent = error.message;
+      } finally {
+        running = false;
+        ui.start.disabled = false;
+        ui.stop.disabled = true;
+      }
+    }
+
+    for (const input of [ui.num1, ui.num2, ui.isles, ui.ocean]) {
+      bindAutoWidth(input);
+    }
+    bindWordPicker(ui.isles, ui.islesOptions);
+    bindWordPicker(ui.ocean, ui.oceanOptions);
+    resizeAddressInputs();
+    window.addEventListener("resize", resizeAddressInputs);
+    document.addEventListener("pointerdown", (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target?.closest(".combo")) {
+        closeAllWordPickers();
+      }
+    });
+
+    ui.start.addEventListener("click", startSearch);
+    ui.stop.addEventListener("click", () => {
+      stopRequested = true;
+      ui.stop.disabled = true;
+    });
+
+    try {
+      await initWebGpu();
+      ui.state.textContent = "Ready";
+    } catch (error) {
+      ui.state.textContent = "Unavailable";
+      ui.warning.hidden = false;
+      ui.warning.textContent = error.message;
+      ui.start.disabled = true;
+    }
+  </script>
+</body>
+</html>

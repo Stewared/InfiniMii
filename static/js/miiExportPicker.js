@@ -422,6 +422,7 @@
             if (qrConsoleInput) {
                 const normalizedConsole = String(qrConsoleValue || '').trim().toUpperCase();
                 const defaultConsole = String(qrConsoleInput.dataset.defaultQrConsole || '3DS').trim().toUpperCase();
+                // MT QR export is temporarily disabled on the InfiniMii site.
                 const qrConsole = ['3DS', 'WIIU', 'TOMODACHI'].includes(normalizedConsole)
                     ? normalizedConsole
                     : (['WIIU', 'TOMODACHI'].includes(defaultConsole) ? defaultConsole : '3DS');

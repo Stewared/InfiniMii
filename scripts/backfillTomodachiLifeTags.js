@@ -181,7 +181,7 @@ async function main() {
             }
         },
         {
-            new: true,
+            returnDocument: "after",
             upsert: true,
             setDefaultsOnInsert: true
         }

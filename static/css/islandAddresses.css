@@ -1,0 +1,470 @@
+.island-address-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: min(100%, 980px);
+    margin: 0 auto;
+}
+
+.island-address-intro,
+.island-address-tool {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+}
+
+.island-address-intro h1 {
+    margin: 0 0 0.75rem;
+}
+
+.island-address-intro p {
+    margin: 0;
+    color: var(--text-2);
+    line-height: 1.6;
+}
+
+.island-address-upload-box {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+    gap: 0.85rem;
+    align-items: start;
+    margin-bottom: 1rem;
+    padding: 0.95rem;
+    border: 1px solid var(--layer-3-um);
+    border-radius: 8px;
+    background: var(--layer-1-um);
+}
+
+.island-address-upload-main,
+.island-address-name-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.island-address-upload-label,
+.island-address-name-control label {
+    color: var(--text-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.island-address-file,
+.island-address-name-input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: 52px;
+    margin: 0;
+    padding: 12px 16px;
+    border: 2px solid var(--layer-3-um);
+    border-radius: 8px;
+    background-color: var(--layer-1-um);
+    color: var(--text-1);
+    font-family: Poppins, sans-serif;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.island-address-file:focus,
+.island-address-name-input:focus {
+    outline: none;
+    border-color: var(--brand-color);
+}
+
+.island-address-upload-main .note {
+    margin: 0;
+}
+
+.island-address-upload-main .note.is-error {
+    color: #ffd9df;
+}
+
+.island-compat-alerts {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1rem;
+}
+
+.island-compat-alert {
+    margin: 0;
+    padding: 0.85rem 0.95rem;
+    border-radius: 10px;
+    border: 1px solid var(--layer-3-um);
+    background: var(--layer-1-um);
+    color: var(--text-1);
+    line-height: 1.5;
+}
+
+.island-compat-alert.is-error {
+    border-color: color-mix(in oklab, var(--brand-color) 54%, #ef4444 46%);
+    color: #ffd9df;
+}
+
+.island-address-form fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.island-address-inputs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+.island-address-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.island-address-number,
+.island-address-word {
+    width: auto;
+    min-width: 4ch;
+    max-width: min(100%, 28rem);
+    margin: 0;
+    padding: 12px 16px;
+    border: 2px solid var(--layer-3-um);
+    border-radius: 8px;
+    background-color: var(--layer-1-um);
+    color: var(--text-1);
+    font-family: Poppins, sans-serif;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.island-address-number:focus,
+.island-address-word:focus {
+    outline: none;
+    border-color: var(--brand-color);
+}
+
+.island-address-number {
+    text-align: center;
+    -moz-appearance: textfield;
+}
+
+.island-address-number::-webkit-outer-spin-button,
+.island-address-number::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.island-address-dash,
+.island-address-suffix {
+    color: var(--text-2);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.island-address-combo {
+    position: relative;
+    display: inline-flex;
+    max-width: 100%;
+}
+
+.island-address-options {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 0.4rem);
+    left: 50%;
+    width: min(290px, calc(100vw - 2rem));
+    max-height: 260px;
+    overflow-y: auto;
+    transform: translateX(-50%);
+    border: 1px solid var(--layer-3-um);
+    border-radius: 10px;
+    background: var(--layer-1);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.32);
+    padding: 0.35rem;
+}
+
+.island-address-option {
+    width: 100%;
+    min-width: 0;
+    display: block;
+    margin: 0;
+    padding: 0.48rem 0.6rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-1);
+    font: inherit;
+    font-weight: 500;
+    text-align: left;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.island-address-option:hover,
+.island-address-option[aria-selected="true"] {
+    background: var(--layer-3-um);
+    transform: none;
+    box-shadow: none;
+}
+
+.island-address-option.is-match {
+    color: var(--text-1);
+    font-weight: 600;
+}
+
+.island-address-option mark {
+    border-radius: 4px;
+    background: color-mix(in oklab, var(--brand-color) 30%, transparent 70%);
+    color: inherit;
+    padding: 0 0.08rem;
+}
+
+.island-address-measure {
+    position: fixed;
+    left: -10000px;
+    top: -10000px;
+    visibility: hidden;
+    white-space: pre;
+    font: inherit;
+}
+
+.island-address-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.island-address-actions .note {
+    margin: 0;
+}
+
+.island-address-button-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.island-address-button-row button {
+    margin: 0;
+}
+
+.island-address-button-row button:disabled,
+.island-address-button-row button:disabled:hover {
+    opacity: 0.62;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.island-address-button-row .btn-secondary,
+.island-address-copy {
+    background-color: var(--layer-3-um);
+    color: white;
+}
+
+.island-address-button-row .btn-secondary:hover,
+.island-address-copy:hover {
+    background-color: #6d666b;
+}
+
+.island-address-status-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.island-address-metric {
+    min-width: 0;
+    border: 1px solid var(--layer-3-um);
+    border-radius: 10px;
+    background: var(--layer-1-um);
+    padding: 0.85rem 0.9rem;
+}
+
+.island-address-metric span {
+    display: block;
+    color: var(--text-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.island-address-metric strong {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--text-1);
+    font-size: 1.05rem;
+    overflow-wrap: anywhere;
+}
+
+.island-address-result-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.island-address-result-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(0, 1.1fr);
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.island-address-found-address,
+.island-address-id-box {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--layer-3-um);
+    border-radius: 8px;
+    background: var(--layer-1-um);
+    color: var(--text-1);
+}
+
+.island-address-result-label {
+    color: var(--text-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
+
+.island-address-found-address {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.95rem 1rem;
+    border-left: 4px solid var(--brand-color);
+}
+
+.island-address-found-address-value {
+    color: var(--text-1);
+    font-size: 1.02rem;
+    font-weight: 600;
+    line-height: 1.45;
+    text-align: center;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+
+.island-address-id-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.95rem 1rem;
+}
+
+.island-address-id-value {
+    display: block;
+    min-height: 2.2rem;
+    color: var(--text-1);
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.island-address-copy {
+    align-self: flex-start;
+    margin: 0;
+}
+
+.island-address-qr-result {
+    display: grid;
+    grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+    gap: 0.85rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 0.95rem;
+    border: 1px solid var(--layer-3-um);
+    border-radius: 8px;
+    background: var(--layer-1-um);
+}
+
+.island-address-qr-result[hidden] {
+    display: none;
+}
+
+.island-address-qr-preview,
+.island-address-qr-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.island-address-qr-preview img {
+    width: min(100%, 180px);
+    height: auto;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid var(--layer-3-um);
+}
+
+.island-address-qr-details .note {
+    margin: 0;
+}
+
+.island-address-download {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    background-color: var(--layer-3-um);
+    color: white;
+}
+
+.island-address-download[hidden] {
+    display: none;
+}
+
+.island-address-download:hover {
+    background-color: #6d666b;
+}
+
+@media (max-width: 760px) {
+    .island-address-upload-box,
+    .island-address-status-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .island-address-result-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .island-address-qr-result {
+        grid-template-columns: 1fr;
+    }
+
+    .island-address-actions {
+        align-items: stretch;
+    }
+
+    .island-address-button-row,
+    .island-address-button-row button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .island-address-line {
+        flex-wrap: wrap;
+    }
+}

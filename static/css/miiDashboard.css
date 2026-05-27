@@ -71,6 +71,10 @@
     font-weight: 600;
 }
 
+#dashboardTomodachiCard {
+    grid-column: 1 / -1;
+}
+
 .dashboard-preview-image {
     width: 100%;
     aspect-ratio: 1;
@@ -106,8 +110,13 @@
     z-index: 1;
 }
 
-.qr-preview-window.has-tomodachi-qr .qr-console-tabs {
+.qr-preview-window.has-tomodachi-qr .qr-console-tabs,
+.qr-preview-window.has-miitopia-qr .qr-console-tabs {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.qr-preview-window.has-tomodachi-qr.has-miitopia-qr .qr-console-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .qr-console-tab {
@@ -136,7 +145,8 @@
     transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
-.qr-preview-window.has-tomodachi-qr .qr-console-tab {
+.qr-preview-window.has-tomodachi-qr .qr-console-tab,
+.qr-preview-window.has-miitopia-qr .qr-console-tab {
     font-size: 0.7rem;
     letter-spacing: 0;
     padding-inline: 0.12rem;

@@ -104,7 +104,8 @@ const resolvedPageImagePath = (() => {
         return '';
     }
 })();
-const isGeneratedSquareImage = /\/(?:miiimgs|privatemiiimgs|miiqrs|privatemiiqrs|miiqrswii|privatemiiqrswii)\//.test(resolvedPageImagePath);
+// MT QR image routes are temporarily disabled on the InfiniMii site.
+const isGeneratedSquareImage = /\/(?:miiimgs|privatemiiimgs|miiqrs|privatemiiqrs|miiqrswii|privatemiiqrswii|miiqrstomodachi|privatemiiqrstomodachi)\//.test(resolvedPageImagePath);
 const toPositiveInteger = (value, fallback) => {
     const numericValue = Number(value);
     return Number.isFinite(numericValue) && numericValue > 0

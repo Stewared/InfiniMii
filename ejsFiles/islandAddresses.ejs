@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%
+        const pageTitle = 'Tomodachi Life Island Address Search - InfiniMii';
+        const pageDesc = 'Search for a possible Tomodachi Life island ID from an island address using WebGPU in your browser.';
+        const canonicalUrl = `${baseUrl}/islandAddresses`;
+        const keywords = 'tomodachi life island address, island id search, tomodachi life island id, mii island address';
+        const breadcrumbs = [
+            { name: 'Home', url: '/' },
+            { name: 'Island Address Search', url: '/islandAddresses' }
+        ];
+        const schemaGraphs = [{
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "InfiniMii Tomodachi Life Island Address Search",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Web Browser with WebGPU",
+            "url": `${baseUrl}/islandAddresses`,
+            "description": pageDesc,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }];
+        %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, keywords }) %>
+        <%- include('structuredData') %>
+
+        <link rel="stylesheet" href="/global.css">
+        <link rel="stylesheet" href="/utilityPages.css">
+        <link rel="stylesheet" href="/islandAddresses.css">
+    </head>
+    <body>
+        <%- include('globalStyle') %>
+        <%- include('header') %>
+        <%- include('accountDisplay') %>
+
+        <main class="content" role="main">
+            <%- include('sidebar') %>
+
+            <section class="island-address-page" aria-labelledby="island-address-heading">
+                <section class="utility-container island-address-intro">
+                    <h1 id="island-address-heading">Island Address Search</h1>
+                    <p>Enter the address pieces from Tomodachi Life to search for a possible island ID. This runs locally in your browser and uses your GPU.</p>
+
+                    <div id="islandCompatibilityAlerts" class="island-compat-alerts" aria-live="polite">
+                        <noscript>
+                            <p class="island-compat-alert is-error">This tool needs JavaScript enabled before it can run.</p>
+                        </noscript>
+                        <p id="islandNoModuleWarning" class="island-compat-alert is-error" hidden>This browser is too old to run this tool because it does not support modern JavaScript modules.</p>
+                    </div>
+                </section>
+
+                <section class="utility-container island-address-tool" aria-label="Tomodachi Life island address search tool">
+                    <div class="island-address-upload-box">
+                        <div class="island-address-upload-main">
+                            <label class="island-address-upload-label" for="islandMiiUpload">Mii File</label>
+                            <input id="islandMiiUpload" class="island-address-file" name="mii" type="file" accept=".png,.jpg,.jpeg,.webp,.bin,.charinfo,.cfsd,.cfed,.ffsd,.ffed,.tlc,.tls,.tle,.mnms,.rcd,.rsd,.ncd,.nsd,application/octet-stream,image/png,image/jpeg,image/webp">
+                            <p id="islandUploadStatus" class="note">No Mii uploaded.</p>
+                        </div>
+
+                        <div id="islandNameControl" class="island-address-name-control" hidden>
+                            <label for="islandNameInput">Island Name</label>
+                            <input id="islandNameInput" class="island-address-name-input" name="islandName" type="text" maxlength="9" autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+
+                    <form id="islandAddressForm" class="island-address-form">
+                        <fieldset>
+                            <legend>Address</legend>
+
+                            <div class="island-address-inputs">
+                                <div class="island-address-line">
+                                    <label class="sr-only" for="islandNum1">First address number</label>
+                                    <input id="islandNum1" class="island-address-number" name="num1" type="number" min="0" max="999" step="1" value="148" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="First address number">
+                                    <span class="island-address-dash" aria-hidden="true">-</span>
+                                    <label class="sr-only" for="islandNum2">Second address number</label>
+                                    <input id="islandNum2" class="island-address-number" name="num2" type="number" min="0" max="999" step="1" value="148" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Second address number">
+
+                                    <span class="island-address-combo">
+                                        <label class="sr-only" for="islandIsles">Isles word</label>
+                                        <input id="islandIsles" class="island-address-word" name="isles" type="text" value="Creamy Stew" aria-label="Isles word" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="islandIslesOptions" autocomplete="off">
+                                        <span id="islandIslesOptions" class="island-address-options" role="listbox" hidden></span>
+                                    </span>
+                                    <span class="island-address-suffix">Isles</span>
+                                </div>
+
+                                <div class="island-address-line">
+                                    <span class="island-address-combo">
+                                        <label class="sr-only" for="islandOcean">Ocean word</label>
+                                        <input id="islandOcean" class="island-address-word" name="ocean" type="text" value="Avocado" aria-label="Ocean word" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="islandOceanOptions" autocomplete="off">
+                                        <span id="islandOceanOptions" class="island-address-options" role="listbox" hidden></span>
+                                    </span>
+                                    <span class="island-address-suffix">Ocean</span>
+                                </div>
+                            </div>
+
+                            <span id="islandMeasure" class="island-address-measure" aria-hidden="true"></span>
+
+                            <div class="island-address-actions">
+                                <p class="note">Word count: 100. Average searches can take a while depending on GPU speed.</p>
+                                <div class="island-address-button-row">
+                                    <button id="islandStart" type="button" disabled>Checking...</button>
+                                    <button id="islandStop" type="button" class="btn-secondary" disabled>Stop</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                    <div class="island-address-status-grid" aria-live="polite">
+                        <div class="island-address-metric">
+                            <span>Status</span>
+                            <strong id="islandState">Checking support</strong>
+                        </div>
+                        <div class="island-address-metric">
+                            <span>Checked</span>
+                            <strong id="islandChecked">0</strong>
+                        </div>
+                        <div class="island-address-metric">
+                            <span>Rate</span>
+                            <strong id="islandRate">0/s</strong>
+                        </div>
+                    </div>
+
+                    <div class="island-address-result-wrap" aria-live="polite">
+                        <div class="island-address-result-grid">
+                            <div class="island-address-found-address">
+                                <span class="island-address-result-label">Island Address</span>
+                                <output id="islandAddressResult" class="island-address-found-address-value">No address yet.</output>
+                            </div>
+
+                            <div class="island-address-id-box">
+                                <span class="island-address-result-label">Island ID</span>
+                                <output id="islandIdResult" class="island-address-id-value">No ID yet.</output>
+                                <button id="islandCopyId" type="button" class="btn-secondary island-address-copy" hidden>Copy ID</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="islandMiiQrResult" class="island-address-qr-result" hidden>
+                        <div class="island-address-qr-preview">
+                            <span class="island-address-result-label">Generated Mii QR</span>
+                            <img id="islandMiiQrImage" alt="Generated Tomodachi Life Mii QR code" hidden>
+                        </div>
+                        <div class="island-address-qr-details">
+                            <p id="islandMiiQrStatus" class="note">QR not generated yet.</p>
+                            <a id="islandMiiQrDownload" class="btn-secondary island-address-download" href="#" download="tomodachi-life-mii.png" hidden>Download QR</a>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <%- include('featuredMiis') %>
+        </main>
+
+        <%- include('footer') %>
+        <script nomodule>
+            var islandNoModuleWarning = document.getElementById('islandNoModuleWarning');
+            if (islandNoModuleWarning) islandNoModuleWarning.hidden = false;
+        </script>
+        <script src="/islandAddresses.js" type="module"></script>
+    </body>
+</html>

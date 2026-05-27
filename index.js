@@ -6,6 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import helmet from 'helmet';
 import miijs from "miijs";
+import { islandAddresses as TOMODACHI_LIFE_ISLAND_WORDS } from "./node_modules/miijs/data.js";
 import crypto from 'crypto';
 import fs from "fs";
 import ejs from 'ejs';
@@ -67,13 +68,22 @@ import {
     normalizeOAuthEmail
 } from "./oauthProviders.js";
 
+// MT QR support remains in MiiJS, but the InfiniMii site is hiding/gating
+// Miitopia QR generation for now so it can be re-enabled cleanly later.
+const ENABLE_MIITOPIA_QRS = false;
+
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 fs.mkdirSync(path.join(__dirname, "static", "miiImgs"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "static", "miiQRs"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "static", "miiQRsWii"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "static", "miiQRsTomodachi"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "static", "privateMiiImgs"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRs"), { recursive: true });
 fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRsWii"), { recursive: true });
+fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRsTomodachi"), { recursive: true });
+// MT QR cache directories are intentionally disabled on the site for now.
+// fs.mkdirSync(path.join(__dirname, "static", "miiQRsMiitopia"), { recursive: true });
+// fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRsMiitopia"), { recursive: true });
 
 const defaultMiisPerPage = 16;
 const profileMiisPerPage = 18;
@@ -417,8 +427,14 @@ function getSafeRedirectPath(target, fallback = "/") {
 function normalizeQrConsole(input) {
     const cleaned = String(input || "").trim().toUpperCase().replace(/[\s_-]+/g, "");
     if (["TOMODACHI", "TOMODACHILIFE", "TL", "TLE"].includes(cleaned)) return "TOMODACHI";
+    if (isMiitopiaQrConsole(cleaned)) return ENABLE_MIITOPIA_QRS ? "MIITOPIA" : "3DS";
     if (cleaned === "WIIU") return "WIIU";
     return "3DS";
+}
+
+function isMiitopiaQrConsole(input) {
+    const cleaned = String(input || "").trim().toUpperCase().replace(/[\s_-]+/g, "");
+    return ["MIITOPIA", "MT", "MTE"].includes(cleaned);
 }
 
 const MII_DATA_TOP_LEVEL_KEYS = Object.freeze([
@@ -655,6 +671,25 @@ function normalizeMiiFieldsForExport(fields) {
     }
 
     return normalized;
+}
+
+async function makeRenderedQrFromPayload(qrPayload, miiFields, qrOptions = {}) {
+    const nextQrOptions = { ...(qrOptions || {}) };
+
+    if (!nextQrOptions.image && !nextQrOptions.noRenderMii) {
+        try {
+            const overlayPng = await miijs.renderMii(miiFields, nextQrOptions);
+            nextQrOptions.image = Buffer.isBuffer(overlayPng) ? overlayPng : Buffer.from(overlayPng);
+        } catch (e) {
+            console.warn(`Unable to render Mii overlay for QR: ${e?.message || e}`);
+        }
+    }
+
+    if (!nextQrOptions.label && miiFields?.meta?.name) {
+        nextQrOptions.label = miiFields.meta.name;
+    }
+
+    return miijs.makeQR(qrPayload, nextQrOptions);
 }
 
 function safeMiiFilename(name, fallback = "mii") {
@@ -1139,18 +1174,32 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
         exportFields.meta.type = "Special";
     }
 
-    const miiInstance = await miijs.Mii.create(exportFields);
-
     if (format === "qr") {
-        const qrConsole = normalizeQrConsole(options.qrConsole || options.device);
+        const requestedQrConsole = options.qrConsole || options.device;
+        if (!ENABLE_MIITOPIA_QRS && isMiitopiaQrConsole(requestedQrConsole)) {
+            throw new Error("Miitopia QR export is temporarily disabled on InfiniMii.");
+        }
+
+        const qrConsole = normalizeQrConsole(requestedQrConsole);
+        let qrFields = exportFields;
+        let qrFormat = qrConsole === "WIIU" ? "ffed" : "cfed";
+
         if (qrConsole === "TOMODACHI" && !hasDecodedTomodachiLifeData(exportFields)) {
             throw new Error("Tomodachi Life QR export requires stored Tomodachi Life data.");
         }
-        const qrFormat = qrConsole === "TOMODACHI"
-            ? "tle"
-            : (qrConsole === "WIIU" ? "ffed" : "cfed");
+        if (qrConsole === "TOMODACHI") {
+            qrFormat = "tle";
+        } else if (qrConsole === "MIITOPIA") {
+            if (!canGenerateMiitopiaQr(exportFields)) {
+                throw new Error("Miitopia QR export requires a Miitopia war cry or Tomodachi Life catchphrase.");
+            }
+            qrFields = buildMiitopiaQrMii(exportFields);
+            qrFormat = "mte";
+        }
+
+        const miiInstance = await miijs.Mii.create(qrFields);
         const qrPayload = await miiInstance.encode(qrFormat);
-        const qrBuffer = await miijs.makeQR(qrPayload, options.qrOptions || {});
+        const qrBuffer = await makeRenderedQrFromPayload(qrPayload, miiInstance.fields, options.qrOptions);
         return {
             buffer: qrBuffer,
             contentType: "image/png",
@@ -1158,6 +1207,7 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
         };
     }
 
+    const miiInstance = await miijs.Mii.create(exportFields);
     const buffer = await miiInstance.encode(format);
     return {
         buffer,
@@ -1169,6 +1219,27 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
 async function writeQrPng(miiInput, outputPath, qrConsole = "3DS") {
     const { buffer } = await exportMiiToBuffer(miiInput, "qr", { qrConsole });
     await fs.promises.writeFile(outputPath, buffer);
+}
+
+async function writeOptionalQrPng(miiInput, outputPath, qrConsole) {
+    if (!ENABLE_MIITOPIA_QRS && isMiitopiaQrConsole(qrConsole)) {
+        // MT QR cache generation is intentionally disabled for now.
+        try { await fs.promises.unlink(outputPath); } catch (e) {}
+        return false;
+    }
+
+    const normalizedConsole = normalizeQrConsole(qrConsole);
+    if (normalizedConsole === "TOMODACHI" && !hasDecodedTomodachiLifeData(miiInput)) {
+        try { await fs.promises.unlink(outputPath); } catch (e) {}
+        return false;
+    }
+    if (normalizedConsole === "MIITOPIA" && !canGenerateMiitopiaQr(miiInput)) {
+        try { await fs.promises.unlink(outputPath); } catch (e) {}
+        return false;
+    }
+
+    await writeQrPng(miiInput, outputPath, normalizedConsole);
+    return true;
 }
 
 function bufferToDataUri(buffer, mimeType = "image/png") {
@@ -1245,18 +1316,230 @@ function getDashboardFullBirthdayLabel(monthValue, dayValue) {
     return `${month} ${day}`;
 }
 
-function buildMiiDashboardTomodachiRows(mii) {
+const TOMODACHI_LIFE_PERSONALITIES = Object.freeze([
+    Object.freeze(["Independent Lone Wolf", "Independent Thinker", "Confident Brainiac", "Confident Go-getter"]),
+    Object.freeze(["Independent Free Spirit", "Independent Artist", "Confident Designer", "Confident Adventurer"]),
+    Object.freeze(["Easygoing Buddy", "Easygoing Dreamer", "Outgoing Charmer", "Outgoing Leader"]),
+    Object.freeze(["Easygoing Softie", "Easygoing Optimist", "Outgoing Trendsetter", "Outgoing Entertainer"])
+]);
+const TOMODACHI_LIFE_ISLAND_ID_HEX_LENGTH = 32;
+const TOMODACHI_LIFE_ISLAND_NAME_MAX_LENGTH = 9;
+
+function normalizeTomodachiLifePersonalityValue(value) {
+    const parsed = Number(value);
+    if (!Number.isInteger(parsed) || parsed < 1 || parsed > 8) return null;
+    return parsed;
+}
+
+function getTomodachiLifePersonalityLabel(personality) {
+    if (!personality || typeof personality !== "object") return "";
+
+    let movement = normalizeTomodachiLifePersonalityValue(personality.movement);
+    let speech = normalizeTomodachiLifePersonalityValue(personality.speech);
+    let expressiveness = normalizeTomodachiLifePersonalityValue(personality.expressiveness);
+    let attitude = normalizeTomodachiLifePersonalityValue(personality.attitude);
+
+    if ([movement, speech, expressiveness, attitude].some(value => value === null)) {
+        return "";
+    }
+
+    movement--;
+    speech--;
+    expressiveness--;
+    attitude--;
+
+    if (speech > 3) speech++;
+    if (attitude > 3) attitude++;
+
+    const x = movement + speech;
+    const y = expressiveness + attitude;
+    return TOMODACHI_LIFE_PERSONALITIES[Math.floor(y / 4)]?.[Math.floor(x / 4)] || "";
+}
+
+function normalizeTomodachiLifeAddressText(value) {
+    return String(value ?? "")
+        .replace(/\r\n?/g, "\n")
+        .replace(/[ \t]+\n/g, "\n")
+        .replace(/\n[ \t]+/g, "\n")
+        .trim();
+}
+
+function normalizeTomodachiLifeIslandIdHex(value) {
+    const normalized = String(value ?? "").replace(/[^0-9a-f]/gi, "").toUpperCase();
+    return normalized.length === TOMODACHI_LIFE_ISLAND_ID_HEX_LENGTH ? normalized : "";
+}
+
+function getTomodachiLifeIslandIdHex(mii) {
+    const islandId = mii?.tl?.island?.id;
+    if (typeof islandId === "string") return normalizeTomodachiLifeIslandIdHex(islandId);
+    if (islandId && typeof islandId === "object" && !Array.isArray(islandId)) {
+        return normalizeTomodachiLifeIslandIdHex(islandId.id);
+    }
+    return "";
+}
+
+function getTomodachiLifeIslandName(mii) {
+    return String(mii?.tl?.island?.name ?? "").replace(/\s+/g, " ").trim();
+}
+
+function getTomodachiLifeIslandReadableAddress(mii) {
+    const islandId = mii?.tl?.island?.id;
+    if (!islandId || typeof islandId !== "object" || Array.isArray(islandId)) return "";
+    return normalizeTomodachiLifeAddressText(islandId.readable);
+}
+
+function getTomodachiLifeIslandWord(value) {
+    if (Number.isInteger(value) && value >= 0 && value < TOMODACHI_LIFE_ISLAND_WORDS.length) {
+        return TOMODACHI_LIFE_ISLAND_WORDS[value];
+    }
+
+    const normalized = String(value ?? "").replace(/\s+/g, " ").trim();
+    if (!normalized) return "";
+    return TOMODACHI_LIFE_ISLAND_WORDS.find((word) => word.toLowerCase() === normalized.toLowerCase()) || normalized;
+}
+
+function formatTomodachiLifeIslandAddress({ islandName, num1, num2, isles, ocean } = {}) {
+    const addressLines = [];
+    const normalizedIslandName = String(islandName ?? "").trim();
+    if (normalizedIslandName) addressLines.push(`${normalizedIslandName} Island`);
+    if (Number.isInteger(num1) && Number.isInteger(num2) && isles) {
+        addressLines.push(`${num1}-${num2} ${isles} Isles`);
+    }
+    if (ocean) addressLines.push(`${ocean} Ocean`);
+    return normalizeTomodachiLifeAddressText(addressLines.join("\n"));
+}
+
+function parseTomodachiLifeReadableAddress(readable) {
+    const normalized = normalizeTomodachiLifeAddressText(readable);
+    if (!normalized) return null;
+
+    const lines = normalized.split("\n").map((line) => line.trim()).filter(Boolean);
+    const joined = lines.join("\n");
+    const addressMatch = joined.match(/(?:^|\n)(\d{1,3})\s*-\s*(\d{1,3})\s+(.+?)\s+Isles(?:\n|$)/i);
+    const oceanMatch = joined.match(/(?:^|\n)(.+?)\s+Ocean(?:\n|$)/i);
+    if (!addressMatch || !oceanMatch) return null;
+
+    const num1 = Number.parseInt(addressMatch[1], 10);
+    const num2 = Number.parseInt(addressMatch[2], 10);
+    if (!Number.isInteger(num1) || !Number.isInteger(num2)) return null;
+
+    const islandLine = lines.find((line) => /\sIsland$/i.test(line) && !/\sIsles$/i.test(line));
+    const islandName = islandLine ? islandLine.replace(/\sIsland$/i, "").trim() : "";
+    const isles = getTomodachiLifeIslandWord(addressMatch[3]);
+    const ocean = getTomodachiLifeIslandWord(oceanMatch[1]);
+    const formatted = formatTomodachiLifeIslandAddress({ islandName, num1, num2, isles, ocean });
+
+    return { islandName, num1, num2, isles, ocean, readable: formatted || normalized };
+}
+
+function deriveTomodachiLifeIslandAddressFromId(islandIdHex, islandName = "") {
+    const normalizedId = normalizeTomodachiLifeIslandIdHex(islandIdHex);
+    if (!normalizedId) return null;
+
+    const digest = crypto
+        .createHmac("sha1", Buffer.from("this is a tempolary key.\0", "ascii"))
+        .update(Buffer.from(normalizedId, "hex"))
+        .digest();
+
+    const h = (BigInt(digest.readUInt32LE(4)) << 32n) | BigInt(digest.readUInt32LE(0));
+    const wordCount = BigInt(TOMODACHI_LIFE_ISLAND_WORDS.length);
+    const ocean = TOMODACHI_LIFE_ISLAND_WORDS[Number(h % wordCount)];
+    const isles = TOMODACHI_LIFE_ISLAND_WORDS[Number((h >> 10n) % wordCount)];
+    const num1 = Number((h >> 20n) % 1000n);
+    const num2 = Number((h >> 30n) % 1000n);
+    const readable = formatTomodachiLifeIslandAddress({ islandName, num1, num2, isles, ocean });
+
+    return { islandName, num1, num2, isles, ocean, readable };
+}
+
+function getTomodachiLifeIslandAddressInfo(mii) {
+    const islandName = getTomodachiLifeIslandName(mii);
+    const islandId = getTomodachiLifeIslandIdHex(mii);
+    const readable = getTomodachiLifeIslandReadableAddress(mii);
+    const parsed = parseTomodachiLifeReadableAddress(readable);
+    const derived = islandId ? deriveTomodachiLifeIslandAddressFromId(islandId, islandName || parsed?.islandName || "") : null;
+    const source = parsed || derived;
+
+    if (!source) {
+        return {
+            islandId,
+            islandName,
+            readable
+        };
+    }
+
+    const resolvedIslandName = islandName || source.islandName || "";
+    return {
+        islandId,
+        islandName: resolvedIslandName,
+        num1: source.num1,
+        num2: source.num2,
+        isles: source.isles,
+        ocean: source.ocean,
+        readable: formatTomodachiLifeIslandAddress({
+            islandName: resolvedIslandName,
+            num1: source.num1,
+            num2: source.num2,
+            isles: source.isles,
+            ocean: source.ocean
+        })
+    };
+}
+
+function normalizeTomodachiLifeIslandNameForQr(value, fallback = "") {
+    const normalized = String(value ?? "")
+        .replace(/\s+/g, " ")
+        .trim();
+    const next = normalized || fallback || "no name";
+    return next.slice(0, TOMODACHI_LIFE_ISLAND_NAME_MAX_LENGTH);
+}
+
+function buildTomodachiLifeMiiWithIslandOverrides(mii, islandIdHex, islandNameValue) {
+    const normalizedId = normalizeTomodachiLifeIslandIdHex(islandIdHex);
+    if (!normalizedId) {
+        throw new Error("Island ID must be 16 bytes of hexadecimal text.");
+    }
+
+    const nextMii = JSON.parse(JSON.stringify(mii));
+    nextMii.tl = nextMii.tl && typeof nextMii.tl === "object" ? nextMii.tl : {};
+    nextMii.tl.island = nextMii.tl.island && typeof nextMii.tl.island === "object" ? nextMii.tl.island : {};
+
+    const islandName = normalizeTomodachiLifeIslandNameForQr(islandNameValue, getTomodachiLifeIslandName(nextMii));
+    const previousIslandId = nextMii.tl.island.id;
+    const nextIslandId = previousIslandId && typeof previousIslandId === "object" && !Array.isArray(previousIslandId)
+        ? { ...previousIslandId }
+        : {};
+    const address = deriveTomodachiLifeIslandAddressFromId(normalizedId, islandName);
+
+    nextIslandId.id = normalizedId;
+    if (address) {
+        nextIslandId.num1 = address.num1;
+        nextIslandId.num2 = address.num2;
+        nextIslandId.isles = address.isles;
+        nextIslandId.ocean = address.ocean;
+        nextIslandId.readable = address.readable;
+    }
+    nextMii.tl.island.name = islandName;
+    nextMii.tl.island.id = nextIslandId;
+
+    return { mii: nextMii, address, islandName };
+}
+
+function buildTomodachiLifeInfoRows(mii) {
     if (!hasDecodedTomodachiLifeData(mii)) return [];
 
     const rows = [];
-    const addRow = (label, value) => {
+    const addRow = (key, label, value, options = {}) => {
         rows.push({
+            key,
             label,
-            value: value === null || value === undefined || value === "" ? "Not Set" : String(value)
+            value: value === null || value === undefined || value === "" ? "Not Set" : String(value),
+            multiline: Boolean(options.multiline)
         });
     };
 
     const tl = mii.tl || {};
+    const islandAddress = getTomodachiLifeIslandAddressInfo(mii);
     const fullName = [tl.firstName, tl.lastName]
         .map((part) => String(part || "").trim())
         .filter(Boolean)
@@ -1266,12 +1549,14 @@ function buildMiiDashboardTomodachiRows(mii) {
         tl.birthday ?? mii?.general?.birthday
     );
 
-    addRow("Full Name", fullName);
-    addRow("Full Birthday", birthday);
-    addRow("Island Name", tl.island?.name || "");
-    addRow("Age Group", tl.isAdult === true ? "Adult" : (tl.isAdult === false ? "Child" : ""));
+    addRow("fullName", "Full Name", fullName);
+    addRow("fullBirthday", "Full Birthday", birthday);
+    addRow("islandName", "Island Name", islandAddress.islandName || tl.island?.name || "");
+    addRow("islandAddress", "Island Address", islandAddress.readable || "", { multiline: true });
+    addRow("ageGroup", "Age Group", tl.isAdult === true ? "Adult" : (tl.isAdult === false ? "Child" : ""));
+    addRow("personality", "Personality", getTomodachiLifePersonalityLabel(tl.personality));
     if (tl.catchphrase !== null && tl.catchphrase !== undefined && String(tl.catchphrase).trim()) {
-        addRow("Catchphrase", tl.catchphrase);
+        addRow("catchphrase", "Catchphrase", tl.catchphrase);
     }
 
     return rows;
@@ -1318,6 +1603,7 @@ async function buildMiiDashboardResult(miiInput) {
     const miiHeight = Number(mii?.general?.height ?? 0);
     const miiWeight = Number(mii?.general?.weight ?? 0);
     const hasTomodachiData = hasDecodedTomodachiLifeData(mii);
+    const hasMiitopiaQr = canGenerateMiitopiaQr(mii);
 
     const [
         renderBuffer,
@@ -1325,6 +1611,7 @@ async function buildMiiDashboardResult(miiInput) {
         qr3dsExport,
         qrWiiuExport,
         qrTomodachiExport,
+        qrMiitopiaExport,
         heightMeasurements,
         weightMeasurements
     ] = await Promise.all([
@@ -1334,6 +1621,9 @@ async function buildMiiDashboardResult(miiInput) {
         exportMiiToBuffer(mii, "qr", { qrConsole: "WIIU" }),
         hasTomodachiData
             ? exportMiiToBuffer(mii, "qr", { qrConsole: "TOMODACHI" })
+            : Promise.resolve(null),
+        hasMiitopiaQr
+            ? exportMiiToBuffer(mii, "qr", { qrConsole: "MIITOPIA" })
             : Promise.resolve(null),
         miijs.miiHeightToMeasurements(miiHeight),
         miijs.miiWeightToMeasurements(miiHeight, miiWeight)
@@ -1351,8 +1641,11 @@ async function buildMiiDashboardResult(miiInput) {
         qrTomodachiDataUri: qrTomodachiExport
             ? bufferToDataUri(qrTomodachiExport.buffer, qrTomodachiExport.contentType || "image/png")
             : "",
+        qrMiitopiaDataUri: qrMiitopiaExport
+            ? bufferToDataUri(qrMiitopiaExport.buffer, qrMiitopiaExport.contentType || "image/png")
+            : "",
         infoRows: buildMiiDashboardInfoRows(mii, heightMeasurements, weightMeasurements),
-        tomodachiRows: buildMiiDashboardTomodachiRows(mii),
+        tomodachiRows: buildTomodachiLifeInfoRows(mii),
         createdOn: formatDashboardDate(getMiiCreationTimestamp(mii)),
         heightMeasurements,
         weightMeasurements
@@ -1435,18 +1728,24 @@ async function saveDashboardMiiFields(existingMii, miiFields) {
         miiHash: mergedMii.miiHash,
         tags: mergedMii.tags
     });
-    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(existingMii.id, Boolean(existingMii.private));
-    const [renderBuffer, qr3dsExport, qrWiiuExport] = await Promise.all([
+    const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(existingMii.id, Boolean(existingMii.private));
+    const hasTomodachiQr = hasDecodedTomodachiLifeData(mergedMii);
+    const hasMiitopiaQr = canGenerateMiitopiaQr(mergedMii);
+    const [renderBuffer, qr3dsExport, qrWiiuExport, qrTomodachiExport, qrMiitopiaExport] = await Promise.all([
         miijs.renderMii(mergedMii),
         exportMiiToBuffer(mergedMii, "qr", { qrConsole: "3DS" }),
-        exportMiiToBuffer(mergedMii, "qr", { qrConsole: "WIIU" })
+        exportMiiToBuffer(mergedMii, "qr", { qrConsole: "WIIU" }),
+        hasTomodachiQr ? exportMiiToBuffer(mergedMii, "qr", { qrConsole: "TOMODACHI" }) : Promise.resolve(null),
+        hasMiitopiaQr ? exportMiiToBuffer(mergedMii, "qr", { qrConsole: "MIITOPIA" }) : Promise.resolve(null)
     ]);
 
     await Miis.updateOne({ id: existingMii.id }, update);
     await Promise.all([
         fs.promises.writeFile(imgPath, renderBuffer),
         fs.promises.writeFile(qrPath, qr3dsExport.buffer),
-        fs.promises.writeFile(qrWiiPath, qrWiiuExport.buffer)
+        fs.promises.writeFile(qrWiiPath, qrWiiuExport.buffer),
+        qrTomodachiExport ? fs.promises.writeFile(qrTomodachiPath, qrTomodachiExport.buffer) : fs.promises.unlink(qrTomodachiPath).catch(() => {}),
+        qrMiitopiaExport ? fs.promises.writeFile(qrMiitopiaPath, qrMiitopiaExport.buffer) : fs.promises.unlink(qrMiitopiaPath).catch(() => {})
     ]);
 
     return {
@@ -1884,7 +2183,7 @@ async function loadSettingsFromDatabase() {
             settings = normalizeSettingsRecord(await Settings.findByIdAndUpdate(
                 "global",
                 { defaultUserPfpMii: DEFAULT_USER_PFP_MII_ID },
-                { new: true, lean: true }
+                { returnDocument: "after", lean: true }
             ));
         } else {
             settings = normalizeSettingsRecord(settings);
@@ -1913,7 +2212,7 @@ async function getSettings() {
 
 async function updateSettings(updates) {
     const settings = await Settings.findByIdAndUpdate("global", updates, {
-        new: true,
+        returnDocument: "after",
         upsert: true,
         lean: true
     });
@@ -4195,6 +4494,43 @@ function hasDecodedTomodachiLifeData(mii) {
     return Object.keys(tlData).length > 0;
 }
 
+function getTrimmedMiiString(value) {
+    return typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
+}
+
+function getMiitopiaWarCry(mii) {
+    return getTrimmedMiiString(mii?.mt?.warCry);
+}
+
+function getTomodachiLifeCatchphrase(mii) {
+    return getTrimmedMiiString(mii?.tl?.catchphrase);
+}
+
+function canGenerateMiitopiaQr(mii) {
+    return ENABLE_MIITOPIA_QRS && Boolean(getMiitopiaWarCry(mii) || getTomodachiLifeCatchphrase(mii));
+}
+
+function getDefaultQrConsoleForMii(mii) {
+    if (hasDecodedTomodachiLifeData(mii)) return "TOMODACHI";
+    if (canGenerateMiitopiaQr(mii)) return "MIITOPIA";
+    return "3DS";
+}
+
+function buildMiitopiaQrMii(mii) {
+    const warCry = getMiitopiaWarCry(mii);
+    const catchphrase = getTomodachiLifeCatchphrase(mii);
+    if (!warCry && !catchphrase) return mii;
+
+    const nextMii = cloneSerializable(mii) || {};
+    if (!getMiitopiaWarCry(nextMii)) {
+        nextMii.mt = nextMii.mt && typeof nextMii.mt === "object" && !Array.isArray(nextMii.mt)
+            ? nextMii.mt
+            : {};
+        nextMii.mt.warCry = catchphrase;
+    }
+    return nextMii;
+}
+
 function getTomodachiLifeDisplayValue(value, fallback = "Unknown") {
     const normalized = String(value ?? "")
         .replace(/\s+/g, " ")
@@ -4613,18 +4949,22 @@ async function persistUploadedMii(mii, {
     await applyAutomaticDecodedMiiTags(mii);
     ensureUploadMiiPermissions(mii);
 
-    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(mii.id, !wantsPublic);
+    const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(mii.id, !wantsPublic);
     const assetPaths = {
         img: imgPath,
         qr3ds: qrPath,
-        qrWii: qrWiiPath
+        qrWii: qrWiiPath,
+        qrTomodachi: qrTomodachiPath,
+        qrMiitopia: qrMiitopiaPath
     };
 
     try {
         await Promise.all([
             writeRenderedMiiImage(mii, assetPaths.img),
             writeQrPng(mii, assetPaths.qr3ds, "3DS"),
-            writeQrPng(mii, assetPaths.qrWii, "WIIU")
+            writeQrPng(mii, assetPaths.qrWii, "WIIU"),
+            writeOptionalQrPng(mii, assetPaths.qrTomodachi, "TOMODACHI"),
+            writeOptionalQrPng(mii, assetPaths.qrMiitopia, "MIITOPIA")
         ]);
         await Miis.create({
             ...mii,
@@ -4635,7 +4975,9 @@ async function persistUploadedMii(mii, {
         await Promise.all([
             fs.promises.unlink(assetPaths.img).catch(() => {}),
             fs.promises.unlink(assetPaths.qr3ds).catch(() => {}),
-            fs.promises.unlink(assetPaths.qrWii).catch(() => {})
+            fs.promises.unlink(assetPaths.qrWii).catch(() => {}),
+            fs.promises.unlink(assetPaths.qrTomodachi).catch(() => {}),
+            fs.promises.unlink(assetPaths.qrMiitopia).catch(() => {})
         ]);
         throw error;
     }
@@ -5725,19 +6067,25 @@ function sha256(str) {
 function getMiiAssetPaths(miiId, isPrivate) {
     const qr3dsDir = isPrivate ? "privateMiiQRs" : "miiQRs";
     const qrWiiDir = isPrivate ? "privateMiiQRsWii" : "miiQRsWii";
+    const qrTomodachiDir = isPrivate ? "privateMiiQRsTomodachi" : "miiQRsTomodachi";
+    const qrMiitopiaDir = isPrivate ? "privateMiiQRsMiitopia" : "miiQRsMiitopia";
 
     return {
         imgPath: isPrivate ? `./static/privateMiiImgs/${miiId}.png` : `./static/miiImgs/${miiId}.png`,
         qrPath: `./static/${qr3dsDir}/${miiId}.png`,
-        qrWiiPath: `./static/${qrWiiDir}/${miiId}.png`
+        qrWiiPath: `./static/${qrWiiDir}/${miiId}.png`,
+        qrTomodachiPath: `./static/${qrTomodachiDir}/${miiId}.png`,
+        qrMiitopiaPath: `./static/${qrMiitopiaDir}/${miiId}.png`
     };
 }
 
 function deleteMiiAssets(miiId, isPrivate) {
-    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(miiId, isPrivate);
+    const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(miiId, isPrivate);
     try { fs.unlinkSync(imgPath); } catch (e) {}
     try { fs.unlinkSync(qrPath); } catch (e) {}
     try { fs.unlinkSync(qrWiiPath); } catch (e) {}
+    try { fs.unlinkSync(qrTomodachiPath); } catch (e) {}
+    try { fs.unlinkSync(qrMiitopiaPath); } catch (e) {}
 }
 
 async function moveMiiAssets(miiId, fromPrivate, toPrivate) {
@@ -5757,6 +6105,16 @@ async function moveMiiAssets(miiId, fromPrivate, toPrivate) {
     if (fs.existsSync(sourcePaths.qrWiiPath)) {
         try { await fs.promises.unlink(destinationPaths.qrWiiPath); } catch (e) {}
         await fs.promises.rename(sourcePaths.qrWiiPath, destinationPaths.qrWiiPath);
+    }
+
+    if (fs.existsSync(sourcePaths.qrTomodachiPath)) {
+        try { await fs.promises.unlink(destinationPaths.qrTomodachiPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.qrTomodachiPath, destinationPaths.qrTomodachiPath);
+    }
+
+    if (fs.existsSync(sourcePaths.qrMiitopiaPath)) {
+        try { await fs.promises.unlink(destinationPaths.qrMiitopiaPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.qrMiitopiaPath, destinationPaths.qrMiitopiaPath);
     }
 
     return destinationPaths;
@@ -5842,13 +6200,23 @@ async function renameMiiAssets(oldId, newId, isPrivate) {
         await fs.promises.rename(sourcePaths.qrWiiPath, destinationPaths.qrWiiPath);
     }
 
+    if (fs.existsSync(sourcePaths.qrTomodachiPath)) {
+        try { await fs.promises.unlink(destinationPaths.qrTomodachiPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.qrTomodachiPath, destinationPaths.qrTomodachiPath);
+    }
+
+    if (fs.existsSync(sourcePaths.qrMiitopiaPath)) {
+        try { await fs.promises.unlink(destinationPaths.qrMiitopiaPath); } catch (e) {}
+        await fs.promises.rename(sourcePaths.qrMiitopiaPath, destinationPaths.qrMiitopiaPath);
+    }
+
     return destinationPaths;
 }
 
 async function ensureStoredMiiAssets(mii) {
     if (!mii?.id) return;
 
-    const { imgPath, qrPath, qrWiiPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
+    const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
 
     if (!fs.existsSync(imgPath)) {
         const renderedImage = await miijs.renderMii(mii);
@@ -5861,6 +6229,14 @@ async function ensureStoredMiiAssets(mii) {
 
     if (!fs.existsSync(qrWiiPath)) {
         await writeQrPng(mii, qrWiiPath, "WIIU");
+    }
+
+    if (!fs.existsSync(qrTomodachiPath)) {
+        await writeOptionalQrPng(mii, qrTomodachiPath, "TOMODACHI");
+    }
+
+    if (!fs.existsSync(qrMiitopiaPath)) {
+        await writeOptionalQrPng(mii, qrMiitopiaPath, "MIITOPIA");
     }
 }
 
@@ -6006,7 +6382,7 @@ async function updateStoredMiiId(mii, newId) {
     const updatedMii = await Miis.findOneAndUpdate(
         { id: previousId },
         { $set: { id: nextId } },
-        { new: true, lean: true }
+        { returnDocument: "after", lean: true }
     );
 
     if (!updatedMii) {
@@ -7134,7 +7510,7 @@ async function setAverageMii(){
     await Miis.findOneAndUpdate(
         { id: "average" },
         { $set: avg },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: "after" }
     );
     
     return avg;
@@ -7786,7 +8162,22 @@ function buildMiiSitemapUrls(miis, resolvedBaseUrl) {
                         title: `${miiName} Mii Wii U QR code`,
                         caption: `Wii U QR code for ${miiName}`
                     }
-                ]
+                ].concat(
+                    hasDecodedTomodachiLifeData(mii)
+                        ? [{
+                            loc: `${resolvedBaseUrl}/miiQRsTomodachi/${encodedMiiId}.png`,
+                            title: `${miiName} Tomodachi Life QR code`,
+                            caption: `Tomodachi Life QR code for ${miiName}`
+                        }]
+                        : [],
+                    canGenerateMiitopiaQr(mii)
+                        ? [{
+                            loc: `${resolvedBaseUrl}/miiQRsMiitopia/${encodedMiiId}.png`,
+                            title: `${miiName} Miitopia QR code`,
+                            caption: `Miitopia QR code for ${miiName}`
+                        }]
+                        : []
+                )
             };
         })
         .filter(Boolean);
@@ -7844,9 +8235,15 @@ const generatedMiiAssetRoutePrefixes = [
     "/miiImgs",
     "/miiQRs",
     "/miiQRsWii",
+    "/miiQRsTomodachi",
+    // Keep MT QR paths deferred from static serving while the routes are dark.
+    "/miiQRsMiitopia",
     "/privateMiiImgs",
     "/privateMiiQRs",
-    "/privateMiiQRsWii"
+    "/privateMiiQRsWii",
+    "/privateMiiQRsTomodachi",
+    // Keep MT QR paths deferred from static serving while the routes are dark.
+    "/privateMiiQRsMiitopia"
 ];
 function shouldDeferGeneratedMiiAssetStatic(req) {
     const requestPath = String(req.path || "");
@@ -8262,7 +8659,7 @@ async function requirePrivateMiiAssetAccess(req, res, next) {
         return next();
     }
 
-    if (req.baseUrl === "/privateMiiQRs" || req.baseUrl === "/privateMiiQRsWii") {
+    if (["/privateMiiQRs", "/privateMiiQRsWii", "/privateMiiQRsTomodachi", "/privateMiiQRsMiitopia"].includes(req.baseUrl)) {
         return await sendError(res, req, "Access denied. This is a private Mii.", 403);
     }
 
@@ -8292,15 +8689,58 @@ async function writeRenderedMiiImage(mii, assetPath) {
 }
 
 async function writeRenderedMiiQr(mii, assetPath, qrConsole = "3DS") {
-    await writeQrPng(mii, assetPath, qrConsole);
+    return await writeOptionalQrPng(mii, assetPath, qrConsole);
+}
+
+async function serveGeneratedMiiQrAsset(req, res, next, {
+    dirName,
+    qrConsole,
+    isPrivate = false
+}) {
+    if (!ENABLE_MIITOPIA_QRS && isMiitopiaQrConsole(qrConsole)) {
+        // MT QR routes are intentionally kept dark while site support is paused.
+        applyNoCacheHeaders(res);
+        return res.status(404).send("Not found");
+    }
+
+    const miiId = getRequestedMiiId(req);
+    if (!miiId) return next();
+
+    const qrPath = getMiiAssetPath(dirName, miiId);
+    if (await fileExists(qrPath)) {
+        if (!isPrivate) applyPublicImageSeoHeaders(res);
+        return res.sendFile(qrPath);
+    }
+
+    try {
+        const generated = await ensureGeneratedAsset(qrPath, async () => {
+            const mii = isPrivate
+                ? await resolvePrivateAssetMii(req)
+                : await Miis.findOne({ id: miiId, private: false }).lean();
+            if (!mii) return false;
+            return await writeRenderedMiiQr(mii, qrPath, qrConsole);
+        });
+
+        if (generated) {
+            if (!isPrivate) applyPublicImageSeoHeaders(res);
+            return res.sendFile(qrPath);
+        }
+        return next();
+    } catch (e) {
+        return next(e);
+    }
 }
 
 site.use('/privateMiiImgs', requirePrivateMiiAssetAccess);
 site.use('/privateMiiQRs', requirePrivateMiiAssetAccess);
 site.use('/privateMiiQRsWii', requirePrivateMiiAssetAccess);
+site.use('/privateMiiQRsTomodachi', requirePrivateMiiAssetAccess);
+site.use('/privateMiiQRsMiitopia', requirePrivateMiiAssetAccess);
 site.use('/miiImgs', requireVisiblePublicMiiAssetAccess);
 site.use('/miiQRs', requireVisiblePublicMiiAssetAccess);
 site.use('/miiQRsWii', requireVisiblePublicMiiAssetAccess);
+site.use('/miiQRsTomodachi', requireVisiblePublicMiiAssetAccess);
+site.use('/miiQRsMiitopia', requireVisiblePublicMiiAssetAccess);
 
 // Render missing private Mii images on demand
 site.use('/privateMiiImgs', async (req, res, next) => {
@@ -8381,6 +8821,24 @@ site.use('/privateMiiQRsWii', async (req, res, next) => {
     } catch (e) {
         return next(e);
     }
+});
+
+// Render missing private Mii Tomodachi Life QRs on demand
+site.use('/privateMiiQRsTomodachi', async (req, res, next) => {
+    return await serveGeneratedMiiQrAsset(req, res, next, {
+        dirName: 'privateMiiQRsTomodachi',
+        qrConsole: 'TOMODACHI',
+        isPrivate: true
+    });
+});
+
+// Render missing private Mii Miitopia QRs on demand
+site.use('/privateMiiQRsMiitopia', async (req, res, next) => {
+    return await serveGeneratedMiiQrAsset(req, res, next, {
+        dirName: 'privateMiiQRsMiitopia',
+        qrConsole: 'MIITOPIA',
+        isPrivate: true
+    });
 });
 
 // Render missing public Mii images on demand
@@ -8476,6 +8934,28 @@ site.use('/miiQRsWii', async (req, res, next) => {
     }
 });
 
+// Render missing public Mii Tomodachi Life QRs on demand
+site.use('/miiQRsTomodachi', async (req, res, next) => {
+    return await serveGeneratedMiiQrAsset(req, res, next, {
+        dirName: 'miiQRsTomodachi',
+        qrConsole: 'TOMODACHI'
+    });
+});
+
+// Render missing public Mii Miitopia QRs on demand
+site.use('/miiQRsMiitopia', async (req, res, next) => {
+    return await serveGeneratedMiiQrAsset(req, res, next, {
+        dirName: 'miiQRsMiitopia',
+        qrConsole: 'MIITOPIA'
+    });
+});
+
+// MT QR cache files are temporarily hidden even if old files remain on disk.
+site.use(['/static/miiQRsMiitopia', '/static/privateMiiQRsMiitopia'], (req, res) => {
+    applyNoCacheHeaders(res);
+    return res.status(404).send("Not found");
+});
+
 // Static assets caching
 site.use('/static', express.static(path.join(__dirname, 'static'), {
     maxAge: '7d',
@@ -8546,6 +9026,19 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             if (!fs.existsSync('./static/privateMiiQRsWii')) {
                 fs.mkdirSync('./static/privateMiiQRsWii', { recursive: true });
             }
+            if (!fs.existsSync('./static/miiQRsTomodachi')) {
+                fs.mkdirSync('./static/miiQRsTomodachi', { recursive: true });
+            }
+            if (!fs.existsSync('./static/privateMiiQRsTomodachi')) {
+                fs.mkdirSync('./static/privateMiiQRsTomodachi', { recursive: true });
+            }
+            // MT QR cache directories are intentionally disabled on the site for now.
+            // if (!fs.existsSync('./static/miiQRsMiitopia')) {
+            //     fs.mkdirSync('./static/miiQRsMiitopia', { recursive: true });
+            // }
+            // if (!fs.existsSync('./static/privateMiiQRsMiitopia')) {
+            //     fs.mkdirSync('./static/privateMiiQRsMiitopia', { recursive: true });
+            // }
             if (!fs.existsSync('./static/temp')) {
                 fs.mkdirSync('./static/temp', { recursive: true });
             }
@@ -9047,7 +9540,14 @@ const NO_CACHE_RESPONSE_HEADERS = Object.freeze({
     "Pragma": "no-cache",
     "Expires": "0"
 });
-const PUBLIC_GENERATED_IMAGE_DIRS = new Set(["miiImgs", "miiQRs", "miiQRsWii"]);
+const PUBLIC_GENERATED_IMAGE_DIRS = new Set([
+    "miiImgs",
+    "miiQRs",
+    "miiQRsWii",
+    "miiQRsTomodachi",
+    // MT QR public image handling is temporarily disabled.
+    // "miiQRsMiitopia",
+]);
 
 function isPublicGeneratedImagePath(filePath) {
     if (path.extname(filePath).toLowerCase() !== ".png") {
@@ -9332,21 +9832,20 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
         await applyAutomaticDecodedMiiTags(mii);
         ensureUploadMiiPermissions(mii);
 
-        const assetPaths = wantsPublic
-            ? {
-                img: `./static/miiImgs/${mii.id}.png`,
-                qr3ds: `./static/miiQRs/${mii.id}.png`,
-                qrWii: `./static/miiQRsWii/${mii.id}.png`
-            }
-            : {
-                img: `./static/privateMiiImgs/${mii.id}.png`,
-                qr3ds: `./static/privateMiiQRs/${mii.id}.png`,
-                qrWii: `./static/privateMiiQRsWii/${mii.id}.png`
-            };
+        const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(mii.id, !wantsPublic);
+        const assetPaths = {
+            img: imgPath,
+            qr3ds: qrPath,
+            qrWii: qrWiiPath,
+            qrTomodachi: qrTomodachiPath,
+            qrMiitopia: qrMiitopiaPath
+        };
         await Promise.all([
             writeRenderedMiiImage(mii, assetPaths.img),
             writeQrPng(mii, assetPaths.qr3ds, "3DS"),
-            writeQrPng(mii, assetPaths.qrWii, "WIIU")
+            writeQrPng(mii, assetPaths.qrWii, "WIIU"),
+            writeOptionalQrPng(mii, assetPaths.qrTomodachi, "TOMODACHI"),
+            writeOptionalQrPng(mii, assetPaths.qrMiitopia, "MIITOPIA")
         ]);
 
         await Miis.create({
@@ -9998,11 +10497,13 @@ site.post('/regenerateQR', requireAuth, requireRole(ROLES.MODERATOR), async (req
         return res.json({ error: 'Mii not found' });
     }
 
-    // Regenerate both QR previews so the page tabs stay synchronized.
-    const { qrPath, qrWiiPath } = getMiiAssetPaths(id, Boolean(mii.private));
+    // Regenerate all QR previews so the page tabs stay synchronized.
+    const { qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(id, Boolean(mii.private));
     await Promise.all([
         writeQrPng(mii, qrPath, "3DS"),
-        writeQrPng(mii, qrWiiPath, "WIIU")
+        writeQrPng(mii, qrWiiPath, "WIIU"),
+        writeOptionalQrPng(mii, qrTomodachiPath, "TOMODACHI"),
+        writeOptionalQrPng(mii, qrMiitopiaPath, "MIITOPIA")
     ]);
 
     // Log to Discord
@@ -10101,10 +10602,12 @@ site.post('/clearMiiTlData', requireAuth, requireRole(ROLES.ADMINISTRATOR), asyn
         };
         delete updatedMii.tl;
 
-        const { qrPath, qrWiiPath } = getMiiAssetPaths(id, Boolean(mii.private));
+        const { qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(id, Boolean(mii.private));
         await Promise.all([
             writeQrPng(updatedMii, qrPath, "3DS"),
-            writeQrPng(updatedMii, qrWiiPath, "WIIU")
+            writeQrPng(updatedMii, qrWiiPath, "WIIU"),
+            writeOptionalQrPng(updatedMii, qrTomodachiPath, "TOMODACHI"),
+            writeOptionalQrPng(updatedMii, qrMiitopiaPath, "MIITOPIA")
         ]);
 
         makeReport(JSON.stringify({
@@ -11863,6 +12366,7 @@ site.get('/mii/:id', async (req, res) => {
     inp.mii = mii;
     inp.height = await miijs.miiHeightToMeasurements(inp.mii.general.height);
     inp.weight = await miijs.miiWeightToMeasurements(inp.mii.general.height, inp.mii.general.weight);
+    inp.tomodachiRows = buildTomodachiLifeInfoRows(mii);
     const uploaderUser = await getUserByUsername(mii.uploader);
     inp.uploaderPfp = uploaderUser?.miiPfp || "00000";
     inp.officialSourceName = mii.official
@@ -12419,6 +12923,87 @@ site.get('/calculator', async (req, res) => {
         res.send(str);
     });
 });
+site.get('/islandAddresses', async (req, res) => {
+    ejs.renderFile('./ejsFiles/islandAddresses.ejs', await getSendables(req), {}, function(err, str) {
+        if (err) {
+            res.send(err);
+            console.log(err);
+            return;
+        }
+        res.send(str);
+    });
+});
+
+site.post('/islandAddresses/analyzeMii', upload.single('mii'), async (req, res) => {
+    try {
+        if (!req.file?.path) {
+            res.json({ error: "Upload a Mii file first." });
+            return;
+        }
+
+        const decoded = await createMiiDataWithDebug(req.file.path);
+        const mii = decoded.mii;
+        const hasTomodachiLifeData = hasDecodedTomodachiLifeData(mii);
+        const islandAddress = hasTomodachiLifeData ? getTomodachiLifeIslandAddressInfo(mii) : {};
+
+        res.json({
+            ok: true,
+            hasTomodachiLifeData,
+            miiName: getDisplayMiiName(mii),
+            islandName: islandAddress.islandName || "",
+            islandId: islandAddress.islandId || "",
+            address: islandAddress.num1 !== undefined && islandAddress.num2 !== undefined && islandAddress.isles && islandAddress.ocean
+                ? {
+                    num1: islandAddress.num1,
+                    num2: islandAddress.num2,
+                    isles: islandAddress.isles,
+                    ocean: islandAddress.ocean,
+                    readable: islandAddress.readable || ""
+                }
+                : null
+        });
+    } catch (e) {
+        console.error("Error analyzing Mii for island address search:", e);
+        res.json({ error: e.message || "Could not read that Mii file." });
+    } finally {
+        try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+    }
+});
+
+site.post('/islandAddresses/generateMiiQr', upload.single('mii'), async (req, res) => {
+    try {
+        if (!req.file?.path) {
+            res.json({ error: "Upload a Mii file first." });
+            return;
+        }
+
+        const islandId = normalizeTomodachiLifeIslandIdHex(req.body?.islandId);
+        if (!islandId) {
+            res.json({ error: "A generated Island ID is required before creating the QR." });
+            return;
+        }
+
+        const decoded = await createMiiDataWithDebug(req.file.path);
+        const miiName = getDisplayMiiName(decoded.mii);
+        const overridden = buildTomodachiLifeMiiWithIslandOverrides(decoded.mii, islandId, req.body?.islandName);
+        const qrExport = await exportMiiToBuffer(overridden.mii, "qr", { qrConsole: "TOMODACHI" });
+
+        res.json({
+            ok: true,
+            islandId,
+            islandName: overridden.islandName,
+            readableAddress: overridden.address?.readable || "",
+            qrDataUri: bufferToDataUri(qrExport.buffer, qrExport.contentType || "image/png"),
+            fileName: `${safeMiiFilename(miiName, "mii")}-${islandId.slice(0, 8)}-tomodachi.png`
+        });
+    } catch (e) {
+        console.error("Error generating Tomodachi Life QR with island override:", e);
+        res.json({ error: e.message || "Could not generate a Tomodachi Life QR for that Mii." });
+    } finally {
+        try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+    }
+});
+
 site.get('/miiDashboard', async (req, res) => {
     const sendables = await getSendables(req);
     ejs.renderFile('./ejsFiles/miiDashboard.ejs', sendables, {}, function(err, str) {
@@ -15092,7 +15677,9 @@ site.post('/publishMii', requireAuth, requireVerifiedUploadAccount,  async (req,
 
         const {
             qrPath: publicQrPath,
-            qrWiiPath: publicQrWiiPath
+            qrWiiPath: publicQrWiiPath,
+            qrTomodachiPath: publicQrTomodachiPath,
+            qrMiitopiaPath: publicQrMiitopiaPath
         } = getMiiAssetPaths(mii.id, false);
 
         await moveMiiAssets(mii.id, true, false);
@@ -15102,6 +15689,12 @@ site.post('/publishMii', requireAuth, requireVerifiedUploadAccount,  async (req,
         }
         if (!fs.existsSync(publicQrWiiPath)) {
             await writeQrPng(mii, publicQrWiiPath, "WIIU");
+        }
+        if (!fs.existsSync(publicQrTomodachiPath)) {
+            await writeOptionalQrPng(mii, publicQrTomodachiPath, "TOMODACHI");
+        }
+        if (!fs.existsSync(publicQrMiitopiaPath)) {
+            await writeOptionalQrPng(mii, publicQrMiitopiaPath, "MIITOPIA");
         }
 
         // Clean up any remaining private files after successful publish

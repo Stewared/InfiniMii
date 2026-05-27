@@ -39,6 +39,8 @@
     const dashboardConfig = window.miiDashboardConfig || {};
 
     const STAGE_EXPORT_META_FIELDS = new Set(['stageIndex', 'stageLabel', 'renderDataUri', 'heightMeasurements', 'weightMeasurements']);
+    // MT QR support is temporarily disabled in the InfiniMii site UI.
+    const ENABLE_MIITOPIA_QRS = false;
     let dashboardState = null;
     let activeExportMii = null;
     let activeExportLabel = 'Mii';
@@ -134,18 +136,32 @@
         return Object.keys(tl).length > 0;
     }
 
-    function getDefaultQrConsoleForMii(mii) {
-        return hasTomodachiData(mii) ? 'TOMODACHI' : '3DS';
+    function getTrimmedMiiString(value) {
+        return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
     }
 
-    function setTomodachiQrOptionAvailability(hasTomodachiQr) {
-        const option = exportQrConsole?.querySelector?.('option[value="TOMODACHI"]');
+    function hasMiitopiaQrData(mii) {
+        return ENABLE_MIITOPIA_QRS && Boolean(getTrimmedMiiString(mii?.mt?.warCry) || getTrimmedMiiString(mii?.tl?.catchphrase));
+    }
+
+    function getDefaultQrConsoleForMii(mii) {
+        return hasTomodachiData(mii) ? 'TOMODACHI' : (hasMiitopiaQrData(mii) ? 'MIITOPIA' : '3DS');
+    }
+
+    function setQrOptionAvailability(consoleValue, isAvailable) {
+        const option = exportQrConsole?.querySelector?.(`option[value="${consoleValue}"]`);
         if (!option) return;
-        option.hidden = !hasTomodachiQr;
-        option.disabled = !hasTomodachiQr;
-        if (!hasTomodachiQr && exportQrConsole?.value === 'TOMODACHI') {
+        option.hidden = !isAvailable;
+        option.disabled = !isAvailable;
+        if (!isAvailable && exportQrConsole?.value === consoleValue) {
             exportQrConsole.value = '3DS';
         }
+    }
+
+    function setSpecialQrOptionAvailability(hasTomodachiQr, hasMiitopiaQr) {
+        setQrOptionAvailability('TOMODACHI', hasTomodachiQr);
+        // MT QR export option temporarily disabled.
+        setQrOptionAvailability('MIITOPIA', ENABLE_MIITOPIA_QRS && hasMiitopiaQr);
     }
 
     function dataUriToBlob(dataUri) {
@@ -271,6 +287,8 @@
     function normalizeQrConsole(consoleType) {
         const normalized = String(consoleType || '').trim().toUpperCase().replace(/[\s_-]+/g, '');
         if (['TOMODACHI', 'TOMODACHILIFE', 'TL', 'TLE'].includes(normalized)) return 'TOMODACHI';
+        // MT QR previews are temporarily disabled on-site.
+        // if (['MIITOPIA', 'MT', 'MTE'].includes(normalized)) return 'MIITOPIA';
         return normalized === 'WIIU' ? 'WIIU' : '3DS';
     }
 
@@ -279,18 +297,23 @@
         const normalized = normalizeQrConsole(consoleType);
         const src = normalized === 'TOMODACHI'
             ? dashboardState.qrTomodachiDataUri
-            : (normalized === 'WIIU' ? dashboardState.qrWiiuDataUri : dashboardState.qr3dsDataUri);
+            : (normalized === 'MIITOPIA'
+                ? dashboardState.qrMiitopiaDataUri
+                : (normalized === 'WIIU' ? dashboardState.qrWiiuDataUri : dashboardState.qr3dsDataUri));
         if (!src) return;
 
         if (dashboardQrPreview) {
             dashboardQrPreview.classList.toggle('is-qr-3ds', normalized === '3DS');
             dashboardQrPreview.classList.toggle('is-qr-wiiu', normalized === 'WIIU');
             dashboardQrPreview.classList.toggle('is-qr-tomodachi', normalized === 'TOMODACHI');
+            dashboardQrPreview.classList.toggle('is-qr-miitopia', normalized === 'MIITOPIA');
         }
         if (dashboardQr) {
             dashboardQr.classList.add('is-switching');
             dashboardQr.src = src;
-            const qrLabel = normalized === 'TOMODACHI' ? 'Tomodachi Life' : (normalized === 'WIIU' ? 'Wii U' : '3DS');
+            const qrLabel = normalized === 'TOMODACHI'
+                ? 'Tomodachi Life'
+                : (normalized === 'MIITOPIA' ? 'Miitopia' : (normalized === 'WIIU' ? 'Wii U' : '3DS'));
             dashboardQr.alt = `${dashboardState.miiName || 'Decoded Mii'} ${qrLabel} QR code`;
             dashboardQr.dataset.qrConsole = normalized;
         }
@@ -335,16 +358,22 @@
             dashboardQrPreview.dataset.qr3dsSrc = result.qr3dsDataUri || '';
             dashboardQrPreview.dataset.qrWiiuSrc = result.qrWiiuDataUri || '';
             dashboardQrPreview.dataset.qrTomodachiSrc = result.qrTomodachiDataUri || '';
+            dashboardQrPreview.dataset.qrMiitopiaSrc = ENABLE_MIITOPIA_QRS ? (result.qrMiitopiaDataUri || '') : '';
             dashboardQrPreview.classList.toggle('has-tomodachi-qr', Boolean(result.qrTomodachiDataUri));
+            dashboardQrPreview.classList.toggle('has-miitopia-qr', ENABLE_MIITOPIA_QRS && Boolean(result.qrMiitopiaDataUri));
         }
 
         renderInfoRows(result.infoRows || []);
         renderTomodachiRows(result.tomodachiRows || []);
         const hasTomodachiQr = Boolean(result.qrTomodachiDataUri);
+        const hasMiitopiaQr = ENABLE_MIITOPIA_QRS && Boolean(result.qrMiitopiaDataUri);
         document.querySelectorAll('[data-qr-tab="TOMODACHI"]').forEach((tab) => {
             tab.hidden = !hasTomodachiQr;
         });
-        setTomodachiQrOptionAvailability(hasTomodachiQr);
+        document.querySelectorAll('[data-qr-tab="MIITOPIA"]').forEach((tab) => {
+            tab.hidden = !hasMiitopiaQr;
+        });
+        setSpecialQrOptionAvailability(hasTomodachiQr, hasMiitopiaQr);
         setDashboardQrConsole(hasTomodachiQr ? 'TOMODACHI' : '3DS');
         if (dashboardSaveJsonBtn) {
             dashboardSaveJsonBtn.hidden = !(dashboardConfig.isAdmin && result.sourceMiiId);
@@ -425,8 +454,9 @@
         if (exportQrConsole) {
             const defaultMii = useEditedJson ? dashboardState?.mii : mii;
             const hasTomodachiQr = hasTomodachiData(defaultMii);
-            setTomodachiQrOptionAvailability(hasTomodachiQr);
-            exportQrConsole.value = hasTomodachiQr ? 'TOMODACHI' : getDefaultQrConsoleForMii(defaultMii);
+            const hasMiitopiaQr = hasMiitopiaQrData(defaultMii);
+            setSpecialQrOptionAvailability(hasTomodachiQr, hasMiitopiaQr);
+            exportQrConsole.value = getDefaultQrConsoleForMii(defaultMii);
         }
         setExportMessage('');
         exportModal.hidden = false;
