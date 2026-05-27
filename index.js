@@ -235,8 +235,8 @@ const EXPORT_FORMAT_LABELS = {
     ffcd: "Wii U FFCD (.ffcd)",
     ffsd: "Wii U FFSD (.ffsd)",
     ffed: "Wii U FFED (QR Encrypted, .ffed)",
-    mt: "Miitomo MT (.mt)",
-    mte: "Miitomo MTE (.mte)",
+    mt: "Miitopia MT (.mt)",
+    mte: "Miitopia MTE (.mte)",
     tlc: "Tomodachi Life TLC (.tlc)",
     tls: "Tomodachi Life TLS (.tls)",
     tle: "Tomodachi Life TLE (.tle)",
@@ -436,13 +436,15 @@ const MII_DATA_TOP_LEVEL_KEYS = Object.freeze([
     "glasses",
     "mole",
     "tl",
-    "mt"
+    "mt",
+    "miitopia"
 ]);
 
 const OPTIONAL_MII_DATA_TOP_LEVEL_KEYS = Object.freeze([
     "console",
     "tl",
-    "mt"
+    "mt",
+    "miitopia"
 ]);
 
 function cloneSerializable(value) {
