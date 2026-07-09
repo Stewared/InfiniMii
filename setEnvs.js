@@ -60,6 +60,7 @@ const envTemplate = readEnvs(
 
 const isBeta = Boolean(envs.beta);
 const optionalEnvs = new Set([
+    "researchHook",
     "INDEXNOW_KEY",
     "OAUTH_AUTO_CREATE_ACCOUNTS",
     "OAUTH_AUTO_LINK_EMAIL",

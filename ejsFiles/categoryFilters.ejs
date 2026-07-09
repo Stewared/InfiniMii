@@ -33,6 +33,7 @@
                 path: groupName,
                 included: selectedCategorySet.has(groupName.toLowerCase()),
                 excluded: excludedCategorySet.has(groupName.toLowerCase()),
+                topLevel: null,
                 includedCount: 0,
                 excludedCount: 0,
                 categories: []
@@ -41,23 +42,31 @@
 
         const group = categoryGroupMap.get(groupKey);
         const groupPrefix = `${groupName}/`;
+        const isTopLevel = categoryPath.toLowerCase() === group.path.toLowerCase();
         const displayLabel = categoryLabel.startsWith(groupPrefix)
             ? categoryLabel.slice(groupPrefix.length)
             : categoryLabel;
 
-        group.categories.push({
+        const option = {
             path: categoryPath,
             label: displayLabel || categoryLabel || categoryPath,
             color: categoryColor,
             included: isSelected,
             excluded: excludedCategorySet.has(categoryPath.toLowerCase())
-        });
+        };
 
-        if (isSelected) {
-            group.includedCount += 1;
-        }
-        if (excludedCategorySet.has(categoryPath.toLowerCase())) {
-            group.excludedCount += 1;
+        if (isTopLevel) {
+            group.topLevel = option;
+            group.included = option.included;
+            group.excluded = option.excluded;
+        } else {
+            group.categories.push(option);
+            if (isSelected) {
+                group.includedCount += 1;
+            }
+            if (option.excluded) {
+                group.excludedCount += 1;
+            }
         }
     });
 
@@ -70,7 +79,8 @@
         <div class="category-filter-groups">
             <% categoryGroups.forEach(group => { %>
                 <%
-                    const shouldRenderTopLevelOption = !(group.categories.length === 1 && group.categories[0].path.toLowerCase() === group.path.toLowerCase());
+                    const shouldRenderTopLevelOption = Boolean(group.topLevel || group.categories.length > 0 || group.included || group.excluded);
+                    const topLevelOptionLabel = group.categories.length > 0 ? `All ${group.name}` : group.name;
                     const hasIncludedCategories = group.included || group.includedCount > 0;
                     const hasExcludedCategories = group.excluded || group.excludedCount > 0;
                     const groupIncludedBadge = group.included && shouldRenderTopLevelOption ? 'All' : group.includedCount;
@@ -97,7 +107,7 @@
                                 class="tri-filter-control category-filter-control category-filter-control-top-level"
                                 data-tri-filter
                                 data-filter-kind="category"
-                                data-filter-label="All <%= group.name %>"
+                                data-filter-label="<%= topLevelOptionLabel %>"
                                 data-include-name="<%= categoryInputName %>"
                                 data-exclude-name="<%= excludeCategoryInputName %>"
                                 data-state="<%= groupState %>"
@@ -114,13 +124,13 @@
                                     class="tag-filter-option category-filter-option category-filter-option-top-level tri-filter-option <%= groupState === 'include' ? 'is-include' : (groupState === 'exclude' ? 'is-exclude' : 'is-neutral') %>"
                                     data-tri-filter-button
                                     aria-pressed="<%= groupState === 'include' ? 'true' : (groupState === 'exclude' ? 'mixed' : 'false') %>"
-                                    aria-label="All <%= group.name %> category: <%= groupState %>. Click to <%= groupState === 'neutral' ? 'include' : (groupState === 'include' ? 'exclude' : 'reset') %>."
+                                    aria-label="<%= topLevelOptionLabel %> category: <%= groupState %>. Click to <%= groupState === 'neutral' ? 'include' : (groupState === 'include' ? 'exclude' : 'reset') %>."
                                 >
                                     <span class="tri-filter-status" aria-hidden="true">
                                         <span class="tri-filter-icon tri-filter-icon-include"><%- include('icon', { name: 'check', size: 12 }) %></span>
                                         <span class="tri-filter-icon tri-filter-icon-exclude"><%- include('icon', { name: 'x', size: 12 }) %></span>
                                     </span>
-                                    <span class="tag-marquee-content">All <%= group.name %></span>
+                                    <span class="tag-marquee-content"><%= topLevelOptionLabel %></span>
                                 </button>
                             </div>
                         <% } %>

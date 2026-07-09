@@ -79,11 +79,17 @@
         const canClearTomodachiLifeData = Boolean(isAdmin);
         const isMiiUploader = Boolean(user?.username && mii.uploader === user.username);
         const isMiiUserEditLocked = Boolean(mii.lockedFromUserEdits);
+        const isResearchManagedEntry = Boolean(typeof isResearchManagedMii !== 'undefined' && isResearchManagedMii);
         const canInlineEditMiiMetadata = Boolean(isModerator || (isMiiUploader && !isMiiUserEditLocked));
-        const canEditMiiTags = Boolean(isModerator || isMiiUploader || (mii.official && isResearcher));
-        const canEditMiiCategories = Boolean(mii.official && (isModerator || isResearcher || isMiiUploader));
+        const canEditTomodachiLifeFields = Boolean(isModerator || isMiiUploader);
+        const canEditMiiTags = Boolean(isModerator || isMiiUploader || (isResearchManagedEntry && isResearcher));
+        const canEditMiiCategories = Boolean(isResearchManagedEntry && (isModerator || isResearcher || isMiiUploader));
         const canHideMiiFromAccount = Boolean(user?.username && !isPrivate);
         const shouldShowCreatorName = creatorName.length > 0 || canInlineEditMiiMetadata;
+        const tomodachiRaw = (mii?.tl && typeof mii.tl === 'object') ? mii.tl : {};
+        const tomodachiPersonalityRaw = (tomodachiRaw?.personality && typeof tomodachiRaw.personality === 'object') ? tomodachiRaw.personality : {};
+        const tomodachiBirthdayMonth = tomodachiRaw.birthMonth ?? mii?.general?.birthMonth ?? '';
+        const tomodachiBirthdayDay = tomodachiRaw.birthday ?? mii?.general?.birthday ?? '';
         const breadcrumbs = [
             { name: 'Home', url: '/' },
             { name: mii.official ? 'Official Miis' : 'Community Miis', url: mii.official ? '/official' : '/top' },
@@ -292,7 +298,7 @@
                             
                             <div class="info-item">
                                 <span class="info-label">Birthday</span>
-                                <span class="info-value"><%= birthdayLabel || 'Not Set' %></span>
+                                <span class="info-value" data-mii-birthday-display><%= birthdayLabel || 'Not Set' %></span>
                             </div>
 
                             <% if(mii.general.height !== undefined) { %>
@@ -379,6 +385,25 @@
                                     name: originalMiiEditorState.name,
                                     desc: originalMiiEditorState.desc,
                                     creatorName: originalMiiEditorState.creatorName
+                                };
+                                const tomodachiMiiEditorState = {
+                                    tomodachiFullName: {
+                                        firstName: <%- toScriptJson(tomodachiRaw.firstName || '') %>,
+                                        lastName: <%- toScriptJson(tomodachiRaw.lastName || '') %>
+                                    },
+                                    tomodachiFullBirthday: {
+                                        birthMonth: <%- toScriptJson(tomodachiBirthdayMonth ? String(tomodachiBirthdayMonth) : '') %>,
+                                        birthday: <%- toScriptJson(tomodachiBirthdayDay ? String(tomodachiBirthdayDay) : '') %>
+                                    },
+                                    tomodachiIslandName: <%- toScriptJson(tomodachiRaw?.island?.name || '') %>,
+                                    tomodachiAgeGroup: <%- toScriptJson(tomodachiRaw.isAdult === true ? 'adult' : (tomodachiRaw.isAdult === false ? 'child' : '')) %>,
+                                    tomodachiPersonality: {
+                                        movement: Number.parseInt(<%- toScriptJson(tomodachiPersonalityRaw.movement || 4) %>, 10) || 4,
+                                        speech: Number.parseInt(<%- toScriptJson(tomodachiPersonalityRaw.speech || 4) %>, 10) || 4,
+                                        expressiveness: Number.parseInt(<%- toScriptJson(tomodachiPersonalityRaw.expressiveness || 4) %>, 10) || 4,
+                                        attitude: Number.parseInt(<%- toScriptJson(tomodachiPersonalityRaw.attitude || 4) %>, 10) || 4
+                                    },
+                                    tomodachiCatchphrase: <%- toScriptJson(tomodachiRaw.catchphrase || '') %>
                                 };
                                 let selectedMiiTags = new Set(currentMiiTags);
                                 let officialCategories = [];
@@ -479,7 +504,7 @@
 
                                     modalContent.innerHTML = `
                                         <h3 class="category-modal-title">Select Categories</h3>
-                                        <p class="category-modal-help">Check all categories that apply. Only leaf categories (without children) can be selected.</p>
+                                        <p class="category-modal-help">Check all categories that apply.</p>
                                         <div class="category-modal-tree-wrap">
                                             <div id="modalCategoryTree"></div>
                                         </div>
@@ -518,7 +543,6 @@
                                     nodes.forEach(node => {
                                         const hasChildren = node.children && node.children.length > 0;
                                         const isExpanded = expandedNodes.has(node.path);
-                                        const isLeaf = !hasChildren;
                                         const activeSelectedPaths = modalSelectedPaths || selectedPaths;
                                         const isSelected = activeSelectedPaths.has(node.path);
                                         const indent = level * 20;
@@ -536,19 +560,15 @@
                                                         </span>
                                                     ` : '<span class="modal-category-leaf-marker">•</span>'}
                                                     
-                                                    ${isLeaf ? `
-                                                        <label class="modal-category-label">
-                                                            <input type="checkbox" 
-                                                                class="category-selector"
-                                                                value="${escapedPathForHtml}"
-                                                                ${isSelected ? 'checked' : ''}
-                                                                onchange="updateModalSelection('${escapedPathForJs}', this.checked)">
-                                                            <span class="modal-category-label-name">${escapedName}</span>
-                                                            <span class="modal-category-path">${escapedPathForHtml}</span>
-                                                        </label>
-                                                    ` : `
-                                                        <span class="modal-category-parent-name">${escapedName}</span>
-                                                    `}
+                                                    <label class="modal-category-label">
+                                                        <input type="checkbox" 
+                                                            class="category-selector"
+                                                            value="${escapedPathForHtml}"
+                                                            ${isSelected ? 'checked' : ''}
+                                                            onchange="updateModalSelection('${escapedPathForJs}', this.checked)">
+                                                        <span class="modal-category-label-name">${escapedName}</span>
+                                                        <span class="modal-category-path">${escapedPathForHtml}</span>
+                                                    </label>
                                                 </div>
                                                 
                                                 ${hasChildren && isExpanded ? `
@@ -741,7 +761,7 @@
                                     }
                                 }
                                 </script>
-                            <% if(mii.official) { %>
+                            <% if(mii.official || canEditMiiCategories) { %>
                                 <div class="official-categories-section">
                                     <div class="mii-classification-header">
                                         <span class="info-label">Official Categories</span>
@@ -752,7 +772,9 @@
                                         <% } %>
                                     </div>
                                     <div class="categories-display mii-card-tags mii-categories">
-                                        <span class="mii-card-tag official-badge"><span class="tag-marquee-content">Official</span></span>
+                                        <% if(mii.official) { %>
+                                            <span class="mii-card-tag official-badge"><span class="tag-marquee-content">Official</span></span>
+                                        <% } %>
                                         <% if(categoryDetails.length > 0) { %>
                                             <% categoryDetails.forEach(category => { %>
                                                 <a class="mii-card-tag category-tag" href="<%= category.url %>" style="--category-color: <%= category.color || '#999999' %>;">
@@ -842,15 +864,97 @@
                             <% if(tomodachiAddressRow) { %>
                                 <div class="tomodachi-island-address">
                                     <span class="tomodachi-field-label"><%= tomodachiAddressRow.label %></span>
-                                    <p class="tomodachi-island-address-value"><%= tomodachiAddressRow.value %></p>
+                                    <p class="tomodachi-island-address-value" data-tomodachi-address-display><%= tomodachiAddressRow.value %></p>
                                 </div>
                             <% } %>
 
                             <div class="tomodachi-fields-grid">
                                 <% tomodachiDetailRows.forEach(row => { %>
-                                    <div class="tomodachi-field">
-                                        <span class="tomodachi-field-label"><%= row.label %></span>
-                                        <span class="tomodachi-field-value <%= row.multiline ? 'is-multiline' : '' %>"><%= row.value %></span>
+                                    <%
+                                        const isTomodachiRowEditable = Boolean(canEditTomodachiLifeFields && row.editable && row.editField);
+                                    %>
+                                    <div class="tomodachi-field" <%- isTomodachiRowEditable ? `data-tomodachi-edit-field="${row.editField}"` : '' %>>
+                                        <% if(isTomodachiRowEditable) { %>
+                                            <div class="tomodachi-field-label-row">
+                                                <span class="tomodachi-field-label"><%= row.label %></span>
+                                                <button type="button" class="inline-edit-icon-button" data-tomodachi-edit-trigger="<%= row.editField %>" onclick="openTomodachiInlineEditor('<%= row.editField %>')" aria-label="Edit <%= row.label %>" title="Edit <%= row.label %>">
+                                                    <%- include('icon', { name: 'edit', size: 14 }) %>
+                                                </button>
+                                            </div>
+                                            <span class="tomodachi-field-value <%= row.multiline ? 'is-multiline' : '' %>" data-tomodachi-edit-display="<%= row.editField %>"><%= row.value %></span>
+                                            <div class="inline-edit-controls tomodachi-inline-edit-controls" data-tomodachi-edit-controls="<%= row.editField %>" hidden>
+                                                <% if(row.editField === 'tomodachiFullName') { %>
+                                                    <label class="tomodachi-inline-label">
+                                                        <span>First</span>
+                                                        <input type="text" class="inline-edit-input tomodachi-inline-input" data-tomodachi-edit-input="tomodachiFullName" data-tomodachi-name-part="firstName" value="<%= tomodachiRaw.firstName || '' %>" maxlength="16" autocomplete="off" spellcheck="false">
+                                                    </label>
+                                                    <label class="tomodachi-inline-label">
+                                                        <span>Last</span>
+                                                        <input type="text" class="inline-edit-input tomodachi-inline-input" data-tomodachi-edit-input="tomodachiFullName" data-tomodachi-name-part="lastName" value="<%= tomodachiRaw.lastName || '' %>" maxlength="16" autocomplete="off" spellcheck="false">
+                                                    </label>
+                                                <% } else if(row.editField === 'tomodachiFullBirthday') { %>
+                                                    <label class="tomodachi-inline-label">
+                                                        <span>Month</span>
+                                                        <select class="inline-edit-input tomodachi-inline-input" data-tomodachi-edit-input="tomodachiFullBirthday" data-tomodachi-birthday-part="birthMonth">
+                                                            <option value="">Not Set</option>
+                                                            <% birthdayMonthOptions.forEach(month => { %>
+                                                                <option value="<%= month.value %>" <%= String(month.value) === String(tomodachiBirthdayMonth || '') ? 'selected' : '' %>><%= month.label %></option>
+                                                            <% }); %>
+                                                        </select>
+                                                    </label>
+                                                    <label class="tomodachi-inline-label">
+                                                        <span>Day</span>
+                                                        <select class="inline-edit-input tomodachi-inline-input" data-tomodachi-edit-input="tomodachiFullBirthday" data-tomodachi-birthday-part="birthday">
+                                                            <option value="">Not Set</option>
+                                                            <% birthdayDayOptions.forEach(day => { %>
+                                                                <option value="<%= day.value %>" <%= String(day.value) === String(tomodachiBirthdayDay || '') ? 'selected' : '' %>><%= day.label %></option>
+                                                            <% }); %>
+                                                        </select>
+                                                    </label>
+                                                <% } else if(row.editField === 'tomodachiIslandName') { %>
+                                                    <input type="text" class="inline-edit-input tomodachi-inline-input" data-tomodachi-edit-input="tomodachiIslandName" value="<%= tomodachiRaw?.island?.name || '' %>" maxlength="9" autocomplete="off" spellcheck="false">
+                                                <% } else if(row.editField === 'tomodachiAgeGroup') { %>
+                                                    <div class="tomodachi-age-toggle" role="radiogroup" aria-label="Age group">
+                                                        <label class="tomodachi-age-option">
+                                                            <input type="radio" name="tomodachiAgeGroup-<%= mii.id %>" data-tomodachi-edit-input="tomodachiAgeGroup" value="child" <%= tomodachiRaw.isAdult === false ? 'checked' : '' %>>
+                                                            <span>Child</span>
+                                                        </label>
+                                                        <label class="tomodachi-age-option">
+                                                            <input type="radio" name="tomodachiAgeGroup-<%= mii.id %>" data-tomodachi-edit-input="tomodachiAgeGroup" value="adult" <%= tomodachiRaw.isAdult === true ? 'checked' : '' %>>
+                                                            <span>Adult</span>
+                                                        </label>
+                                                    </div>
+                                                <% } else if(row.editField === 'tomodachiPersonality') { %>
+                                                    <div class="tomodachi-personality-sliders">
+                                                        <% [
+                                                            { key: 'movement', label: 'Movement' },
+                                                            { key: 'speech', label: 'Speech' },
+                                                            { key: 'expressiveness', label: 'Expressiveness' },
+                                                            { key: 'attitude', label: 'Attitude' }
+                                                        ].forEach(slider => { %>
+                                                            <label class="tomodachi-slider-label">
+                                                                <span><%= slider.label %> <output data-tomodachi-personality-output="<%= slider.key %>"><%= tomodachiPersonalityRaw[slider.key] || 4 %></output></span>
+                                                                <input type="range" min="1" max="8" step="1" value="<%= tomodachiPersonalityRaw[slider.key] || 4 %>" data-tomodachi-edit-input="tomodachiPersonality" data-tomodachi-personality-part="<%= slider.key %>">
+                                                            </label>
+                                                        <% }); %>
+                                                        <span class="tomodachi-personality-preview" data-tomodachi-personality-preview><%= row.value %></span>
+                                                    </div>
+                                                <% } else if(row.editField === 'tomodachiCatchphrase') { %>
+                                                    <input type="text" class="inline-edit-input tomodachi-inline-input" data-tomodachi-edit-input="tomodachiCatchphrase" value="<%= tomodachiRaw.catchphrase || '' %>" maxlength="16" autocomplete="off" spellcheck="false">
+                                                <% } %>
+                                                <div class="inline-edit-actions tomodachi-inline-actions">
+                                                    <button type="button" class="inline-edit-save-button" data-tomodachi-edit-save="<%= row.editField %>" onclick="saveTomodachiInlineField('<%= row.editField %>')">
+                                                        <%- include('icon', { name: 'check', size: 15 }) %> Save
+                                                    </button>
+                                                    <button type="button" class="inline-edit-cancel-button" onclick="cancelTomodachiInlineEdit('<%= row.editField %>')" aria-label="Cancel <%= row.label %> edit" title="Cancel">
+                                                        <%- include('icon', { name: 'x', size: 15 }) %>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        <% } else { %>
+                                            <span class="tomodachi-field-label"><%= row.label %></span>
+                                            <span class="tomodachi-field-value <%= row.multiline ? 'is-multiline' : '' %>"><%= row.value %></span>
+                                        <% } %>
                                     </div>
                                 <% }); %>
                             </div>
@@ -1394,7 +1498,7 @@
                                 <% if(canEditMiiCategories) { %>
                                 <div class="mod-tool-item">
                                     <label>Official Categories:</label>
-                                    <p class="mod-tag-hint">Assign and update leaf categories for this official entry.</p>
+                                    <p class="mod-tag-hint">Assign and update categories for this research-managed entry.</p>
                                     <button type="button" class="category-editor-trigger" onclick="openCategoryEditor()">Edit Categories <span class="category-trigger-summary"></span></button>
                                 </div>
                                 <% } %>
@@ -1459,7 +1563,7 @@
                 <% if(!isModerator && canEditOfficialMii) { %>
                     <div class="moderator-tools">
                         <div class="mod-tools-header" onclick="toggleOfficialEditorTools()">
-                            <h3><%- include('icon', { name: 'flask', size: 18, class: 'icon-inline' }) %> Official Editor Tools</h3>
+                            <h3><%- include('icon', { name: 'flask', size: 18, class: 'icon-inline' }) %> <%= mii.official ? 'Official' : 'Researcher' %> Editor Tools</h3>
                             <span class="dropdown-arrow" id="officialEditorToolsArrow">▼</span>
                         </div>
 
@@ -1482,7 +1586,7 @@
 
                                 <div class="mod-tool-item">
                                     <label>Official Categories:</label>
-                                    <p class="mod-tag-hint">Assign and update leaf categories for this official entry.</p>
+                                    <p class="mod-tag-hint">Assign and update categories for this research-managed entry.</p>
                                     <button type="button" class="category-editor-trigger" onclick="openCategoryEditor()">Edit Categories <span class="category-trigger-summary"></span></button>
                                 </div>
 
@@ -2171,6 +2275,322 @@
                 setInlineMiiEditorOpen(field, false);
             }
 
+            const tomodachiPersonalityLabels = Object.freeze([
+                Object.freeze(['Independent Lone Wolf', 'Independent Thinker', 'Confident Brainiac', 'Confident Go-getter']),
+                Object.freeze(['Independent Free Spirit', 'Independent Artist', 'Confident Designer', 'Confident Adventurer']),
+                Object.freeze(['Easygoing Buddy', 'Easygoing Dreamer', 'Outgoing Charmer', 'Outgoing Leader']),
+                Object.freeze(['Easygoing Softie', 'Easygoing Optimist', 'Outgoing Trendsetter', 'Outgoing Entertainer'])
+            ]);
+
+            function getTomodachiInlineEditorElement(field, role) {
+                return document.querySelector(`[data-tomodachi-edit-${role}="${field}"]`);
+            }
+
+            function getTomodachiInlineEditorInputs(field) {
+                return Array.from(document.querySelectorAll(`[data-tomodachi-edit-input="${field}"]`));
+            }
+
+            function cloneTomodachiEditorValue(value) {
+                if (value && typeof value === 'object') {
+                    return JSON.parse(JSON.stringify(value));
+                }
+                return value;
+            }
+
+            function getTomodachiPersonalityLabel(personality) {
+                if (!personality || typeof personality !== 'object') return '';
+
+                let movement = Number.parseInt(personality.movement, 10);
+                let speech = Number.parseInt(personality.speech, 10);
+                let expressiveness = Number.parseInt(personality.expressiveness, 10);
+                let attitude = Number.parseInt(personality.attitude, 10);
+
+                if ([movement, speech, expressiveness, attitude].some(value => !Number.isInteger(value) || value < 1 || value > 8)) {
+                    return '';
+                }
+
+                movement--;
+                speech--;
+                expressiveness--;
+                attitude--;
+
+                if (speech > 3) speech++;
+                if (attitude > 3) attitude++;
+
+                const x = movement + speech;
+                const y = expressiveness + attitude;
+                return tomodachiPersonalityLabels[Math.floor(y / 4)]?.[Math.floor(x / 4)] || '';
+            }
+
+            function getTomodachiBirthdayLabel(value) {
+                const month = Number.parseInt(value?.birthMonth, 10);
+                const day = Number.parseInt(value?.birthday, 10);
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(day) || day < 1 || day > 31) {
+                    return 'Not Set';
+                }
+                return `${monthNames[month - 1]} ${day}`;
+            }
+
+            function getTomodachiDisplayValue(field, value) {
+                if (field === 'tomodachiFullName') {
+                    return [value?.firstName, value?.lastName].map(part => String(part || '').trim()).filter(Boolean).join(' ') || 'Not Set';
+                }
+                if (field === 'tomodachiFullBirthday') {
+                    return getTomodachiBirthdayLabel(value);
+                }
+                if (field === 'tomodachiAgeGroup') {
+                    return value === 'adult' ? 'Adult' : (value === 'child' ? 'Child' : 'Not Set');
+                }
+                if (field === 'tomodachiPersonality') {
+                    return getTomodachiPersonalityLabel(value) || 'Not Set';
+                }
+
+                return String(value || '').trim() || 'Not Set';
+            }
+
+            function setTomodachiInlineEditorOpen(field, isOpen) {
+                const display = getTomodachiInlineEditorElement(field, 'display');
+                const controls = getTomodachiInlineEditorElement(field, 'controls');
+                const trigger = getTomodachiInlineEditorElement(field, 'trigger');
+
+                if (display) display.hidden = isOpen;
+                if (controls) controls.hidden = !isOpen;
+                if (trigger) trigger.hidden = isOpen;
+            }
+
+            function setTomodachiPersonalityOutputs(field) {
+                if (field !== 'tomodachiPersonality') return;
+
+                const controls = getTomodachiInlineEditorElement(field, 'controls');
+                if (!controls) return;
+
+                const value = collectTomodachiInlineValue(field, { showErrors: false });
+                controls.querySelectorAll('[data-tomodachi-personality-output]').forEach((output) => {
+                    const key = output.dataset.tomodachiPersonalityOutput;
+                    output.textContent = String(value?.[key] || 4);
+                });
+
+                const preview = controls.querySelector('[data-tomodachi-personality-preview]');
+                if (preview) {
+                    preview.textContent = getTomodachiDisplayValue(field, value);
+                }
+            }
+
+            function populateTomodachiInlineEditor(field) {
+                const value = tomodachiMiiEditorState[field];
+                const inputs = getTomodachiInlineEditorInputs(field);
+
+                if (field === 'tomodachiFullName') {
+                    inputs.forEach((input) => {
+                        input.value = value?.[input.dataset.tomodachiNamePart] || '';
+                    });
+                    return;
+                }
+
+                if (field === 'tomodachiFullBirthday') {
+                    inputs.forEach((input) => {
+                        input.value = value?.[input.dataset.tomodachiBirthdayPart] || '';
+                    });
+                    return;
+                }
+
+                if (field === 'tomodachiAgeGroup') {
+                    inputs.forEach((input) => {
+                        input.checked = input.value === value;
+                    });
+                    return;
+                }
+
+                if (field === 'tomodachiPersonality') {
+                    inputs.forEach((input) => {
+                        input.value = value?.[input.dataset.tomodachiPersonalityPart] || 4;
+                    });
+                    setTomodachiPersonalityOutputs(field);
+                    return;
+                }
+
+                const input = inputs[0];
+                if (input) input.value = value || '';
+            }
+
+            function openTomodachiInlineEditor(field) {
+                const controls = getTomodachiInlineEditorElement(field, 'controls');
+                if (!controls) return;
+
+                populateTomodachiInlineEditor(field);
+                setTomodachiInlineEditorOpen(field, true);
+
+                const firstInput = getTomodachiInlineEditorInputs(field)[0];
+                if (firstInput) {
+                    firstInput.focus();
+                    if (firstInput.type === 'text' && typeof firstInput.select === 'function') {
+                        firstInput.select();
+                    }
+                }
+            }
+
+            function cancelTomodachiInlineEdit(field) {
+                populateTomodachiInlineEditor(field);
+                setTomodachiInlineEditorOpen(field, false);
+            }
+
+            function collectTomodachiInlineValue(field, options = {}) {
+                const showErrors = options.showErrors !== false;
+                const inputs = getTomodachiInlineEditorInputs(field);
+
+                if (field === 'tomodachiFullName') {
+                    const value = { firstName: '', lastName: '' };
+                    inputs.forEach((input) => {
+                        value[input.dataset.tomodachiNamePart] = String(input.value || '').replace(/\s+/g, ' ').trim();
+                    });
+                    return value;
+                }
+
+                if (field === 'tomodachiFullBirthday') {
+                    const value = { birthMonth: '', birthday: '' };
+                    inputs.forEach((input) => {
+                        value[input.dataset.tomodachiBirthdayPart] = input.value || '';
+                    });
+                    return value;
+                }
+
+                if (field === 'tomodachiAgeGroup') {
+                    return inputs.find(input => input.checked)?.value || '';
+                }
+
+                if (field === 'tomodachiPersonality') {
+                    const value = {};
+                    inputs.forEach((input) => {
+                        value[input.dataset.tomodachiPersonalityPart] = Number.parseInt(input.value, 10);
+                    });
+                    return value;
+                }
+
+                const input = inputs[0];
+                if (!input) {
+                    if (showErrors) showAlert('Invalid Tomodachi Life field.', 5000, { title: 'Error', type: 'error' });
+                    return '';
+                }
+                return String(input.value || '').replace(/\s+/g, ' ').trim();
+            }
+
+            function validateTomodachiInlineValue(field, value) {
+                if (field === 'tomodachiFullName') {
+                    if (String(value.firstName || '').length > 16 || String(value.lastName || '').length > 16) {
+                        showAlert('First and last name must each be 16 characters or fewer.', 5000, { title: 'Error', type: 'error' });
+                        return false;
+                    }
+                } else if (field === 'tomodachiFullBirthday') {
+                    const hasMonth = String(value.birthMonth || '') !== '';
+                    const hasDay = String(value.birthday || '') !== '';
+                    if (hasMonth !== hasDay) {
+                        showAlert('Birthday must include both month and day.', 5000, { title: 'Error', type: 'error' });
+                        return false;
+                    }
+                } else if (field === 'tomodachiIslandName' && String(value || '').length > 9) {
+                    showAlert('Island name must be 9 characters or fewer.', 5000, { title: 'Error', type: 'error' });
+                    return false;
+                } else if (field === 'tomodachiAgeGroup' && !['child', 'adult'].includes(value)) {
+                    showAlert('Choose child or adult.', 5000, { title: 'Error', type: 'error' });
+                    return false;
+                } else if (field === 'tomodachiPersonality') {
+                    const sliderValues = Object.values(value || {});
+                    if (sliderValues.length !== 4 || sliderValues.some(part => !Number.isInteger(part) || part < 1 || part > 8)) {
+                        showAlert('Personality sliders must be whole numbers from 1 to 8.', 5000, { title: 'Error', type: 'error' });
+                        return false;
+                    }
+                } else if (field === 'tomodachiCatchphrase' && String(value || '').length > 16) {
+                    showAlert('Catchphrase must be 16 characters or fewer.', 5000, { title: 'Error', type: 'error' });
+                    return false;
+                }
+
+                return true;
+            }
+
+            function tomodachiValuesEqual(left, right) {
+                return JSON.stringify(left) === JSON.stringify(right);
+            }
+
+            function applyTomodachiRows(rows) {
+                if (!Array.isArray(rows)) return;
+
+                rows.forEach((row) => {
+                    if (row?.key === 'islandAddress') {
+                        const addressDisplay = document.querySelector('[data-tomodachi-address-display]');
+                        if (addressDisplay) addressDisplay.textContent = row.value || 'Not Set';
+                    }
+
+                    if (!row?.editField) return;
+                    const display = getTomodachiInlineEditorElement(row.editField, 'display');
+                    if (display) display.textContent = row.value || 'Not Set';
+                    if (row.editField === 'tomodachiFullBirthday') {
+                        const birthdayDisplay = document.querySelector('[data-mii-birthday-display]');
+                        if (birthdayDisplay) birthdayDisplay.textContent = row.value || 'Not Set';
+                    }
+                });
+            }
+
+            function withUpdatedUrlVersion(url, version) {
+                if (!url || !version) return url;
+                try {
+                    const parsed = new URL(url, window.location.origin);
+                    parsed.searchParams.set('v', String(version));
+                    return parsed.pathname + parsed.search + parsed.hash;
+                } catch (error) {
+                    const separator = url.includes('?') ? '&' : '?';
+                    return `${url}${separator}v=${encodeURIComponent(version)}`;
+                }
+            }
+
+            function refreshQrPreviewVersion(version) {
+                if (!version) return;
+                document.querySelectorAll('[data-qr-preview]').forEach((preview) => {
+                    ['qr3dsSrc', 'qrWiiSrc', 'qrWiiuSrc', 'qrTomodachiSrc', 'qrMiitopiaSrc'].forEach((key) => {
+                        if (preview.dataset[key]) {
+                            preview.dataset[key] = withUpdatedUrlVersion(preview.dataset[key], version);
+                        }
+                    });
+                    setQrPreviewConsole(preview, preview.querySelector('[data-qr-image]')?.dataset.qrConsole || preview.dataset.defaultQrConsole || '3DS');
+                });
+            }
+
+            async function saveTomodachiInlineField(field) {
+                if (!Object.prototype.hasOwnProperty.call(tomodachiMiiEditorState, field)) return;
+
+                const nextValue = collectTomodachiInlineValue(field);
+                if (!validateTomodachiInlineValue(field, nextValue)) return;
+
+                if (tomodachiValuesEqual(nextValue, tomodachiMiiEditorState[field])) {
+                    cancelTomodachiInlineEdit(field);
+                    showAlert('No changes to save.', 2500, { title: 'Nothing to Save' });
+                    return;
+                }
+
+                const button = getTomodachiInlineEditorElement(field, 'save');
+                setSaveButtonBusy(button, true);
+                try {
+                    const result = await submitMiiFieldUpdate(field, nextValue);
+                    if (result?.error) {
+                        showAlert(`Error: ${result.error}`, 6000, { title: 'Error', type: 'error' });
+                        return;
+                    }
+
+                    tomodachiMiiEditorState[field] = cloneTomodachiEditorValue(nextValue);
+                    const display = getTomodachiInlineEditorElement(field, 'display');
+                    if (display) display.textContent = getTomodachiDisplayValue(field, nextValue);
+                    applyTomodachiRows(result?.tomodachiRows);
+                    refreshQrPreviewVersion(result?.qrVersion);
+                    setTomodachiInlineEditorOpen(field, false);
+                    showAlert('Saved.', 2500, { title: 'Success', type: 'success' });
+                } catch (error) {
+                    console.error('Error saving Tomodachi Life field:', error);
+                    showAlert('Failed to save changes.', 6000, { title: 'Error', type: 'error' });
+                } finally {
+                    setSaveButtonBusy(button, false);
+                }
+            }
+
             async function saveInlineMiiField(field) {
                 const config = getMiiMetadataEditConfig(field);
                 const input = getInlineMiiEditorElement(field, 'input');
@@ -2224,6 +2644,26 @@
                             saveInlineMiiField(field);
                         }
                     });
+                });
+
+                document.querySelectorAll('[data-tomodachi-edit-input]').forEach((input) => {
+                    const field = input.dataset.tomodachiEditInput;
+                    input.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape') {
+                            event.preventDefault();
+                            cancelTomodachiInlineEdit(field);
+                            return;
+                        }
+
+                        if (event.key === 'Enter' && input.type !== 'range') {
+                            event.preventDefault();
+                            saveTomodachiInlineField(field);
+                        }
+                    });
+
+                    if (input.dataset.tomodachiPersonalityPart) {
+                        input.addEventListener('input', () => setTomodachiPersonalityOutputs(field));
+                    }
                 });
             }
 

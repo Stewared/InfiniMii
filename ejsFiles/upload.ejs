@@ -117,9 +117,9 @@
                         <legend><%- include('icon', { name: 'flask', size: 18, class: 'icon-inline' }) %> Upload Official Mii</legend>
 
                         <div class="official-upload-intro">
-                            <p><strong>Researchers and Administrators only.</strong> Official uploads are always published immediately and attributed to a company source.</p>
-                            <p>Choose an existing company source or create a new one. If a new source name conflicts with an existing account, the upload will use Nintendo and admins will be notified.</p>
-                            <p>You can upload one official Mii file at a time, or a single <code>.zip</code> containing multiple Mii files. The description, company source, and categories below will be applied to every Mii in that zip.</p>
+                            <p><strong>Researchers and Administrators only.</strong> Source-managed uploads are always published immediately. Company sources become Official Miis; Community stays Community while remaining researcher-managed.</p>
+                            <p>Choose an existing source or create a new one. If a new source name conflicts with an existing account, the upload will use Nintendo and admins will be notified.</p>
+                            <p>You can upload one source-managed Mii file at a time, or a single <code>.zip</code> containing multiple Mii files. The description, source, and categories below will be applied to every Mii in that zip.</p>
                         </div>
 
                         <form action="/uploadMii" method="post" enctype="multipart/form-data" id="officialUploadForm" class="upload-form-panel official-upload-form">
@@ -180,7 +180,7 @@
                                 </div>
 
                                 <p class="official-fields-help">
-                                    Select all categories that apply. Only leaf categories (those without children) can be selected.
+                                    Select all categories that apply.
                                 </p>
 
                                 <div id="officialCategoriesContainer">
@@ -291,7 +291,6 @@
                     nodes.forEach(node => {
                         const hasChildren = node.children && node.children.length > 0;
                         const isExpanded = uploadOfficialExpandedNodes.has(node.path);
-                        const isLeaf = !hasChildren;
                         const isSelected = uploadOfficialSelectedPaths.has(node.path);
                         const indent = level * 20;
                         const nodeColor = node.color || '#999999';
@@ -308,18 +307,14 @@
                                         </span>
                                     ` : '<span class="leaf-marker">*</span>'}
 
-                                    ${isLeaf ? `
-                                        <label class="category-label-upload">
-                                            <input type="checkbox"
-                                                name="categories"
-                                                value="${escapedPathForHtml}"
-                                                ${isSelected ? 'checked' : ''}
-                                                onchange="updateOfficialUploadSelection('${escapedPath}', this.checked)">
-                                            <span class="category-label-upload-name">${escapedName}</span>
-                                        </label>
-                                    ` : `
-                                        <span class="parent-name">${escapedName}</span>
-                                    `}
+                                    <label class="category-label-upload">
+                                        <input type="checkbox"
+                                            name="categories"
+                                            value="${escapedPathForHtml}"
+                                            ${isSelected ? 'checked' : ''}
+                                            onchange="updateOfficialUploadSelection('${escapedPath}', this.checked)">
+                                        <span class="category-label-upload-name">${escapedName}</span>
+                                    </label>
                                 </div>
 
                                 ${hasChildren && isExpanded ? `
@@ -354,6 +349,13 @@
                 document.getElementById('officialUploadForm').addEventListener('submit', function(e) {
                     const isReupload = e.submitter?.name === 'reuploadExistingMii';
                     handleFormSubmit(e, '/uploadMii', isReupload ? 'Reuploading...' : 'Uploading Official Mii...', 'official-error-message', {
+                        bodyFormatter: (formData) => {
+                            formData.delete('categories');
+                            Array.from(uploadOfficialSelectedPaths).forEach((path) => {
+                                formData.append('categories', path);
+                            });
+                            return formData;
+                        },
                         onSuccess: (result, messageDiv) => {
                             if (result.notice) {
                                 showAlert(result.notice, 7000, { title: 'Notice', type: 'info' });

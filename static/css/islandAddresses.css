@@ -52,27 +52,8 @@
     letter-spacing: 0;
 }
 
-.island-address-file,
 .island-address-name-input {
-    box-sizing: border-box;
-    width: 100%;
-    min-width: 0;
-    height: 52px;
-    margin: 0;
-    padding: 12px 16px;
-    border: 2px solid var(--layer-3-um);
-    border-radius: 8px;
-    background-color: var(--layer-1-um);
-    color: var(--text-1);
-    font-family: Poppins, sans-serif;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
-}
-
-.island-address-file:focus,
-.island-address-name-input:focus {
-    outline: none;
-    border-color: var(--brand-color);
+    min-height: 60px;
 }
 
 .island-address-upload-main .note {

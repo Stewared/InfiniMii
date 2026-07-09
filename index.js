@@ -16,19 +16,21 @@ import nodemailer from "nodemailer";
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import multer from 'multer';
-import { unzipSync } from "fflate";
+import { unzip } from "fflate";
 import sharp from "sharp";
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
 import { doubleMetaphone } from 'double-metaphone';
 import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import { STATUS_CODES } from 'http';
-import { isDeepStrictEqual, format as formatConsoleOutput } from 'node:util';
+import net from "node:net";
+import { execFile, spawn } from "node:child_process";
+import { isDeepStrictEqual, format as formatConsoleOutput, promisify } from 'node:util';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import ms from 'ms';
 import dns from "dns";
-import { connectionPromise, Miis, Users, Settings, ReservedUsername } from "./database.js";
+import { connectionPromise, Miis, Users, Settings, ReservedUsername, ContactIpBlock } from "./database.js";
 import { startRerenderer } from "./rerenderer.js";
 import { renderIcon, icons } from "./icons.js";
 import {
@@ -68,6 +70,8 @@ import {
     normalizeOAuthEmail
 } from "./oauthProviders.js";
 
+const execFileAsync = promisify(execFile);
+
 // MT QR support remains in MiiJS, but the InfiniMii site is hiding/gating
 // Miitopia QR generation for now so it can be re-enabled cleanly later.
 const ENABLE_MIITOPIA_QRS = false;
@@ -92,12 +96,17 @@ const profileMiisPerPage = 18;
 const HOME_PREVIEW_COUNT = 16;
 const FULL_ROW_BROWSE_REQUEST_LIMIT = defaultMiisPerPage + HOME_PREVIEW_COUNT;
 const FULL_ROW_PROFILE_REQUEST_LIMIT = profileMiisPerPage + HOME_PREVIEW_COUNT;
+const MAX_PUBLIC_PAGINATION_START_OFFSET = 10000;
 const GLOBAL_ASSET_VERSION = "20260518-error-scroll-and-zip-preflight";
+const EJS_TEMPLATE_CACHE_ENABLED = process.env.EJS_CACHE === "true" || process.env.NODE_ENV === "production";
+const MII_CARD_CACHE_TTL_MS = 5000;
+const MII_CARD_CACHE_MAX_ENTRIES = 256;
 const RSS_FEED_MII_LIMIT = 50;
 const INDEXNOW_API_ENDPOINT = "https://api.indexnow.org/indexnow";
 const INDEXNOW_MAX_URLS_PER_REQUEST = 10000;
 const PRIVATE_MII_LIMIT = process.env.privateMiiLimit;
 const baseUrl = process.env.baseUrl;
+const RESEARCH_WEBHOOK_ENV = "researchHook";
 const OAUTH_STATE_COOKIE = "oauth_state";
 const OAUTH_PKCE_COOKIE = "oauth_pkce";
 const OAUTH_DEFAULT_NEXT = "/";
@@ -123,6 +132,16 @@ const DISCORD_EMBED_FIELD_MAX_CHARS = 1024;
 const REQUEST_LOG_DIRECTORY = path.join(__dirname, "logs", "requests");
 const REQUEST_LOG_RETENTION_DAYS = 21;
 const REQUEST_LOG_RETENTION_CHECK_INTERVAL_MS = ms("1d");
+const CONTACT_RATE_LIMIT_WINDOW_MS = ms("10m");
+const CONTACT_RATE_LIMIT_MAX_REQUESTS = 10;
+const CONTACT_RATE_LIMIT_BLOCK_MS = ms("999d");
+const CONTACT_RATE_LIMIT_ALLOWED_CACHE_TTL_MS = ms("30s");
+const CONTACT_IMMEDIATE_BLOCK_WORD_PATTERN = /\b(sex|Transfer\sto\syou)\b/i;
+const CROWDSEC_CLI_COMMAND_NAMES = Object.freeze(["cscli", "crowdsec-cli"]);
+const CROWDSEC_EXECUTABLE_CACHE_TTL_MS = ms("5m");
+const CROWDSEC_BULK_CACHE_TTL_MS = ms("5m");
+const CROWDSEC_DECISION_ERROR_CACHE_TTL_MS = ms("30s");
+const CROWDSEC_COMMAND_TIMEOUT_MS = ms("30s");
 const SEO_KEYWORDS_CSV_PATH = path.join(__dirname, "seoKeywords.csv");
 const SEO_KEYWORD_META_LIMIT = 48;
 const SEO_KEYWORD_MAX_LENGTH = 80;
@@ -137,9 +156,17 @@ const REPORT_MII_CATEGORIES = Object.freeze([
 ]);
 const REPORT_MII_CATEGORY_SET = new Set(REPORT_MII_CATEGORIES);
 const REPORT_MII_DETAILS_MAX_LENGTH = 4000;
-const OFFICIAL_ZIP_MAX_ENTRIES = 250;
+const OFFICIAL_ZIP_MAX_ENTRIES = 2000;
 const OFFICIAL_ZIP_MAX_ENTRY_BYTES = 8 * 1024 * 1024;
 const OFFICIAL_ZIP_MAX_TOTAL_BYTES = 32 * 1024 * 1024;
+const OFFICIAL_ZIP_BACKGROUND_START_DELAY_MS = ms("2s");
+const OFFICIAL_ZIP_PROGRESS_LOG_INTERVAL = 25;
+const OFFICIAL_ZIP_UPLOAD_CONCURRENCY = 4;
+const OFFICIAL_ZIP_REUPLOAD_CONCURRENCY = 3;
+const OFFICIAL_ZIP_QUEUED_NOTICE = "ZIP upload queued. It will keep processing in the background, so entries may appear gradually.";
+const MII_UPLOAD_FILE_SIZE_LIMIT_BYTES = 40 * 1024 * 1024;
+const MII_UPLOAD_FIELD_SIZE_LIMIT_BYTES = 1024 * 1024;
+const MII_UPLOAD_FIELD_COUNT_LIMIT = 1000;
 
 let cachedSeoKeywords = null;
 let loggedSeoKeywordLoadError = false;
@@ -325,6 +352,10 @@ const MAX_MII_TAG_LENGTH = 40;
 const MAX_MANUAL_MII_ID_LENGTH = 10;
 const MAX_COMPANY_SOURCE_NAME_LENGTH = 15;
 const DEFAULT_OFFICIAL_COMPANY_SOURCE = "Nintendo";
+const COMMUNITY_SOURCE_NAME = "Community";
+const MII_CENTRAL_3DS_US_CATEGORY = "3DS/Miitopia/Mii Central/US";
+const MII_CENTRAL_SWITCH_ROOT_CATEGORY = "Switch/Miitopia";
+const MII_CENTRAL_SWITCH_CATEGORY = "Switch/Miitopia/Mii Central";
 const AVERAGE_MII_EXCLUDED_TAGS = ["Face Art","Animal"];
 const TOMODACHI_LIFE_TAG = "Tomodachi Life";
 const CONTROVERSIAL_MII_TAG = "Controversial";
@@ -347,6 +378,29 @@ const MII_FAVORITE_COLOR_LABELS = Object.freeze([
     "White",
     "Black"
 ]);
+const MII_FAVORITE_COLOR_OPTIONS = Object.freeze(
+    MII_FAVORITE_COLOR_LABELS.map((label, value) => Object.freeze({ value, label }))
+);
+const BIRTHDAY_MONTH_OPTIONS = Object.freeze([
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
+].map((label, index) => Object.freeze({ value: index + 1, label })));
+const BIRTHDAY_DAY_OPTIONS = Object.freeze(
+    Array.from({ length: 31 }, (_, index) => {
+        const value = index + 1;
+        return Object.freeze({ value, label: String(value) });
+    })
+);
 
 function normalizeExportFormat(input) {
     if (!input) return null;
@@ -986,19 +1040,28 @@ async function createMiiData(input, debug) {
     }
 }
 
-async function findMatchingMii(candidateMii, { includePrivate = true, excludeId, includeGeneral = false } = {}) {
+async function findMatchingMii(candidateMii, {
+    includePrivate = true,
+    excludeId,
+    includeGeneral = false,
+    includeLegacyHashCandidates = true
+} = {}) {
     const candidateHash = getMiiIdentityHash(candidateMii, { includeGeneral });
     const lookupHash = includeGeneral ? getMiiIdentityHash(candidateMii) : candidateHash;
     const query = includePrivate ? {} : { private: false };
     if (excludeId) query.id = { $ne: excludeId };
     if (lookupHash) {
-        query.$or = [
-            { miiHash: lookupHash },
-            { miiHash: { $not: new RegExp(`^${MII_IDENTITY_HASH_PREFIX}`) } },
-            { miiHash: { $exists: false } },
-            { miiHash: null },
-            { miiHash: "" }
-        ];
+        if (includeLegacyHashCandidates) {
+            query.$or = [
+                { miiHash: lookupHash },
+                { miiHash: { $not: new RegExp(`^${MII_IDENTITY_HASH_PREFIX}`) } },
+                { miiHash: { $exists: false } },
+                { miiHash: null },
+                { miiHash: "" }
+            ];
+        } else {
+            query.miiHash = lookupHash;
+        }
     }
 
     const existingMiis = await Miis.find(query).lean();
@@ -1324,6 +1387,8 @@ const TOMODACHI_LIFE_PERSONALITIES = Object.freeze([
 ]);
 const TOMODACHI_LIFE_ISLAND_ID_HEX_LENGTH = 32;
 const TOMODACHI_LIFE_ISLAND_NAME_MAX_LENGTH = 9;
+const TOMODACHI_LIFE_NAME_MAX_LENGTH = 16;
+const TOMODACHI_LIFE_CATCHPHRASE_MAX_LENGTH = 16;
 
 function normalizeTomodachiLifePersonalityValue(value) {
     const parsed = Number(value);
@@ -1354,6 +1419,66 @@ function getTomodachiLifePersonalityLabel(personality) {
     const x = movement + speech;
     const y = expressiveness + attitude;
     return TOMODACHI_LIFE_PERSONALITIES[Math.floor(y / 4)]?.[Math.floor(x / 4)] || "";
+}
+
+function normalizeTomodachiLifeTextInput(value, maxLength, label) {
+    const normalized = String(value ?? "")
+        .replace(/\s+/g, " ")
+        .trim();
+    if (normalized.length > maxLength) {
+        throw new Error(`${label} must be ${maxLength} characters or fewer.`);
+    }
+    return normalized;
+}
+
+function parseTomodachiLifeBirthdayValue(value) {
+    const parsed = Number.parseInt(String(value ?? ""), 10);
+    return Number.isInteger(parsed) ? parsed : null;
+}
+
+function normalizeTomodachiLifeBirthdayInput(value = {}) {
+    const birthMonth = parseTomodachiLifeBirthdayValue(value.birthMonth);
+    const birthday = parseTomodachiLifeBirthdayValue(value.birthday);
+    const hasMonth = birthMonth !== null;
+    const hasDay = birthday !== null;
+
+    if (!hasMonth && !hasDay) {
+        return { birthMonth: null, birthday: null };
+    }
+
+    if (!hasMonth || !hasDay || birthMonth < 1 || birthMonth > 12 || birthday < 1 || birthday > 31) {
+        throw new Error("Birthday must include a valid month and day.");
+    }
+
+    const leapYear = 2024;
+    const date = new Date(Date.UTC(leapYear, birthMonth - 1, birthday));
+    if (date.getUTCMonth() !== birthMonth - 1 || date.getUTCDate() !== birthday) {
+        throw new Error("Birthday must be a valid calendar date.");
+    }
+
+    return { birthMonth, birthday };
+}
+
+function normalizeTomodachiLifeAgeGroupInput(value) {
+    const normalized = String(value ?? "").trim().toLowerCase();
+    if (value === true || normalized === "adult") return true;
+    if (value === false || normalized === "child") return false;
+    throw new Error("Age group must be child or adult.");
+}
+
+function normalizeTomodachiLifePersonalityInput(value = {}) {
+    const normalized = {
+        movement: normalizeTomodachiLifePersonalityValue(value.movement),
+        speech: normalizeTomodachiLifePersonalityValue(value.speech),
+        expressiveness: normalizeTomodachiLifePersonalityValue(value.expressiveness),
+        attitude: normalizeTomodachiLifePersonalityValue(value.attitude)
+    };
+
+    if (Object.values(normalized).some(part => part === null)) {
+        throw new Error("Personality sliders must be whole numbers from 1 to 8.");
+    }
+
+    return normalized;
 }
 
 function normalizeTomodachiLifeAddressText(value) {
@@ -1534,7 +1659,9 @@ function buildTomodachiLifeInfoRows(mii) {
             key,
             label,
             value: value === null || value === undefined || value === "" ? "Not Set" : String(value),
-            multiline: Boolean(options.multiline)
+            multiline: Boolean(options.multiline),
+            editable: Boolean(options.editable),
+            editField: options.editField || ""
         });
     };
 
@@ -1549,14 +1676,14 @@ function buildTomodachiLifeInfoRows(mii) {
         tl.birthday ?? mii?.general?.birthday
     );
 
-    addRow("fullName", "Full Name", fullName);
-    addRow("fullBirthday", "Full Birthday", birthday);
-    addRow("islandName", "Island Name", islandAddress.islandName || tl.island?.name || "");
+    addRow("fullName", "Full Name", fullName, { editable: true, editField: "tomodachiFullName" });
+    addRow("fullBirthday", "Full Birthday", birthday, { editable: true, editField: "tomodachiFullBirthday" });
+    addRow("islandName", "Island Name", islandAddress.islandName || tl.island?.name || "", { editable: true, editField: "tomodachiIslandName" });
     addRow("islandAddress", "Island Address", islandAddress.readable || "", { multiline: true });
-    addRow("ageGroup", "Age Group", tl.isAdult === true ? "Adult" : (tl.isAdult === false ? "Child" : ""));
-    addRow("personality", "Personality", getTomodachiLifePersonalityLabel(tl.personality));
+    addRow("ageGroup", "Age Group", tl.isAdult === true ? "Adult" : (tl.isAdult === false ? "Child" : ""), { editable: true, editField: "tomodachiAgeGroup" });
+    addRow("personality", "Personality", getTomodachiLifePersonalityLabel(tl.personality), { editable: true, editField: "tomodachiPersonality" });
     if (tl.catchphrase !== null && tl.catchphrase !== undefined && String(tl.catchphrase).trim()) {
-        addRow("catchphrase", "Catchphrase", tl.catchphrase);
+        addRow("catchphrase", "Catchphrase", tl.catchphrase, { editable: true, editField: "tomodachiCatchphrase" });
     }
 
     return rows;
@@ -1890,6 +2017,13 @@ const swearList = englishDataset.containers.map(c => c.metadata.originalWord).fi
 var globalSalt = process.env.salt;
 const upload = multer({
     dest: './uploads/',
+    limits: {
+        fileSize: MII_UPLOAD_FILE_SIZE_LIMIT_BYTES,
+        files: 2,
+        fields: MII_UPLOAD_FIELD_COUNT_LIMIT,
+        fieldSize: MII_UPLOAD_FIELD_SIZE_LIMIT_BYTES,
+        parts: MII_UPLOAD_FIELD_COUNT_LIMIT + 2
+    },
     filename: (req, file, cb) => {
         const ext = file.originalname.split('.').pop(); // keep extension
         const hash = crypto.randomBytes(16).toString('hex');
@@ -1927,12 +2061,91 @@ function shouldIgnoreOfficialZipEntry(entryName) {
     return baseName === ".ds_store" || baseName === "thumbs.db";
 }
 
+function unzipArchiveAsync(zipData, options = {}) {
+    return new Promise((resolve, reject) => {
+        unzip(zipData, options, (error, archiveEntries) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            resolve(archiveEntries || {});
+        });
+    });
+}
+
+function buildOfficialZipPreflightFilter() {
+    const state = {
+        includedEntries: 0,
+        totalBytes: 0,
+        error: null
+    };
+
+    const setError = (message) => {
+        if (!state.error) {
+            state.error = new Error(message);
+        }
+        return false;
+    };
+
+    return {
+        state,
+        filter(fileInfo) {
+            if (state.error) return false;
+
+            const normalizedName = String(fileInfo?.name || "").replace(/\\/g, "/");
+            if (shouldIgnoreOfficialZipEntry(normalizedName)) {
+                return false;
+            }
+
+            if (fileInfo.compression !== 0 && fileInfo.compression !== 8) {
+                return setError(`The file "${path.posix.basename(normalizedName)}" uses an unsupported ZIP compression method.`);
+            }
+
+            const originalSize = Number(fileInfo.originalSize);
+            if (!Number.isSafeInteger(originalSize) || originalSize < 0) {
+                return setError(`The file "${path.posix.basename(normalizedName)}" has an invalid ZIP size.`);
+            }
+
+            if (originalSize === 0) {
+                return false;
+            }
+
+            if (originalSize > OFFICIAL_ZIP_MAX_ENTRY_BYTES) {
+                return setError(`The file "${path.posix.basename(normalizedName)}" is too large. Each ZIP entry must stay under 8 MB.`);
+            }
+
+            if (state.totalBytes + originalSize > OFFICIAL_ZIP_MAX_TOTAL_BYTES) {
+                return setError("This ZIP is too large once extracted. Keep the total extracted file size under 32 MB.");
+            }
+
+            if (state.includedEntries + 1 > OFFICIAL_ZIP_MAX_ENTRIES) {
+                return setError(`ZIP uploads can include at most ${OFFICIAL_ZIP_MAX_ENTRIES} files at a time.`);
+            }
+
+            state.totalBytes += originalSize;
+            state.includedEntries++;
+            return true;
+        }
+    };
+}
+
 async function extractOfficialZipEntries(filePath) {
+    const zipStats = await fs.promises.stat(filePath);
+    if (zipStats.size > MII_UPLOAD_FILE_SIZE_LIMIT_BYTES) {
+        throw new Error("ZIP uploads must stay under 40 MB.");
+    }
+
     let archiveEntries;
+    const preflight = buildOfficialZipPreflightFilter();
     try {
-        archiveEntries = unzipSync(await fs.promises.readFile(filePath));
+        archiveEntries = await unzipArchiveAsync(await fs.promises.readFile(filePath), {
+            filter: preflight.filter
+        });
     } catch (error) {
         throw new Error("Could not open the ZIP archive. Make sure it is a valid .zip file.");
+    }
+    if (preflight.state.error) {
+        throw preflight.state.error;
     }
 
     const extractedEntries = [];
@@ -1960,14 +2173,14 @@ async function extractOfficialZipEntries(filePath) {
             throw new Error("This ZIP is too large once extracted. Keep the total extracted file size under 32 MB.");
         }
 
+        if (extractedEntries.length + 1 > OFFICIAL_ZIP_MAX_ENTRIES) {
+            throw new Error(`ZIP uploads can include at most ${OFFICIAL_ZIP_MAX_ENTRIES} files at a time.`);
+        }
+
         extractedEntries.push({
             name: normalizedName,
             data: entryBuffer
         });
-
-        if (extractedEntries.length > OFFICIAL_ZIP_MAX_ENTRIES) {
-            throw new Error(`ZIP uploads can include at most ${OFFICIAL_ZIP_MAX_ENTRIES} files at a time.`);
-        }
     }
 
     return extractedEntries;
@@ -2008,6 +2221,406 @@ function rateLimitKeyGenerator(req) {
     const method = typeof req?.method === 'string' ? req.method : 'UNKNOWN';
     const route = typeof req?.originalUrl === 'string' ? req.originalUrl : (typeof req?.url === 'string' ? req.url : '/');
     return `unknown:${method}:${route}:${ua}`;
+}
+
+function silentlyDropBlockedRequest(req, res) {
+    if (res && !res.destroyed) {
+        res.destroy();
+    }
+
+    if (req?.socket && !req.socket.destroyed) {
+        req.socket.destroy();
+    }
+}
+
+function getRequestIpHashCandidates(req) {
+    const values = [
+        getClientIpAddress(req),
+        req?.ip,
+        ...(Array.isArray(req?.ips) ? req.ips : []),
+        req?.headers?.['x-forwarded-for'],
+        ...(typeof req?.headers?.['x-forwarded-for'] === "string"
+            ? req.headers['x-forwarded-for'].split(",")
+            : []),
+        req?.headers?.['x-real-ip'],
+        req?.socket?.remoteAddress,
+        req?.connection?.remoteAddress
+    ];
+
+    return new Set(values
+        .filter(value => typeof value === "string" && value.trim())
+        .map(value => sha256(value.trim())));
+}
+
+async function localIpBanMiddleware(req, res, next) {
+    try {
+        const settings = await getSettings();
+        const bannedIPs = Array.isArray(settings?.bannedIPs) ? settings.bannedIPs : [];
+        if (bannedIPs.length === 0) return next();
+
+        const clientIpHashes = getRequestIpHashCandidates(req);
+        if (bannedIPs.some(ipHash => clientIpHashes.has(ipHash))) {
+            return silentlyDropBlockedRequest(req, res);
+        }
+    } catch (error) {
+        rawConsoleError("Error checking local IP ban:", error);
+    }
+
+    return next();
+}
+
+let crowdSecBulkCache = null; // { bannedIps: Set<string>, bannedRanges: string[] } | null
+let crowdSecBulkCacheExpiresAt = 0;
+let crowdSecBulkFetchPromise = null;
+let crowdSecBulkErrorBackoffUntil = 0;
+let cachedCrowdSecCliPath = undefined;
+let cachedCrowdSecCliPathLoadedAt = 0;
+
+function findExecutableInPath(commandName) {
+    const searchDirs = new Set([
+        ...String(process.env.PATH || "").split(path.delimiter).filter(Boolean),
+        "/usr/local/bin",
+        "/usr/bin",
+        "/bin"
+    ]);
+
+    for (const dirPath of searchDirs) {
+        const candidatePath = path.join(dirPath, commandName);
+        try {
+            fs.accessSync(candidatePath, fs.constants.X_OK);
+            return candidatePath;
+        } catch {
+            // Keep looking.
+        }
+    }
+
+    return null;
+}
+
+function getCrowdSecCliPath(now = Date.now()) {
+    if (
+        cachedCrowdSecCliPath !== undefined
+        && now - cachedCrowdSecCliPathLoadedAt < CROWDSEC_EXECUTABLE_CACHE_TTL_MS
+    ) {
+        return cachedCrowdSecCliPath;
+    }
+
+    cachedCrowdSecCliPath = CROWDSEC_CLI_COMMAND_NAMES
+        .map(commandName => findExecutableInPath(commandName))
+        .find(Boolean) || null;
+    cachedCrowdSecCliPathLoadedAt = now;
+    return cachedCrowdSecCliPath;
+}
+
+function normalizeCrowdSecIpAddress(value) {
+    const normalized = String(value || "").trim().replace(/^\[(.*)\]$/, "$1");
+    if (!normalized || normalized === "unknown") return "";
+
+    if (normalized.toLowerCase().startsWith("::ffff:")) {
+        const mappedIpv4 = normalized.slice(7);
+        if (net.isIP(mappedIpv4) === 4) return mappedIpv4;
+    }
+
+    return net.isIP(normalized) ? normalized : "";
+}
+
+function extractCrowdSecDecisionRows(parsedOutput) {
+    const decisions = [];
+
+    const visit = (value) => {
+        if (!value) return;
+
+        if (Array.isArray(value)) {
+            value.forEach(visit);
+            return;
+        }
+
+        if (typeof value !== "object") return;
+
+        if (
+            Object.prototype.hasOwnProperty.call(value, "type")
+            && Object.prototype.hasOwnProperty.call(value, "value")
+        ) {
+            decisions.push(value);
+        }
+
+        for (const key of ["decisions", "data", "items"]) {
+            if (Array.isArray(value[key])) {
+                visit(value[key]);
+            }
+        }
+    };
+
+    visit(parsedOutput);
+    return decisions;
+}
+
+function crowdSecRangeContainsIp(rangeValue, ipAddress) {
+    const [rangeAddress, prefixText] = String(rangeValue || "").trim().split("/");
+    const prefixLength = Number.parseInt(prefixText, 10);
+    const ipFamily = net.isIP(ipAddress);
+    const rangeFamily = net.isIP(rangeAddress);
+
+    if (!ipFamily || ipFamily !== rangeFamily || !Number.isInteger(prefixLength)) return false;
+
+    try {
+        const blockList = new net.BlockList();
+        blockList.addSubnet(rangeAddress, prefixLength, ipFamily === 4 ? "ipv4" : "ipv6");
+        return blockList.check(ipAddress, ipFamily === 4 ? "ipv4" : "ipv6");
+    } catch {
+        return false;
+    }
+}
+
+function spawnCollectStdout(command, args, { timeout } = {}) {
+    return new Promise((resolve, reject) => {
+        const child = spawn(command, args, { stdio: ["ignore", "pipe", "pipe"] });
+        const chunks = [];
+        let stderrData = "";
+        let settled = false;
+
+        const settle = (fn) => {
+            if (settled) return;
+            settled = true;
+            if (timer) clearTimeout(timer);
+            fn();
+        };
+
+        const timer = timeout ? setTimeout(() => {
+            child.kill();
+            settle(() => reject(Object.assign(new Error("timed out"), { stderr: stderrData })));
+        }, timeout) : null;
+
+        child.stdout.on("data", chunk => chunks.push(chunk));
+        child.stderr.on("data", chunk => { stderrData += String(chunk); });
+        child.on("error", err => settle(() => reject(err)));
+        child.on("close", code => {
+            if (code !== 0) {
+                settle(() => reject(Object.assign(new Error(`Command failed with exit code ${code}`), { stderr: stderrData })));
+            } else {
+                settle(() => resolve(Buffer.concat(chunks).toString("utf8")));
+            }
+        });
+    });
+}
+
+async function fetchCrowdSecBulkDecisions(now = Date.now()) {
+    const crowdSecCliPath = getCrowdSecCliPath(now);
+    if (!crowdSecCliPath) return null;
+
+    try {
+        const stdout = await spawnCollectStdout(
+            crowdSecCliPath,
+            ["decisions", "list", "--output", "json", "--color", "no"],
+            { timeout: CROWDSEC_COMMAND_TIMEOUT_MS }
+        );
+
+        const output = stdout.trim();
+        if (!output || output === "null") return { bannedIps: new Set(), bannedRanges: [] };
+
+        const decisions = extractCrowdSecDecisionRows(JSON.parse(output));
+        const bannedIps = new Set();
+        const bannedRanges = [];
+
+        for (const decision of decisions) {
+            const type = String(decision.type ?? "").trim().toLowerCase();
+            if (type !== "ban") continue;
+            if (decision.simulated === true || String(decision.simulated).toLowerCase() === "true") continue;
+
+            const scope = String(decision.scope ?? "").trim().toLowerCase();
+            const value = String(decision.value ?? "").trim();
+            if (!value) continue;
+
+            if (!scope || scope === "ip") {
+                const ip = normalizeCrowdSecIpAddress(value);
+                if (ip) bannedIps.add(ip);
+            } else if (scope === "range") {
+                bannedRanges.push(value);
+            }
+        }
+
+        return { bannedIps, bannedRanges };
+    } catch (error) {
+        crowdSecBulkErrorBackoffUntil = Date.now() + CROWDSEC_DECISION_ERROR_CACHE_TTL_MS;
+        const stderr = String(error?.stderr || "").trim();
+        rawConsoleError("[crowdsec] Failed to fetch bulk decisions:", stderr || error?.message || error);
+        return null;
+    }
+}
+
+async function getCrowdSecBulkCache() {
+    const now = Date.now();
+
+    if (crowdSecBulkCache !== null && now < crowdSecBulkCacheExpiresAt) {
+        return crowdSecBulkCache;
+    }
+
+    if (now < crowdSecBulkErrorBackoffUntil) {
+        return crowdSecBulkCache;
+    }
+
+    if (!crowdSecBulkFetchPromise) {
+        crowdSecBulkFetchPromise = fetchCrowdSecBulkDecisions(now).then(result => {
+            if (result !== null) {
+                crowdSecBulkCache = result;
+                crowdSecBulkCacheExpiresAt = Date.now() + CROWDSEC_BULK_CACHE_TTL_MS;
+            }
+            crowdSecBulkFetchPromise = null;
+        }).catch(() => {
+            crowdSecBulkFetchPromise = null;
+        });
+    }
+
+    await crowdSecBulkFetchPromise;
+    return crowdSecBulkCache;
+}
+
+async function getCrowdSecIpDecision(rawIpAddress) {
+    const ipAddress = normalizeCrowdSecIpAddress(rawIpAddress);
+    if (!ipAddress) return { banned: false, checked: false };
+
+    const cache = await getCrowdSecBulkCache();
+    if (!cache) return { banned: false, checked: false };
+
+    if (cache.bannedIps.has(ipAddress)) return { banned: true, checked: true };
+
+    const bannedByRange = cache.bannedRanges.some(range => crowdSecRangeContainsIp(range, ipAddress));
+    return { banned: bannedByRange, checked: true };
+}
+
+async function crowdSecBanMiddleware(req, res, next) {
+    const decision = await getCrowdSecIpDecision(getClientIpAddress(req));
+    if (!decision.banned) return next();
+
+    return silentlyDropBlockedRequest(req, res);
+}
+
+const contactRateLimitBlocks = new Map();
+const contactRateLimitAllowedUntilByKey = new Map();
+
+function getContactRateLimitStorageKey(req) {
+    return sha256(`contact-rate-limit:${rateLimitKeyGenerator(req)}`);
+}
+
+function getCachedContactRateLimitBlock(keyHash, now = Date.now()) {
+    const blockedUntil = contactRateLimitBlocks.get(keyHash);
+    if (!blockedUntil) return 0;
+
+    if (blockedUntil <= now) {
+        contactRateLimitBlocks.delete(keyHash);
+        return 0;
+    }
+
+    return blockedUntil;
+}
+
+function hasCachedContactRateLimitAllowedDecision(keyHash, now = Date.now()) {
+    const allowedUntil = contactRateLimitAllowedUntilByKey.get(keyHash);
+    if (!allowedUntil) return false;
+
+    if (allowedUntil <= now) {
+        contactRateLimitAllowedUntilByKey.delete(keyHash);
+        return false;
+    }
+
+    return true;
+}
+
+function cacheContactRateLimitAllowedDecision(keyHash, now = Date.now()) {
+    contactRateLimitAllowedUntilByKey.set(keyHash, now + CONTACT_RATE_LIMIT_ALLOWED_CACHE_TTL_MS);
+}
+
+function cacheContactRateLimitBlock(keyHash, blockedUntil) {
+    contactRateLimitAllowedUntilByKey.delete(keyHash);
+    contactRateLimitBlocks.set(keyHash, blockedUntil);
+
+    const cleanupDelay = Math.max(1, blockedUntil - Date.now());
+    const cleanupTimer = setTimeout(() => {
+        if (contactRateLimitBlocks.get(keyHash) === blockedUntil) {
+            contactRateLimitBlocks.delete(keyHash);
+        }
+    }, cleanupDelay);
+    cleanupTimer.unref?.();
+}
+
+async function getContactRateLimitBlock(keyHash, now = Date.now()) {
+    const cachedBlock = getCachedContactRateLimitBlock(keyHash, now);
+    if (cachedBlock) return cachedBlock;
+    if (hasCachedContactRateLimitAllowedDecision(keyHash, now)) return 0;
+
+    const block = await ContactIpBlock.findOne({
+        keyHash,
+        blockedUntil: { $gt: new Date(now) }
+    }).lean();
+    const blockedUntil = block?.blockedUntil instanceof Date
+        ? block.blockedUntil.getTime()
+        : new Date(block?.blockedUntil || 0).getTime();
+
+    if (!Number.isFinite(blockedUntil) || blockedUntil <= now) {
+        cacheContactRateLimitAllowedDecision(keyHash, now);
+        return 0;
+    }
+
+    cacheContactRateLimitBlock(keyHash, blockedUntil);
+    return blockedUntil;
+}
+
+async function setContactRateLimitBlock(keyHash, blockedUntil) {
+    cacheContactRateLimitBlock(keyHash, blockedUntil);
+
+    try {
+        await ContactIpBlock.findOneAndUpdate(
+            { keyHash },
+            {
+                $set: {
+                    blockedUntil: new Date(blockedUntil),
+                    createdAt: new Date()
+                }
+            },
+            { upsert: true }
+        );
+    } catch (error) {
+        rawConsoleError("Error persisting contact rate limit block:", error);
+    }
+}
+
+async function contactRateLimitBlockMiddleware(req, res, next) {
+    try {
+        const blockedUntil = await getContactRateLimitBlock(getContactRateLimitStorageKey(req));
+        if (!blockedUntil) return next();
+
+        return silentlyDropBlockedRequest(req, res);
+    } catch (error) {
+        rawConsoleError("Error checking contact rate limit block:", error);
+        return next();
+    }
+}
+
+function contactFormContainsImmediateBlockWord(...values) {
+    return values.some(value => CONTACT_IMMEDIATE_BLOCK_WORD_PATTERN.test(String(value ?? "")));
+}
+
+async function blockContactRequestForDay(req, res, reportTitle = "Contact Ratelimit Blocked IP") {
+    const blockedUntil = Date.now() + CONTACT_RATE_LIMIT_BLOCK_MS;
+    const contactRateLimitKey = getContactRateLimitStorageKey(req);
+    await setContactRateLimitBlock(contactRateLimitKey, blockedUntil);
+
+    await makeReport(JSON.stringify({
+        embeds: [{
+            type: "rich",
+            title: reportTitle,
+            description:
+                `Triggered by IP: ${getClientIpAddress(req)}\n` +
+                `Endpoint: ${req.originalUrl}\n` +
+                `Method: ${req.method}\n` +
+                `User Agent: ${req.headers['user-agent']}\n` +
+                `Count: ${req.rateLimit?.used ?? "unknown"}\n` +
+                `Blocked Until: ${new Date(blockedUntil).toISOString()}`,
+            color: 0xff3c00,
+        }]
+    }));
+
+    return silentlyDropBlockedRequest(req, res);
 }
 
 const requestLogger = new DailyTabSeparatedRequestLogger({
@@ -2066,6 +2679,14 @@ const miiListRatelimiter = rateLimit({ // Limiter just for search endpoints
 	windowMs: ms("15s"),
 	limit: 30,//2 req per sec
     ...ratelimitOptions
+})
+const contactRequestRatelimiter = rateLimit({
+    windowMs: CONTACT_RATE_LIMIT_WINDOW_MS,
+    limit: CONTACT_RATE_LIMIT_MAX_REQUESTS,
+    ...ratelimitOptions,
+    handler: async function(req, res) {
+        return blockContactRequestForDay(req, res);
+    }
 })
 
 function bitStringToBuffer(bitString) {
@@ -2175,7 +2796,8 @@ async function loadSettingsFromDatabase() {
             bannedIPs: [],
             officialCategories: { categories: [] },
             officialCompanySources: [DEFAULT_OFFICIAL_COMPANY_SOURCE],
-            miiTags: []
+            miiTags: [],
+            communityOfficialFlagsNormalizedAt: null
         }));
     } else {
         const hasDefaultUserPfpMii = typeof settings.defaultUserPfpMii === "string" && settings.defaultUserPfpMii.trim();
@@ -2229,6 +2851,64 @@ async function getMiiById(id, includePrivate = false) {
     const query = { id };
     if (!includePrivate) query.private = false;
     return await Miis.findOne(query).lean();
+}
+
+const miiCardCache = new Map();
+
+function getMiiCardCacheKey(id, includePrivate) {
+    return `${includePrivate ? "private" : "public"}:${String(id || "").trim()}`;
+}
+
+function pruneMiiCardCache(now = Date.now()) {
+    for (const [key, entry] of miiCardCache) {
+        if (!entry || entry.expiresAt <= now) {
+            miiCardCache.delete(key);
+        }
+    }
+
+    while (miiCardCache.size > MII_CARD_CACHE_MAX_ENTRIES) {
+        const oldestKey = miiCardCache.keys().next().value;
+        if (!oldestKey) break;
+        miiCardCache.delete(oldestKey);
+    }
+}
+
+async function getMiiCardById(id, includePrivate = false) {
+    const normalizedId = typeof id === "string" ? id.trim() : "";
+    if (!normalizedId) return null;
+
+    const now = Date.now();
+    const cacheKey = getMiiCardCacheKey(normalizedId, includePrivate);
+    const cached = miiCardCache.get(cacheKey);
+    if (cached && cached.expiresAt > now) {
+        return cached.promise
+            ? await cached.promise
+            : cached.value;
+    }
+
+    const query = { id: normalizedId };
+    if (!includePrivate) query.private = false;
+    const promise = Miis.findOne(query)
+        .select(MII_CARD_SELECT)
+        .lean()
+        .exec();
+    miiCardCache.set(cacheKey, {
+        expiresAt: now + MII_CARD_CACHE_TTL_MS,
+        promise
+    });
+
+    try {
+        const value = await promise;
+        miiCardCache.set(cacheKey, {
+            expiresAt: Date.now() + MII_CARD_CACHE_TTL_MS,
+            value
+        });
+        pruneMiiCardCache();
+        return value;
+    } catch (error) {
+        miiCardCache.delete(cacheKey);
+        throw error;
+    }
 }
 
 function hasRenderableMiiPageData(mii) {
@@ -2436,6 +3116,20 @@ function isInvalidMiiTypeError(error) {
         : String(error || "");
 
     return /Could not find any decode?able formats/i.test(errorMessage);
+}
+
+function isMiiInputProcessingError(error) {
+    const errorMessage = typeof error?.message === "string"
+        ? error.message
+        : String(error || "");
+
+    return isInvalidMiiTypeError(error)
+        || /Detected image input/i.test(errorMessage)
+        || /QR (code )?(decoding failed|not found)/i.test(errorMessage)
+        || /file length does not match/i.test(errorMessage)
+        || /fails due to/i.test(errorMessage)
+        || /outside the bounds/i.test(errorMessage)
+        || /not valid for Wii Remote slots/i.test(errorMessage);
 }
 
 function normalizeMiiJsDebugOutput(debugOutput, maxLength = MIIJS_DEBUG_CAPTURE_MAX_CHARS) {
@@ -3015,7 +3709,9 @@ function getMiiAttribution(mii) {
     const uploaderName = String(mii?.uploader || "").trim();
     const sourceName = mii?.official
         ? (normalizeCompanySourceName(mii?.officialSource || uploaderName) || DEFAULT_OFFICIAL_COMPANY_SOURCE)
-        : uploaderName;
+        : (isCommunitySourceName(mii?.officialSource)
+            ? normalizeCompanySourceName(mii?.officialSource)
+            : uploaderName);
     const label = sourceName || "Unknown";
 
     return {
@@ -3067,9 +3763,9 @@ async function getSendables(req, title, user) {
         averageMiiData,
         userPfpMii
     ] = await Promise.all([
-        getMiiById(settings.highlightedMii, false),
-        getMiiById("average", false),
-        req.user ? getMiiById(pfp, true) : Promise.resolve(null)
+        getMiiCardById(settings.highlightedMii, false),
+        getMiiCardById("average", false),
+        req.user ? getMiiCardById(pfp, true) : Promise.resolve(null)
     ]);
 
     const visibleHighlightedMiiData = highlightedMiiData && !isMiiHiddenFromViewer(highlightedMiiData, req.user)
@@ -3249,7 +3945,8 @@ async function getModsPageGroups() {
 }
 
 async function getModsPageOfficialAccounts(sourceNames) {
-    const officialSourceNames = normalizeOfficialCompanySourceList(sourceNames || []);
+    const officialSourceNames = normalizeOfficialCompanySourceList(sourceNames || [])
+        .filter(sourceName => !isCommunitySourceName(sourceName));
     if (officialSourceNames.length === 0) return [];
 
     const users = await Users.find({
@@ -3954,22 +4651,8 @@ function findCategoryByPath(path, tree) {
     return null;
 }
 
-// TODO_DB: verify
-// Get all leaf categories (categories with no children) as flat array
-function getAllLeafCategories(tree, result = []) {
-    if (!tree) return result;
-    tree.forEach(node => {
-        if (node.children && node.children.length > 0) {
-            getAllLeafCategories(node.children, result);
-        } else {
-            result.push(node);
-        }
-    });
-    return result;
-}
-
-function getLeafCategoryPathSet(tree) {
-    return new Set(getAllLeafCategories(tree, []).map(node => node.path).filter(Boolean));
+function getCategoryPathSet(tree) {
+    return new Set(getAllCategoriesFlat(tree, []).map(node => node.path).filter(Boolean));
 }
 
 function normalizeCategoryPaths(rawCategories) {
@@ -3977,6 +4660,21 @@ function normalizeCategoryPaths(rawCategories) {
     return [...new Set(source
         .map(category => typeof category === "string" ? category.trim() : "")
         .filter(Boolean))];
+}
+
+function normalizeOfficialMiiCategoryPaths(rawCategories) {
+    const categories = normalizeCategoryPaths(rawCategories);
+    if (
+        categories.includes(MII_CENTRAL_3DS_US_CATEGORY) &&
+        categories.includes(MII_CENTRAL_SWITCH_ROOT_CATEGORY)
+    ) {
+        return normalizeCategoryPaths([
+            ...categories.filter(category => category !== MII_CENTRAL_SWITCH_ROOT_CATEGORY),
+            MII_CENTRAL_SWITCH_CATEGORY
+        ]);
+    }
+
+    return categories;
 }
 
 function normalizeCategoryColor(color, fallback = "#999999") {
@@ -4429,6 +5127,7 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
                     { name: nameRegex }
                 ]
             })
+                .select(MII_CARD_SELECT)
                 .sort(sort)
                 .limit(SIMILAR_MII_QUERY_LIMIT)
                 .lean()
@@ -4441,6 +5140,7 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
                 ...visibilityFilter,
                 tags: { $in: context.currentTags.map(buildExactCaseInsensitiveRegex) }
             })
+                .select(MII_CARD_SELECT)
                 .sort(sort)
                 .limit(SIMILAR_MII_QUERY_LIMIT)
                 .lean()
@@ -4457,6 +5157,7 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
                 ...visibilityFilter,
                 tags: { $in: tagTermRegexes }
             })
+                .select(MII_CARD_SELECT)
                 .sort(sort)
                 .limit(SIMILAR_MII_QUERY_LIMIT)
                 .lean()
@@ -4473,6 +5174,7 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
                 ...visibilityFilter,
                 $or: descriptionTermRegexes.map((regex) => ({ desc: regex }))
             })
+                .select(MII_CARD_SELECT)
                 .sort(sort)
                 .limit(SIMILAR_MII_QUERY_LIMIT)
                 .lean()
@@ -4569,6 +5271,85 @@ function normalizeCompanySourceName(source) {
         .replace(/\s+/g, " ")
         .replace(/[<>]/g, "")
         .trim();
+}
+
+function isCommunitySourceName(source) {
+    return normalizeCompanySourceName(source).toLowerCase() === COMMUNITY_SOURCE_NAME.toLowerCase();
+}
+
+function getCommunityAttributionClauses() {
+    const communityRegex = buildExactCaseInsensitiveRegex(COMMUNITY_SOURCE_NAME);
+    return [
+        { uploader: communityRegex },
+        { officialSource: communityRegex }
+    ];
+}
+
+function buildCommunityAttributedMiiQuery(baseQuery = {}) {
+    const clauses = [];
+    if (baseQuery && Object.keys(baseQuery).length > 0) {
+        clauses.push(baseQuery);
+    }
+    clauses.push({ $or: getCommunityAttributionClauses() });
+    return clauses.length === 1 ? clauses[0] : { $and: clauses };
+}
+
+function buildResearchManagedMiiQuery(baseQuery = {}) {
+    const clauses = [];
+    if (baseQuery && Object.keys(baseQuery).length > 0) {
+        clauses.push(baseQuery);
+    }
+    clauses.push({
+        $or: [
+            { official: true },
+            ...getCommunityAttributionClauses()
+        ]
+    });
+    return clauses.length === 1 ? clauses[0] : { $and: clauses };
+}
+
+function isCommunityAttributedMii(mii) {
+    return Boolean(
+        isCommunitySourceName(mii?.uploader)
+        || isCommunitySourceName(mii?.officialSource)
+    );
+}
+
+function isResearchManagedMii(mii) {
+    return Boolean(mii?.official || isCommunityAttributedMii(mii));
+}
+
+function shouldMiiStoreOfficialFlag({ official = false, uploader = "", officialSource = "", isOfficialUpload = false } = {}) {
+    if (!official) return false;
+    const attributionName = isOfficialUpload ? officialSource : (officialSource || uploader);
+    return !isCommunitySourceName(attributionName);
+}
+
+async function normalizeCommunityAttributedMiiOfficialFlags() {
+    const result = await Miis.updateMany(
+        buildCommunityAttributedMiiQuery({ official: true }),
+        { $set: { official: false } }
+    );
+    const modifiedCount = result.modifiedCount || 0;
+    if (modifiedCount > 0) {
+        console.log(`[community] Disabled Official flag on ${modifiedCount} Community-attributed Mii${modifiedCount === 1 ? "" : "s"}.`);
+    }
+    return modifiedCount;
+}
+
+async function normalizeCommunityAttributedMiiOfficialFlagsOnce(settings = null) {
+    const resolvedSettings = settings || await getSettings();
+    if (resolvedSettings?.communityOfficialFlagsNormalizedAt) {
+        return 0;
+    }
+
+    const migratedAt = Date.now();
+    const modifiedCount = await normalizeCommunityAttributedMiiOfficialFlags();
+    await updateSettings({ communityOfficialFlagsNormalizedAt: migratedAt });
+    if (settings) {
+        settings.communityOfficialFlagsNormalizedAt = migratedAt;
+    }
+    return modifiedCount;
 }
 
 function normalizeOfficialCompanySourceList(rawSources) {
@@ -4853,7 +5634,7 @@ async function resolveOfficialCompanySourceForUpload(req, settings) {
             selectedSource = canonicalExisting;
         } else {
             const existingAccount = await getUserByUsername(requestedNewSource);
-            if (existingAccount) {
+            if (existingAccount && !isCommunitySourceName(requestedNewSource)) {
                 selectedSource = defaultSource;
                 notice = `Company source "${requestedNewSource}" already exists as an account. Admins have been notified and will handle the discrepancy shortly. Using ${selectedSource} for now.`;
                 makeReport(JSON.stringify({
@@ -4924,11 +5705,18 @@ async function persistUploadedMii(mii, {
     uploader,
     wantsPublic,
     isOfficialUpload = false,
+    official = isOfficialUpload,
     officialSource = null,
     desc = "",
     officialCategories = []
 } = {}) {
-    const normalizedOfficialCategories = isOfficialUpload ? normalizeCategoryPaths(officialCategories) : [];
+    const normalizedOfficialCategories = isOfficialUpload ? normalizeOfficialMiiCategoryPaths(officialCategories) : [];
+    const shouldStoreOfficial = shouldMiiStoreOfficialFlag({
+        official,
+        uploader,
+        officialSource,
+        isOfficialUpload
+    });
 
     mii.officialCategories = normalizedOfficialCategories;
     mii.id = await genId();
@@ -4942,7 +5730,7 @@ async function persistUploadedMii(mii, {
     }
     mii.desc = normalizeMiiDescription(desc);
     mii.votes = 1;
-    mii.official = isOfficialUpload;
+    mii.official = shouldStoreOfficial;
     mii.published = wantsPublic;
     mii.blockedFromPublishing = false;
     setMiiIdentityHash(mii);
@@ -4990,20 +5778,21 @@ async function persistUploadedMii(mii, {
 }
 
 async function mergeOfficialCategoriesIntoDuplicateMii(matchingMii, officialCategories) {
-    if (!matchingMii?.id || !matchingMii.official) return null;
+    if (!matchingMii?.id || !isResearchManagedMii(matchingMii)) return null;
 
-    const categoriesToMerge = normalizeCategoryPaths(officialCategories);
+    const categoriesToMerge = normalizeOfficialMiiCategoryPaths(officialCategories);
     if (categoriesToMerge.length === 0) return null;
 
-    const existingCategories = normalizeCategoryPaths(matchingMii.officialCategories);
+    const rawExistingCategories = normalizeCategoryPaths(matchingMii.officialCategories);
+    const existingCategories = normalizeOfficialMiiCategoryPaths(rawExistingCategories);
     const existingCategorySet = new Set(existingCategories);
     const categoriesToAdd = categoriesToMerge.filter(categoryPath => !existingCategorySet.has(categoryPath));
-    if (categoriesToAdd.length === 0) return null;
+    const mergedCategories = normalizeOfficialMiiCategoryPaths([...existingCategories, ...categoriesToAdd]);
+    if (isDeepStrictEqual(rawExistingCategories, mergedCategories)) return null;
 
-    const mergedCategories = normalizeCategoryPaths([...existingCategories, ...categoriesToAdd]);
     const result = await Miis.updateOne(
-        { id: matchingMii.id, official: true },
-        { $addToSet: { officialCategories: { $each: categoriesToAdd } } }
+        buildResearchManagedMiiQuery({ id: matchingMii.id }),
+        { $set: { officialCategories: mergedCategories } }
     );
     if (!result.modifiedCount) return null;
 
@@ -5014,6 +5803,9 @@ async function mergeOfficialCategoriesIntoDuplicateMii(matchingMii, officialCate
 }
 
 const officialZipMiiHashLocks = new Map();
+let officialZipProcessingQueueTail = Promise.resolve();
+let officialZipProcessingQueueSize = 0;
+let averageMiiRefreshDeferredForZip = false;
 
 async function withOfficialZipMiiHashLock(miiHash, task) {
     if (!miiHash) {
@@ -5038,6 +5830,55 @@ async function withOfficialZipMiiHashLock(miiHash, task) {
             officialZipMiiHashLocks.delete(miiHash);
         }
     }
+}
+
+function queueOfficialZipBackgroundTask(label, task) {
+    const queuedBehindCount = officialZipProcessingQueueSize;
+    officialZipProcessingQueueSize += 1;
+
+    const queuedTask = officialZipProcessingQueueTail
+        .catch(() => {})
+        .then(async () => {
+            if (queuedBehindCount > 0) {
+                console.log(`[official zip ${label}] Waiting behind ${queuedBehindCount} queued ZIP job${queuedBehindCount === 1 ? "" : "s"}.`);
+            }
+
+            await delay(OFFICIAL_ZIP_BACKGROUND_START_DELAY_MS);
+            return await task();
+        })
+        .finally(() => {
+            officialZipProcessingQueueSize = Math.max(0, officialZipProcessingQueueSize - 1);
+            if (officialZipProcessingQueueSize === 0 && averageMiiRefreshDeferredForZip) {
+                averageMiiRefreshDeferredForZip = false;
+                queueAverageMiiRefresh("bulk upload");
+            }
+        });
+
+    officialZipProcessingQueueTail = queuedTask.catch(() => {});
+    return queuedTask;
+}
+
+function hasActiveOfficialZipProcessing() {
+    return officialZipProcessingQueueSize > 0;
+}
+
+async function runConcurrentZipEntryWorkers(entries, concurrency, worker) {
+    const workerCount = Math.min(
+        Math.max(1, Math.floor(Number(concurrency) || 1)),
+        entries.length
+    );
+    let nextEntryIndex = 0;
+
+    await Promise.all(Array.from({ length: workerCount }, async () => {
+        while (true) {
+            const entryIndex = nextEntryIndex++;
+            if (entryIndex >= entries.length) {
+                return;
+            }
+
+            await worker(entries[entryIndex], entryIndex);
+        }
+    }));
 }
 
 function buildOfficialZipUploadSummary({
@@ -5163,7 +6004,7 @@ async function sendOfficialZipUploadReport({
         .join(", ");
     const uploadedAt = new Date();
 
-    await makeReport(JSON.stringify({
+    await makeResearchReport(JSON.stringify({
         embeds: [{
             type: "rich",
             title: "Official ZIP Mii Upload",
@@ -5239,11 +6080,16 @@ async function processOfficialZipUpload({
         return { error: "The ZIP archive did not contain any files to process." };
     }
 
-    const validLeafPaths = getLeafCategoryPathSet(
+    const validCategoryPaths = getCategoryPathSet(
         getOfficialCategoryTree(officialSettings || await getSettings())
     );
-    const officialCategories = normalizeCategoryPaths(rawCategories)
-        .filter(categoryPath => validLeafPaths.has(categoryPath));
+    const officialCategories = normalizeOfficialMiiCategoryPaths(rawCategories)
+        .filter(categoryPath => validCategoryPaths.has(categoryPath));
+    const shouldMarkUploadedMiisOfficial = shouldMiiStoreOfficialFlag({
+        official: true,
+        officialSource,
+        isOfficialUpload: true
+    });
     const duplicateEntries = [];
     const invalidEntries = [];
     const failedEntries = [];
@@ -5251,8 +6097,29 @@ async function processOfficialZipUpload({
     const categoryMergedDuplicateMiis = [];
     const categoryMergedDuplicateMiiIds = new Set();
     const seenArchiveHashes = new Set();
+    let processedEntryCount = 0;
 
-    for (const entry of archiveEntries) {
+    const recordProgress = async () => {
+        const processedCount = ++processedEntryCount;
+        if (
+            processedCount === archiveEntries.length ||
+            processedCount % OFFICIAL_ZIP_PROGRESS_LOG_INTERVAL === 0
+        ) {
+            console.log(
+                `[official zip upload] Processed ${processedCount}/${archiveEntries.length}: ` +
+                `${uploadedMiis.length} uploaded, ${duplicateEntries.length} duplicate, ` +
+                `${categoryMergedDuplicateMiis.length} category merge, ${invalidEntries.length} invalid, ${failedEntries.length} failed.`
+            );
+        }
+
+        if (processedCount % 10 === 0) {
+            await yieldToEventLoop();
+        }
+    };
+
+    console.log(`[official zip upload] Processing ${archiveEntries.length} ZIP entr${archiveEntries.length === 1 ? "y" : "ies"} for ${officialSource} (contributed by ${uploader}) with up to ${Math.min(OFFICIAL_ZIP_UPLOAD_CONCURRENCY, archiveEntries.length)} workers.`);
+
+    await runConcurrentZipEntryWorkers(archiveEntries, OFFICIAL_ZIP_UPLOAD_CONCURRENCY, async (entry) => {
         try {
             const mii = await createMiiData(entry.data);
             const miiHash = getMiiIdentityHash(mii, { includeGeneral: true });
@@ -5262,7 +6129,10 @@ async function processOfficialZipUpload({
                     return { status: "duplicate" };
                 }
 
-                const matchingMii = await findMatchingMii(mii, { includeGeneral: true });
+                const matchingMii = await findMatchingMii(mii, {
+                    includeGeneral: true,
+                    includeLegacyHashCandidates: false
+                });
                 if (matchingMii) {
                     let mergedMii = null;
                     try {
@@ -5281,6 +6151,7 @@ async function processOfficialZipUpload({
                         uploader,
                         wantsPublic: true,
                         isOfficialUpload: true,
+                        official: shouldMarkUploadedMiisOfficial,
                         officialSource,
                         desc: description,
                         officialCategories
@@ -5308,12 +6179,10 @@ async function processOfficialZipUpload({
             }
         } catch (error) {
             invalidEntries.push(entry.name);
+        } finally {
+            await recordProgress();
         }
-
-        if ((uploadedMiis.length + duplicateEntries.length + invalidEntries.length + failedEntries.length) % 10 === 0) {
-            await yieldToEventLoop();
-        }
-    }
+    });
 
     if (uploadedMiis.length === 0 && categoryMergedDuplicateMiis.length === 0) {
         return {
@@ -5366,7 +6235,9 @@ async function processOfficialZipUpload({
     });
 
     return {
-        redirect: "/official",
+        redirect: shouldMarkUploadedMiisOfficial
+            ? "/official"
+            : `/user/${encodeURIComponent(officialSource || COMMUNITY_SOURCE_NAME)}`,
         notice: [officialSourceNotice, summaryNotice].filter(Boolean).join(" ")
     };
 }
@@ -5379,7 +6250,9 @@ async function processOfficialZipReupload({ zipFilePath, archiveEntries: provide
         return { error: "The ZIP archive did not contain any files to process." };
     }
 
-    const existingMiis = await Miis.find({ official: true, private: false }).lean();
+    const existingMiis = await Miis.find(buildResearchManagedMiiQuery({
+        private: false
+    })).lean();
     const existingMiisByMaskedHash = new Map();
     for (const existingMii of existingMiis) {
         const maskedHash = getMiiIdentityHashWithoutFaceFeatureMakeup(existingMii, { includeGeneral: true });
@@ -5396,8 +6269,30 @@ async function processOfficialZipReupload({ zipFilePath, archiveEntries: provide
     const duplicateTargetEntries = [];
     const invalidEntries = [];
     const failedEntries = [];
+    let processedEntryCount = 0;
 
-    for (const entry of archiveEntries) {
+    const recordProgress = async () => {
+        const processedCount = ++processedEntryCount;
+        if (
+            processedCount === archiveEntries.length ||
+            processedCount % OFFICIAL_ZIP_PROGRESS_LOG_INTERVAL === 0
+        ) {
+            console.log(
+                `[official zip reupload] Processed ${processedCount}/${archiveEntries.length}: ` +
+                `${updatedMiis.length} updated, ${noMatchEntries.length} no match, ` +
+                `${ambiguousEntries.length} ambiguous, ${duplicateTargetEntries.length} duplicate target, ` +
+                `${invalidEntries.length} invalid, ${failedEntries.length} failed.`
+            );
+        }
+
+        if (processedCount % 10 === 0) {
+            await yieldToEventLoop();
+        }
+    };
+
+    console.log(`[official zip reupload] Processing ${archiveEntries.length} ZIP entr${archiveEntries.length === 1 ? "y" : "ies"} with up to ${Math.min(OFFICIAL_ZIP_REUPLOAD_CONCURRENCY, archiveEntries.length)} workers.`);
+
+    await runConcurrentZipEntryWorkers(archiveEntries, OFFICIAL_ZIP_REUPLOAD_CONCURRENCY, async (entry) => {
         try {
             const replacementMii = await createMiiData(entry.data);
             const maskedHash = getMiiIdentityHashWithoutFaceFeatureMakeup(replacementMii, { includeGeneral: true });
@@ -5405,23 +6300,23 @@ async function processOfficialZipReupload({ zipFilePath, archiveEntries: provide
 
             if (matchingMiis.length === 0) {
                 noMatchEntries.push(entry.name);
-                continue;
+                return;
             }
 
             if (matchingMiis.length > 1) {
                 ambiguousEntries.push(entry.name);
-                continue;
+                return;
             }
 
             const matchingMii = matchingMiis[0];
             if (updatedMiiIds.has(matchingMii.id)) {
                 duplicateTargetEntries.push(entry.name);
-                continue;
+                return;
             }
+            updatedMiiIds.add(matchingMii.id);
 
             try {
                 const updatedMii = await saveDashboardMiiFields(matchingMii, replacementMii);
-                updatedMiiIds.add(matchingMii.id);
                 updatedMiis.push({ ...updatedMii, private: false, published: true });
             } catch (error) {
                 console.error(`[official zip reupload] Failed to save ${entry.name}:`, error);
@@ -5429,12 +6324,10 @@ async function processOfficialZipReupload({ zipFilePath, archiveEntries: provide
             }
         } catch (error) {
             invalidEntries.push(entry.name);
+        } finally {
+            await recordProgress();
         }
-
-        if ((updatedMiis.length + noMatchEntries.length + ambiguousEntries.length + duplicateTargetEntries.length + invalidEntries.length + failedEntries.length) % 10 === 0) {
-            await yieldToEventLoop();
-        }
-    }
+    });
 
     if (updatedMiis.length === 0) {
         return {
@@ -5473,11 +6366,13 @@ async function processOfficialZipReupload({ zipFilePath, archiveEntries: provide
 function startOfficialZipUploadProcessing(options) {
     const zipFilePath = options?.zipFilePath;
 
-    void (async () => {
+    void queueOfficialZipBackgroundTask("upload", async () => {
         try {
             const result = await processOfficialZipUpload(options);
             if (result?.error) {
                 console.warn(`[official zip upload] ${result.error}`);
+            } else if (result?.notice) {
+                console.log(`[official zip upload] ${result.notice}`);
             }
         } catch (error) {
             console.error("[official zip upload] Background processing failed:", error);
@@ -5486,17 +6381,21 @@ function startOfficialZipUploadProcessing(options) {
                 try { await fs.promises.unlink(zipFilePath); } catch (cleanupError) { }
             }
         }
-    })();
+    }).catch((error) => {
+        console.error("[official zip upload] Background queue failed:", error);
+    });
 }
 
 function startOfficialZipReuploadProcessing(options) {
     const zipFilePath = options?.zipFilePath;
 
-    void (async () => {
+    void queueOfficialZipBackgroundTask("reupload", async () => {
         try {
             const result = await processOfficialZipReupload(options);
             if (result?.error) {
                 console.warn(`[official zip reupload] ${result.error}`);
+            } else if (result?.message || result?.notice) {
+                console.log(`[official zip reupload] ${result.message || result.notice}`);
             }
         } catch (error) {
             console.error("[official zip reupload] Background processing failed:", error);
@@ -5505,7 +6404,9 @@ function startOfficialZipReuploadProcessing(options) {
                 try { await fs.promises.unlink(zipFilePath); } catch (cleanupError) { }
             }
         }
-    })();
+    }).catch((error) => {
+        console.error("[official zip reupload] Background queue failed:", error);
+    });
 }
 
 function getMiiTags(settings) {
@@ -5755,7 +6656,7 @@ function mapRequestedCategoriesToCatalog(requestedCategories, catalogCategories)
     return mapped;
 }
 
-function buildOfficialCategoryFilterCatalog(leafCategories) {
+function buildOfficialCategoryFilterCatalog(categories) {
     const catalog = [];
     const seen = new Set();
 
@@ -5770,7 +6671,7 @@ function buildOfficialCategoryFilterCatalog(leafCategories) {
         catalog.push({ path: normalizedPath });
     };
 
-    (Array.isArray(leafCategories) ? leafCategories : []).forEach(category => {
+    (Array.isArray(categories) ? categories : []).forEach(category => {
         const categoryPath = String(category?.path || category || "").trim();
         if (!categoryPath) return;
 
@@ -5790,31 +6691,15 @@ function getRequestedSearchFields(source = {}) {
 }
 
 function getMiiFavoriteColorOptions() {
-    return MII_FAVORITE_COLOR_LABELS.map((label, value) => ({ value, label }));
+    return MII_FAVORITE_COLOR_OPTIONS;
 }
 
 function getBirthdayMonthOptions() {
-    return [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
-    ].map((label, index) => ({ value: index + 1, label }));
+    return BIRTHDAY_MONTH_OPTIONS;
 }
 
 function getBirthdayDayOptions() {
-    return Array.from({ length: 31 }, (_, index) => {
-        const value = index + 1;
-        return { value, label: String(value) };
-    });
+    return BIRTHDAY_DAY_OPTIONS;
 }
 
 function normalizeIntegerFilterValue(value, min, max) {
@@ -6007,10 +6892,9 @@ async function renameCategoryInAllMiis(oldPath, newPath) {
     let count = 0;
     
     // Update all Miis (published and private)
-    const miis = await Miis.find({
-        official: true,
+    const miis = await Miis.find(buildResearchManagedMiiQuery({
         officialCategories: oldPath
-    });
+    }));
     
     for (const mii of miis) {
         const index = mii.officialCategories.indexOf(oldPath);
@@ -6032,10 +6916,9 @@ async function removeCategoryFromAllMiis(path) {
     let count = 0;
     
     // Update all Miis
-    const miis = await Miis.find({
-        official: true,
+    const miis = await Miis.find(buildResearchManagedMiiQuery({
         officialCategories: path
-    });
+    }));
     
     for (const mii of miis) {
         mii.officialCategories = mii.officialCategories.filter(c => c !== path);
@@ -6557,6 +7440,58 @@ function getStableRecencySort() {
     return { uploadedOn: -1, _id: -1 };
 }
 
+const MII_CARD_SELECT = [
+    "id",
+    "uploader",
+    "contributor",
+    "desc",
+    "name",
+    "votes",
+    "official",
+    "officialSource",
+    "uploadedOn",
+    "updatedAt",
+    "console",
+    "meta.name",
+    "meta.creatorName",
+    "meta.console",
+    "meta.type",
+    "general.favoriteColor",
+    "general.gender",
+    "tags",
+    "officialCategories",
+    "private",
+    "published",
+    "blockedFromPublishing",
+    "blockReason"
+].join(" ");
+
+const MII_CARD_PROJECT = Object.freeze({
+    id: 1,
+    uploader: 1,
+    contributor: 1,
+    desc: 1,
+    name: 1,
+    votes: 1,
+    official: 1,
+    officialSource: 1,
+    uploadedOn: 1,
+    updatedAt: 1,
+    console: 1,
+    "meta.name": 1,
+    "meta.creatorName": 1,
+    "meta.console": 1,
+    "meta.type": 1,
+    "general.favoriteColor": 1,
+    "general.gender": 1,
+    tags: 1,
+    officialCategories: 1,
+    private: 1,
+    published: 1,
+    blockedFromPublishing: 1,
+    blockReason: 1
+});
+
 async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date.now()) {
     const pipeline = [
         { $match: query },
@@ -6587,7 +7522,8 @@ async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date
         },
         { $sort: { hotness: -1, uploadedOn: -1, _id: -1 } },
         { $skip: skip },
-        { $limit: perPage }
+        { $limit: perPage },
+        { $project: MII_CARD_PROJECT }
     ];
 
     const [items, total] = await Promise.all([
@@ -6607,6 +7543,7 @@ async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date
 
 async function getFallbackSearchPaginatedResult(baseQuery, searchPlan, page, perPage, skip) {
     const candidates = await Miis.find(baseQuery)
+        .select(MII_CARD_SELECT)
         .sort(getStablePopularitySort())
         .limit(SEARCH_FALLBACK_CANDIDATE_LIMIT)
         .lean();
@@ -6624,10 +7561,6 @@ async function getFallbackSearchPaginatedResult(baseQuery, searchPlan, page, per
 
 function getOfficialCategoryIncludeClauses(selectedCategories) {
     return normalizeCategoryPaths(selectedCategories).map(categoryPath => {
-        if (categoryPath.includes("/")) {
-            return { officialCategories: categoryPath };
-        }
-
         return {
             officialCategories: new RegExp(`^${escapeRegex(categoryPath)}(?:/|$)`, "i")
         };
@@ -6636,10 +7569,6 @@ function getOfficialCategoryIncludeClauses(selectedCategories) {
 
 function getOfficialCategoryExcludeClauses(excludedCategories) {
     return normalizeCategoryPaths(excludedCategories).map(categoryPath => {
-        if (categoryPath.includes("/")) {
-            return { $nor: [{ officialCategories: categoryPath }] };
-        }
-
         return {
             $nor: [{
                 officialCategories: new RegExp(`^${escapeRegex(categoryPath)}(?:/|$)`, "i")
@@ -6677,14 +7606,28 @@ function buildOfficialSearchMatchClauses(searchPlan) {
     }));
 }
 
+function getMaxPublicPaginationStartOffset(perPage = defaultMiisPerPage) {
+    const normalizedPerPage = Number.isFinite(Number(perPage)) && Number(perPage) > 0
+        ? Math.floor(Number(perPage))
+        : defaultMiisPerPage;
+    return Math.floor(MAX_PUBLIC_PAGINATION_START_OFFSET / normalizedPerPage) * normalizedPerPage;
+}
+
+function normalizePublicStartOffset(start, perPage = defaultMiisPerPage) {
+    const requestedStart = Number.parseInt(start, 10);
+    const normalizedStart = Number.isFinite(requestedStart) && requestedStart > 0
+        ? Math.floor(requestedStart)
+        : 0;
+    return Math.min(normalizedStart, getMaxPublicPaginationStartOffset(perPage));
+}
+
 function normalizePaginationWindow(pageOrOptions = 1, perPage = defaultMiisPerPage) {
     const normalizedPerPage = Number.isFinite(Number(perPage)) && Number(perPage) > 0
         ? Math.floor(Number(perPage))
         : defaultMiisPerPage;
 
     if (pageOrOptions && typeof pageOrOptions === "object" && !Array.isArray(pageOrOptions)) {
-        const requestedStart = Number.parseInt(pageOrOptions.start, 10);
-        const start = Number.isFinite(requestedStart) && requestedStart > 0 ? requestedStart : 0;
+        const start = normalizePublicStartOffset(pageOrOptions.start, normalizedPerPage);
         const requestedPage = Number.parseInt(pageOrOptions.page, 10);
         const page = Number.isFinite(requestedPage) && requestedPage > 0
             ? requestedPage
@@ -6701,21 +7644,21 @@ function normalizePaginationWindow(pageOrOptions = 1, perPage = defaultMiisPerPa
     const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
     return {
-        page,
+        page: Math.floor(normalizePublicStartOffset((page - 1) * normalizedPerPage, normalizedPerPage) / normalizedPerPage) + 1,
         perPage: normalizedPerPage,
-        start: (page - 1) * normalizedPerPage
+        start: normalizePublicStartOffset((page - 1) * normalizedPerPage, normalizedPerPage)
     };
 }
 
 function getRequestedStartOffset(query, perPage = defaultMiisPerPage) {
     const requestedStart = Number.parseInt(query?.start, 10);
     if (Number.isFinite(requestedStart) && requestedStart >= 0) {
-        return requestedStart;
+        return normalizePublicStartOffset(requestedStart, perPage);
     }
 
     const requestedPage = Number.parseInt(query?.page, 10);
     if (Number.isFinite(requestedPage) && requestedPage > 1) {
-        return (requestedPage - 1) * perPage;
+        return normalizePublicStartOffset((requestedPage - 1) * perPage, perPage);
     }
 
     return 0;
@@ -6727,7 +7670,6 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
     const page = paginationWindow.page;
     const requestLimit = paginationWindow.perPage;
     const skip = paginationWindow.start;
-    const settings = await getSettings();
     
     let query = applyMiiVisibilityFilters({ private: false, id: { $ne: "average" } }, viewerUser);
     let sort = {};
@@ -6735,6 +7677,23 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
     switch(what) {
         case "random": { // TODO: this is random, but based on sort order. True random is possible but not deterministically
                          // QK, Kestron: I think this is more random than it was, I left the old code commented, reimplement if necessary.
+            if (skip === 0) {
+                const items = await Miis.aggregate([
+                    { $match: query },
+                    { $sample: { size: requestLimit } },
+                    { $project: MII_CARD_PROJECT }
+                ]);
+
+                return {
+                    items,
+                    total: items.length,
+                    page,
+                    perPage: requestLimit,
+                    start: 0,
+                    totalPages: items.length > 0 ? 1 : 0
+                };
+            }
+
             const totalCount = await Miis.countDocuments(query);
             if (totalCount === 0) {
                 return {
@@ -6769,7 +7728,8 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                 { $match: query },
                 { $sample: { size: Math.min(totalCount, skip + requestLimit) } },
                 { $skip: skip },
-                { $limit: requestLimit }
+                { $limit: requestLimit },
+                { $project: MII_CARD_PROJECT }
             ];
 
             const items = await Miis.aggregate(pipeline);
@@ -6785,7 +7745,7 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
         }
         
         case "trending": { // TODO: rebrand to "trending"
-            return getTrendingPaginatedResult(query, page, perPage, skip);
+            return getTrendingPaginatedResult(query, page, requestLimit, skip);
         }
 
         case "officialTrending": {
@@ -6800,7 +7760,7 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                 selectedCategories
             );
             applyOfficialCategoryFilters(query, selectedCategories, excludedCategories);
-            return getTrendingPaginatedResult(query, page, perPage, skip);
+            return getTrendingPaginatedResult(query, page, requestLimit, skip);
         }
 
         case "top":
@@ -6849,7 +7809,8 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                         { $addFields: { searchScore: buildMiiSearchScoreExpression(searchPlan) } },
                         { $sort: getMiiSearchSort() },
                         { $skip: skip },
-                        { $limit: requestLimit }
+                        { $limit: requestLimit },
+                        { $project: MII_CARD_PROJECT }
                     ]),
                     Miis.countDocuments(query)
                 ]);
@@ -6881,6 +7842,7 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
             const searchText = typeof filterObject.query === "string"
                 ? filterObject.query.trim()
                 : "";
+            const settings = await getSettings();
             const visibleTagCatalog = getVisibleMiiTagCatalog(settings);
             const selectedTags = mapRequestedTagsToCatalog(filterObject.tags, visibleTagCatalog);
             const excludedTags = removeIncludedFilterConflicts(
@@ -6917,7 +7879,8 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                         { $addFields: { searchScore: buildMiiSearchScoreExpression(searchPlan) } },
                         { $sort: getMiiSearchSort() },
                         { $skip: skip },
-                        { $limit: requestLimit }
+                        { $limit: requestLimit },
+                        { $project: MII_CARD_PROJECT }
                     ]),
                     Miis.countDocuments(query)
                 ]);
@@ -6945,12 +7908,15 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
     }
     
     // For simple sorted queries (best, recent, official without category)
-    const totalCount = await Miis.countDocuments(query);
-    const items = await Miis.find(query)
-        .sort(sort)
-        .skip(skip)
-        .limit(requestLimit)
-        .lean();
+    const [items, totalCount] = await Promise.all([
+        Miis.find(query)
+            .select(MII_CARD_SELECT)
+            .sort(sort)
+            .skip(skip)
+            .limit(requestLimit)
+            .lean(),
+        Miis.countDocuments(query)
+    ]);
     
     return {
         items,
@@ -7254,8 +8220,10 @@ async function sendContactWebhookNotification({
         if (!webhookSent) {
             rawConsoleError("Contact webhook skipped because hookUrl is not configured.");
         }
+        return Boolean(webhookSent);
     } catch (webhookError) {
         rawConsoleError("Error sending contact webhook notification:", webhookError);
+        return false;
     }
 }
 
@@ -7263,6 +8231,13 @@ function makeReport(content, attachments = []) {
     return sendWebhookPayload(content, attachments).catch((error) => {
         // Reports should never block user actions (uploads, moderation actions, etc.).
         rawConsoleError('Error sending webhook report:', error);
+    });
+}
+
+function makeResearchReport(content, attachments = []) {
+    return sendWebhookPayload(content, attachments, { webhookEnv: RESEARCH_WEBHOOK_ENV }).catch((error) => {
+        // Reports should never block user actions (uploads, moderation actions, etc.).
+        rawConsoleError('Error sending research webhook report:', error);
     });
 }
 
@@ -7304,162 +8279,240 @@ async function sendHighlightedMiiReminderIfDue(date = new Date()) {
 
 //Averaging Helpers
 const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
-function mean(nums) {
-    if (!nums.length) return undefined;
-    return nums.reduce((a, b) => a + b, 0) / nums.length;
-}
-function mode(arr) {
-    const counts = new Map();
-    const firstIndex = new Map();
-    let best, bestCount = -1;
-    arr.forEach((v, i) => {
-        const c = (counts.get(v) ?? 0) + 1;
-        counts.set(v, c);
-        if (!firstIndex.has(v)) firstIndex.set(v, i);
-        if (c > bestCount || (c === bestCount && firstIndex.get(v) < firstIndex.get(best))) {
-            best = v; bestCount = c;
-        }
-    });
-    return best;
-}
-
 function yieldToEventLoop() {
     return new Promise((resolve) => setImmediate(resolve));
 }
 
-function getNestedAsArrays(obj) {
-    const ret = {};
-    for (const [key, val] of Object.entries(obj)) {
-        if (isPlainObject(val)) {
-            ret[key] = getNestedAsArrays(val);
-        }
-        else {
-            ret[key] = [val];
-        }
-    }
-    return ret;
+function delay(ms) {
+    const delayMs = Math.max(0, Number(ms) || 0);
+    return new Promise((resolve) => setTimeout(resolve, delayMs));
 }
-function populateNestedArrays(arrayObj, obj) {
-    const ret = arrayObj;
-    for (const [key, val] of Object.entries(obj)) {
-        if (isPlainObject(val)) {
-            if (!ret[key] || !isPlainObject(ret[key])) ret[key] = {};
-            ret[key] = populateNestedArrays(ret[key], val);
-        }
-        else {
-            if (!Array.isArray(ret[key])) ret[key] = [];
-            ret[key].push(val);
-        }
-    }
-    return ret;
-}
-async function getCollectedLeavesAcrossMiis(allMiis) {
-    let acc;
-    for (let i = 0; i < allMiis.length; i++) {
-        const mii = allMiis[i];
-        acc = acc ? populateNestedArrays(acc, mii) : getNestedAsArrays(mii);
 
-        if (i > 0 && i % 100 === 0) {
+const AVERAGE_MII_CURSOR_BATCH_SIZE = 250;
+const AVERAGE_MII_YIELD_INTERVAL = 250;
+const AVERAGE_MII_PATH_SEPARATOR = "\u0000";
+
+function createAverageAccumulatorNode() {
+    return {
+        children: new Map(),
+        leaf: null
+    };
+}
+
+function createAverageLeafStats() {
+    return {
+        count: 0,
+        numberCount: 0,
+        numberSum: 0,
+        booleanCount: 0,
+        trueCount: 0,
+        stringCount: 0,
+        numBoolCount: 0,
+        numBoolSum: 0,
+        mode: createModeStats()
+    };
+}
+
+function createModeStats() {
+    return {
+        counts: new Map(),
+        sequence: 0,
+        bestKey: null,
+        bestCount: 0,
+        bestFirstIndex: Infinity
+    };
+}
+
+function getAverageModeKey(value) {
+    if (value === null) return "null:null";
+    if (typeof value === "object") {
+        try {
+            return `${Array.isArray(value) ? "array" : "object"}:${JSON.stringify(value)}`;
+        } catch (error) {
+            return `${typeof value}:${String(value)}`;
+        }
+    }
+    return `${typeof value}:${String(value)}`;
+}
+
+function addModeValue(stats, value) {
+    const key = getAverageModeKey(value);
+    let entry = stats.counts.get(key);
+    if (!entry) {
+        entry = {
+            value: cloneSerializable(value),
+            count: 0,
+            firstIndex: stats.sequence
+        };
+        stats.counts.set(key, entry);
+    }
+
+    entry.count++;
+    stats.sequence++;
+
+    if (
+        entry.count > stats.bestCount
+        || (entry.count === stats.bestCount && entry.firstIndex < stats.bestFirstIndex)
+    ) {
+        stats.bestKey = key;
+        stats.bestCount = entry.count;
+        stats.bestFirstIndex = entry.firstIndex;
+    }
+}
+
+function resolveModeValue(stats) {
+    if (!stats?.bestKey) return undefined;
+    return cloneSerializable(stats.counts.get(stats.bestKey)?.value);
+}
+
+function addAverageLeafValue(stats, value) {
+    if (value === undefined || value === null) return;
+
+    stats.count++;
+    addModeValue(stats.mode, value);
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+        stats.numberCount++;
+        stats.numberSum += value;
+        stats.numBoolCount++;
+        stats.numBoolSum += value;
+        return;
+    }
+
+    if (typeof value === "boolean") {
+        stats.booleanCount++;
+        if (value) stats.trueCount++;
+        stats.numBoolCount++;
+        stats.numBoolSum += value ? 1 : 0;
+        return;
+    }
+
+    if (typeof value === "string") {
+        stats.stringCount++;
+    }
+}
+
+function resolveAverageLeafValue(key, stats) {
+    if (!stats || stats.count === 0) return undefined;
+
+    if (key === "type" || key === "color") {
+        return resolveModeValue(stats.mode);
+    }
+
+    if (stats.numberCount === stats.count) {
+        return Math.round(stats.numberSum / stats.count);
+    }
+
+    if (stats.booleanCount === stats.count) {
+        const falseCount = stats.count - stats.trueCount;
+        return stats.trueCount >= falseCount;
+    }
+
+    if (stats.numBoolCount === stats.count) {
+        return Math.round(stats.numBoolSum / stats.count);
+    }
+
+    if (stats.stringCount === stats.count) {
+        return resolveModeValue(stats.mode);
+    }
+
+    return resolveModeValue(stats.mode);
+}
+
+function createAverageAccumulator() {
+    return {
+        root: createAverageAccumulatorNode(),
+        pairStatsByPath: new Map(),
+        count: 0
+    };
+}
+
+function getAveragePathKey(pathParts) {
+    return pathParts.join(AVERAGE_MII_PATH_SEPARATOR);
+}
+
+function getAverageAccumulatorChild(node, key) {
+    let child = node.children.get(key);
+    if (!child) {
+        child = createAverageAccumulatorNode();
+        node.children.set(key, child);
+    }
+    return child;
+}
+
+function addAveragePairValue(accumulator, pathParts, page, type) {
+    if (page === undefined || page === null || type === undefined || type === null) return;
+
+    const pathKey = getAveragePathKey(pathParts);
+    let stats = accumulator.pairStatsByPath.get(pathKey);
+    if (!stats) {
+        stats = createModeStats();
+        accumulator.pairStatsByPath.set(pathKey, stats);
+    }
+    addModeValue(stats, [page, type]);
+}
+
+function addAverageValue(accumulator, node, pathParts, value) {
+    if (isPlainObject(value)) {
+        const hasPage = Object.prototype.hasOwnProperty.call(value, "page");
+        const hasType = Object.prototype.hasOwnProperty.call(value, "type");
+        const pageIsLeaf = hasPage && !isPlainObject(value.page);
+        const typeIsLeaf = hasType && !isPlainObject(value.type);
+
+        if (hasPage && hasType && pageIsLeaf && typeIsLeaf) {
+            addAveragePairValue(accumulator, pathParts, value.page, value.type);
+        }
+
+        for (const [key, childValue] of Object.entries(value)) {
+            addAverageValue(accumulator, getAverageAccumulatorChild(node, key), [...pathParts, key], childValue);
+        }
+        return;
+    }
+
+    if (!node.leaf) {
+        node.leaf = createAverageLeafStats();
+    }
+    addAverageLeafValue(node.leaf, value);
+}
+
+function finalizeAverageNode(node, accumulator, pathParts = [], parentKey = "") {
+    if (node.children.size === 0) {
+        return resolveAverageLeafValue(parentKey, node.leaf);
+    }
+
+    const out = {};
+    const pairStats = accumulator.pairStatsByPath.get(getAveragePathKey(pathParts));
+    const pair = resolveModeValue(pairStats);
+    if (Array.isArray(pair) && pair.length === 2) {
+        out.page = pair[0];
+        out.type = pair[1];
+    }
+
+    for (const [key, child] of node.children) {
+        if (pair && (key === "page" || key === "type")) continue;
+
+        const childValue = finalizeAverageNode(child, accumulator, [...pathParts, key], key);
+        if (childValue !== undefined) {
+            out[key] = childValue;
+        }
+    }
+
+    return out;
+}
+
+async function collectAverageStatsFromCursor(cursor) {
+    const accumulator = createAverageAccumulator();
+
+    for await (const mii of cursor) {
+        addAverageValue(accumulator, accumulator.root, [], mii);
+        accumulator.count++;
+
+        if (accumulator.count % AVERAGE_MII_YIELD_INTERVAL === 0) {
             await yieldToEventLoop();
         }
     }
-    return acc;
-}
-function mostCommonPageTypePair(pageArr, typeArr) {
-    if (!Array.isArray(pageArr) || !Array.isArray(typeArr)) return null;
-    const n = Math.min(pageArr.length, typeArr.length);
-    const key = (p, t) => JSON.stringify([p, t]);
-    const counts = new Map();
-    const order = new Map();
-    let bestKey, bestCount = -1;
-    
-    for (let i = 0; i < n; i++) {
-        const p = pageArr[i], t = typeArr[i];
-        if (p === undefined || p === null || t === undefined || t === null) continue;
-        const k = key(p, t);
-        const c = (counts.get(k) ?? 0) + 1;
-        counts.set(k, c);
-        if (!order.has(k)) order.set(k, i);
-        if (c > bestCount || (c === bestCount && order.get(k) < order.get(bestKey))) {
-            bestKey = k; bestCount = c;
-        }
-    }
-    return bestKey ? JSON.parse(bestKey) : null; // [page, type]
-}
-function averageValuesForKey(key, values) {
-    const vals = values.filter(v => v !== undefined && v !== null);
-    if (!vals.length) return undefined;
 
-    if (key==="type" || key==="color") {
-        return mode(vals);
-    }
-    
-    const allNumbers   = vals.every(v => typeof v === "number" && Number.isFinite(v));
-    const allBooleans  = vals.every(v => typeof v === "boolean");
-    const allStrings   = vals.every(v => typeof v === "string");
-    const onlyNumOrBool = vals.every(v => typeof v === "number" || typeof v === "boolean");
-    
-    if (allNumbers) return Math.round(mean(vals));
-    if (allBooleans) {
-        const trues = vals.filter(Boolean).length;
-        return trues >= (vals.length - trues); // modal boolean
-    }
-    if (onlyNumOrBool) {
-        // booleans as 1/0, rounded mean
-        const asNums = vals.map(v => (typeof v === "boolean" ? (v ? 1 : 0) : v));
-        return Math.round(mean(asNums));
-    }
-    if (allStrings) return mode(vals);
-    
-    // Heterogeneous fallback → mode
-    return mode(vals);
-}
-function averageObjectWithPairs(node, parentKey = "") {
-    // Leaf arrays
-    if (Array.isArray(node)) {
-        return averageValuesForKey(parentKey, node);
-    }
-    
-    // Non-object leaves
-    if (!isPlainObject(node)) return node;
-    
-    // Special handling: resolve modal (page,type) pair if both are present as leaves/arrays
-    const hasPage = Object.prototype.hasOwnProperty.call(node, "page");
-    const hasType = Object.prototype.hasOwnProperty.call(node, "type");
-    const pageIsLeaf = hasPage && !isPlainObject(node.page);
-    const typeIsLeaf = hasType && !isPlainObject(node.type);
-    
-    const out = {};
-    
-    if (hasPage && hasType && pageIsLeaf && typeIsLeaf) {
-        const pageArr = Array.isArray(node.page) ? node.page : [node.page];
-        const typeArr = Array.isArray(node.type) ? node.type : [node.type];
-        
-        const pair = mostCommonPageTypePair(pageArr, typeArr);
-        if (pair) {
-            const [bestPage, bestType] = pair;
-            out.page = bestPage;
-            out.type = bestType;
-        }
-        else {
-            // Fallbacks if no pair resolved
-            out.page = averageValuesForKey("page", pageArr);
-            out.type = averageValuesForKey("type", typeArr);
-        }
-        
-        // Process any siblings at this level
-        for (const [k, v] of Object.entries(node)) {
-            if (k === "page" || k === "type") continue;
-            out[k] = averageObjectWithPairs(v, k);
-        }
-        return out;
-    }
-    
-    // General case: recurse
-    for (const [k, v] of Object.entries(node)) {
-        out[k] = averageObjectWithPairs(v, k);
-    }
-    return out;
+    return accumulator;
 }
 async function setAverageMii(){
     const pipeline = [
@@ -7482,20 +8535,22 @@ async function setAverageMii(){
             }
         }
     ];
-    const allMiis = await Miis.aggregate(pipeline);
 
-    if (allMiis.length === 0) {
+    const cursor = Miis.aggregate(pipeline)
+        .allowDiskUse(true)
+        .cursor({ batchSize: AVERAGE_MII_CURSOR_BATCH_SIZE });
+    const accumulator = await collectAverageStatsFromCursor(cursor);
+
+    if (accumulator.count === 0) {
         await Miis.deleteOne({ id: "average" });
         return null;
     }
 
-
-    const leaves = await getCollectedLeavesAcrossMiis(allMiis);
-    var avg=averageObjectWithPairs(leaves);
+    var avg = finalizeAverageNode(accumulator.root, accumulator);
     delete avg._id;
     avg.id = "average";
     avg.meta = { 
-        name: `J${avg.general.gender===0?"ohn":"ane"} Doe`, 
+        name: `J${avg.general?.gender===0?"ohn":"ane"} Doe`, 
         creatorName: "InfiniMii"
     };
     avg.desc="The most common or average features and placements of those features across all Miis on the website.";
@@ -7512,7 +8567,8 @@ async function setAverageMii(){
         { $set: avg },
         { upsert: true, returnDocument: "after" }
     );
-    
+    console.log(`[average] Averaged ${accumulator.count} Mii${accumulator.count === 1 ? "" : "s"}.`);
+
     return avg;
 }
 
@@ -7928,15 +8984,17 @@ function getLastStartOffset(total, requestLimit = defaultMiisPerPage) {
 }
 
 function buildStartPagination(req, start, total, requestLimit = defaultMiisPerPage) {
-    const normalizedStart = Number.isFinite(Number(start)) && Number(start) > 0
-        ? Math.floor(Number(start))
-        : 0;
     const normalizedTotal = Number.isFinite(Number(total)) && Number(total) > 0
         ? Math.floor(Number(total))
         : 0;
     const normalizedRequestLimit = Number.isFinite(Number(requestLimit)) && Number(requestLimit) > 0
         ? Math.floor(Number(requestLimit))
         : defaultMiisPerPage;
+    const normalizedStart = normalizePublicStartOffset(start, normalizedRequestLimit);
+    const maxStart = getMaxPublicPaginationStartOffset(normalizedRequestLimit);
+    const totalPages = Math.max(1, Math.ceil(Math.max(1, normalizedTotal) / normalizedRequestLimit));
+    const cappedTotalPages = Math.min(totalPages, Math.floor(maxStart / normalizedRequestLimit) + 1);
+    const nextStart = normalizedStart + normalizedRequestLimit;
 
     return {
         mode: "offset",
@@ -7945,12 +9003,12 @@ function buildStartPagination(req, start, total, requestLimit = defaultMiisPerPa
         requestLimit: normalizedRequestLimit,
         baseCount: defaultMiisPerPage,
         currentPage: Math.floor(normalizedStart / normalizedRequestLimit) + 1,
-        totalPages: Math.max(1, Math.ceil(Math.max(1, normalizedTotal) / normalizedRequestLimit)),
+        totalPages: cappedTotalPages,
         prevUrl: normalizedStart > 0
             ? buildRequestPathWithStart(req, Math.max(0, normalizedStart - normalizedRequestLimit))
             : undefined,
-        nextUrl: normalizedTotal > normalizedStart + 1
-            ? buildRequestPathWithStart(req, normalizedStart + normalizedRequestLimit)
+        nextUrl: normalizedTotal > normalizedStart + 1 && nextStart <= maxStart
+            ? buildRequestPathWithStart(req, nextStart)
             : undefined
     };
 }
@@ -8203,8 +9261,19 @@ import 'express-async-errors'; // Inject express to make router async errors han
 const site = express();
 // Cloudflare Tunnel terminates upstream and forwards from localhost with X-Forwarded-* headers.
 site.set("trust proxy", "loopback");
-site.use(express.json());
-site.use(express.urlencoded({ extended: true }));
+site.use(crowdSecBanMiddleware);
+site.use(localIpBanMiddleware);
+site.use(contactRateLimitBlockMiddleware);
+site.use(compression({
+    level: 4,
+    threshold: 1024,
+    filter: (req, res) => {
+        if (req.headers['x-no-compression']) {
+            return false;
+        }
+        return compression.filter(req, res);
+    }
+}));
 
 // Handle well-known before static.
 const wellKnownMimeMap = {
@@ -8251,27 +9320,78 @@ function shouldDeferGeneratedMiiAssetStatic(req) {
         requestPath === prefix || requestPath.startsWith(`${prefix}/`)
     ));
 }
-const staticRootMiddleware = express.static(path.join(__dirname + '/static'), {
-    setHeaders: (res, filePath) => {
-        if (isPublicGeneratedImagePath(filePath)) {
-            applyPublicImageSeoHeaders(res);
-        }
-        if (filePath.endsWith(path.join('static', 'miiImgs', 'average.png'))) {
-            applyNoCacheHeaders(res);
-        }
+function isAverageMiiImagePath(filePath) {
+    return filePath.endsWith(path.join('static', 'miiImgs', 'average.png'));
+}
+function isVersionedStaticAssetRequest(res) {
+    return /[?&]v=/.test(String(res?.req?.originalUrl || ""));
+}
+function getStaticAssetCacheControl(res, filePath) {
+    if (isVersionedStaticAssetRequest(res)) {
+        return "public, max-age=31536000, immutable";
     }
-});
+
+    const ext = path.extname(filePath).toLowerCase();
+    if ([".woff", ".woff2", ".ttf", ".ico"].includes(ext)) {
+        return "public, max-age=31536000, immutable";
+    }
+    if ([".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif"].includes(ext)) {
+        return "public, max-age=604800";
+    }
+    return "public, max-age=3600";
+}
+function setStaticAssetHeaders(res, filePath) {
+    if (isPublicGeneratedImagePath(filePath)) {
+        applyPublicImageSeoHeaders(res);
+    }
+    if (isAverageMiiImagePath(filePath)) {
+        applyNoCacheHeaders(res);
+        return;
+    }
+    res.setHeader("Cache-Control", getStaticAssetCacheControl(res, filePath));
+}
+const staticAssetOptions = {
+    etag: true,
+    lastModified: true,
+    setHeaders: setStaticAssetHeaders
+};
+const siteIconFilePath = path.join(__dirname, "static", "assets", "favicon.ico");
+const legacySiteIconPaths = [
+    "/favicon.ico",
+    "/favicon.png",
+    "/static/favicon.ico",
+    "/img/favicon.ico",
+    "/images/favicon.ico",
+    "/icon/favicon.ico",
+    "/apple-touch-icon.png",
+    "/apple-touch-icon-precomposed.png",
+    "/apple-touch-icon-120x120.png",
+    "/apple-touch-icon-120x120-precomposed.png",
+    "/apple-touch-icon-152x152.png",
+    "/apple-touch-icon-152x152-precomposed.png"
+];
+function sendSiteIcon(req, res, next) {
+    return res.sendFile(siteIconFilePath, {
+        headers: {
+            "Content-Type": "image/png",
+            "Cache-Control": "public, max-age=604800"
+        }
+    }, (error) => {
+        if (error) next(error);
+    });
+}
+site.get(legacySiteIconPaths, sendSiteIcon);
+const staticRootMiddleware = express.static(path.join(__dirname + '/static'), staticAssetOptions);
 site.use((req, res, next) => {
     if (shouldDeferGeneratedMiiAssetStatic(req)) {
         return next();
     }
     return staticRootMiddleware(req, res, next);
 });
-site.use(express.static(path.join(__dirname + '/static/css')));
-site.use(express.static(path.join(__dirname + '/static/js')));
-site.use(express.static(path.join(__dirname + '/static/assets')));
+site.use(express.static(path.join(__dirname + '/static/css'), staticAssetOptions));
+site.use(express.static(path.join(__dirname + '/static/js'), staticAssetOptions));
+site.use(express.static(path.join(__dirname + '/static/assets'), staticAssetOptions));
 site.use(cookieParser());
-site.use('/favicon.ico', express.static('static/favicon.ico'));
 
 //#region Middleware
 
@@ -8312,7 +9432,7 @@ site.use(async (req, res, next) => {
             username: payload.username,
             email: payload.email,
             tokenVersion: payload.tokenVersion
-        });
+        }).lean();
         // TODO: exploit where you change your username/email, and old token can still access it....
         // SOLUTION: on email/username change, increase token version
 
@@ -8343,21 +9463,6 @@ site.use(async (req, res, next) => {
     // Check if user is banned
     if (req.user) {
         if (req.user) {
-            // Check IP ban
-            const clientIPs = [req.headers['x-forwarded-for'], req.socket.remoteAddress]
-                .filter(Boolean)
-                .map(ip => sha256(ip));
-            const settings = await getSettings();
-            if (settings.bannedIPs.some(ip => clientIPs.includes(ip))) {
-                res.clearCookie('username');
-                res.clearCookie('token');
-                if (req.accepts('html')) {
-                    return await sendError(res, req, 'Your IP address has been permanently banned.', 403);
-                } else {
-                    return res.status(403).json({error: 'Your IP address has been permanently banned.'});
-                }
-            }
-            
             // Check user ban
             if (await isBanned(req.user)) {
                 // Allow access to logout only
@@ -8387,18 +9492,6 @@ site.use(async (req, res, next) => {
     }
     next();
 });
-
-// Compression middleware
-site.use(compression({
-    level: 6,
-    threshold: 100 * 1024, // Only compress if response > 100kb
-    filter: (req, res) => {
-        if (req.headers['x-no-compression']) {
-            return false;
-        }
-        return compression.filter(req, res);
-    }
-}));
 
 // Redirect Nintendo 3DS / Wii U browser traffic to a legacy-compatible upload page.
 site.use((req, res, next) => {
@@ -8438,15 +9531,19 @@ site.use((req, res, next) => {
 // Patch ejs renderFile to resolve the ejsPartials at root, making includes shorter
 ejs.renderFile = ((orig) => {
     return function (file, data, opts = {}, cb) {
+        const renderData = data && typeof data === "object"
+            ? { ...ejsFunctions, ...data }
+            : { ...ejsFunctions };
         return orig.call(
             this,
             file,
-            data,
+            renderData,
             {
                 views: [
                     path.join(__dirname, 'ejsFiles'),
                     path.join(__dirname, 'ejsPartials')
                 ],
+                cache: EJS_TEMPLATE_CACHE_ENABLED,
                 ...opts
             },
             cb
@@ -8549,11 +9646,13 @@ async function waitForFileOrTimeout(filePath, {
 function queueUploadWebhookReport(embed, {
     imagePath = "",
     imageFilename = "",
-    attachments = []
+    attachments = [],
+    sendReport = makeReport
 } = {}) {
     void (async () => {
         let reportEmbed = embed;
         const reportAttachments = Array.isArray(attachments) ? [...attachments] : [];
+        const reportSender = typeof sendReport === "function" ? sendReport : makeReport;
 
         if (imagePath) {
             const imageReady = await waitForFileOrTimeout(imagePath);
@@ -8583,7 +9682,7 @@ function queueUploadWebhookReport(embed, {
             }
         }
 
-        await makeReport(JSON.stringify({
+        await reportSender(JSON.stringify({
             embeds: [reportEmbed]
         }), reportAttachments);
     })().catch((error) => {
@@ -8641,7 +9740,9 @@ async function resolvePublicAssetMii(req) {
 
     const miiId = getRequestedMiiId(req);
     req[publicAssetMiiCacheKey] = miiId
-        ? await Miis.findOne({ id: miiId, private: false }).lean()
+        ? await Miis.findOne({ id: miiId, private: false })
+            .select(MII_CARD_SELECT)
+            .lean()
         : null;
     return req[publicAssetMiiCacheKey];
 }
@@ -8671,6 +9772,10 @@ async function requirePrivateMiiAssetAccess(req, res, next) {
 }
 
 async function requireVisiblePublicMiiAssetAccess(req, res, next) {
+    if (getMiiVisibilityConditionsForUser(req.user).length === 0) {
+        return next();
+    }
+
     const publicMii = await resolvePublicAssetMii(req);
     if (!publicMii) {
         return next();
@@ -8848,6 +9953,14 @@ site.use('/miiImgs', async (req, res, next) => {
 
     const imgPath = getMiiAssetPath('miiImgs', miiId);
     const shouldDisableCache = miiId === "average";
+    if (miiId === BLANK_MII_ID) {
+        const fallbackImgPath = getMiiAssetPath('miiImgs', "average");
+        if (await fileExists(fallbackImgPath)) {
+            applyPublicImageSeoHeaders(res);
+            return sendFileWithoutCache(res, fallbackImgPath);
+        }
+    }
+
     if (await fileExists(imgPath)) {
         applyPublicImageSeoHeaders(res);
         return shouldDisableCache
@@ -8958,9 +10071,11 @@ site.use(['/static/miiQRsMiitopia', '/static/privateMiiQRsMiitopia'], (req, res)
 
 // Static assets caching
 site.use('/static', express.static(path.join(__dirname, 'static'), {
-    maxAge: '7d',
-    etag: true
+    ...staticAssetOptions
 }));
+
+site.use(express.json());
+site.use(express.urlencoded({ extended: true }));
 
 //#endregion
 
@@ -9053,6 +10168,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
                 await updateSettings({ officialCompanySources: normalizedCompanySources });
             }
             await Promise.all(normalizedCompanySources.map(source => ensureOfficialCompanySourceAccount(source, settings)));
+            await normalizeCommunityAttributedMiiOfficialFlagsOnce(settings);
             await ensureOfficialMiiSeedLikes();
             await backfillMissingUserPfpSetFlags();
             await ensureDeletedUserAccount(settings);
@@ -9082,6 +10198,10 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
             // For Quickly Uploading Batches of Miis
             if (fs.existsSync('./quickUploads')) {
                 const quickUploadMetadata = getQuickUploadMetadata("./quickUploads");
+                const quickUploadOfficial = shouldMiiStoreOfficialFlag({
+                    official: quickUploadMetadata.official,
+                    uploader: quickUploadMetadata.uploader
+                });
                 await Promise.all(
                     fs.readdirSync("./quickUploads").map(async (file) => {
                         const lowerName = file.toLowerCase();
@@ -9090,7 +10210,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
 
                         try {
                             const mii = await createMiiData(`./quickUploads/${file}`);
-                            const matchingMii = await findMatchingMii(mii, { includeGeneral: quickUploadMetadata.official });
+                            const matchingMii = await findMatchingMii(mii, { includeGeneral: quickUploadOfficial });
                             if (matchingMii) {
                                 fs.unlinkSync(`./quickUploads/${file}`);
                                 console.warn(`[quickUploads] Skipping ${file}: already exists as Mii ID ${matchingMii.id}`);
@@ -9099,7 +10219,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
 
                             mii.uploadedOn = Date.now();
                             mii.uploader = quickUploadMetadata.uploader;
-                            mii.official = quickUploadMetadata.official;
+                            mii.official = quickUploadOfficial;
                             mii.votes = 1;
                             mii.id = await genId();
                             mii.desc = "Uploaded in Bulk";
@@ -9130,6 +10250,14 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
                         return;
                     }
 
+                    if (hasActiveOfficialZipProcessing()) {
+                        if (!averageMiiRefreshDeferredForZip && await hasRecentAverageAffectingUpload()) {
+                            console.log("[average] Recent public upload detected during ZIP processing. Deferring average Mii refresh.");
+                            averageMiiRefreshDeferredForZip = true;
+                        }
+                        return;
+                    }
+
                     if (await hasRecentAverageAffectingUpload()) {
                         console.log("[average] Recent public upload detected. Queueing average Mii refresh.");
                         queueAverageMiiRefresh("recent upload");
@@ -9154,14 +10282,28 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
 });
 
 site.get('/', highGeneralRatelimit, async (req, res) => {
-    let toSend = await getSendables(req, "InfiniMii");
+    const [
+        toSend,
+        randomMiis,
+        trendingMiis,
+        topMiis,
+        recentMiis,
+        officialMiis
+    ] = await Promise.all([
+        getSendables(req, "InfiniMii"),
+        paginatedApi("random", 1, HOME_PREVIEW_COUNT, null, req.user),
+        paginatedApi("trending", 1, HOME_PREVIEW_COUNT, null, req.user),
+        paginatedApi("top", 1, HOME_PREVIEW_COUNT, null, req.user),
+        paginatedApi("recent", 1, HOME_PREVIEW_COUNT, null, req.user),
+        paginatedApi("officialTrending", 1, HOME_PREVIEW_COUNT, null, req.user)
+    ]);
     toSend.title = "InfiniMii";
     toSend.miiCategories={
-        "Random": { miis: (await paginatedApi("random", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./random" },
-        "Trending": { miis: (await paginatedApi("trending", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./trending" },
-        "Top": { miis: (await paginatedApi("top", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./top" },
-        "Recent": { miis: (await paginatedApi("recent", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./recent" },
-        "Official": { miis: (await paginatedApi("officialTrending", 1, HOME_PREVIEW_COUNT, null, req.user)).items, link: "./official" }
+        "Random": { miis: randomMiis.items, link: "./random" },
+        "Trending": { miis: trendingMiis.items, link: "./trending" },
+        "Top": { miis: topMiis.items, link: "./top" },
+        "Recent": { miis: recentMiis.items, link: "./recent" },
+        "Official": { miis: officialMiis.items, link: "./official" }
     };
     
     ejs.renderFile('./ejsFiles/index.ejs', toSend, {}, function (err, str) {
@@ -9175,11 +10317,13 @@ site.get('/', highGeneralRatelimit, async (req, res) => {
 });
 //The following up to and including /recent are all sorted before being renders in miis.ejs, meaning the file is recycled. / is currently just a clone of /trending. /official and /search is more of the same but with a slight change to make Highlighted Mii still work without the full Mii array
 site.get('/random', miiListRatelimiter, async (req, res) => {
-    let toSend = await getSendables(req);
     const perPage = FULL_ROW_BROWSE_REQUEST_LIMIT;
     const seed = Math.floor(Math.random() * 1000000).toString();
 
-    const paginatedData = await paginatedApi("random", 1, perPage, seed, req.user);
+    const [toSend, paginatedData] = await Promise.all([
+        getSendables(req),
+        paginatedApi("random", 1, perPage, seed, req.user)
+    ]);
     toSend.displayedMiis = paginatedData.items;
     toSend.pagination = {
         mode: "random",
@@ -9202,10 +10346,12 @@ site.get('/random', miiListRatelimiter, async (req, res) => {
     });
 });
 site.get('/trending', miiListRatelimiter, async (req, res) => {
-    let toSend = await getSendables(req);
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("trending", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user);
+    const [toSend, paginatedData] = await Promise.all([
+        getSendables(req),
+        paginatedApi("trending", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user)
+    ]);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -9225,10 +10371,12 @@ site.get('/trending', miiListRatelimiter, async (req, res) => {
     });
 });
 site.get('/top', miiListRatelimiter, async (req, res) => {
-    let toSend = await getSendables(req);
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("top", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user);
+    const [toSend, paginatedData] = await Promise.all([
+        getSendables(req),
+        paginatedApi("top", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user)
+    ]);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -9248,10 +10396,12 @@ site.get('/top', miiListRatelimiter, async (req, res) => {
     });
 });
 site.get('/recent', miiListRatelimiter, async (req, res) => {
-    let toSend = await getSendables(req);
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     
-    const paginatedData = await paginatedApi("recent", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user);
+    const [toSend, paginatedData] = await Promise.all([
+        getSendables(req),
+        paginatedApi("recent", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, null, req.user)
+    ]);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
     }
@@ -9281,15 +10431,14 @@ site.get('/official', miiListRatelimiter, async (req, res) => {
         return res.redirect('/official');
     }
     
-    // Get settings for categories
-    const settings = await getSettings();
-    const categories = getOfficialCategoryTree(settings);
+    // Get categories from the already-loaded page settings.
+    const categories = getOfficialCategoryTree({ officialCategories: toSend.officialCategories });
     
-    // Get all unique leaf categories (only categories that can be assigned to Miis)
-    const leafCategories = getAllLeafCategories(categories);
+    // Get all unique categories that can be assigned to Miis.
+    const allCategories = getAllCategoriesFlat(categories, []);
     
     // Create category info with paths for display
-    toSend.availableCategories = leafCategories
+    toSend.availableCategories = allCategories
         .filter(cat => !isCategoryPathBlockedForUser(cat.path, req.user))
         .map(cat => ({
             name: cat.name,
@@ -9436,6 +10585,7 @@ site.get('/feed.xml', async (req, res) => {
         private: false,
         id: { $ne: "average" }
     })
+        .select(MII_CARD_SELECT)
         .sort({ uploadedOn: -1, _id: -1 })
         .limit(RSS_FEED_MII_LIMIT)
         .lean();
@@ -10201,7 +11351,7 @@ site.post('/deleteMii', async (req, res) => { // TODO: csrf here, make post
         res.json({ error: 'Server error' });
     }
 });
-// Update Mii Field (Moderator+, Researchers for official Miis, and unlocked uploaders for metadata)
+// Update Mii Field (Moderator+, researchers for research-managed metadata, uploaders for allowed fields)
 site.post('/updateMiiField', requireAuth, async (req, res) => {
     try {
         const { id, field, value } = req.body;
@@ -10218,12 +11368,22 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
         }
 
         const editableMetadataFields = new Set(['name', 'desc', 'creatorName']);
+        const editableTomodachiLifeFields = new Set([
+            'tomodachiFullName',
+            'tomodachiFullBirthday',
+            'tomodachiIslandName',
+            'tomodachiAgeGroup',
+            'tomodachiPersonality',
+            'tomodachiCatchphrase'
+        ]);
         const canUseModeratorTools = canModerate(req.user);
-        const canResearchOfficial = isResearcher(req.user) && mii.official;
+        const canResearchManagedMii = isResearcher(req.user) && isResearchManagedMii(mii);
         const isUploader = Boolean(req.user?.username && mii.uploader === req.user.username);
         const isMetadataField = editableMetadataFields.has(requestedField);
+        const isTomodachiLifeField = editableTomodachiLifeFields.has(requestedField);
         const isUserEditLocked = Boolean(mii.lockedFromUserEdits);
         const canUploaderEditMetadata = isUploader && isMetadataField && !isUserEditLocked;
+        const canUploaderEditTomodachiLife = isUploader && isTomodachiLifeField;
 
         if (requestedField === 'lockedFromUserEdits' && !canUseModeratorTools) {
             return res.json({ error: 'Only moderators can change the uploader edit lock' });
@@ -10232,8 +11392,9 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
         if (
             requestedField !== 'lockedFromUserEdits' &&
             !canUseModeratorTools &&
-            !canResearchOfficial &&
-            !canUploaderEditMetadata
+            !canResearchManagedMii &&
+            !canUploaderEditMetadata &&
+            !canUploaderEditTomodachiLife
         ) {
             if (isUploader && isMetadataField && isUserEditLocked) {
                 return res.json({ error: 'This Mii has been locked from uploader edits by a moderator' });
@@ -10241,16 +11402,39 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
             return res.json({ error: 'Insufficient permissions' });
         }
 
-        const isResearcherOnlyActor = canResearchOfficial && !canUseModeratorTools;
+        const isResearcherOnlyActor = canResearchManagedMii && !canUseModeratorTools;
         const researcherAllowedFields = new Set(['name', 'desc', 'creatorName']);
         if (isResearcherOnlyActor && !researcherAllowedFields.has(requestedField)) {
-            return res.json({ error: 'Researchers can only edit name, description, and creator name on official Miis' });
+            return res.json({ error: 'Researchers can only edit name, description, and creator name on official or Community-attributed Miis' });
+        }
+
+        if (isTomodachiLifeField && !hasDecodedTomodachiLifeData(mii)) {
+            return res.json({ error: 'This Mii does not have Tomodachi Life data to edit' });
         }
 
         // Store old value for logging
         let oldValue;
         let normalizedValue = value;
         let updates = {};
+        let shouldRegenerateQrPreviews = false;
+        let updatedMiiForResponse = null;
+
+        const markTomodachiLifeUpdate = () => {
+            shouldRegenerateQrPreviews = true;
+        };
+
+        const setNestedPreviewValue = (target, dottedPath, nextValue) => {
+            const parts = dottedPath.split('.');
+            let cursor = target;
+            for (let i = 0; i < parts.length - 1; i++) {
+                const part = parts[i];
+                if (!cursor[part] || typeof cursor[part] !== 'object' || Array.isArray(cursor[part])) {
+                    cursor[part] = {};
+                }
+                cursor = cursor[part];
+            }
+            cursor[parts[parts.length - 1]] = nextValue;
+        };
 
         // Update the appropriate field
         switch (requestedField) {
@@ -10293,6 +11477,103 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                 oldValue = mii.meta.creatorName;
                 updates['meta.creatorName'] = normalizedValue;
                 break;
+            case 'tomodachiFullName':
+                if (!value || typeof value !== 'object' || Array.isArray(value)) {
+                    return res.json({ error: 'Full name must include first and last name values' });
+                }
+                try {
+                    const firstName = normalizeTomodachiLifeTextInput(value.firstName, TOMODACHI_LIFE_NAME_MAX_LENGTH, 'First name');
+                    const lastName = normalizeTomodachiLifeTextInput(value.lastName, TOMODACHI_LIFE_NAME_MAX_LENGTH, 'Last name');
+                    oldValue = [mii?.tl?.firstName, mii?.tl?.lastName].map(part => String(part || '').trim()).filter(Boolean).join(' ') || 'Not Set';
+                    normalizedValue = [firstName, lastName].filter(Boolean).join(' ') || 'Not Set';
+                    updates['tl.firstName'] = firstName;
+                    updates['tl.lastName'] = lastName;
+                    markTomodachiLifeUpdate();
+                } catch (error) {
+                    return res.json({ error: error.message || 'Invalid full name' });
+                }
+                break;
+            case 'tomodachiFullBirthday':
+                if (!value || typeof value !== 'object' || Array.isArray(value)) {
+                    return res.json({ error: 'Birthday must include month and day values' });
+                }
+                try {
+                    const birthday = normalizeTomodachiLifeBirthdayInput(value);
+                    oldValue = getDashboardFullBirthdayLabel(
+                        mii?.tl?.birthMonth ?? mii?.general?.birthMonth,
+                        mii?.tl?.birthday ?? mii?.general?.birthday
+                    ) || 'Not Set';
+                    normalizedValue = getDashboardFullBirthdayLabel(birthday.birthMonth, birthday.birthday) || 'Not Set';
+                    updates['tl.birthMonth'] = birthday.birthMonth;
+                    updates['tl.birthday'] = birthday.birthday;
+                    updates['general.birthMonth'] = birthday.birthMonth;
+                    updates['general.birthday'] = birthday.birthday;
+                    markTomodachiLifeUpdate();
+                } catch (error) {
+                    return res.json({ error: error.message || 'Invalid birthday' });
+                }
+                break;
+            case 'tomodachiIslandName':
+                try {
+                    normalizedValue = normalizeTomodachiLifeTextInput(value, TOMODACHI_LIFE_ISLAND_NAME_MAX_LENGTH, 'Island name');
+                    oldValue = getTomodachiLifeIslandName(mii) || 'Not Set';
+                    updates['tl.island.name'] = normalizedValue;
+
+                    const islandId = mii?.tl?.island?.id;
+                    const islandIdHex = getTomodachiLifeIslandIdHex(mii);
+                    const derivedAddress = islandIdHex ? deriveTomodachiLifeIslandAddressFromId(islandIdHex, normalizedValue) : null;
+                    if (derivedAddress && islandId && typeof islandId === 'object' && !Array.isArray(islandId)) {
+                        updates['tl.island.id.num1'] = derivedAddress.num1;
+                        updates['tl.island.id.num2'] = derivedAddress.num2;
+                        updates['tl.island.id.isles'] = derivedAddress.isles;
+                        updates['tl.island.id.ocean'] = derivedAddress.ocean;
+                        updates['tl.island.id.readable'] = derivedAddress.readable;
+                    }
+
+                    markTomodachiLifeUpdate();
+                } catch (error) {
+                    return res.json({ error: error.message || 'Invalid island name' });
+                }
+                break;
+            case 'tomodachiAgeGroup':
+                try {
+                    normalizedValue = normalizeTomodachiLifeAgeGroupInput(value);
+                    oldValue = mii?.tl?.isAdult === true ? 'Adult' : (mii?.tl?.isAdult === false ? 'Child' : 'Not Set');
+                    updates['tl.isAdult'] = normalizedValue;
+                    normalizedValue = normalizedValue ? 'Adult' : 'Child';
+                    markTomodachiLifeUpdate();
+                } catch (error) {
+                    return res.json({ error: error.message || 'Invalid age group' });
+                }
+                break;
+            case 'tomodachiPersonality':
+                if (!value || typeof value !== 'object' || Array.isArray(value)) {
+                    return res.json({ error: 'Personality must include all four slider values' });
+                }
+                try {
+                    const personality = normalizeTomodachiLifePersonalityInput(value);
+                    oldValue = getTomodachiLifePersonalityLabel(mii?.tl?.personality) || 'Not Set';
+                    updates['tl.personality.movement'] = personality.movement;
+                    updates['tl.personality.speech'] = personality.speech;
+                    updates['tl.personality.expressiveness'] = personality.expressiveness;
+                    updates['tl.personality.attitude'] = personality.attitude;
+                    normalizedValue = getTomodachiLifePersonalityLabel(personality) || 'Not Set';
+                    markTomodachiLifeUpdate();
+                } catch (error) {
+                    return res.json({ error: error.message || 'Invalid personality' });
+                }
+                break;
+            case 'tomodachiCatchphrase':
+                try {
+                    normalizedValue = normalizeTomodachiLifeTextInput(value, TOMODACHI_LIFE_CATCHPHRASE_MAX_LENGTH, 'Catchphrase');
+                    oldValue = String(mii?.tl?.catchphrase || '').trim() || 'Not Set';
+                    updates['tl.catchphrase'] = normalizedValue;
+                    normalizedValue = normalizedValue || 'Not Set';
+                    markTomodachiLifeUpdate();
+                } catch (error) {
+                    return res.json({ error: error.message || 'Invalid catchphrase' });
+                }
+                break;
             case 'uploader':
                 // Validate new uploader exists
                 const newUploader = await getUserByUsername(value);
@@ -10303,8 +11584,11 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                 oldValue = mii.uploader;
                 
                 updates.uploader = value;
-                if (mii.official) {
+                if (mii.official || isResearchManagedMii(mii)) {
                     updates.officialSource = value;
+                }
+                if (isCommunitySourceName(value)) {
+                    updates.official = false;
                 }
                 break;
             case 'lockedFromUserEdits':
@@ -10321,12 +11605,29 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
 
         await Miis.findOneAndUpdate({ id }, { $set: updates }, { runValidators: true });
 
+        if (shouldRegenerateQrPreviews) {
+            updatedMiiForResponse = JSON.parse(JSON.stringify(mii));
+            for (const [path, nextValue] of Object.entries(updates)) {
+                setNestedPreviewValue(updatedMiiForResponse, path, nextValue);
+            }
+
+            const { qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(id, Boolean(mii.private));
+            await Promise.all([
+                writeQrPng(updatedMiiForResponse, qrPath, "3DS"),
+                writeQrPng(updatedMiiForResponse, qrWiiPath, "WIIU"),
+                writeOptionalQrPng(updatedMiiForResponse, qrTomodachiPath, "TOMODACHI"),
+                writeOptionalQrPng(updatedMiiForResponse, qrMiitopiaPath, "MIITOPIA")
+            ]);
+        }
+
         const actorRoleLabel = isAdmin(req.user)
             ? 'Administrator'
-            : (canUseModeratorTools ? 'Moderator' : (canResearchOfficial ? 'Researcher' : 'Uploader'));
+            : (canUseModeratorTools ? 'Moderator' : (canResearchManagedMii ? 'Researcher' : 'Uploader'));
+
+        const reportMiiEdit = isResearchManagedMii(mii) ? makeResearchReport : makeReport;
 
         // Log to Discord
-        makeReport(JSON.stringify({
+        reportMiiEdit(JSON.stringify({
             embeds: [{
                 type: 'rich',
                 title: `Mii ${requestedField} Updated`,
@@ -10365,9 +11666,11 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
         }));
 
         if (!mii.private && mii.published !== false) {
-            const updatedMii = {
+            const updatedMii = updatedMiiForResponse || {
                 ...mii,
-                uploader: requestedField === "uploader" ? normalizedValue : mii.uploader
+                uploader: requestedField === "uploader" ? normalizedValue : mii.uploader,
+                officialSource: Object.prototype.hasOwnProperty.call(updates, "officialSource") ? updates.officialSource : mii.officialSource,
+                official: Object.prototype.hasOwnProperty.call(updates, "official") ? updates.official : mii.official
             };
             const extraUrls = requestedField === "uploader"
                 ? [getUserProfileUrl(resolvedBaseUrl, oldValue)]
@@ -10375,14 +11678,19 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
             notifyIndexNow(
                 buildIndexNowUrlsForMiis(resolvedBaseUrl, updatedMii, {
                     extraUrls,
-                    includeOfficialListing: Boolean(mii.official)
+                    includeOfficialListing: Boolean(mii.official || updatedMii.official)
                 }),
                 resolvedBaseUrl,
                 `update-mii-${requestedField}`
             );
         }
 
-        res.json({ okay: true });
+        const responsePayload = { okay: true };
+        if (updatedMiiForResponse) {
+            responsePayload.tomodachiRows = buildTomodachiLifeInfoRows(updatedMiiForResponse);
+            responsePayload.qrVersion = Date.now();
+        }
+        res.json(responsePayload);
     } catch (e) {
         console.error('Error updating Mii field:', e);
         res.json({ error: 'Server error' });
@@ -11096,7 +12404,7 @@ site.post('/toggleMiiOfficial', requireAuth, requireRole(ROLES.MODERATOR), async
         );
 
         // Log to Discord
-        makeReport(JSON.stringify({
+        makeResearchReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
                 title:  `Mii Marked as ${normalizedOfficial?'O':"Uno"}fficial`,
@@ -11334,6 +12642,9 @@ site.get('/sitemap-users.xml', async (req, res) => {
 site.get('/sitemap-index.xml', async (req, res) => {
     res.redirect(301, '/sitemap.xml');
 });
+site.get('/sitemap_index.xml', async (req, res) => {
+    res.redirect(301, '/sitemap.xml');
+});
 
 // ========== AMIIBO ENDPOINTS ==========
 
@@ -11419,8 +12730,12 @@ site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) 
             name: miiInstance?.fields?.meta?.name || "Unknown"
         });
     } catch (e) {
-        console.error("Error preparing Wiimote import data:", e);
-        res.status(500).json({ error: "Failed to prepare Mii for Wiimote import: " + e.message });
+        if (isMiiInputProcessingError(e)) {
+            res.status(400).json({ error: "Could not prepare that Mii for Wiimote import: " + (e.message || "Invalid Mii data") });
+        } else {
+            console.error("Error preparing Wiimote import data:", e);
+            res.status(500).json({ error: "Failed to prepare Mii for Wiimote import. Please try again in a moment." });
+        }
     } finally {
         if (req.file?.path) {
             try { fs.unlinkSync(req.file.path); } catch (cleanupError) { }
@@ -12331,11 +13646,13 @@ site.post('/voteMii', requireAuth, async (req, res) => {
     }
 });
 site.get('/mii/:id', async (req, res) => {
-    let inp = await getSendables(req);
     const miiId = req.params.id;
     
     // Try to get Mii (public or private)
-    const mii = await getMiiById(miiId, true);
+    const [inp, mii] = await Promise.all([
+        getSendables(req),
+        getMiiById(miiId, true)
+    ]);
     
     if (!mii) {
         return sendError(res, req, "404 Mii not found", 404);
@@ -12364,16 +13681,21 @@ site.get('/mii/:id', async (req, res) => {
     }
     
     inp.mii = mii;
-    inp.height = await miijs.miiHeightToMeasurements(inp.mii.general.height);
-    inp.weight = await miijs.miiWeightToMeasurements(inp.mii.general.height, inp.mii.general.weight);
+    const [height, weight, uploaderUser] = await Promise.all([
+        miijs.miiHeightToMeasurements(inp.mii.general.height),
+        miijs.miiWeightToMeasurements(inp.mii.general.height, inp.mii.general.weight),
+        getUserByUsername(mii.uploader)
+    ]);
+    inp.height = height;
+    inp.weight = weight;
     inp.tomodachiRows = buildTomodachiLifeInfoRows(mii);
-    const uploaderUser = await getUserByUsername(mii.uploader);
     inp.uploaderPfp = uploaderUser?.miiPfp || "00000";
     inp.officialSourceName = mii.official
         ? (normalizeCompanySourceName(mii.officialSource || mii.uploader) || DEFAULT_OFFICIAL_COMPANY_SOURCE)
         : "";
-    inp.canEditOfficialMii = mii.official && (canModerate(req.user) || isResearcher(req.user));
-    inp.canManageOfficialCategories = mii.official && (
+    inp.isResearchManagedMii = isResearchManagedMii(mii);
+    inp.canEditOfficialMii = inp.isResearchManagedMii && (canModerate(req.user) || isResearcher(req.user));
+    inp.canManageOfficialCategories = inp.isResearchManagedMii && (
         canModerate(req.user)
         || isResearcher(req.user)
         || Boolean(req.user?.username && mii.uploader === req.user.username)
@@ -12405,6 +13727,7 @@ site.get('/mii/:id', async (req, res) => {
 
     const [sameArchiveOwnerMiis, similarMiis, relatedCategoryMiis, archiveOwnerSummary] = await Promise.all([
         Miis.find({ ...relatedVisibilityFilter, ...sameArchiveOwnerQuery })
+            .select(MII_CARD_SELECT)
             .sort({ votes: -1, uploadedOn: -1 })
             .limit(8)
             .lean(),
@@ -12414,6 +13737,7 @@ site.get('/mii/:id', async (req, res) => {
                 ...relatedVisibilityFilter,
                 officialCategories: { $in: inp.miiSeo.categoryDetails.map(category => category.path).slice(0, 6) }
             })
+                .select(MII_CARD_SELECT)
                 .sort({ votes: -1, uploadedOn: -1 })
                 .limit(8)
                 .lean()
@@ -12474,15 +13798,20 @@ site.get('/mii/:id', async (req, res) => {
 });
 site.get('/user/:username', async (req, res) => {
     const targetUsername = decodeURIComponent(req.params.username);
-    const targetUser = await getUserByUsername(targetUsername);
+    const [targetUser, inp] = await Promise.all([
+        getUserByUsername(targetUsername),
+        getSendables(req)
+    ]);
     
     if (!targetUser) {
        return sendError(res, req, "User not found", 404);
     }
-    let inp = await getSendables(req);
     inp.targetUser = targetUser;
     inp.isOfficialCompanySourceProfile = (Array.isArray(inp.officialCompanySources) ? inp.officialCompanySources : [])
-        .some(sourceName => String(sourceName).toLowerCase() === targetUsername.toLowerCase());
+        .some(sourceName => (
+            !isCommunitySourceName(sourceName)
+            && String(sourceName).toLowerCase() === targetUsername.toLowerCase()
+        ));
     const targetUserRoles = getUserRoles(targetUser);
     const targetUserHasResearcherRole = targetUserRoles.includes(ROLES.RESEARCHER);
     const selectedProfileSort = req.query.sort === "latest" ? "latest" : "popular";
@@ -12564,6 +13893,7 @@ site.get('/user/:username', async (req, res) => {
             { $limit: 8 }
         ]),
         Miis.find(profileFilter)
+            .select(MII_CARD_SELECT)
             .sort(getStablePopularitySort())
             .limit(4)
             .lean(),
@@ -12586,6 +13916,7 @@ site.get('/user/:username', async (req, res) => {
     const skip = profileStart;
 
     inp.displayedMiis = await Miis.find(profileFilter)
+        .select(MII_CARD_SELECT)
         .sort(profileListSort)
         .skip(skip)
         .limit(FULL_ROW_PROFILE_REQUEST_LIMIT)
@@ -13104,6 +14435,9 @@ site.get('/miiChild', async (req, res) => {
         res.send(str);
     });
 });
+site.get('/makeMiiChild', async (req, res) => {
+    res.redirect(301, '/miiChild');
+});
 site.get('/qr', async (req, res) => {
     ejs.renderFile('./ejsFiles/qr.ejs', await getSendables(req), {}, function(err, str) {
         if (err) {
@@ -13236,13 +14570,21 @@ site.post('/unhideMii', requireAuth, async (req, res) => {
             return res.status(400).json({ error: "Mii ID required" });
         }
 
-        await Users.findOneAndUpdate(
+        const currentUser = await Users.findOne({ username: req.user.username })
+            .select("hiddenMiiIds")
+            .lean();
+        const currentHiddenMiiIds = normalizeUserHiddenMiiIds(
+            currentUser?.hiddenMiiIds || req.user.hiddenMiiIds
+        );
+        const nextHiddenMiiIds = currentHiddenMiiIds.filter(id => id !== miiId);
+
+        await Users.updateOne(
             { username: req.user.username },
-            { $pull: { hiddenMiiIds: miiId } }
+            { $set: { hiddenMiiIds: nextHiddenMiiIds } }
         );
 
-        req.user.hiddenMiiIds = normalizeUserHiddenMiiIds(req.user.hiddenMiiIds).filter(id => id !== miiId);
-        res.json({ okay: true, id: miiId });
+        req.user.hiddenMiiIds = nextHiddenMiiIds;
+        res.json({ okay: true, id: miiId, hiddenMiiIds: nextHiddenMiiIds });
     } catch (e) {
         console.error('Error unhiding Mii:', e);
         res.status(500).json({ error: 'Server error' });
@@ -13251,7 +14593,9 @@ site.post('/unhideMii', requireAuth, async (req, res) => {
 site.get('/myPrivateMiis', requireAuth, async (req, res) => {
     var toSend = await getSendables(req, undefined, req.user);
     
-    const privateMiis = await Miis.find({ uploader: req.user.username, private: true }).lean();
+    const privateMiis = await Miis.find({ uploader: req.user.username, private: true })
+        .select(MII_CARD_SELECT)
+        .lean();
 
     toSend.privateMiis = privateMiis;
     toSend.privateLimit = PRIVATE_MII_LIMIT;
@@ -13285,20 +14629,22 @@ site.get('/myLikedMiis', requireAuth, async (req, res) => {
     const sort = likedSort === "likes"
         ? getStablePopularitySort()
         : getStableRecencySort();
-    const totalLikedMiis = likedMiiIds.length > 0
-        ? await Miis.countDocuments(likedMiisQuery)
-        : 0;
+    const [likedMiis, totalLikedMiis] = likedMiiIds.length > 0
+        ? await Promise.all([
+            Miis.find(likedMiisQuery)
+                .select(MII_CARD_SELECT)
+                .sort(sort)
+                .skip(start)
+                .limit(FULL_ROW_BROWSE_REQUEST_LIMIT)
+                .lean(),
+            Miis.countDocuments(likedMiisQuery)
+        ])
+        : [[], 0];
     if (totalLikedMiis > 0 && start >= totalLikedMiis) {
         return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(totalLikedMiis, FULL_ROW_BROWSE_REQUEST_LIMIT)));
     }
 
-    toSend.displayedMiis = likedMiiIds.length > 0
-        ? await Miis.find(likedMiisQuery)
-            .sort(sort)
-            .skip(start)
-            .limit(FULL_ROW_BROWSE_REQUEST_LIMIT)
-            .lean()
-        : [];
+    toSend.displayedMiis = likedMiis;
     toSend.pagination = buildStartPagination(req, start, totalLikedMiis, FULL_ROW_BROWSE_REQUEST_LIMIT);
     toSend.currentPath = buildRequestPathWithStart(req, start);
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
@@ -13518,64 +14864,69 @@ site.post('/reportMii', defaultRatelimiter, async (req,res)=>{
     const uploaderUrl = `${publicBaseUrl}/user/${encodeURIComponent(uploaderName)}`;
 
     try {
-        const webhookSent = await sendWebhookPayload(JSON.stringify({
-            embeds: [{
-                type: "rich",
-                title: (mii.official ? "Official " : "") + "Mii problem reported",
-                description: truncateText(details, 4096),
-                color: 0xff0000,
-                fields: [
-                    {
-                        name: "Category",
-                        value: truncateText(category, 1024),
-                        inline: true
+        let webhookSent = false;
+        try {
+            webhookSent = await sendWebhookPayload(JSON.stringify({
+                embeds: [{
+                    type: "rich",
+                    title: (mii.official ? "Official " : "") + "Mii problem reported",
+                    description: truncateText(details, 4096),
+                    color: 0xff0000,
+                    fields: [
+                        {
+                            name: "Category",
+                            value: truncateText(category, 1024),
+                            inline: true
+                        },
+                        {
+                            name: "Reported by",
+                            value: truncateText(reporterName, 1024),
+                            inline: true
+                        },
+                        {
+                            name: "Reporter Email",
+                            value: truncateText(reporterEmail || "Not provided", 1024),
+                            inline: true
+                        },
+                        {
+                            name: "Mii Name",
+                            value: truncateText(miiName, 1024),
+                            inline: true
+                        },
+                        {
+                            name: "Uploaded by",
+                            value: `[${truncateText(uploaderName, 256)}](${uploaderUrl})`,
+                            inline: true
+                        },
+                        {
+                            name: "Mii Creator Name (embedded in Mii file)",
+                            value: truncateText(creatorName, 1024),
+                            inline: true
+                        },
+                        {
+                            name: "Description",
+                            value: truncateText(miiDescription, 1024),
+                            inline: false
+                        }
+                    ],
+                    thumbnail: {
+                        url: `${publicBaseUrl}/miiImgs/${encodeURIComponent(mii.id)}.png`,
+                        height: 0,
+                        width: 0
                     },
-                    {
-                        name: "Reported by",
-                        value: truncateText(reporterName, 1024),
-                        inline: true
+                    footer: {
+                        text: `Report ${reportReference}${reporterEmail ? " • Follow-up email requested" : ""}`
                     },
-                    {
-                        name: "Reporter Email",
-                        value: truncateText(reporterEmail || "Not provided", 1024),
-                        inline: true
-                    },
-                    {
-                        name: "Mii Name",
-                        value: truncateText(miiName, 1024),
-                        inline: true
-                    },
-                    {
-                        name: "Uploaded by",
-                        value: `[${truncateText(uploaderName, 256)}](${uploaderUrl})`,
-                        inline: true
-                    },
-                    {
-                        name: "Mii Creator Name (embedded in Mii file)",
-                        value: truncateText(creatorName, 1024),
-                        inline: true
-                    },
-                    {
-                        name: "Description",
-                        value: truncateText(miiDescription, 1024),
-                        inline: false
-                    }
-                ],
-                thumbnail: {
-                    url: `${publicBaseUrl}/miiImgs/${encodeURIComponent(mii.id)}.png`,
-                    height: 0,
-                    width: 0
-                },
-                footer: {
-                    text: `Report ${reportReference}${reporterEmail ? " • Follow-up email requested" : ""}`
-                },
-                timestamp: new Date().toISOString(),
-                url: miiUrl
-            }]
-        }));
+                    timestamp: new Date().toISOString(),
+                    url: miiUrl
+                }]
+            }));
+        } catch (webhookError) {
+            rawConsoleError("Error sending Mii report webhook notification:", webhookError);
+        }
 
         if (!webhookSent) {
-            rawConsoleError("Mii report webhook skipped because hookUrl is not configured.");
+            rawConsoleError("Mii report webhook was not delivered.");
             return res.status(503).json({ error: "Reports are temporarily unavailable. Please try again later." });
         }
 
@@ -13609,13 +14960,17 @@ site.post('/reportMii', defaultRatelimiter, async (req,res)=>{
         return res.status(500).json({ error: "Failed to submit report. Please try again in a moment." });
     }
 });
-site.post('/contact', defaultRatelimiter, upload.none(), async (req, res) => {
+site.post('/contact', contactRequestRatelimiter, upload.none(), async (req, res) => {
     const rawName = String(req.body?.name ?? "").trim();
     const rawEmail = String(req.body?.email ?? "").trim();
     const subject = normalizeReportText(req.body?.subject, 160);
     const details = normalizeReportText(req.body?.details, 4000);
     const reporterName = normalizeReportText(rawName || req.user?.username, 80) || "Anonymous";
     let reporterEmail = "";
+
+    if (contactFormContainsImmediateBlockWord(rawName, rawEmail, subject, details)) {
+        return await blockContactRequestForDay(req, res, "Contact Forbidden Word Blocked IP");
+    }
 
     if (rawEmail) {
         if (!validator.isEmail(rawEmail)) {
@@ -13644,7 +14999,8 @@ site.post('/contact', defaultRatelimiter, upload.none(), async (req, res) => {
     const loggedInUsername = normalizeReportText(req.user?.username, 80);
 
     try {
-        await sendContactWebhookNotification({
+        const warnings = [];
+        const webhookSent = await sendContactWebhookNotification({
             contactReference,
             reporterName,
             reporterEmail,
@@ -13654,23 +15010,35 @@ site.post('/contact', defaultRatelimiter, upload.none(), async (req, res) => {
             sourceUrl
         });
 
-        await sendEmail(
-            process.env.email,
-            `InfiniMii contact request [${contactReference}] ${subject}`,
-            buildContactSupportEmail({
-                contactReference,
-                reporterName,
-                reporterEmail,
-                subject,
-                details,
-                loggedInUsername,
-                sourceUrl
-            }),
-            reporterEmail ? { replyTo: reporterEmail } : {}
-        );
+        let supportEmailSent = false;
+        try {
+            supportEmailSent = await sendEmail(
+                process.env.email,
+                `InfiniMii contact request [${contactReference}] ${subject}`,
+                buildContactSupportEmail({
+                    contactReference,
+                    reporterName,
+                    reporterEmail,
+                    subject,
+                    details,
+                    loggedInUsername,
+                    sourceUrl
+                }),
+                reporterEmail ? { replyTo: reporterEmail } : {}
+            ) === "Email sent";
+        } catch (emailError) {
+            rawConsoleError("Error sending contact support email:", emailError);
+        }
+
+        if (!webhookSent && !supportEmailSent) {
+            return res.status(503).json({ error: "Contact is temporarily unavailable. Please try again later." });
+        }
+
+        if (!supportEmailSent) {
+            warnings.push("Your message was received, but the support email copy could not be sent.");
+        }
 
         let followUpEmailSent = false;
-        let warning = "";
 
         if (reporterEmail) {
             try {
@@ -13687,11 +15055,11 @@ site.post('/contact', defaultRatelimiter, upload.none(), async (req, res) => {
                 followUpEmailSent = true;
             } catch (emailError) {
                 rawConsoleError("Error sending contact follow-up email:", emailError);
-                warning = "Your message was sent, but we could not start the follow-up email thread.";
+                warnings.push("We could not start the follow-up email thread.");
             }
         }
 
-        return res.json({ okay: true, contactReference, followUpEmailSent, warning });
+        return res.json({ okay: true, contactReference, followUpEmailSent, warning: warnings.join(" ") });
     } catch (error) {
         rawConsoleError("Error sending contact request:", error);
         return res.status(500).json({ error: "Failed to send your message. Please try again in a moment." });
@@ -14433,7 +15801,10 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                     archiveEntries,
                     resolvedBaseUrl
                 });
-                res.json({ redirect: "/official" });
+                res.json({
+                    redirect: "/official",
+                    notice: OFFICIAL_ZIP_QUEUED_NOTICE
+                });
                 return;
             }
 
@@ -14480,7 +15851,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
             const matchingMiis = await findMatchingMiisWithoutFaceFeatureMakeup(replacementMii, {
                 includePrivate: false,
                 includeGeneral: true,
-                baseQuery: { official: true }
+                baseQuery: buildResearchManagedMiiQuery()
             });
 
             if (matchingMiis.length === 0) {
@@ -14600,7 +15971,16 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                     officialSettings,
                     resolvedBaseUrl
                 });
-                res.json({ redirect: "/official" });
+                res.json({
+                    notice: [officialSourceNotice, OFFICIAL_ZIP_QUEUED_NOTICE].filter(Boolean).join(" "),
+                    redirect: shouldMiiStoreOfficialFlag({
+                        official: true,
+                        officialSource,
+                        isOfficialUpload: true
+                    })
+                        ? "/official"
+                        : `/user/${encodeURIComponent(officialSource || COMMUNITY_SOURCE_NAME)}`
+                });
                 return;
             }
 
@@ -14706,19 +16086,25 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
             return;
         }
 
-        const validLeafPaths = isOfficialUpload
-            ? getLeafCategoryPathSet(
+        const validCategoryPaths = isOfficialUpload
+            ? getCategoryPathSet(
                 getOfficialCategoryTree(officialSettings || await getSettings())
             )
             : null;
         const officialCategories = isOfficialUpload
             ? normalizeCategoryPaths(req.body.categories)
-                .filter(categoryPath => validLeafPaths.has(categoryPath))
+                .filter(categoryPath => validCategoryPaths.has(categoryPath))
             : [];
+        const shouldMarkUploadedMiiOfficial = shouldMiiStoreOfficialFlag({
+            official: isOfficialUpload,
+            officialSource,
+            isOfficialUpload
+        });
         const persistedUpload = await persistUploadedMii(mii, {
             uploader,
             wantsPublic,
             isOfficialUpload,
+            official: shouldMarkUploadedMiiOfficial,
             officialSource,
             desc: uploadDescription,
             officialCategories
@@ -14729,7 +16115,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
         var d = new Date();
         const uploadReportEmbed = {
             "type": "rich",
-            "title": (isOfficialUpload ? "Official " : "") + `${wantsPublic ? "Public" : "Private"} Mii Uploaded`,
+            "title": (mii.official ? "Official " : "") + `${wantsPublic ? "Public" : "Private"} Mii Uploaded`,
             "description": mii.desc,
             "color": 0x00aaff,
             "fields": (isOfficialUpload
@@ -14740,7 +16126,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                         "inline": true
                     },
                     {
-                        "name": "Official Source",
+                        "name": mii.official ? "Official Source" : "Source",
                         "value": `[${officialSource}](https://infinimii.com/user/${encodeURIComponent(officialSource)})`,
                         "inline": true
                     },
@@ -14783,13 +16169,16 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
         }
         queueUploadWebhookReport(uploadReportEmbed, {
             imagePath: persistedUpload.assetPaths?.img || getMiiAssetPath(wantsPublic ? "miiImgs" : "privateMiiImgs", mii.id),
-            imageFilename: `${mii.id}.png`
+            imageFilename: `${mii.id}.png`,
+            sendReport: isOfficialUpload ? makeResearchReport : makeReport
         });
         
         const responsePayload = {
             redirect: !isOfficialUpload && wantsPublic
                 ? `/mii/${mii.id}`
-                : (isOfficialUpload ? "/official" : "/myPrivateMiis")
+                : (isOfficialUpload
+                    ? (mii.official ? "/official" : `/user/${encodeURIComponent(mii.uploader)}`)
+                    : "/myPrivateMiis")
         };
         if (officialSourceNotice) {
             responsePayload.notice = officialSourceNotice;
@@ -14809,7 +16198,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
         try { if (req.file) fs.unlinkSync("./uploads/" + req.file.filename); } catch (e2) { }
     }
 });
-// Update Official Mii Categories (Moderator+, uploader, or Researcher on official Miis)
+// Update Official Mii Categories (Moderator+, uploader, or Researcher on research-managed Miis)
 site.post('/updateOfficialCategories', requireAuth, async (req, res) => {
     try {
         const { miiId, categories } = req.body;
@@ -14823,8 +16212,8 @@ site.post('/updateOfficialCategories', requireAuth, async (req, res) => {
             return res.json({ error: 'Mii not found' });
         }
 
-        if (!mii.official) {
-            return res.json({ error: 'This is not an official Mii' });
+        if (!isResearchManagedMii(mii)) {
+            return res.json({ error: 'This Mii cannot use official categories' });
         }
 
         const canUploaderUpdateCategories = Boolean(req.user?.username && mii.uploader === req.user.username);
@@ -14836,11 +16225,11 @@ site.post('/updateOfficialCategories', requireAuth, async (req, res) => {
         const requestedCategories = normalizeCategoryPaths(categories);
         const settings = await getSettings();
         const categoryTree = getOfficialCategoryTree(settings);
-        const validLeafPaths = getLeafCategoryPathSet(categoryTree);
-        const newCategories = requestedCategories.filter(path => validLeafPaths.has(path));
+        const validCategoryPaths = getCategoryPathSet(categoryTree);
+        const newCategories = requestedCategories.filter(path => validCategoryPaths.has(path));
 
         if (newCategories.length !== requestedCategories.length) {
-            return res.json({ error: 'One or more categories are invalid. Only existing leaf categories can be assigned.' });
+            return res.json({ error: 'One or more categories are invalid. Only existing categories can be assigned.' });
         }
         
         await Miis.findOneAndUpdate(
@@ -14848,11 +16237,11 @@ site.post('/updateOfficialCategories', requireAuth, async (req, res) => {
             { $set: { officialCategories: newCategories } }
         );
 
-        makeReport(JSON.stringify({
+        makeResearchReport(JSON.stringify({
             embeds: [{
                 type: 'rich',
-                title: `Official Mii Categories Updated`,
-                description: `${req.cookies.username} updated categories for an official Mii`,
+                title: `${mii.official ? "Official" : "Research-Managed"} Mii Categories Updated`,
+                description: `${req.cookies.username} updated categories for a research-managed Mii`,
                 color: 0x00AAFF,
                 fields: [
                     {
@@ -15163,7 +16552,7 @@ site.post('/deleteMiiTag', requireAuth, requireRole(ROLES.MODERATOR), async (req
     }
 });
 
-// Update tag assignments for a Mii (Moderator+, uploader, or Researcher on official Miis)
+// Update tag assignments for a Mii (Moderator+, uploader, or Researcher on research-managed Miis)
 site.post('/updateMiiTags', requireAuth, async (req, res) => {
     try {
         const miiId = typeof req.body?.miiId === "string" ? req.body.miiId.trim() : "";
@@ -15183,9 +16572,9 @@ site.post('/updateMiiTags', requireAuth, async (req, res) => {
 
         const canUseModeratorTags = canModerate(req.user);
         const canUploaderUpdateTags = Boolean(req.user?.username && mii.uploader === req.user.username);
-        const canResearchOfficialTags = Boolean(mii.official && isResearcher(req.user));
+        const canResearchManagedTags = Boolean(isResearchManagedMii(mii) && isResearcher(req.user));
 
-        if (!canUseModeratorTags && !canUploaderUpdateTags && !canResearchOfficialTags) {
+        if (!canUseModeratorTags && !canUploaderUpdateTags && !canResearchManagedTags) {
             return res.json({ error: 'Insufficient permissions' });
         }
 
@@ -15212,7 +16601,8 @@ site.post('/updateMiiTags', requireAuth, async (req, res) => {
             { $set: { tags: nextTags } }
         );
 
-        makeReport(JSON.stringify({
+        const reportMiiTagUpdate = isResearchManagedMii(mii) ? makeResearchReport : makeReport;
+        reportMiiTagUpdate(JSON.stringify({
             embeds: [{
                 type: 'rich',
                 title: `Mii Tags Updated`,
@@ -15647,7 +17037,7 @@ site.post('/moveCategory', requireAuth, requireRole(ROLES.RESEARCHER), async (re
     }
 });
 // Publish a private Mii
-site.post('/publishMii', requireAuth, requireVerifiedUploadAccount,  async (req, res) => {
+site.post('/publishMii', requireAuth, async (req, res) => {
     try {
         const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
         const miiId = String(req.body?.miiId || "").trim();
@@ -16061,7 +17451,7 @@ site.post('/signup', async (req, res) => {
         .map(ip => sha256(ip))
     const settings = await getSettings();
     if (settings.bannedIPs.some( ip => clientIPs.includes(ip))) {
-        return res.json({ error: 'This IP address has been permanently banned from creating accounts.' });
+        return silentlyDropBlockedRequest(req, res);
     }
     
     var hashedPassword = hashPassword(req.body.pass);
@@ -16151,10 +17541,61 @@ site.use(async (req, res) => {
     return res.status(404).type("text/plain; charset=utf-8").send(`${message}\n`);
 });
 
+function getMulterErrorResponse(error) {
+    switch (error?.code) {
+        case "LIMIT_FILE_SIZE":
+            return {
+                status: 413,
+                message: "Uploaded files must stay under 40 MB."
+            };
+        case "LIMIT_FIELD_VALUE":
+            return {
+                status: 413,
+                message: "Submitted form fields are too large."
+            };
+        case "LIMIT_FILE_COUNT":
+            return {
+                status: 400,
+                message: "Upload includes too many files."
+            };
+        case "LIMIT_FIELD_COUNT":
+        case "LIMIT_PART_COUNT":
+            return {
+                status: 400,
+                message: "Upload includes too many form fields."
+            };
+        case "LIMIT_UNEXPECTED_FILE":
+            return {
+                status: 400,
+                message: "Unexpected upload field."
+            };
+        default:
+            return {
+                status: 400,
+                message: error?.message || "Upload rejected."
+            };
+    }
+}
+
+function isMultipartFormRequest(req) {
+    return String(req.get("content-type") || "").toLowerCase().startsWith("multipart/form-data");
+}
+
 // Error-handling middleware at the bottom of the stack
 site.use(async (err, req, res, next) => {
     console.error(err);
     // TODO: remove try catch from all endpoints in favor of this handler
+
+    if (err instanceof multer.MulterError) {
+        const response = getMulterErrorResponse(err);
+        if (shouldSendJsonError(req) || isMultipartFormRequest(req)) {
+            return res.status(response.status).json({ error: response.message });
+        }
+        if (shouldRenderHtmlErrorPage(req)) {
+            return await sendError(res, req, response.message, response.status);
+        }
+        return res.status(response.status).type("text/plain; charset=utf-8").send(`${response.message}\n`);
+    }
 
     // Check what the client accepts
     if (!req.accepts('html')) {

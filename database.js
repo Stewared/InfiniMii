@@ -101,6 +101,16 @@ const userSchema = new mongoose.Schema({
     hiddenMiiIds: { type: [String], default: [] },
 }, { timestamps: true, minimize: false });
 
+miiSchema.index({ private: 1, published: 1, votes: -1, uploadedOn: -1, _id: -1 });
+miiSchema.index({ private: 1, published: 1, uploadedOn: -1, _id: -1 });
+miiSchema.index({ official: 1, private: 1, published: 1, votes: -1, uploadedOn: -1, _id: -1 });
+miiSchema.index({ uploader: 1, private: 1, published: 1, votes: -1, uploadedOn: -1, _id: -1 });
+miiSchema.index({ uploader: 1, private: 1, published: 1, uploadedOn: -1, _id: -1 });
+miiSchema.index({ officialSource: 1, official: 1, private: 1, published: 1, votes: -1, uploadedOn: -1, _id: -1 });
+miiSchema.index({ tags: 1, private: 1, published: 1, votes: -1, uploadedOn: -1, _id: -1 });
+miiSchema.index({ officialCategories: 1, official: 1, private: 1, published: 1, votes: -1, uploadedOn: -1, _id: -1 });
+miiSchema.index({ miiHash: 1, private: 1, id: 1 });
+
 userSchema.index(
     { "oauthIdentities.provider": 1, "oauthIdentities.providerUserId": 1 },
     { unique: true, sparse: true }
@@ -108,6 +118,8 @@ userSchema.index(
 userSchema.index({ email: 1 }, { sparse: true });
 userSchema.index({ pendingEmail: 1 }, { sparse: true });
 userSchema.index({ "oauthIdentities.email": 1 }, { sparse: true });
+userSchema.index({ votedFor: 1 });
+userSchema.index({ verified: 1, creationDate: 1 });
 
 const settingsSchema = new mongoose.Schema({
     _id: { type: String, required: true },
@@ -118,7 +130,8 @@ const settingsSchema = new mongoose.Schema({
     bannedIPs: { type: [String], default: [] },
     officialCategories: { type: mongoose.Schema.Types.Mixed, default: { categories: [] } },
     officialCompanySources: { type: [String], default: ["Nintendo"] },
-    miiTags: { type: [String], default: [] }
+    miiTags: { type: [String], default: [] },
+    communityOfficialFlagsNormalizedAt: { type: Number, default: null }
 }, { _id: false, minimize: false });
 
 // Reserved usernames schema to prevent impersonating a user right after they change their username
@@ -134,12 +147,19 @@ const rerenderQueueSchema = new mongoose.Schema({
     addedAt: { type: Number, default: () => Date.now() }
 });
 
+const contactIpBlockSchema = new mongoose.Schema({
+    keyHash: { type: String, required: true, unique: true, index: true },
+    blockedUntil: { type: Date, required: true, index: { expires: 0 } },
+    createdAt: { type: Date, default: Date.now }
+});
+
 // --- Models --- //
 const Miis = mongoose.model("Mii", miiSchema);
 const Users = mongoose.model("User", userSchema);
 const Settings = mongoose.model("Settings", settingsSchema);
 const ReservedUsername = mongoose.model("ReservedUsername", reservedUsernameSchema);
 const RerenderQueue = mongoose.model("RerenderQueue", rerenderQueueSchema);
+const ContactIpBlock = mongoose.model("ContactIpBlock", contactIpBlockSchema);
 
 // --- Connection --- //
 function isMemoryMongoAllowed() {
@@ -278,4 +298,5 @@ export {
     Settings,
     ReservedUsername,
     RerenderQueue,
+    ContactIpBlock,
 };

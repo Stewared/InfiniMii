@@ -341,7 +341,8 @@
 
 .inline-edit-icon-button[hidden],
 .inline-edit-controls[hidden],
-[data-inline-edit-display][hidden] {
+[data-inline-edit-display][hidden],
+[data-tomodachi-edit-display][hidden] {
     display: none !important;
 }
 
@@ -575,6 +576,92 @@
 
 .tomodachi-field-value.is-multiline {
     white-space: pre-line;
+}
+
+.tomodachi-field-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.tomodachi-field-label-row .tomodachi-field-label {
+    min-width: 0;
+}
+
+.tomodachi-field-label-row .inline-edit-icon-button {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 8px;
+}
+
+.tomodachi-inline-edit-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    margin-top: 0.55rem;
+}
+
+.tomodachi-inline-label,
+.tomodachi-slider-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    color: var(--text-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.tomodachi-inline-input {
+    width: 100%;
+}
+
+.tomodachi-age-toggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+}
+
+.tomodachi-age-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 36px;
+    padding: 0.35rem 0.55rem;
+    border-radius: 8px;
+    border: 1px solid color-mix(in oklab, var(--layer-3-um) 62%, #858b96 38%);
+    background: color-mix(in oklab, var(--layer-1-um) 86%, #1c2636 14%);
+    color: var(--text-1);
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.tomodachi-age-option input {
+    margin: 0;
+}
+
+.tomodachi-personality-sliders {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.tomodachi-slider-label input[type="range"] {
+    width: 100%;
+    accent-color: var(--brand-color);
+}
+
+.tomodachi-personality-preview {
+    color: var(--text-1);
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.tomodachi-inline-actions {
+    margin-top: 0.1rem;
 }
 
 /* Footer Section */

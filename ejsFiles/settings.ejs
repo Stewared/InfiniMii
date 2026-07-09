@@ -292,12 +292,13 @@
 						<button type="button" class="custom-modal-close" onclick="closeHiddenMiisModal()" aria-label="Close">&times;</button>
 					</div>
 					<div class="custom-modal-body">
+						<div id="hiddenMiisStatus" class="form-message" style="display: none; margin-bottom: 0.75rem;"></div>
 						<div class="hidden-miis-list" id="hiddenMiisList">
 							<% safeHiddenMiis.forEach((hiddenMii) => { %>
 								<div class="hidden-mii-row" data-hidden-mii-id="<%= hiddenMii.id %>">
 									<span class="hidden-mii-id"><%= hiddenMii.id %></span>
 									<span class="hidden-mii-name"><%= hiddenMii.name %></span>
-									<button type="button" class="hidden-mii-unhide" onclick="unhideMiiFromSettings(<%- toScriptJson(hiddenMii.id) %>, this)">Unhide</button>
+									<button type="button" class="hidden-mii-unhide" data-unhide-mii-id="<%= hiddenMii.id %>">Unhide</button>
 								</div>
 							<% }) %>
 						</div>
@@ -320,6 +321,18 @@
 				} else {
 					messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 				}
+			}
+
+			function showHiddenMiisStatus(text, type = 'error') {
+				const status = document.getElementById('hiddenMiisStatus');
+				if (!status) {
+					showMessage(text, type);
+					return;
+				}
+
+				status.textContent = text;
+				status.className = `form-message ${type}`;
+				status.style.display = 'block';
 			}
 
 			async function saveContentPreferences() {
@@ -370,29 +383,48 @@
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ id: miiId })
 					});
-					const result = await response.json();
+					const responseText = await response.text();
+					let result = {};
+					try {
+						result = responseText ? JSON.parse(responseText) : {};
+					} catch (error) {
+						throw new Error(response.ok ? 'Unexpected response while unhiding Mii' : 'Failed to unhide Mii');
+					}
 
-					if (result.error) {
-						showMessage(result.error, 'error');
+					if (!response.ok || result.error) {
+						showHiddenMiisStatus(result.error || 'Failed to unhide Mii', 'error');
 						if (button) button.disabled = false;
 						return;
 					}
 
-					const escapedId = window.CSS && typeof CSS.escape === 'function'
-						? CSS.escape(miiId)
-						: String(miiId).replace(/"/g, '\\"');
-					document.querySelector(`[data-hidden-mii-id="${escapedId}"]`)?.remove();
+					const row = button?.closest?.('[data-hidden-mii-id]')
+						|| Array.from(document.querySelectorAll('[data-hidden-mii-id]'))
+							.find((candidate) => candidate.getAttribute('data-hidden-mii-id') === String(miiId));
+					row?.remove();
 					if (!document.querySelector('[data-hidden-mii-id]')) {
 						document.getElementById('openHiddenMiisButton')?.remove();
 						closeHiddenMiisModal();
 					}
+					showHiddenMiisStatus('Mii unhidden.', 'success');
 					showMessage('Mii unhidden.', 'success');
 				} catch (error) {
 					console.error('Error unhiding Mii:', error);
-					showMessage('Failed to unhide Mii', 'error');
+					showHiddenMiisStatus(error.message || 'Failed to unhide Mii', 'error');
 					if (button) button.disabled = false;
 				}
 			}
+
+			function initializeHiddenMiiButtons() {
+				document.querySelectorAll('[data-unhide-mii-id]').forEach((button) => {
+					if (button.dataset.unhideBound === 'true') return;
+					button.dataset.unhideBound = 'true';
+					button.addEventListener('click', () => {
+						unhideMiiFromSettings(button.dataset.unhideMiiId, button);
+					});
+				});
+			}
+
+			initializeHiddenMiiButtons();
 			
 			async function changePfp() {
 				const pfpId = document.getElementById('pfpId').value;

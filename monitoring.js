@@ -6,11 +6,15 @@ import { inspect } from "node:util";
 const monitoringState = globalThis.__infinimiiMonitoringState ?? {
     consoleErrorInstalled: false,
     invalidWebhookUrlLogged: false,
+    invalidWebhookUrlsLogged: {},
     rawConsoleError: console.error.bind(console),
     rawConsoleWarn: console.warn.bind(console)
 };
 
 globalThis.__infinimiiMonitoringState = monitoringState;
+if (!monitoringState.invalidWebhookUrlsLogged) {
+    monitoringState.invalidWebhookUrlsLogged = {};
+}
 
 const rawConsoleError = monitoringState.rawConsoleError;
 const rawConsoleWarn = monitoringState.rawConsoleWarn;
@@ -24,9 +28,12 @@ function truncate(text, maxLength) {
     return `${stringValue.slice(0, Math.max(0, maxLength - suffix.length))}${suffix}`;
 }
 
-function getWebhookUrl() {
-    const configuredHookUrl = typeof process.env.hookUrl === "string"
-        ? process.env.hookUrl.trim()
+function getWebhookUrl(envName = "hookUrl") {
+    const webhookEnvName = typeof envName === "string" && envName.trim()
+        ? envName.trim()
+        : "hookUrl";
+    const configuredHookUrl = typeof process.env[webhookEnvName] === "string"
+        ? process.env[webhookEnvName].trim()
         : "";
 
     if (!configuredHookUrl) return null;
@@ -34,9 +41,15 @@ function getWebhookUrl() {
     try {
         return new URL(configuredHookUrl);
     } catch (error) {
-        if (!monitoringState.invalidWebhookUrlLogged) {
-            monitoringState.invalidWebhookUrlLogged = true;
-            rawConsoleError("[monitoring] Invalid hookUrl. Webhook notifications are disabled.", error);
+        const hasLoggedInvalidUrl = webhookEnvName === "hookUrl"
+            ? monitoringState.invalidWebhookUrlLogged
+            : monitoringState.invalidWebhookUrlsLogged[webhookEnvName];
+        if (!hasLoggedInvalidUrl) {
+            monitoringState.invalidWebhookUrlsLogged[webhookEnvName] = true;
+            if (webhookEnvName === "hookUrl") {
+                monitoringState.invalidWebhookUrlLogged = true;
+            }
+            rawConsoleError(`[monitoring] Invalid ${webhookEnvName}. Webhook notifications are disabled.`, error);
         }
         return null;
     }
@@ -511,8 +524,8 @@ function appendAttachments(formData, attachments) {
     });
 }
 
-function sendWebhookPayload(payloadJson, attachments = []) {
-    const webhookUrl = getWebhookUrl();
+function sendWebhookPayload(payloadJson, attachments = [], options = {}) {
+    const webhookUrl = getWebhookUrl(options?.webhookEnv);
     if (!webhookUrl) return Promise.resolve(false);
 
     return new Promise((resolve, reject) => {
