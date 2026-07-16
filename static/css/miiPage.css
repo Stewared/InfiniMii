@@ -16,6 +16,42 @@
     transition: margin-bottom 0.14s ease;
 }
 
+.external-mii-source-modal {
+    max-width: 500px;
+}
+
+.external-mii-source-body p {
+    margin: 0 0 1rem;
+    white-space: normal;
+}
+
+.external-mii-always-option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: fit-content;
+    max-width: 100%;
+    cursor: pointer;
+    color: var(--text-1);
+    white-space: normal;
+}
+
+.external-mii-always-option input {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    accent-color: var(--brand-color);
+}
+
+.external-mii-go-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    text-align: center;
+}
+
 /* Card Header */
 .id-card-header {
     background: linear-gradient(90deg, var(--brand-color) 0%, #c93855 100%);
@@ -692,6 +728,14 @@
 
 .uploader-info a:hover {
     text-decoration: underline;
+}
+
+.mii-id-card a.external-source-link {
+    color: #fbbf24;
+}
+
+.mii-id-card a.external-source-link:hover {
+    color: #fde68a;
 }
 
 .uploader-info .date {
@@ -2000,6 +2044,10 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+}
+
+.mod-tool-item.external-source-editor {
+    grid-column: 1 / -1;
 }
 
 .mod-tool-item label {

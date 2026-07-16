@@ -7,7 +7,16 @@
   "scripts": {
     "start": "node index.js",
     "dev": "cross-env NODE_ENV=development node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:native-renderer": "cmake -S native/tomodachi -B native/tomodachi/build -DCMAKE_BUILD_TYPE=Release && cmake --build native/tomodachi/build --config Release --parallel",
+    "test:renderer-colors": "node --test tests/nativeTomodachiRenderer.colors.test.js",
+    "test:external-mii-dates": "node --test tests/miiDateMetadata.test.js",
+    "test:miicharacters-importer": "node --test tests/fillin.test.cjs",
+    "migrate:tl-palette-selectors": "node scripts/backfillTomodachiPaletteSelectors.js",
+    "rerender:all-images": "node scripts/rerenderAllMiiImages.js",
+    "test:native-renderer": "node --test spec/native-tomodachi-renderer.test.mjs",
+    "test:native-c": "ctest --test-dir native/tomodachi/build -C Release --output-on-failure",
+    "test": "node --test \"spec/*.test.mjs\" \"tests/*.test.js\" \"tests/*.test.cjs\"",
+    "test:all": "npm test && npm run test:native-c"
   },
   "keywords": [],
   "author": "",

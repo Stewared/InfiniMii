@@ -308,6 +308,10 @@
         max-width: 100%;
     }
 
+    .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-byline a.external-source-link {
+        color: #fbbf24;
+    }
+
     .official-miis-page #browse-miis.browse-miis-balanced .mii-card .mii-card-meta-row .mii-card-like-button {
         margin-left: auto;
     }

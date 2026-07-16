@@ -30,6 +30,11 @@
 				const safeBlockableCategories = Array.isArray(blockableOfficialCategories) ? blockableOfficialCategories : [];
 				const safeBlockedCategories = Array.isArray(blockedOfficialCategories) ? blockedOfficialCategories : [];
 				const blockedCategorySet = new Set(safeBlockedCategories);
+				const safeExternalMiiPreference = ['ask', 'stay', 'go'].includes(
+					String(typeof externalMiiPreference !== 'undefined' ? externalMiiPreference : user?.externalMiiPreference || '').trim().toLowerCase()
+				)
+					? String(typeof externalMiiPreference !== 'undefined' ? externalMiiPreference : user?.externalMiiPreference).trim().toLowerCase()
+					: 'ask';
 				const categoryGroupMap = new Map();
 				safeBlockableCategories.forEach((category) => {
 					const categoryPath = String(category?.path || category || '').trim();
@@ -196,6 +201,25 @@
 					<legend>Content Preferences</legend>
 
 					<div class="setting-group">
+						<label id="externalMiiPreferenceLabel">External Mii links</label>
+						<small style="color: var(--text-2); display: block; margin-bottom: 10px;">Choose what InfiniMii should do when you visit a Mii that comes from another website.</small>
+						<div class="preference-selector-list" role="radiogroup" aria-labelledby="externalMiiPreferenceLabel">
+							<label class="preference-selector-option">
+								<input type="radio" name="externalMiiPreference" value="ask" <%= safeExternalMiiPreference === 'ask' ? 'checked' : '' %>>
+								<span>Ask every time</span>
+							</label>
+							<label class="preference-selector-option">
+								<input type="radio" name="externalMiiPreference" value="stay" <%= safeExternalMiiPreference === 'stay' ? 'checked' : '' %>>
+								<span>Stay on InfiniMii</span>
+							</label>
+							<label class="preference-selector-option">
+								<input type="radio" name="externalMiiPreference" value="go" <%= safeExternalMiiPreference === 'go' ? 'checked' : '' %>>
+								<span>Go to the original site</span>
+							</label>
+						</div>
+					</div>
+
+					<div class="setting-group">
 						<label>Hidden Tags</label>
 						<div class="preference-selector-list">
 							<% if (safeBlockableTags.length > 0) { %>
@@ -338,17 +362,18 @@
 			async function saveContentPreferences() {
 				const blockedTags = Array.from(document.querySelectorAll('[data-blocked-tag]:checked')).map(input => input.value);
 				const blockedOfficialCategories = Array.from(document.querySelectorAll('[data-blocked-category]:checked')).map(input => input.value);
+				const externalMiiPreference = document.querySelector('input[name="externalMiiPreference"]:checked')?.value || 'ask';
 
 				try {
 					const response = await fetch('/updateContentPreferences', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ blockedTags, blockedOfficialCategories })
+						body: JSON.stringify({ blockedTags, blockedOfficialCategories, externalMiiPreference })
 					});
 					const result = await response.json();
 
-					if (result.error) {
-						showMessage(result.error, 'error');
+					if (!response.ok || result.error) {
+						showMessage(result.error || 'Failed to save content preferences.', 'error');
 						return;
 					}
 

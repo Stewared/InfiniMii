@@ -33,6 +33,24 @@ if [[ -z "${NODE_BIN}" ]]; then
     exit 1
 fi
 
+if ! command -v cmake >/dev/null 2>&1; then
+    echo "cmake is required to build the bundled native Mii renderer." >&2
+    exit 1
+fi
+
+cmake \
+    -S "${APP_DIR}/native/tomodachi" \
+    -B "${APP_DIR}/native/tomodachi/build" \
+    -DCMAKE_BUILD_TYPE=Release
+cmake --build "${APP_DIR}/native/tomodachi/build" --config Release --parallel
+
+for renderer in render_body_model render_headwear_model; do
+    if [[ ! -x "${APP_DIR}/native/tomodachi/build/${renderer}" ]]; then
+        echo "Native renderer build did not produce ${renderer}." >&2
+        exit 1
+    fi
+done
+
 install -d -m 0755 /etc/default
 
 if [[ ! -f "${ENV_PATH}" ]]; then

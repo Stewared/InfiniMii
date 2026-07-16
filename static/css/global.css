@@ -678,6 +678,10 @@ footer ul li a:hover {
     white-space: nowrap;
 }
 
+.mii-card-byline a.external-source-link {
+    color: #fbbf24;
+}
+
 .mii-card-byline a:hover {
     text-decoration: underline;
 }

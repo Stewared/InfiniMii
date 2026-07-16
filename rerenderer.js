@@ -3,93 +3,30 @@
 // We manually run DB queries to find miis that need to be rerendered, then add their IDs into the rerender database collection.
 
 import "./setEnvs.js";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 import fs from "fs";
-import path from "path";
 import miijs from "miijs";
+import { renderStoredMiiImage, writeMiiImageBuffer } from "./miiImageRenderer.js";
+import { getMiiAssetPaths } from "./miiAssets.js";
+import {
+    ENABLE_MIITOPIA_QRS,
+    buildMiitopiaQrMii,
+    canReuseMiiInstanceForExport,
+    canGenerateMiitopiaQr,
+    hasDecodedTomodachiLifeData,
+    makeRenderedQrFromPayload,
+    normalizeMiiFieldsForExport,
+    normalizeQrConsole
+} from "./miiQrUtils.js";
 import { connectionPromise, Miis, RerenderQueue } from "./database.js";
 import { sendWebhookPayload } from "./monitoring.js";
 
 
 const rerenderInterval = 5000;
 const idleRerenderInterval = 60000;
-// MT QR rerendering is temporarily disabled on the InfiniMii site.
-const ENABLE_MIITOPIA_QRS = false;
-
-// TODO (cleanup) unify utils in a single file for ease of recreation in the future?
-function normalizeQrConsole(input) {
-    const cleaned = String(input || "").trim().toUpperCase().replace(/[\s_-]+/g, "");
-    if (["TOMODACHI", "TOMODACHILIFE", "TL", "TLE"].includes(cleaned)) return "TOMODACHI";
-    // if (["MIITOPIA", "MT", "MTE"].includes(cleaned)) return "MIITOPIA";
-    if (ENABLE_MIITOPIA_QRS && ["MIITOPIA", "MT", "MTE"].includes(cleaned)) return "MIITOPIA";
-    if (cleaned === "WIIU") return "WIIU";
-    return "3DS";
-}
-
-function hasDecodedTomodachiLifeData(mii) {
-    const tlData = mii?.tl;
-    if (tlData === null || tlData === undefined) return false;
-    if (typeof tlData !== "object") return true;
-    return Object.keys(tlData).length > 0;
-}
-
-function getTrimmedMiiString(value) {
-    return typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
-}
-
-function canGenerateMiitopiaQr(mii) {
-    return ENABLE_MIITOPIA_QRS && Boolean(getTrimmedMiiString(mii?.mt?.warCry) || getTrimmedMiiString(mii?.tl?.catchphrase));
-}
-
-function buildMiitopiaQrMii(mii) {
-    const warCry = getTrimmedMiiString(mii?.mt?.warCry);
-    const catchphrase = getTrimmedMiiString(mii?.tl?.catchphrase);
-    if (!warCry && !catchphrase) return mii;
-
-    const nextMii = structuredClone(mii);
-    if (!getTrimmedMiiString(nextMii?.mt?.warCry)) {
-        nextMii.mt = nextMii.mt && typeof nextMii.mt === "object" && !Array.isArray(nextMii.mt)
-            ? nextMii.mt
-            : {};
-        nextMii.mt.warCry = catchphrase;
-    }
-    return nextMii;
-}
-
-function normalizeMiiFieldsForExport(fields) {
-    if (!fields || typeof fields !== "object") return fields;
-    const normalized = { ...fields };
-    normalized.meta = fields.meta && typeof fields.meta === "object" ? { ...fields.meta } : {};
-    normalized.perms = fields.perms && typeof fields.perms === "object" ? { ...fields.perms } : {};
-    if (!normalized.meta.type) normalized.meta.type = "Default";
-    return normalized;
-}
-
-async function makeRenderedQrFromPayload(qrPayload, miiFields, qrOptions = {}) {
-    const nextQrOptions = { ...(qrOptions || {}) };
-
-    if (!nextQrOptions.image && !nextQrOptions.noRenderMii) {
-        try {
-            const overlayPng = await miijs.renderMii(miiFields, nextQrOptions);
-            nextQrOptions.image = Buffer.isBuffer(overlayPng) ? overlayPng : Buffer.from(overlayPng);
-        } catch (e) {
-            console.warn(`Unable to render Mii overlay for QR: ${e?.message || e}`);
-        }
-    }
-
-    if (!nextQrOptions.label && miiFields?.meta?.name) {
-        nextQrOptions.label = miiFields.meta.name;
-    }
-
-    return miijs.makeQR(qrPayload, nextQrOptions);
-}
-
 async function renderQrBuffer(miiData, qrConsole) {
     const sourceInstance = await miijs.Mii.create(miiData);
     const exportFields = normalizeMiiFieldsForExport(sourceInstance.fields);
+    const canReuseSourceInstance = canReuseMiiInstanceForExport(sourceInstance.fields);
     const normalizedConsole = normalizeQrConsole(qrConsole);
     let qrFields = exportFields;
     let qrFormat = normalizedConsole === "WIIU" ? "ffed" : "cfed";
@@ -102,24 +39,11 @@ async function renderQrBuffer(miiData, qrConsole) {
         qrFormat = "mte";
     }
 
-    const miiInstance = await miijs.Mii.create(qrFields);
+    const miiInstance = canReuseSourceInstance && qrFields === exportFields
+        ? sourceInstance
+        : await miijs.Mii.create(qrFields);
     const qrPayload = await miiInstance.encode(qrFormat);
     return makeRenderedQrFromPayload(qrPayload, miiInstance.fields);
-}
-
-function getMiiAssetPaths(miiId, isPrivate) {
-    const imgDir = isPrivate ? "privateMiiImgs" : "miiImgs";
-    const qr3dsDir = isPrivate ? "privateMiiQRs" : "miiQRs";
-    const qrWiiDir = isPrivate ? "privateMiiQRsWii" : "miiQRsWii";
-    const qrTomodachiDir = isPrivate ? "privateMiiQRsTomodachi" : "miiQRsTomodachi";
-    const qrMiitopiaDir = isPrivate ? "privateMiiQRsMiitopia" : "miiQRsMiitopia";
-    return {
-        imgPath: path.join(__dirname, "static", imgDir, `${miiId}.png`),
-        qrPath: path.join(__dirname, "static", qr3dsDir, `${miiId}.png`),
-        qrWiiPath: path.join(__dirname, "static", qrWiiDir, `${miiId}.png`),
-        qrTomodachiPath: path.join(__dirname, "static", qrTomodachiDir, `${miiId}.png`),
-        qrMiitopiaPath: path.join(__dirname, "static", qrMiitopiaDir, `${miiId}.png`),
-    };
 }
 
 async function isCached(filePath) {
@@ -146,7 +70,7 @@ async function rerenderNext() {
         isCached(qrPath),
         isCached(qrWiiPath),
         isCached(qrTomodachiPath),
-        isCached(qrMiitopiaPath),
+        ENABLE_MIITOPIA_QRS ? isCached(qrMiitopiaPath) : false,
     ]);
     // MT QR cache files are ignored while site support is paused.
     const hasQrMiitopia = ENABLE_MIITOPIA_QRS && cachedQrMiitopia;
@@ -159,7 +83,7 @@ async function rerenderNext() {
     const miiData = miiDoc.toObject();
 
     const [imgBuffer, qrBuffer, qrWiiBuffer, qrTomodachiBuffer, qrMiitopiaBuffer] = await Promise.all([
-        hasImg ? miijs.renderMii(miiData) : null,
+        hasImg ? renderStoredMiiImage(miiData) : null,
         hasQr ? renderQrBuffer(miiData, "3DS") : null,
         hasQrWii ? renderQrBuffer(miiData, "WIIU") : null,
         hasQrTomodachi ? renderQrBuffer(miiData, "TOMODACHI") : null,
@@ -167,7 +91,7 @@ async function rerenderNext() {
     ]);
 
     await Promise.all([
-        hasImg ? fs.promises.writeFile(imgPath, imgBuffer) : null,
+        hasImg ? writeMiiImageBuffer(imgBuffer, imgPath) : null,
         hasQr ? fs.promises.writeFile(qrPath, qrBuffer) : null,
         hasQrWii ? fs.promises.writeFile(qrWiiPath, qrWiiBuffer) : null,
         hasQrTomodachi && qrTomodachiBuffer ? fs.promises.writeFile(qrTomodachiPath, qrTomodachiBuffer) : null,

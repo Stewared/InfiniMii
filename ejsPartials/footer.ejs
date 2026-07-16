@@ -1,8 +1,16 @@
 <%
+const footerHasMii = typeof mii !== 'undefined' && mii;
+const footerMiiDateMetadata = footerHasMii && typeof getMiiDateMetadata === 'function'
+    ? getMiiDateMetadata(mii, typeof pageUpdatedAt !== 'undefined' ? pageUpdatedAt : undefined)
+    : null;
 const resolvedUpdatedAt = (() => {
+    if (footerMiiDateMetadata) {
+        const miiTimestamp = footerMiiDateMetadata.modifiedIso || footerMiiDateMetadata.publishedIso;
+        return miiTimestamp ? new Date(miiTimestamp) : null;
+    }
     if (typeof pageUpdatedAt !== 'undefined' && pageUpdatedAt) return new Date(pageUpdatedAt);
     if (typeof modifiedTime !== 'undefined' && modifiedTime) return new Date(modifiedTime);
-    if (typeof mii !== 'undefined' && mii?.uploadedOn) return new Date(mii.uploadedOn);
+    if (footerHasMii && mii?.uploadedOn) return new Date(mii.uploadedOn);
     return null;
 })();
 const hasResolvedUpdatedAt = resolvedUpdatedAt instanceof Date && !Number.isNaN(resolvedUpdatedAt.getTime());

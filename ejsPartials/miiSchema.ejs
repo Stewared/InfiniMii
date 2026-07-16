@@ -11,15 +11,26 @@ if (typeof mii !== 'undefined' && !(String(pageRobotsValue).toLowerCase().includ
 const officialSourceName = mii.official
   ? (seo.officialSourceName || mii.officialSource || mii.uploader || "Nintendo")
   : "";
+const structuredExternalSource = typeof getExternalMiiSource === "function"
+  ? getExternalMiiSource(mii)
+  : null;
 const miiName = seo.name || mii?.meta?.name || "Unknown Mii";
-const publishedIso = mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined;
-const modifiedIso = resolvedPageUpdatedAt || publishedIso;
+const structuredDateMetadata = typeof getMiiDateMetadata === "function"
+  ? getMiiDateMetadata(mii, resolvedPageUpdatedAt)
+  : {
+      publishedIso: structuredExternalSource ? undefined : (mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined),
+      modifiedIso: structuredExternalSource
+        ? undefined
+        : (resolvedPageUpdatedAt || (mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined))
+    };
+const publishedIso = structuredDateMetadata.publishedIso;
+const modifiedIso = structuredDateMetadata.modifiedIso;
 const miiUrl = `${resolvedBaseUrl}/mii/${mii.id}`;
 const miiImageUrl = `${resolvedBaseUrl}/miiImgs/${mii.id}.png`;
 const miiQrUrl = `${resolvedBaseUrl}/miiQRs/${mii.id}.png`;
 const miiImageWidth = 512;
 const miiImageHeight = 512;
-const miiDescription = seo.metaDescription || mii.desc || `${miiName} Mii character${mii.official ? ` from ${officialSourceName}` : ''} for Nintendo systems.`;
+const miiDescription = seo.metaDescription || mii.desc || `${miiName} Mii character${structuredExternalSource ? ` from ${structuredExternalSource.title}` : (mii.official ? ` from ${officialSourceName}` : '')} for Nintendo systems.`;
 const creatorName = seo.creatorName || "";
 const baseKeywordList = Array.isArray(seo.keywordList) && seo.keywordList.length > 0
   ? seo.keywordList
@@ -56,13 +67,17 @@ const additionalProperties = [
   seo.consoleLabel ? { "@type": "PropertyValue", "name": "Original console", "value": seo.consoleLabel } : null,
   seo.genderLabel ? { "@type": "PropertyValue", "name": "Gender", "value": seo.genderLabel } : null,
   seo.favoriteColorName ? { "@type": "PropertyValue", "name": "Favorite color", "value": seo.favoriteColorName } : null,
-  seo.birthdayLabel ? { "@type": "PropertyValue", "name": "Birthday", "value": seo.birthdayLabel } : null
+  seo.birthdayLabel ? { "@type": "PropertyValue", "name": "Birthday", "value": seo.birthdayLabel } : null,
+  structuredExternalSource ? { "@type": "PropertyValue", "name": "External source", "value": structuredExternalSource.title, "url": structuredExternalSource.url } : null
 ].filter(Boolean);
 const archiveOwnerEntity = {
-  "@type": mii.official ? "Organization" : "Person",
-  "name": mii.official ? officialSourceName : (mii.uploader || "InfiniMii User"),
-  "url": `${resolvedBaseUrl}/user/${encodeURIComponent(mii.uploader || "")}`
+  "@type": (structuredExternalSource || mii.official) ? "Organization" : "Person",
+  "name": structuredExternalSource?.title || (mii.official ? officialSourceName : (mii.uploader || "InfiniMii User")),
+  "url": structuredExternalSource?.url || `${resolvedBaseUrl}/user/${encodeURIComponent(mii.uploader || "")}`
 };
+const externalUploaderEntity = structuredExternalSource?.user
+  ? { "@type": "Person", "name": structuredExternalSource.user, "url": structuredExternalSource.userUrl }
+  : null;
 const characterSchema = {
   "@context": "https://schema.org",
   "@type": "Character",
@@ -76,9 +91,10 @@ const characterSchema = {
   "creator": creatorName
     ? { "@type": "Person", "name": creatorName }
     : archiveOwnerEntity,
-  "contributor": mii.contributor
+  "contributor": externalUploaderEntity || (mii.contributor
     ? { "@type": "Person", "name": mii.contributor, "url": `${resolvedBaseUrl}/user/${encodeURIComponent(mii.contributor)}` }
-    : archiveOwnerEntity,
+    : archiveOwnerEntity),
+  "isPartOf": structuredExternalSource ? archiveOwnerEntity : undefined,
   "keywords": keywordList,
   "genre": Array.isArray(seo.tagList) && seo.tagList.length > 0 ? seo.tagList : undefined,
   "about": relatedTopicThings.length > 0 ? relatedTopicThings : undefined,

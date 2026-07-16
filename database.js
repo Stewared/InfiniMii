@@ -23,6 +23,10 @@ const miiSchema = new mongoose.Schema({
     votes: { type: Number, default: 1 },
     official: { type: Boolean, default: false, index: true },
     officialSource: { type: String, index: true },
+    extURL: { type: String, default: "", trim: true, maxlength: 2048 },
+    extTitle: { type: String, default: "", trim: true, maxlength: 160 },
+    extUser: { type: String, default: "", trim: true, maxlength: 160 },
+    extUserURL: { type: String, default: "", trim: true, maxlength: 2048 },
     uploadedOn: { type: Number, default: () => Date.now(), index: true },
     console: { type: String, default: "3DS" },
     general: {
@@ -99,6 +103,11 @@ const userSchema = new mongoose.Schema({
     blockedTags: { type: [String], default: [] },
     blockedOfficialCategories: { type: [String], default: [] },
     hiddenMiiIds: { type: [String], default: [] },
+    externalMiiPreference: {
+        type: String,
+        enum: ["ask", "stay", "go"],
+        default: "ask"
+    },
 }, { timestamps: true, minimize: false });
 
 miiSchema.index({ private: 1, published: 1, votes: -1, uploadedOn: -1, _id: -1 });
@@ -119,6 +128,7 @@ userSchema.index({ email: 1 }, { sparse: true });
 userSchema.index({ pendingEmail: 1 }, { sparse: true });
 userSchema.index({ "oauthIdentities.email": 1 }, { sparse: true });
 userSchema.index({ votedFor: 1 });
+userSchema.index({ roles: 1, username: 1 });
 userSchema.index({ verified: 1, creationDate: 1 });
 
 const settingsSchema = new mongoose.Schema({
@@ -146,6 +156,7 @@ const rerenderQueueSchema = new mongoose.Schema({
     miiId: { type: String, required: true, unique: true, index: true },
     addedAt: { type: Number, default: () => Date.now() }
 });
+rerenderQueueSchema.index({ addedAt: 1 });
 
 const contactIpBlockSchema = new mongoose.Schema({
     keyHash: { type: String, required: true, unique: true, index: true },
@@ -199,7 +210,7 @@ async function resolveMongoUri() {
 
 function getMongoConnectOptions(mongoUri) {
     const options = {
-        autoIndex: true
+        autoIndex: process.env.MONGODB_AUTO_INDEX !== "false"
     };
 
     if (isMemoryMongoAllowed() && isLocalDevMongoUri(mongoUri)) {
@@ -255,7 +266,7 @@ const connectionPromise = (async () => {
 
         const fallbackUri = await startMemoryMongo("[mongo] Local MongoDB is unavailable. Using an in-memory MongoDB instance for local development.");
         return mongoose.connect(fallbackUri, {
-            autoIndex: true
+            autoIndex: process.env.MONGODB_AUTO_INDEX !== "false"
         });
     }
 })();

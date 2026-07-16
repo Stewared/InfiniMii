@@ -123,7 +123,11 @@ if (cardMii && cardMii.id) {
                     <p class="mii-card-byline">
                         <span><%= attribution.prefix %></span>
                         <% if (attribution.url) { %>
-                            <a href="<%= attribution.url %>"><%= attribution.label %></a>
+                            <a
+                                class="<%= attribution.isExternal ? 'external-source-link' : '' %>"
+                                href="<%= attribution.url %>"
+                                <% if (attribution.opensInNewTab) { %>target="_blank" rel="noopener noreferrer external"<% } %>
+                            ><%= attribution.label %></a>
                         <% } else { %>
                             <span><%= attribution.label %></span>
                         <% } %>

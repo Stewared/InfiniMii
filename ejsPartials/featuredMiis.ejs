@@ -36,7 +36,11 @@
                 <p class="mii-card-byline">
                     <span><%= highlightedAttribution.prefix %></span>
                     <% if (highlightedAttribution.url) { %>
-                        <a href="<%= highlightedAttribution.url %>"><%= highlightedAttribution.label %></a>
+                        <a
+                            class="<%= highlightedAttribution.isExternal ? 'external-source-link' : '' %>"
+                            href="<%= highlightedAttribution.url %>"
+                            <% if (highlightedAttribution.opensInNewTab) { %>target="_blank" rel="noopener noreferrer external"<% } %>
+                        ><%= highlightedAttribution.label %></a>
                     <% } else { %>
                         <span><%= highlightedAttribution.label %></span>
                     <% } %>

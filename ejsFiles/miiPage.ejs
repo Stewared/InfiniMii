@@ -5,6 +5,10 @@
         const rawMiiName = (mii?.meta?.name ?? mii?.name ?? '').toString().trim();
         const miiName = rawMiiName || 'Unknown Mii';
         const seo = miiSeo || {};
+        const externalSource = (typeof externalMiiSource !== 'undefined' && externalMiiSource)
+            ? externalMiiSource
+            : getExternalMiiSource(mii);
+        const isExternalMii = Boolean(externalSource?.url && externalSource?.title);
         const officialSourceLabel = mii.official ? (seo.officialSourceName || officialSourceName || mii.officialSource || mii.uploader || 'Nintendo') : '';
         const categoryDetails = Array.isArray(seo.categoryDetails) ? seo.categoryDetails : [];
         const tagList = Array.isArray(seo.tagList) ? seo.tagList : [];
@@ -33,8 +37,9 @@
         const archiveTypeLabel = seo.archiveTypeLabel || (mii.official ? 'Official Mii' : (isPrivate ? 'Private Mii' : 'Community Mii'));
         const typeLabel = seo.typeLabel || 'Standard Mii';
         const keywordList = Array.isArray(seo.keywordList) ? seo.keywordList : [];
-        const pageTitle = `${miiName} Mii QR Code & Download${mii.official ? ` | ${officialSourceLabel}` : ''} - InfiniMii`;
-        const pageDesc = seo.metaDescription || mii.desc || `Download ${miiName} Mii character${mii.official ? ` from ${officialSourceLabel}` : ''} for Wii, 3DS, Wii U, and Switch. Get QR code access and convert to supported formats.`;
+        const pageSourceLabel = isExternalMii ? externalSource.title : (mii.official ? officialSourceLabel : '');
+        const pageTitle = `${miiName} Mii QR Code & Download${pageSourceLabel ? ` | ${pageSourceLabel}` : ''} - InfiniMii`;
+        const pageDesc = seo.metaDescription || mii.desc || `Download ${miiName} Mii character${pageSourceLabel ? ` from ${pageSourceLabel}` : ''} for Wii, 3DS, Wii U, and Switch. Get QR code access and convert to supported formats.`;
         const canonicalUrl = `${baseUrl}/mii/${mii.id}`;
         const imgPath = isPrivate ? 'privateMiiImgs' : 'miiImgs';
         const qr3dsPath = isPrivate ? 'privateMiiQRs' : 'miiQRs';
@@ -70,8 +75,10 @@
         const keywords = keywordList.length > 0
             ? keywordList.join(', ')
             : `${miiName}, ${mii.official ? 'official ' : ''}mii character, download mii, mii qr code`;
-        const publishedTime = mii?.uploadedOn ? new Date(mii.uploadedOn).toISOString() : undefined;
-        const modifiedTime = pageUpdatedAt || publishedTime;
+        const miiDateMetadata = getMiiDateMetadata(mii, pageUpdatedAt);
+        const publishedTime = miiDateMetadata.publishedIso;
+        const modifiedTime = miiDateMetadata.modifiedIso;
+        const displayedUploadedDate = publishedTime ? new Date(publishedTime) : null;
         const pageRobots = isPrivate ? 'noindex, nofollow, noarchive' : undefined;
         const schemaType = 'ItemPage';
         const canChangeMiiId = Boolean(isModerator && mii.id !== 'average');
@@ -84,6 +91,7 @@
         const canEditTomodachiLifeFields = Boolean(isModerator || isMiiUploader);
         const canEditMiiTags = Boolean(isModerator || isMiiUploader || (isResearchManagedEntry && isResearcher));
         const canEditMiiCategories = Boolean(isResearchManagedEntry && (isModerator || isResearcher || isMiiUploader));
+        const canEditExternalMiiSource = Boolean(isModerator || (isResearchManagedEntry && isResearcher));
         const canHideMiiFromAccount = Boolean(user?.username && !isPrivate);
         const shouldShowCreatorName = creatorName.length > 0 || canInlineEditMiiMetadata;
         const tomodachiRaw = (mii?.tl && typeof mii.tl === 'object') ? mii.tl : {};
@@ -99,9 +107,11 @@
         const archiveOwnerStatsLabel = archiveOwnerStats?.totalMiis
             ? `${archiveOwnerLabel} has ${archiveOwnerStats.totalMiis} public Mii${archiveOwnerStats.totalMiis === 1 ? '' : 's'} on InfiniMii${archiveOwnerStats.totalLikes ? ` with ${archiveOwnerStats.totalLikes} total likes` : ''}.`
             : '';
-        const archiveIntro = mii.official
-            ? `${miiName} is preserved on InfiniMii as an official ${officialSourceLabel} Mii${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`
-            : `${miiName} is a community Mii uploaded by ${mii.uploader}${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`;
+        const archiveIntro = isExternalMii
+            ? `${miiName} is preserved on InfiniMii from ${externalSource.title}${externalSource.user ? `, where it was uploaded by ${externalSource.user}` : ''}${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`
+            : (mii.official
+                ? `${miiName} is preserved on InfiniMii as an official ${officialSourceLabel} Mii${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`
+                : `${miiName} is a community Mii uploaded by ${mii.uploader}${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`);
         const archiveSearchIntro = searchTopics.length > 0
             ? `People often search for this entry using phrases like ${searchTopics.slice(0, 8).join(', ')}.`
             : '';
@@ -118,9 +128,11 @@
             },
             {
                 question: `Who made ${miiName}?`,
-                answer: mii.official
-                    ? `${miiName} is archived here as an official ${officialSourceLabel} Mii${creatorName ? ` with creator name ${creatorName}` : ''}${mii.contributor ? `, contributed to InfiniMii by ${mii.contributor}` : ''}.`
-                    : `${miiName} was uploaded to InfiniMii by ${mii.uploader}${creatorName ? ` and carries the creator name ${creatorName}` : ''}.`
+                answer: isExternalMii
+                    ? `${miiName} is archived on InfiniMii from ${externalSource.title}${externalSource.user ? ` and is attributed there to ${externalSource.user}` : ''}${creatorName ? ` with creator name ${creatorName}` : ''}.`
+                    : (mii.official
+                        ? `${miiName} is archived here as an official ${officialSourceLabel} Mii${creatorName ? ` with creator name ${creatorName}` : ''}${mii.contributor ? `, contributed to InfiniMii by ${mii.contributor}` : ''}.`
+                        : `${miiName} was uploaded to InfiniMii by ${mii.uploader}${creatorName ? ` and carries the creator name ${creatorName}` : ''}.`)
             },
             {
                 question: `Where can I use ${miiName}?`,
@@ -143,9 +155,9 @@
             : [];
         %>
         
-        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogImageAlt, ogImageWidth, ogImageHeight, ogImageType, ogType, keywords, publishedTime, modifiedTime, pageRobots }) %>
-        <%- include('structuredData', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogImageAlt, ogImageWidth, ogImageHeight, ogImageType, ogType, keywords, publishedTime, modifiedTime, pageRobots, schemaType, breadcrumbs, schemaGraphs }) %>
-        <%- include('miiSchema', { mii, miiSeo: seo, pageRobots, pageUpdatedAt }) %>
+        <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogImageAlt, ogImageWidth, ogImageHeight, ogImageType, ogType, keywords, publishedTime, modifiedTime, pageUpdatedAt: modifiedTime, pageRobots }) %>
+        <%- include('structuredData', { title: pageTitle, description: pageDesc, canonicalUrl, ogImage, ogImageAlt, ogImageWidth, ogImageHeight, ogImageType, ogType, keywords, publishedTime, modifiedTime, pageUpdatedAt: modifiedTime, pageRobots, schemaType, breadcrumbs, schemaGraphs }) %>
+        <%- include('miiSchema', { mii, miiSeo: seo, pageRobots, pageUpdatedAt: modifiedTime }) %>
         
         <link rel="stylesheet" href="/global.css">
         <link rel="stylesheet" href="/miiPage.css">
@@ -329,7 +341,12 @@
                             </div>
                             <% } %>
 
-                            <% if(mii.official && officialSourceLabel) { %>
+                            <% if(isExternalMii) { %>
+                            <div class="info-item">
+                                <span class="info-label">From</span>
+                                <a class="info-value external-source-link" href="<%= externalSource.url %>" target="_blank" rel="noopener noreferrer external"><%= externalSource.title %></a>
+                            </div>
+                            <% } else if(mii.official && officialSourceLabel) { %>
                             <div class="info-item">
                                 <span class="info-label">Official Source</span>
                                 <span class="info-value"><%= officialSourceLabel %></span>
@@ -1251,7 +1268,22 @@
                 <!-- Uploader Information -->
                 <div class="id-card-footer">
                     <div class="uploader-info">
-                        <% if(mii.official){ %>
+                        <% if(isExternalMii){ %>
+                            <% if(mii.official){ %>
+                                <span class="official-badge"><%- include('icon', { name: 'star-filled', size: 14, class: 'icon-gold' }) %> Official Mii</span>
+                            <% } %>
+                            <span class="label">From</span>
+                            <a class="external-source-link" href="<%= externalSource.url %>" target="_blank" rel="noopener noreferrer external">
+                                <span><%= externalSource.title %></span>
+                            </a>
+                            <% if(externalSource.user && externalSource.userUrl) { %>
+                                <small class="uploader-subtext">Uploaded by <a href="<%= externalSource.userUrl %>" target="_blank" rel="noopener noreferrer external"><%= externalSource.user %></a></small>
+                            <% } else if(mii.official && mii.contributor) { %>
+                                <small class="uploader-subtext">Uploaded by <a href="/user/<%= encodeURIComponent(mii.contributor) %>"><%= mii.contributor %></a></small>
+                            <% } else if(mii.uploader) { %>
+                                <small class="uploader-subtext">Uploaded by <a href="/user/<%= encodeURIComponent(mii.uploader) %>"><%= mii.uploader %></a></small>
+                            <% } %>
+                        <% } else if(mii.official){ %>
                             <span class="official-badge"><%- include('icon', { name: 'star-filled', size: 14, class: 'icon-gold' }) %> Official Mii</span>
                             <span class="label">Source</span>
                             <a class="uploader-with-pfp" href="/user/<%= encodeURIComponent(mii.uploader) %>">
@@ -1288,7 +1320,9 @@
                                 <span><%= mii.uploader %></span>
                             </a>
                         <% } %>
-                        <time class="date" datetime="<%= new Date(mii.uploadedOn).toISOString() %>" itemprop="datePublished">on <%= new Date(mii.uploadedOn).toLocaleDateString() %></time>
+                        <% if(displayedUploadedDate) { %>
+                            <time class="date" datetime="<%= publishedTime %>" itemprop="datePublished">on <%= displayedUploadedDate.toLocaleDateString() %></time>
+                        <% } %>
                     </div>
                 </div>
 
@@ -1325,10 +1359,22 @@
                                     <dd><%= creatorName %></dd>
                                 </div>
                             <% } %>
-                            <% if(mii.official && officialSourceLabel) { %>
+                            <% if(!isExternalMii && mii.official && officialSourceLabel) { %>
                                 <div class="mii-fact">
                                     <dt>Official Source</dt>
                                     <dd><%= officialSourceLabel %></dd>
+                                </div>
+                            <% } %>
+                            <% if(isExternalMii) { %>
+                                <div class="mii-fact">
+                                    <dt>From</dt>
+                                    <dd><a class="external-source-link" href="<%= externalSource.url %>" target="_blank" rel="noopener noreferrer external"><%= externalSource.title %></a></dd>
+                                </div>
+                            <% } %>
+                            <% if(isExternalMii && externalSource.user) { %>
+                                <div class="mii-fact">
+                                    <dt>External Uploader</dt>
+                                    <dd><a href="<%= externalSource.userUrl %>" target="_blank" rel="noopener noreferrer external"><%= externalSource.user %></a></dd>
                                 </div>
                             <% } %>
                             <% if(mii.uploader) { %>
@@ -1435,7 +1481,11 @@
                                                     <p class="mii-card-byline">
                                                         <span><%= relatedMiiAttribution.prefix %></span>
                                                         <% if (relatedMiiAttribution.url) { %>
-                                                            <a href="<%= relatedMiiAttribution.url %>"><%= relatedMiiAttribution.label %></a>
+                                                            <a
+                                                                class="<%= relatedMiiAttribution.isExternal ? 'external-source-link' : '' %>"
+                                                                href="<%= relatedMiiAttribution.url %>"
+                                                                <% if (relatedMiiAttribution.opensInNewTab) { %>target="_blank" rel="noopener noreferrer external"<% } %>
+                                                            ><%= relatedMiiAttribution.label %></a>
                                                         <% } else { %>
                                                             <span><%= relatedMiiAttribution.label %></span>
                                                         <% } %>
@@ -1478,6 +1528,22 @@
                                         </label>
                                     </div>
                                 </div>
+
+                                <% if(canEditExternalMiiSource) { %>
+                                <div class="mod-tool-item external-source-editor">
+                                    <label>External Source:</label>
+                                    <p class="mod-tag-hint">A URL and title mark this Mii as external. The external uploader fields are optional, but must be provided together. Clear all four fields to remove external attribution.</p>
+                                    <label for="externalSourceTitle">Source title</label>
+                                    <input type="text" id="externalSourceTitle" value="<%= mii.extTitle || '' %>" maxlength="160" placeholder="Source title" autocomplete="off">
+                                    <label for="externalSourceUrl">Source URL</label>
+                                    <input type="url" id="externalSourceUrl" value="<%= mii.extURL || '' %>" maxlength="2048" placeholder="https://example.com/mii/..." autocomplete="url">
+                                    <label for="externalSourceUser">External uploader</label>
+                                    <input type="text" id="externalSourceUser" value="<%= mii.extUser || '' %>" maxlength="160" placeholder="Uploader name (optional)" autocomplete="off">
+                                    <label for="externalSourceUserUrl">External uploader URL</label>
+                                    <input type="url" id="externalSourceUserUrl" value="<%= mii.extUserURL || '' %>" maxlength="2048" placeholder="https://example.com/user/..." autocomplete="url">
+                                    <button type="button" id="saveExternalSourceButton" onclick="saveExternalMiiSource()"><%- include('icon', { name: 'check', size: 16 }) %> Save External Source</button>
+                                </div>
+                                <% } %>
 
                                 <% if (canSetMiiIdDirectly) { %>
                                 <div class="mod-tool-item">
@@ -1584,6 +1650,22 @@
                                     <input type="text" id="researcherEditCreatorName" value="<%= mii.meta.creatorName || '' %>" placeholder="Creator Name" maxlength="10">
                                 </div>
 
+                                <% if(canEditExternalMiiSource) { %>
+                                <div class="mod-tool-item external-source-editor">
+                                    <label>External Source:</label>
+                                    <p class="mod-tag-hint">A URL and title mark this Mii as external. The external uploader fields are optional, but must be provided together. Clear all four fields to remove external attribution.</p>
+                                    <label for="externalSourceTitle">Source title</label>
+                                    <input type="text" id="externalSourceTitle" value="<%= mii.extTitle || '' %>" maxlength="160" placeholder="Source title" autocomplete="off">
+                                    <label for="externalSourceUrl">Source URL</label>
+                                    <input type="url" id="externalSourceUrl" value="<%= mii.extURL || '' %>" maxlength="2048" placeholder="https://example.com/mii/..." autocomplete="url">
+                                    <label for="externalSourceUser">External uploader</label>
+                                    <input type="text" id="externalSourceUser" value="<%= mii.extUser || '' %>" maxlength="160" placeholder="Uploader name (optional)" autocomplete="off">
+                                    <label for="externalSourceUserUrl">External uploader URL</label>
+                                    <input type="url" id="externalSourceUserUrl" value="<%= mii.extUserURL || '' %>" maxlength="2048" placeholder="https://example.com/user/..." autocomplete="url">
+                                    <button type="button" id="saveExternalSourceButton" onclick="saveExternalMiiSource()"><%- include('icon', { name: 'check', size: 16 }) %> Save External Source</button>
+                                </div>
+                                <% } %>
+
                                 <div class="mod-tool-item">
                                     <label>Official Categories:</label>
                                     <p class="mod-tag-hint">Assign and update categories for this research-managed entry.</p>
@@ -1603,6 +1685,244 @@
         </main>
         
         <%- include('footer') %>
+
+        <script>
+            (() => {
+                const externalMiiPromptConfig = {
+                    url: <%- toScriptJson(
+                        typeof externalMiiSource !== 'undefined' ? String(externalMiiSource?.url || '').trim() : ''
+                    ) %>,
+                    title: <%- toScriptJson(
+                        typeof externalMiiSource !== 'undefined' ? String(externalMiiSource?.title || '').trim() : ''
+                    ) %>,
+                    preference: <%- toScriptJson(
+                        typeof externalMiiPreference !== 'undefined'
+                            ? externalMiiPreference
+                            : (user?.externalMiiPreference || 'ask')
+                    ) %>,
+                    isSignedIn: <%- toScriptJson(Boolean(user?.username)) %>
+                };
+                const externalMiiPreferenceValues = new Set(['ask', 'stay', 'go']);
+                const guestPreferenceStorageKey = 'infinimii.externalMiiPreference';
+
+                function normalizeExternalMiiPagePreference(value) {
+                    const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+                    return externalMiiPreferenceValues.has(normalized) ? normalized : 'ask';
+                }
+
+                function getSafeExternalMiiUrl(value) {
+                    try {
+                        const parsed = new URL(String(value || '').trim());
+                        if (!['http:', 'https:'].includes(parsed.protocol)) return '';
+                        if (parsed.username || parsed.password) return '';
+                        return parsed.href;
+                    } catch (error) {
+                        return '';
+                    }
+                }
+
+                function getExternalMiiPagePreference() {
+                    if (externalMiiPromptConfig.isSignedIn) {
+                        return normalizeExternalMiiPagePreference(externalMiiPromptConfig.preference);
+                    }
+
+                    try {
+                        return normalizeExternalMiiPagePreference(localStorage.getItem(guestPreferenceStorageKey));
+                    } catch (error) {
+                        return 'ask';
+                    }
+                }
+
+                function reportExternalMiiPreferenceSaveFailure(error) {
+                    console.warn(error?.message || error || 'Could not save the external Mii preference.');
+                    if (typeof showAlert === 'function') {
+                        showAlert('Your external Mii preference could not be saved.', 5000, {
+                            title: 'Preference Not Saved',
+                            type: 'error'
+                        });
+                    }
+                }
+
+                function persistExternalMiiPagePreference(preference) {
+                    const normalized = normalizeExternalMiiPagePreference(preference);
+                    externalMiiPromptConfig.preference = normalized;
+
+                    if (!externalMiiPromptConfig.isSignedIn) {
+                        try {
+                            localStorage.setItem(guestPreferenceStorageKey, normalized);
+                        } catch (error) {
+                            reportExternalMiiPreferenceSaveFailure(error);
+                        }
+                        return;
+                    }
+
+                    fetch('/updateExternalMiiPreference', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ preference: normalized }),
+                        keepalive: true
+                    }).then(async (response) => {
+                        if (response.ok) return;
+                        const result = await response.json().catch(() => ({}));
+                        throw new Error(result.error || 'Could not save the external Mii preference.');
+                    }).catch((error) => {
+                        reportExternalMiiPreferenceSaveFailure(error);
+                    });
+                }
+
+                function openExternalMiiPage(url) {
+                    let openedWindow = null;
+                    try {
+                        openedWindow = window.open('', '_blank');
+                    } catch (error) {
+                        return false;
+                    }
+                    if (!openedWindow) return false;
+                    try {
+                        openedWindow.opener = null;
+                        openedWindow.location.replace(url);
+                    } catch (error) {
+                        openedWindow.close();
+                        return false;
+                    }
+                    return true;
+                }
+
+                function showExternalMiiSourceModal(url, title) {
+                    if (typeof createModalOverlay !== 'function' || typeof closeModal !== 'function') return;
+
+                    const overlay = createModalOverlay();
+                    overlay.className = 'custom-modal-overlay external-mii-source-overlay';
+
+                    const modal = document.createElement('div');
+                    modal.className = 'custom-modal external-mii-source-modal';
+                    modal.setAttribute('role', 'dialog');
+                    modal.setAttribute('aria-modal', 'true');
+                    modal.setAttribute('aria-labelledby', 'externalMiiSourceTitle');
+                    modal.setAttribute('aria-describedby', 'externalMiiSourceDescription');
+
+                    const header = document.createElement('div');
+                    header.className = 'custom-modal-header';
+
+                    const heading = document.createElement('h3');
+                    heading.id = 'externalMiiSourceTitle';
+                    heading.textContent = 'External Mii';
+
+                    const closeButton = document.createElement('button');
+                    closeButton.type = 'button';
+                    closeButton.className = 'custom-modal-close';
+                    closeButton.setAttribute('aria-label', 'Stay on InfiniMii');
+                    closeButton.innerHTML = '&times;';
+
+                    header.appendChild(heading);
+                    header.appendChild(closeButton);
+
+                    const body = document.createElement('div');
+                    body.className = 'custom-modal-body external-mii-source-body';
+
+                    const description = document.createElement('p');
+                    description.id = 'externalMiiSourceDescription';
+                    description.textContent = `This Mii is from ${title}, do you wish to view it there?`;
+
+                    const alwaysLabel = document.createElement('label');
+                    alwaysLabel.className = 'external-mii-always-option';
+
+                    const alwaysCheckbox = document.createElement('input');
+                    alwaysCheckbox.type = 'checkbox';
+                    alwaysCheckbox.id = 'alwaysUseExternalMiiOption';
+
+                    const alwaysText = document.createElement('span');
+                    alwaysText.textContent = 'Always use this option';
+
+                    alwaysLabel.appendChild(alwaysCheckbox);
+                    alwaysLabel.appendChild(alwaysText);
+                    body.appendChild(description);
+                    body.appendChild(alwaysLabel);
+
+                    const footer = document.createElement('div');
+                    footer.className = 'custom-modal-footer';
+
+                    const stayButton = document.createElement('button');
+                    stayButton.type = 'button';
+                    stayButton.className = 'custom-modal-btn custom-modal-btn-secondary';
+                    stayButton.textContent = 'Stay on InfiniMii';
+
+                    const goLink = document.createElement('a');
+                    goLink.className = 'custom-modal-btn custom-modal-btn-primary external-mii-go-link';
+                    goLink.href = url;
+                    goLink.target = '_blank';
+                    goLink.rel = 'noopener noreferrer';
+                    goLink.textContent = `Go to ${title}`;
+
+                    footer.appendChild(stayButton);
+                    footer.appendChild(goLink);
+                    modal.appendChild(header);
+                    modal.appendChild(body);
+                    modal.appendChild(footer);
+                    overlay.appendChild(modal);
+
+                    let isClosed = false;
+                    const dismiss = () => {
+                        if (isClosed) return;
+                        isClosed = true;
+                        document.removeEventListener('keydown', handleEscape);
+                        closeModal(overlay);
+                    };
+                    const handleEscape = (event) => {
+                        if (event.key === 'Escape') dismiss();
+                    };
+
+                    closeButton.addEventListener('click', dismiss);
+                    stayButton.addEventListener('click', () => {
+                        if (alwaysCheckbox.checked) persistExternalMiiPagePreference('stay');
+                        dismiss();
+                    });
+                    goLink.addEventListener('click', () => {
+                        if (alwaysCheckbox.checked) persistExternalMiiPagePreference('go');
+                        dismiss();
+                    });
+                    overlay.addEventListener('click', (event) => {
+                        if (event.target === overlay) dismiss();
+                    });
+                    document.addEventListener('keydown', handleEscape);
+
+                    setTimeout(() => overlay.classList.add('active'), 10);
+                    stayButton.focus();
+                }
+
+                function initializeExternalMiiSourcePrompt() {
+                    const url = getSafeExternalMiiUrl(externalMiiPromptConfig.url);
+                    const title = String(externalMiiPromptConfig.title || '').trim();
+                    if (!url || !title) return;
+
+                    const preference = getExternalMiiPagePreference();
+                    if (preference === 'stay') return;
+                    if (preference === 'go') {
+                        if (openExternalMiiPage(url)) return;
+
+                        // Browsers can reject an automatic _blank tab because this
+                        // visit is not itself a user gesture. Honor the saved choice
+                        // without showing the disabled modal again; the modal's Go
+                        // link remains target="_blank" for interactive choices.
+                        try {
+                            window.location.replace(url);
+                            return;
+                        } catch (error) {
+                            // If navigation is unavailable, retain the interactive
+                            // prompt instead of leaving the visitor without a choice.
+                        }
+                    }
+
+                    showExternalMiiSourceModal(url, title);
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initializeExternalMiiSourcePrompt, { once: true });
+                } else {
+                    initializeExternalMiiSourcePrompt();
+                }
+            })();
+        </script>
 
         <script src="/js/miiExportPicker.js"></script>
 
@@ -2168,6 +2488,45 @@
                 });
 
                 return await response.json();
+            }
+
+            async function saveExternalMiiSource() {
+                const button = document.getElementById('saveExternalSourceButton');
+                const externalSource = {
+                    extTitle: document.getElementById('externalSourceTitle')?.value?.trim() || '',
+                    extURL: document.getElementById('externalSourceUrl')?.value?.trim() || '',
+                    extUser: document.getElementById('externalSourceUser')?.value?.trim() || '',
+                    extUserURL: document.getElementById('externalSourceUserUrl')?.value?.trim() || ''
+                };
+
+                setSaveButtonBusy(button, true);
+                try {
+                    const response = await fetch('/updateMiiExternalSource', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: <%- toScriptJson(mii.id) %>,
+                            externalSource
+                        })
+                    });
+                    const result = await response.json().catch(() => ({}));
+                    if (!response.ok || result.error) {
+                        showAlert(result.error || 'Could not update the external source.', 6000, { title: 'Error', type: 'error' });
+                        return;
+                    }
+
+                    showAlert(
+                        result.externalSource ? 'External source saved.' : 'External source removed.',
+                        3000,
+                        { title: 'Success', type: 'success' }
+                    );
+                    setTimeout(() => location.reload(), 1000);
+                } catch (error) {
+                    console.error('Error saving external source:', error);
+                    showAlert('Could not update the external source.', 6000, { title: 'Error', type: 'error' });
+                } finally {
+                    setSaveButtonBusy(button, false);
+                }
             }
 
             function setSaveButtonBusy(button, isBusy) {
