@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">LTD render unavailable</title>
+  <desc id="description">This Mii is outside the renderer's checked classic selector, runtime-profile, and evidence domain.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#28243a"/>
+      <stop offset="1" stop-color="#15131f"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="36" fill="url(#background)"/>
+  <circle cx="256" cy="194" r="82" fill="none" stroke="#88819f" stroke-width="14"/>
+  <path d="M142 395c16-74 55-111 114-111s98 37 114 111" fill="none" stroke="#88819f" stroke-linecap="round" stroke-width="14"/>
+  <rect x="118" y="417" width="276" height="48" rx="24" fill="#39344c"/>
+  <text x="256" y="449" fill="#f3f0ff" font-family="system-ui, sans-serif" font-size="22" font-weight="700" text-anchor="middle">LTD render unavailable</text>
+</svg>

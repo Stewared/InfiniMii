@@ -10,15 +10,16 @@
 		<%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, pageRobots }) %>
 		<%- include('structuredData') %>
 		<link rel="stylesheet" href="/global.css">
-        <link rel="stylesheet" href="/utilityPages.css">
+		<link rel="stylesheet" href="/utilityPages.css">
+		<link rel="stylesheet" href="/settings.css?v=<%= encodeURIComponent(assetVersion || '1') %>">
 	</head>
-	<body>
+	<body class="settings-page">
         <%- include('globalStyle') %>
 		<%- include('header') %>
 		<%- include('accountDisplay') %>
 		<div class="content">
 			<%- include('sidebar') %>
-			<div class="settings-container">
+			<main class="settings-container">
 				<%
 				const passwordLoginEnabled = Boolean(user?.salt && user?.pass);
 				const linkedIdentities = Array.isArray(user?.oauthIdentities) ? user.oauthIdentities : [];
@@ -30,6 +31,10 @@
 				const safeBlockableCategories = Array.isArray(blockableOfficialCategories) ? blockableOfficialCategories : [];
 				const safeBlockedCategories = Array.isArray(blockedOfficialCategories) ? blockedOfficialCategories : [];
 				const blockedCategorySet = new Set(safeBlockedCategories);
+				const safeMiiEraOptions = Array.isArray(miiEraFilterOptions) ? miiEraFilterOptions : [];
+				const blockedMiiEraSet = new Set(Array.isArray(blockedMiiEras) ? blockedMiiEras : []);
+				const safeFacepaintOptions = Array.isArray(miiFacepaintFilterOptions) ? miiFacepaintFilterOptions : [];
+				const blockedFacepaintSet = new Set(Array.isArray(blockedFacepaintUsages) ? blockedFacepaintUsages : []);
 				const safeExternalMiiPreference = ['ask', 'stay', 'go'].includes(
 					String(typeof externalMiiPreference !== 'undefined' ? externalMiiPreference : user?.externalMiiPreference || '').trim().toLowerCase()
 				)
@@ -103,57 +108,119 @@
 				};
 				const getOAuthProviderIconText = (key, providerName) => oauthProviderMap[key]?.iconText || providerName.slice(0, 2);
 				%>
-				<div id="settings-message" class="form-message <%= oauthStatus?.type || '' %>" style="display: <%= oauthStatus ? 'block' : 'none' %>; margin-bottom: 20px;"><%= oauthStatus?.message || '' %></div>
-				
-				<fieldset>
-					<legend>Profile Settings</legend>
-					
-					<!-- Change Profile Picture -->
-					<div class="setting-group">
-						<label>Profile Picture (Mii ID)</label>
-						<small style="color: var(--text-2); display: block; margin-bottom: 6px;">Current: <%= user?.miiPfp || '00000' %></small>
-						<input type="text" placeholder="Mii ID for new Profile Picture" id="pfpId">
-						<button onclick="changePfp()">Change Profile Picture</button>
-					</div>
+				<header class="settings-heading">
+					<h1>Settings</h1>
+					<p>Manage your profile, sign-in methods, and what appears while you browse InfiniMii.</p>
+				</header>
 
-					<!-- Change Username -->
-					<div class="setting-group">
-						<label>Username</label>
-						<small style="color: var(--text-2); display: block; margin-bottom: 6px;">Current: <%= user?.username || '' %></small>
-						<p style="color: var(--text-2); font-size: 0.9em; margin: 5px 0;">ℹ️ You can only change your username once per month.</p>
-						<input type="text" placeholder="New Username" id="nUser">
-						<input type="password" placeholder="Current Password" id="userChangePassword">
-						<button onclick="changeUser()">Change Username</button>
+				<nav class="settings-section-nav" aria-label="Settings sections">
+					<a href="#profile-settings">Profile</a>
+					<a href="#account-settings">Account</a>
+					<a href="#content-preferences">Content</a>
+					<a href="#danger-zone">Deletion</a>
+				</nav>
+
+				<div
+					id="settings-message"
+					class="form-message settings-message <%= oauthStatus?.type || '' %>"
+					role="status"
+					aria-live="polite"
+					aria-atomic="true"
+					style="display: <%= oauthStatus ? 'block' : 'none' %>;"
+				><%= oauthStatus?.message || '' %></div>
+				
+				<fieldset class="settings-panel" id="profile-settings">
+					<legend>Profile</legend>
+					<p class="settings-panel-copy">Update the name and Mii other people see.</p>
+					<div class="settings-grid">
+						<form class="setting-group" onsubmit="changePfp(); return false;">
+							<div class="setting-group-header">
+								<h2>Profile picture</h2>
+								<p>Use the ID of a Mii already available on InfiniMii.</p>
+							</div>
+							<p class="setting-current">Current Mii ID <code><%= user?.miiPfp || '00000' %></code></p>
+							<div class="settings-field">
+								<label for="pfpId">New Mii ID</label>
+								<input type="text" placeholder="Enter a Mii ID" id="pfpId" autocomplete="off" spellcheck="false">
+							</div>
+							<div class="setting-actions">
+								<button type="submit">Update picture</button>
+							</div>
+						</form>
+
+						<form class="setting-group" onsubmit="changeUser(); return false;">
+							<div class="setting-group-header">
+								<h2>Username</h2>
+								<p>Usernames can be changed once every 30 days.</p>
+							</div>
+							<p class="setting-current">Current username <strong><%= user?.username || '' %></strong></p>
+							<div class="settings-field">
+								<label for="nUser">New username</label>
+								<input type="text" placeholder="Enter a new username" id="nUser" autocomplete="username" autocapitalize="none" spellcheck="false">
+							</div>
+							<div class="settings-field">
+								<label for="userChangePassword">Current password</label>
+								<input type="password" placeholder="Confirm with your password" id="userChangePassword" autocomplete="current-password">
+							</div>
+							<div class="setting-actions">
+								<button type="submit">Update username</button>
+							</div>
+						</form>
 					</div>
 				</fieldset>
 
-				<fieldset>
-					<legend>Account Settings</legend>
-
-					<!-- Change Email -->
-					<div class="setting-group">
-						<label>Email Address</label>
-						<small style="color: var(--text-2); display: block; margin-bottom: 6px;">Current: <%= user?.email || '' %></small>
-						<input type="email" placeholder="New Email" id="nEmail">
-						<button onclick="changeEmail()">Change Email</button>
-					</div>
+				<fieldset class="settings-panel" id="account-settings">
+					<legend>Account and sign-in</legend>
+					<p class="settings-panel-copy">Keep your contact address and ways to sign in up to date.</p>
+					<div class="settings-grid">
+						<form class="setting-group" onsubmit="changeEmail(); return false;">
+							<div class="setting-group-header">
+								<h2>Email address</h2>
+								<p>We will send a verification message to the new address.</p>
+							</div>
+							<p class="setting-current">Current email <strong><%= user?.email || '' %></strong></p>
+							<div class="settings-field">
+								<label for="nEmail">New email address</label>
+								<input type="email" placeholder="name@example.com" id="nEmail" autocomplete="email" autocapitalize="none" spellcheck="false">
+							</div>
+							<div class="setting-actions">
+								<button type="submit">Update email</button>
+							</div>
+						</form>
 					
-					<!-- Change Password -->
-					<div class="setting-group">
-						<label>Password</label>
-						<% if (passwordLoginEnabled) { %>
-							<input type="password" placeholder="Old Password" id="oPass">
-							<input type="password" placeholder="New Password" id="nPass">
-							<button onclick="changePassword()">Change Password</button>
-						<% } else { %>
-							<small style="color: var(--text-2); display: block; margin-bottom: 6px;">Add a password if you want username/password login or password-protected account actions.</small>
-							<input type="password" placeholder="New Password" id="setPass">
-							<button onclick="setPassword()">Set Password</button>
-						<% } %>
-					</div>
+						<form class="setting-group" onsubmit="<%= passwordLoginEnabled ? 'changePassword()' : 'setPassword()' %>; return false;">
+							<div class="setting-group-header">
+								<h2><%= passwordLoginEnabled ? 'Change password' : 'Add a password' %></h2>
+								<p><%= passwordLoginEnabled ? 'Use at least 6 characters for the new password.' : 'Add password sign-in and enable password-protected account actions.' %></p>
+							</div>
+							<% if (passwordLoginEnabled) { %>
+								<div class="settings-field">
+									<label for="oPass">Current password</label>
+									<input type="password" placeholder="Enter your current password" id="oPass" autocomplete="current-password">
+								</div>
+								<div class="settings-field">
+									<label for="nPass">New password</label>
+									<input type="password" placeholder="At least 6 characters" id="nPass" autocomplete="new-password" minlength="6">
+								</div>
+								<div class="setting-actions">
+									<button type="submit">Update password</button>
+								</div>
+							<% } else { %>
+								<div class="settings-field">
+									<label for="setPass">New password</label>
+									<input type="password" placeholder="At least 6 characters" id="setPass" autocomplete="new-password" minlength="6">
+								</div>
+								<div class="setting-actions">
+									<button type="submit">Add password</button>
+								</div>
+							<% } %>
+						</form>
 
-					<div class="setting-group">
-						<label>Connected Login Methods</label>
+						<div class="setting-group setting-group-wide">
+							<div class="setting-group-header">
+								<h2>Connected login methods</h2>
+								<p>Link another provider or remove one you no longer use.</p>
+							</div>
 						<div class="linked-oauth-list">
 							<% if (passwordLoginEnabled) { %>
 								<div class="linked-oauth-item">
@@ -194,51 +261,130 @@
 							<% }) %>
 						</div>
 						<%- include('oauthButtons', { mode: 'link', next: '/settings', heading: 'Link another provider', linkedProviderKeys }) %>
+						</div>
 					</div>
 				</fieldset>
 
-				<fieldset>
-					<legend>Content Preferences</legend>
+				<fieldset class="settings-panel" id="content-preferences">
+					<legend>Content preferences</legend>
+					<p class="settings-panel-copy">Choose how links behave and which Miis are left out of archive pages.</p>
 
-					<div class="setting-group">
-						<label id="externalMiiPreferenceLabel">External Mii links</label>
-						<small style="color: var(--text-2); display: block; margin-bottom: 10px;">Choose what InfiniMii should do when you visit a Mii that comes from another website.</small>
-						<div class="preference-selector-list" role="radiogroup" aria-labelledby="externalMiiPreferenceLabel">
+					<div class="setting-group setting-group-wide content-preference-group">
+						<div class="setting-group-header">
+							<h2 id="externalMiiPreferenceLabel">External Mii links</h2>
+							<p>Choose what happens when a Mii links back to another website.</p>
+						</div>
+						<div class="preference-selector-list preference-radio-list" role="radiogroup" aria-labelledby="externalMiiPreferenceLabel">
 							<label class="preference-selector-option">
 								<input type="radio" name="externalMiiPreference" value="ask" <%= safeExternalMiiPreference === 'ask' ? 'checked' : '' %>>
-								<span>Ask every time</span>
+								<span><strong>Ask every time</strong><small>Let me decide for each link.</small></span>
 							</label>
 							<label class="preference-selector-option">
 								<input type="radio" name="externalMiiPreference" value="stay" <%= safeExternalMiiPreference === 'stay' ? 'checked' : '' %>>
-								<span>Stay on InfiniMii</span>
+								<span><strong>Stay on InfiniMii</strong><small>Open the local InfiniMii page.</small></span>
 							</label>
 							<label class="preference-selector-option">
 								<input type="radio" name="externalMiiPreference" value="go" <%= safeExternalMiiPreference === 'go' ? 'checked' : '' %>>
-								<span>Go to the original site</span>
+								<span><strong>Go to the original site</strong><small>Follow the source link directly.</small></span>
 							</label>
 						</div>
 					</div>
 
-					<div class="setting-group">
-						<label>Hidden Tags</label>
-						<div class="preference-selector-list">
+					<details class="settings-preference-block" open>
+						<summary>
+							<span>
+								<strong>Mii eras</strong>
+								<small>Hide Miis from selected systems or periods.</small>
+							</span>
+							<span class="preference-selection-count" data-selection-count="[data-blocked-mii-era]" aria-live="polite"></span>
+						</summary>
+						<div class="settings-preference-body">
+							<div class="preference-toolbar">
+								<p>Your profile Mii and the Average Mii always remain visible.</p>
+								<button type="button" class="settings-text-button" data-clear-selector="[data-blocked-mii-era]">Clear selection</button>
+							</div>
+							<div class="preference-selector-list" role="group" aria-label="Hidden Mii eras">
+							<% safeMiiEraOptions.forEach((option) => { %>
+								<label class="preference-selector-option">
+									<input type="checkbox" data-blocked-mii-era value="<%= option.value %>" <%= blockedMiiEraSet.has(option.value) ? 'checked' : '' %>>
+									<span><%= option.label %></span>
+								</label>
+							<% }) %>
+							</div>
+						</div>
+					</details>
+
+					<details class="settings-preference-block">
+						<summary>
+							<span>
+								<strong>Facepaint use</strong>
+								<small>Hide Miis by how much facepaint they use.</small>
+							</span>
+							<span class="preference-selection-count" data-selection-count="[data-blocked-facepaint-usage]" aria-live="polite"></span>
+						</summary>
+						<div class="settings-preference-body">
+							<div class="preference-toolbar">
+								<p>Facepaint coverage is read from LTD data and grouped as partial or full.</p>
+								<button type="button" class="settings-text-button" data-clear-selector="[data-blocked-facepaint-usage]">Clear selection</button>
+							</div>
+							<div class="preference-selector-list" role="group" aria-label="Hidden facepaint use">
+							<% safeFacepaintOptions.forEach((option) => { %>
+								<label class="preference-selector-option">
+									<input type="checkbox" data-blocked-facepaint-usage value="<%= option.value %>" <%= blockedFacepaintSet.has(option.value) ? 'checked' : '' %>>
+									<span><%= option.label %></span>
+								</label>
+							<% }) %>
+							</div>
+						</div>
+					</details>
+
+					<details class="settings-preference-block" <%= blockedTagSet.size > 0 ? 'open' : '' %>>
+						<summary>
+							<span>
+								<strong>Tags</strong>
+								<small>Hide Miis carrying selected community tags.</small>
+							</span>
+							<span class="preference-selection-count" data-selection-count="[data-blocked-tag]" aria-live="polite"></span>
+						</summary>
+						<div class="settings-preference-body">
 							<% if (safeBlockableTags.length > 0) { %>
+								<div class="preference-toolbar preference-toolbar-search">
+									<label class="preference-search-field">
+										<span>Find a tag</span>
+										<input type="search" placeholder="Search tags" autocomplete="off" data-preference-filter="[data-blocked-tag]">
+									</label>
+									<button type="button" class="settings-text-button" data-clear-selector="[data-blocked-tag]">Clear selection</button>
+								</div>
+								<div class="preference-selector-list preference-selector-list-scroll" role="group" aria-label="Hidden tags">
 								<% safeBlockableTags.forEach((tag) => { %>
 									<label class="preference-selector-option">
 										<input type="checkbox" data-blocked-tag value="<%= tag %>" <%= blockedTagSet.has(tag) ? 'checked' : '' %>>
 										<span><%= tag %></span>
 									</label>
 								<% }) %>
+									<p class="preference-no-results" hidden>No matching tags.</p>
+								</div>
 							<% } else { %>
 								<p class="preference-empty">No tags are available yet.</p>
 							<% } %>
 						</div>
-					</div>
+					</details>
 
-					<div class="setting-group">
-						<label>Hidden Official Categories</label>
-						<div class="preference-selector-list preference-selector-list-tall preference-category-selector">
+					<details class="settings-preference-block" <%= blockedCategorySet.size > 0 ? 'open' : '' %>>
+						<summary>
+							<span>
+								<strong>Official categories</strong>
+								<small>Hide groups from the curated archive.</small>
+							</span>
+							<span class="preference-selection-count" data-selection-count="[data-blocked-category]" aria-live="polite"></span>
+						</summary>
+						<div class="settings-preference-body">
 							<% if (safeBlockableCategoryGroups.length > 0) { %>
+								<div class="preference-toolbar">
+									<p>Open a category to choose the whole group or individual sections.</p>
+									<button type="button" class="settings-text-button" data-clear-selector="[data-blocked-category]">Clear selection</button>
+								</div>
+								<div class="preference-selector-list preference-selector-list-tall preference-category-selector">
 								<div class="preference-category-groups category-filter-groups">
 									<% safeBlockableCategoryGroups.forEach((group) => { %>
 										<%
@@ -251,11 +397,9 @@
 										<details class="category-filter-group preference-category-group" <%= groupHasSelection ? 'open' : '' %>>
 											<summary>
 												<span><%= group.name %></span>
-												<% if (groupHasSelection) { %>
-													<span class="category-filter-group-counts">
-														<span class="category-filter-group-count is-include"><%= groupBadge %></span>
-													</span>
-												<% } %>
+											<span class="category-filter-group-counts" data-category-selection-count <%= groupHasSelection ? '' : 'hidden' %>>
+												<span class="category-filter-group-count is-include"><%= groupBadge %></span>
+											</span>
 											</summary>
 											<div class="category-filter-options preference-category-options">
 												<label class="preference-selector-option preference-category-option preference-category-option-top-level" style="--category-color: <%= groupTopLevel.color || '#999999' %>;">
@@ -272,51 +416,73 @@
 										</details>
 									<% }) %>
 								</div>
+								</div>
 							<% } else { %>
 								<p class="preference-empty">No official categories are available yet.</p>
 							<% } %>
 						</div>
-					</div>
+					</details>
 
-					<div class="setting-group content-preference-actions">
-						<button type="button" onclick="saveContentPreferences()">Save Content Preferences</button>
-						<% if (safeHiddenMiis.length > 0) { %>
-							<button type="button" class="secondary-settings-button" id="openHiddenMiisButton" onclick="openHiddenMiisModal()">Manage Hidden Miis</button>
-						<% } %>
-					</div>
-				</fieldset>
-
-				<fieldset class="danger-zone">
-					<legend><%- include('icon', { name: 'alert-triangle', size: 20, class: 'icon-warning' }) %> Danger Zone</legend>
-
-					<!-- Delete All Miis -->
-					<div class="setting-group">
-						<label>Delete All Your Miis</label>
-						<p class="warning-text">This will permanently delete ALL Miis you have uploaded. This action cannot be undone!</p>
-						<button class="danger-btn" onclick="deleteAllMiis()"><%- include('icon', { name: 'trash', size: 16 }) %> Delete All My Miis</button>
-					</div>
-
-					<!-- Delete Account -->
-					<div class="setting-group">
-						<label>Delete Account</label>
-						<p class="warning-text">This will permanently delete your account. Your Miis will remain on the site but will be attributed to "[Deleted User]". This action cannot be undone!</p>
-						<input type="password" placeholder="Enter Password to Confirm" id="deleteAccountPassword">
-						<button class="danger-btn" onclick="deleteAccount()"><%- include('icon', { name: 'ban', size: 16 }) %> Delete Account</button>
+					<div class="content-preference-actions">
+						<div class="preference-save-copy">
+							<strong id="preferenceSaveState">No unsaved changes</strong>
+							<span>Changes take effect after you save.</span>
+						</div>
+						<div class="setting-actions">
+							<% if (safeHiddenMiis.length > 0) { %>
+								<button type="button" class="secondary-settings-button" id="openHiddenMiisButton" onclick="openHiddenMiisModal(this)">Manage hidden Miis</button>
+							<% } %>
+							<button type="button" id="saveContentPreferencesButton" onclick="saveContentPreferences()">Save preferences</button>
+						</div>
 					</div>
 				</fieldset>
-			</div>
+
+				<fieldset class="settings-panel danger-zone" id="danger-zone">
+					<legend><%- include('icon', { name: 'alert-triangle', size: 20, class: 'icon-warning' }) %> Delete content or account</legend>
+					<p class="settings-panel-copy">These actions are permanent. Review what each one removes before continuing.</p>
+
+					<div class="settings-grid">
+						<div class="setting-group danger-setting">
+							<div class="setting-group-header">
+								<h2>Delete all uploaded Miis</h2>
+								<p>Your account remains active, but every Mii you uploaded is permanently removed.</p>
+							</div>
+							<div class="setting-actions">
+								<button type="button" class="danger-btn" onclick="deleteAllMiis()"><%- include('icon', { name: 'trash', size: 16 }) %> Delete uploaded Miis</button>
+							</div>
+						</div>
+
+						<form class="setting-group danger-setting" onsubmit="deleteAccount(); return false;">
+							<div class="setting-group-header">
+								<h2>Delete account</h2>
+								<p>Your Miis remain in the archive and are credited to “[Deleted User].” Your account is permanently removed.</p>
+							</div>
+							<div class="settings-field">
+								<label for="deleteAccountPassword">Current password</label>
+								<input type="password" placeholder="Enter your password to confirm" id="deleteAccountPassword" autocomplete="current-password">
+							</div>
+							<div class="setting-actions">
+								<button type="submit" class="danger-btn"><%- include('icon', { name: 'ban', size: 16 }) %> Delete account</button>
+							</div>
+						</form>
+					</div>
+				</fieldset>
+			</main>
 
             <%- include('featuredMiis') %>
 		</div>
 		<% if (safeHiddenMiis.length > 0) { %>
 			<div id="hiddenMiisModal" class="custom-modal-overlay" aria-hidden="true">
-				<div class="custom-modal hidden-miis-modal" role="dialog" aria-modal="true" aria-labelledby="hiddenMiisTitle">
+				<div class="custom-modal hidden-miis-modal" role="dialog" aria-modal="true" aria-labelledby="hiddenMiisTitle" aria-describedby="hiddenMiisDescription" tabindex="-1">
 					<div class="custom-modal-header">
-						<h3 id="hiddenMiisTitle">Hidden Miis</h3>
+						<div>
+							<h3 id="hiddenMiisTitle">Hidden Miis</h3>
+							<p id="hiddenMiisDescription">Restore a Mii to your archive pages.</p>
+						</div>
 						<button type="button" class="custom-modal-close" onclick="closeHiddenMiisModal()" aria-label="Close">&times;</button>
 					</div>
 					<div class="custom-modal-body">
-						<div id="hiddenMiisStatus" class="form-message" style="display: none; margin-bottom: 0.75rem;"></div>
+						<div id="hiddenMiisStatus" class="form-message" role="status" aria-live="polite" aria-atomic="true" style="display: none;"></div>
 						<div class="hidden-miis-list" id="hiddenMiisList">
 							<% safeHiddenMiis.forEach((hiddenMii) => { %>
 								<div class="hidden-mii-row" data-hidden-mii-id="<%= hiddenMii.id %>">
@@ -335,10 +501,21 @@
 		<% } %>
 		<%- include('footer') %>
 		<script>
+			const contentPreferenceInputSelector = [
+				'[data-blocked-tag]',
+				'[data-blocked-category]',
+				'[data-blocked-mii-era]',
+				'[data-blocked-facepaint-usage]',
+				'input[name="externalMiiPreference"]'
+			].join(', ');
+			let savedContentPreferenceState = '';
+			let hiddenMiisModalTrigger = null;
+
 			function showMessage(text, type = 'error') {
 				const messageDiv = document.getElementById('settings-message');
 				messageDiv.textContent = text;
-				messageDiv.className = `form-message ${type}`;
+				messageDiv.className = `form-message settings-message ${type}`;
+				messageDiv.setAttribute('role', type === 'error' ? 'alert' : 'status');
 				messageDiv.style.display = 'block';
 				if (type === 'error' && typeof window.scrollToUserError === 'function') {
 					window.scrollToUserError(messageDiv);
@@ -356,19 +533,126 @@
 
 				status.textContent = text;
 				status.className = `form-message ${type}`;
+				status.setAttribute('role', type === 'error' ? 'alert' : 'status');
 				status.style.display = 'block';
+			}
+
+			function getContentPreferenceState() {
+				return JSON.stringify(Array.from(document.querySelectorAll(contentPreferenceInputSelector)).map((input) => ({
+					name: input.name || input.dataset.blockedTag || input.dataset.blockedCategory || input.dataset.blockedMiiEra || input.dataset.blockedFacepaintUsage || '',
+					value: input.value,
+					checked: input.checked
+				})));
+			}
+
+			function updatePreferenceCounts() {
+				document.querySelectorAll('[data-selection-count]').forEach((counter) => {
+					const selector = counter.dataset.selectionCount;
+					const count = selector ? document.querySelectorAll(`${selector}:checked`).length : 0;
+					counter.textContent = count === 0 ? 'None hidden' : `${count} hidden`;
+					counter.classList.toggle('has-selection', count > 0);
+				});
+
+				document.querySelectorAll('.preference-category-group').forEach((group) => {
+					const inputs = Array.from(group.querySelectorAll('[data-blocked-category]'));
+					const checkedInputs = inputs.filter((input) => input.checked);
+					const countWrap = group.querySelector('[data-category-selection-count]');
+					const countLabel = countWrap?.querySelector('.category-filter-group-count');
+					if (!countWrap || !countLabel) return;
+
+					countWrap.hidden = checkedInputs.length === 0;
+					countLabel.textContent = checkedInputs[0]?.closest('.preference-category-option-top-level') && inputs.length > 1
+						? 'All'
+						: String(checkedInputs.length);
+				});
+			}
+
+			function updateContentPreferenceState() {
+				const state = document.getElementById('preferenceSaveState');
+				if (!state) return;
+				const isDirty = getContentPreferenceState() !== savedContentPreferenceState;
+				state.textContent = isDirty ? 'Unsaved changes' : 'No unsaved changes';
+				state.classList.toggle('is-dirty', isDirty);
+			}
+
+			function markContentPreferencesSaved() {
+				savedContentPreferenceState = getContentPreferenceState();
+				updateContentPreferenceState();
+			}
+
+			function initializeContentPreferenceControls() {
+				markContentPreferencesSaved();
+				updatePreferenceCounts();
+
+				document.querySelectorAll(contentPreferenceInputSelector).forEach((input) => {
+					input.addEventListener('change', () => {
+						updatePreferenceCounts();
+						updateContentPreferenceState();
+					});
+				});
+
+				document.querySelectorAll('[data-clear-selector]').forEach((button) => {
+					button.addEventListener('click', () => {
+						const selector = button.dataset.clearSelector;
+						if (!selector) return;
+						document.querySelectorAll(selector).forEach((input) => {
+							input.checked = false;
+						});
+						updatePreferenceCounts();
+						updateContentPreferenceState();
+					});
+				});
+
+				document.querySelectorAll('[data-preference-filter]').forEach((searchInput) => {
+					searchInput.addEventListener('input', () => {
+						const query = searchInput.value.trim().toLocaleLowerCase();
+						const selector = searchInput.dataset.preferenceFilter;
+						const preferenceBody = searchInput.closest('.settings-preference-body');
+						const matchingInputs = selector && preferenceBody
+							? Array.from(preferenceBody.querySelectorAll(selector))
+							: [];
+						let visibleCount = 0;
+						matchingInputs.forEach((input) => {
+							const option = input.closest('.preference-selector-option');
+							if (!option) return;
+							const matches = !query || option.textContent.toLocaleLowerCase().includes(query);
+							option.hidden = !matches;
+							if (matches) visibleCount += 1;
+						});
+						const noResults = preferenceBody?.querySelector('.preference-no-results');
+						if (noResults) noResults.hidden = visibleCount > 0;
+					});
+				});
 			}
 
 			async function saveContentPreferences() {
 				const blockedTags = Array.from(document.querySelectorAll('[data-blocked-tag]:checked')).map(input => input.value);
 				const blockedOfficialCategories = Array.from(document.querySelectorAll('[data-blocked-category]:checked')).map(input => input.value);
+				const blockedMiiEras = Array.from(document.querySelectorAll('[data-blocked-mii-era]:checked')).map(input => input.value);
+				const blockedFacepaintUsages = Array.from(document.querySelectorAll('[data-blocked-facepaint-usage]:checked')).map(input => input.value);
 				const externalMiiPreference = document.querySelector('input[name="externalMiiPreference"]:checked')?.value || 'ask';
+
+				const saveButton = document.getElementById('saveContentPreferencesButton');
+				const saveState = document.getElementById('preferenceSaveState');
+				if (saveButton) {
+					saveButton.disabled = true;
+					saveButton.setAttribute('aria-busy', 'true');
+					saveButton.dataset.defaultLabel = saveButton.textContent;
+					saveButton.textContent = 'Saving…';
+				}
+				if (saveState) saveState.textContent = 'Saving changes…';
 
 				try {
 					const response = await fetch('/updateContentPreferences', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ blockedTags, blockedOfficialCategories, externalMiiPreference })
+						body: JSON.stringify({
+							blockedTags,
+							blockedOfficialCategories,
+							blockedMiiEras,
+							blockedFacepaintUsages,
+							externalMiiPreference
+						})
 					});
 					const result = await response.json();
 
@@ -377,18 +661,28 @@
 						return;
 					}
 
+					markContentPreferencesSaved();
 					showMessage('Content preferences saved.', 'success');
 				} catch (error) {
 					console.error('Error saving content preferences:', error);
-					showMessage('Failed to save content preferences', 'error');
+					showMessage('Failed to save content preferences.', 'error');
+				} finally {
+					if (saveButton) {
+						saveButton.disabled = false;
+						saveButton.removeAttribute('aria-busy');
+						saveButton.textContent = saveButton.dataset.defaultLabel || 'Save preferences';
+					}
+					updateContentPreferenceState();
 				}
 			}
 
-			function openHiddenMiisModal() {
+			function openHiddenMiisModal(trigger) {
 				const modal = document.getElementById('hiddenMiisModal');
 				if (!modal) return;
+				hiddenMiisModalTrigger = trigger || document.activeElement;
 				modal.classList.add('active');
 				modal.setAttribute('aria-hidden', 'false');
+				modal.querySelector('.custom-modal-close')?.focus();
 			}
 
 			function closeHiddenMiisModal() {
@@ -396,6 +690,8 @@
 				if (!modal) return;
 				modal.classList.remove('active');
 				modal.setAttribute('aria-hidden', 'true');
+				hiddenMiisModalTrigger?.focus?.();
+				hiddenMiisModalTrigger = null;
 			}
 
 			async function unhideMiiFromSettings(miiId, button) {
@@ -449,12 +745,45 @@
 				});
 			}
 
+			function initializeHiddenMiisModal() {
+				const modal = document.getElementById('hiddenMiisModal');
+				if (!modal) return;
+
+				modal.addEventListener('click', (event) => {
+					if (event.target === modal) closeHiddenMiisModal();
+				});
+
+				document.addEventListener('keydown', (event) => {
+					if (!modal.classList.contains('active')) return;
+					if (event.key === 'Escape') {
+						event.preventDefault();
+						closeHiddenMiisModal();
+						return;
+					}
+
+					if (event.key !== 'Tab') return;
+					const focusable = Array.from(modal.querySelectorAll('button:not([disabled]), a[href], input:not([disabled])'));
+					if (focusable.length === 0) return;
+					const first = focusable[0];
+					const last = focusable[focusable.length - 1];
+					if (event.shiftKey && document.activeElement === first) {
+						event.preventDefault();
+						last.focus();
+					} else if (!event.shiftKey && document.activeElement === last) {
+						event.preventDefault();
+						first.focus();
+					}
+				});
+			}
+
+			initializeContentPreferenceControls();
 			initializeHiddenMiiButtons();
+			initializeHiddenMiisModal();
 			
 			async function changePfp() {
-				const pfpId = document.getElementById('pfpId').value;
+				const pfpId = document.getElementById('pfpId').value.trim();
 				if (!pfpId) {
-					showAlert('Please enter a Mii ID', 5000, { title: 'Error', type: 'error' });
+					showAlert('Enter a Mii ID.', 5000, { title: 'Profile picture', type: 'error' });
 					return;
 				}
 
@@ -467,25 +796,24 @@
 					const result = await response.json();
 					
 					if (!result.error) {
-						showAlert('Profile picture changed successfully!', 2000, { title: 'Success', type: 'success' });
+						showAlert('Profile picture updated.', 2000, { title: 'Profile picture', type: 'success' });
 						setTimeout(() => location.reload(), 2000);
 					}
                     else {
-						showAlert(result.error || 'Error changing profile picture', 5000, { title: 'Error', type: 'error' });
+						showAlert(result.error || 'Could not update the profile picture.', 5000, { title: 'Profile picture', type: 'error' });
 					}
 				} catch (error) {
 					console.error('Error:', error);
-					showAlert('Failed to change profile picture', 5000, { title: 'Error', type: 'error' });
+					showAlert('Could not update the profile picture.', 5000, { title: 'Profile picture', type: 'error' });
 				}
 			}
 
 			async function changeUser() {
-				const newUsername = document.getElementById('nUser').value;
+				const newUsername = document.getElementById('nUser').value.trim();
 				const password = document.getElementById('userChangePassword').value;
-				const messageDiv = document.getElementById('settings-message');
 				
 				if (!newUsername || !password) {
-					showMessage('Please enter both a new username and your password', 'error');
+					showMessage('Enter a new username and your current password.', 'error');
 					return;
 				}
 
@@ -498,7 +826,7 @@
 					const result = await response.json();
 					
 					if (!result.error) {
-						showMessage(result.message || 'Username changed successfully!', 'success');
+						showMessage(result.message || 'Username updated.', 'success');
 						document.getElementById('nUser').value = '';
 						document.getElementById('userChangePassword').value = '';
 						setTimeout(() => {
@@ -511,10 +839,10 @@
 				}, null, { title: 'Change Username', confirmText: 'Change' });
 			}			
 			async function changeEmail() {
-				const newEmail = document.getElementById('nEmail').value;
+				const newEmail = document.getElementById('nEmail').value.trim();
 
 				if (!newEmail) {
-					showAlert('Please enter a new email address', 5000, { title: 'Error', type: 'error' });
+					showAlert('Enter a new email address.', 5000, { title: 'Email address', type: 'error' });
 					return;
 				}
 
@@ -528,15 +856,15 @@
 					const result = await response.json();
 					
 					if (!result.error) {
-						showAlert('Email change verification sent! Please check your email.', 4000, { title: 'Success', type: 'success' });
+						showAlert('Verification sent to your new email address.', 4000, { title: 'Email address', type: 'success' });
 						document.getElementById('nEmail').value = '';
 					}
                     else {
-						showAlert(result.error || 'Error changing email', 5000, { title: 'Error', type: 'error' });
+						showAlert(result.error || 'Could not update the email address.', 5000, { title: 'Email address', type: 'error' });
 					}
 				} catch (error) {
 					console.error('Error:', error);
-					showAlert('Failed to change email', 5000, { title: 'Error', type: 'error' });
+					showAlert('Could not update the email address.', 5000, { title: 'Email address', type: 'error' });
 				}
 			}
 
@@ -544,12 +872,12 @@
 				const newPass = document.getElementById('setPass')?.value || '';
 
 				if (!newPass) {
-					showAlert('Please enter a password', 5000, { title: 'Error', type: 'error' });
+					showAlert('Enter a new password.', 5000, { title: 'Password', type: 'error' });
 					return;
 				}
 
 				if (newPass.length < 6) {
-					showAlert('New password must be at least 6 characters', 5000, { title: 'Error', type: 'error' });
+					showAlert('Your password must be at least 6 characters.', 5000, { title: 'Password', type: 'error' });
 					return;
 				}
 
@@ -562,14 +890,14 @@
 					const result = await response.json();
 
 					if (!result.error) {
-						showMessage(result.message || 'Password login added successfully.', 'success');
+						showMessage(result.message || 'Password sign-in added.', 'success');
 						setTimeout(() => location.reload(), 1500);
 					} else {
 						showMessage(result.error, 'error');
 					}
 				} catch (error) {
 					console.error('Error:', error);
-					showMessage('Failed to set password', 'error');
+					showMessage('Could not add password sign-in.', 'error');
 				}
 			}
 
@@ -578,12 +906,12 @@
 				const newPass = document.getElementById('nPass').value;
 
 				if (!oldPass || !newPass) {
-					showAlert('Please fill in both old and new password', 5000, { title: 'Error', type: 'error' });
+					showAlert('Enter your current and new passwords.', 5000, { title: 'Password', type: 'error' });
 					return;
 				}
 
 				if (newPass.length < 6) {
-					showAlert('New password must be at least 6 characters', 5000, { title: 'Error', type: 'error' });
+					showAlert('Your new password must be at least 6 characters.', 5000, { title: 'Password', type: 'error' });
 					return;
 				}
 
@@ -597,16 +925,16 @@
 					const result = await response.json();
 					
 					if (!result.error) {
-						showAlert('Password changed successfully!', 3000, { title: 'Success', type: 'success' });
+						showAlert('Password updated.', 3000, { title: 'Password', type: 'success' });
 						document.getElementById('oPass').value = '';
 						document.getElementById('nPass').value = '';
 					}
                     else {
-						showAlert(result.error || 'Error changing password', 5000, { title: 'Error', type: 'error' });
+						showAlert(result.error || 'Could not update the password.', 5000, { title: 'Password', type: 'error' });
 					}
 				} catch (error) {
 					console.error('Error:', error);
-					showAlert('Failed to change password', 5000, { title: 'Error', type: 'error' });
+					showAlert('Could not update the password.', 5000, { title: 'Password', type: 'error' });
 				}
 			}
 
@@ -633,10 +961,10 @@
 			}
 
 			async function deleteAllMiis() {
-				showConfirm('WARNING\n\nAre you ABSOLUTELY SURE you want to DELETE ALL YOUR MIIS?\n\nThis action CANNOT be undone!', () => {
+				showConfirm('Delete every Mii you uploaded? This cannot be undone.', () => {
 					const doubleCheck = prompt('Type "DELETE ALL" to confirm:');
 					if (doubleCheck !== 'DELETE ALL') {
-						showAlert('Deletion cancelled.', 3000, { title: 'Cancelled' });
+						showAlert('Nothing was deleted.', 3000, { title: 'Deletion cancelled' });
 						return;
 					}
 
@@ -650,15 +978,15 @@
 							const result = await response.json();
 							
 							if (!result.error) {
-								showAlert(`Successfully deleted ${result.deletedCount} Miis`, 2000, { title: 'Success', type: 'success' });
+								showAlert(`Deleted ${result.deletedCount} Miis.`, 2000, { title: 'Miis deleted', type: 'success' });
 								setTimeout(() => location.reload(), 2000);
 							}
                     else {
-								showAlert(result.error || 'Error deleting Miis', 5000, { title: 'Error', type: 'error' });
+								showAlert(result.error || 'Could not delete your Miis.', 5000, { title: 'Delete Miis', type: 'error' });
 							}
 						} catch (error) {
 							console.error('Error:', error);
-							showAlert('Failed to delete Miis', 5000, { title: 'Error', type: 'error' });
+							showAlert('Could not delete your Miis.', 5000, { title: 'Delete Miis', type: 'error' });
 						}
 					})();
 				}, null, { title: 'Delete All Miis', confirmText: 'Continue' });
@@ -668,14 +996,14 @@
 				const password = document.getElementById('deleteAccountPassword').value;
 
 				if (!password) {
-					showAlert('Please enter your password to confirm account deletion', 5000, { title: 'Error', type: 'error' });
+					showAlert('Enter your password to confirm account deletion.', 5000, { title: 'Delete account', type: 'error' });
 					return;
 				}
 
-				showConfirm('FINAL WARNING\n\nAre you ABSOLUTELY SURE you want to DELETE YOUR ACCOUNT?\n\nYour Miis will remain on the site but will be attributed to "[Deleted User]".\n\nThis action CANNOT be undone!', () => {
+				showConfirm('Delete your account? Your Miis will remain in the archive under “[Deleted User].” This cannot be undone.', () => {
 					const tripleCheck = prompt('Type "DELETE MY ACCOUNT" to confirm:');
 					if (tripleCheck !== 'DELETE MY ACCOUNT') {
-						showAlert('Account deletion cancelled.', 3000, { title: 'Cancelled' });
+						showAlert('Your account was not deleted.', 3000, { title: 'Deletion cancelled' });
 						return;
 					}
 
@@ -690,18 +1018,18 @@
 							const result = await response.json();
 							
 							if (!result.error) {
-								showAlert('Account deleted successfully. Goodbye!', 2000, { title: 'Success', type: 'success' });
+								showAlert('Account deleted.', 2000, { title: 'Account deleted', type: 'success' });
 								setTimeout(() => window.location.href = '/', 2000);
 							}
                     else {
-								showAlert(result.error || 'Error deleting account', 5000, { title: 'Error', type: 'error' });
+								showAlert(result.error || 'Could not delete your account.', 5000, { title: 'Delete account', type: 'error' });
 							}
 						} catch (error) {
 							console.error('Error:', error);
-							showAlert('Failed to delete account', 5000, { title: 'Error', type: 'error' });
+							showAlert('Could not delete your account.', 5000, { title: 'Delete account', type: 'error' });
 						}
 					})();
-				}, null, { title: '⚠️ DELETE ACCOUNT', confirmText: 'Continue' });
+				}, null, { title: 'Delete account', confirmText: 'Continue' });
 			}
 		</script>
 	</body>

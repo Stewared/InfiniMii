@@ -20,10 +20,17 @@
     const dashboardMiiData = document.getElementById('dashboardMiiData');
     const dashboardDownloadBtn = document.getElementById('dashboardDownloadBtn');
     const dashboardUploadBtn = document.getElementById('dashboardUploadBtn');
+    const dashboardRenderAsBtn = document.getElementById('dashboardRenderAsBtn');
+    const dashboardRenderAsMenu = document.getElementById('dashboardRenderAsMenu');
+    const dashboardRendererStatus = document.getElementById('dashboardRendererStatus');
     const dashboardInstructionsBtn = document.getElementById('dashboardInstructionsBtn');
     const dashboardKidomaticBtn = document.getElementById('dashboardKidomaticBtn');
     const dashboardUploadForm = document.getElementById('dashboardUploadForm');
     const dashboardUploadMiiData = document.getElementById('dashboardUploadMiiData');
+    const dashboardUploadSourceMiiId = document.getElementById('dashboardUploadSourceMiiId');
+    const dashboardUploadDownloadPolicyToken = document.getElementById('dashboardUploadDownloadPolicyToken');
+    const dashboardUploadDownloadPolicyMiiData = document.getElementById('dashboardUploadDownloadPolicyMiiData');
+    const dashboardUploadDesc = document.getElementById('dashboardUploadDesc');
     const dashboardKidomaticResults = document.getElementById('dashboardKidomaticResults');
     const dashboardKidomaticGrid = document.getElementById('dashboardKidomaticGrid');
     const exportModal = document.getElementById('dashboardExportModal');
@@ -32,11 +39,24 @@
     const exportFormat = document.getElementById('dashboardExportFormat');
     const exportSpecial = document.getElementById('dashboardExportSpecial');
     const exportQrConsole = document.getElementById('dashboardExportQrConsole');
+    const exportSpecialOption = document.getElementById('dashboardExportSpecialOption');
+    const exportQrOption = document.getElementById('dashboardExportQrOption');
+    const exportNote = document.getElementById('dashboardExportNote');
     const exportMessage = document.getElementById('dashboardExportMessage');
     const exportDownloadBtn = document.getElementById('dashboardExportDownloadBtn');
     const exportCopyHexBtn = document.getElementById('dashboardExportCopyHexBtn');
     const exportCopyBase64Btn = document.getElementById('dashboardExportCopyBase64Btn');
     const dashboardConfig = window.miiDashboardConfig || {};
+    const CONFIGURED_EXPORT_FORMATS = (
+        (Array.isArray(dashboardConfig.allowedExportFormats) ? dashboardConfig.allowedExportFormats : [])
+            .map((format) => String(format || '').trim().toLowerCase())
+            .filter(Boolean)
+    );
+    const formatPolicy = window.InfiniMiiDashboardFormatPolicy;
+    const ALLOWED_EXPORT_FORMATS = new Set(CONFIGURED_EXPORT_FORMATS);
+    const CONFIGURED_DEFAULT_EXPORT_FORMAT = String(dashboardConfig.defaultExportFormat || '').trim().toLowerCase();
+    let defaultExportFormat = CONFIGURED_DEFAULT_EXPORT_FORMAT;
+    const QR_EXPORTS_ENABLED = Boolean(dashboardConfig.qrExportsEnabled && ALLOWED_EXPORT_FORMATS.has('qr'));
 
     const STAGE_EXPORT_META_FIELDS = new Set(['stageIndex', 'stageLabel', 'renderDataUri', 'heightMeasurements', 'weightMeasurements']);
     // MT QR support is temporarily disabled in the InfiniMii site UI.
@@ -46,6 +66,81 @@
     let activeExportLabel = 'Mii';
     let activeExportUsesEditedJson = true;
     let lastAnalyzeError = '';
+
+    function getRendererProfileLabel(profile) {
+        const normalizedProfile = String(profile || '').trim().toUpperCase();
+        return ['TL', 'LTD'].includes(normalizedProfile) ? normalizedProfile : 'Default';
+    }
+
+    function applyRendererPolicy(result) {
+        const activeProfile = String(result?.rendererProfile || '').trim().toUpperCase();
+        const activeProfileLabel = getRendererProfileLabel(activeProfile);
+        const available = new Set(
+            (Array.isArray(result?.availableRendererProfiles) ? result.availableRendererProfiles : [])
+                .map((profile) => String(profile || '').trim().toUpperCase())
+                .filter(Boolean)
+        );
+        document.querySelectorAll('[data-renderer-profile]').forEach((button) => {
+            const profile = String(button.dataset.rendererProfile || '').trim().toUpperCase();
+            const enabled = available.has(profile);
+            button.hidden = !enabled;
+            button.disabled = !enabled || profile === activeProfile;
+            button.classList.toggle('is-active', profile === activeProfile);
+            button.setAttribute('aria-pressed', profile === activeProfile ? 'true' : 'false');
+        });
+        if (dashboardRenderAsBtn) {
+            dashboardRenderAsBtn.disabled = false;
+            dashboardRenderAsBtn.title = 'Choose the renderer used for both previews.';
+            dashboardRenderAsBtn.textContent = `Render As: ${activeProfileLabel}`;
+        }
+        if (dashboardRendererStatus) {
+            dashboardRendererStatus.textContent = `${activeProfileLabel} renderer`;
+        }
+    }
+
+    function applyExportPolicy(result) {
+        const allowed = formatPolicy
+            ? formatPolicy.getAllowedFormats(result, CONFIGURED_EXPORT_FORMATS)
+            : (Array.isArray(result?.allowedExportFormats)
+                ? result.allowedExportFormats
+                    .map((format) => String(format || '').trim().toLowerCase())
+                    .filter((format) => CONFIGURED_EXPORT_FORMATS.includes(format))
+                : CONFIGURED_EXPORT_FORMATS);
+        ALLOWED_EXPORT_FORMATS.clear();
+        allowed.forEach((format) => ALLOWED_EXPORT_FORMATS.add(format));
+        defaultExportFormat = allowed.includes(CONFIGURED_DEFAULT_EXPORT_FORMAT)
+            ? CONFIGURED_DEFAULT_EXPORT_FORMAT
+            : (allowed[0] || '');
+
+        document.querySelectorAll('[data-dashboard-export-format]').forEach((option) => {
+            const isAllowed = ALLOWED_EXPORT_FORMATS.has(String(option.value || '').trim().toLowerCase());
+            option.disabled = !isAllowed;
+            option.hidden = !isAllowed;
+        });
+
+        const onlyLtdExportAvailable = formatPolicy
+            ? formatPolicy.isLtdOnly(allowed)
+            : (allowed.length === 1 && allowed[0] === 'ltd');
+        const qrAllowed = ALLOWED_EXPORT_FORMATS.has('qr');
+        if (exportSpecialOption) exportSpecialOption.hidden = onlyLtdExportAvailable;
+        if (exportSpecial) {
+            exportSpecial.disabled = onlyLtdExportAvailable;
+            if (onlyLtdExportAvailable) exportSpecial.checked = false;
+        }
+        if (exportQrOption) exportQrOption.hidden = !qrAllowed;
+        if (exportQrConsole) exportQrConsole.disabled = !qrAllowed;
+        if (exportNote) {
+            exportNote.textContent = onlyLtdExportAvailable
+                ? 'This Mii is available only as LTD.'
+                : 'Download formats match the Mii page.';
+        }
+        if (exportFormat) {
+            exportFormat.value = defaultExportFormat;
+            exportFormat.readOnly = onlyLtdExportAvailable;
+            if (onlyLtdExportAvailable) exportFormat.setAttribute('aria-readonly', 'true');
+            else exportFormat.removeAttribute('aria-readonly');
+        }
+    }
 
     function clonePlain(value) {
         if (typeof structuredClone === 'function') {
@@ -120,6 +215,17 @@
         const appliedMii = getAppliedDashboardMii({ showError: false });
         if (dashboardUploadMiiData && appliedMii) {
             dashboardUploadMiiData.value = JSON.stringify(appliedMii);
+        }
+        if (dashboardUploadSourceMiiId) {
+            dashboardUploadSourceMiiId.value = dashboardState?.sourceMiiId || '';
+        }
+        if (dashboardUploadDownloadPolicyToken) {
+            dashboardUploadDownloadPolicyToken.value = dashboardState?.downloadPolicyToken || '';
+        }
+        if (dashboardUploadDownloadPolicyMiiData) {
+            dashboardUploadDownloadPolicyMiiData.value = dashboardState?.downloadPolicyToken && dashboardState?.mii
+                ? JSON.stringify(dashboardState.mii)
+                : '';
         }
     }
 
@@ -293,7 +399,7 @@
     }
 
     function setDashboardQrConsole(consoleType) {
-        if (!dashboardState) return;
+        if (!QR_EXPORTS_ENABLED || !ALLOWED_EXPORT_FORMATS.has('qr') || !dashboardState) return;
         const normalized = normalizeQrConsole(consoleType);
         const src = normalized === 'TOMODACHI'
             ? dashboardState.qrTomodachiDataUri
@@ -302,7 +408,7 @@
                 : (normalized === 'WIIU' ? dashboardState.qrWiiuDataUri : dashboardState.qr3dsDataUri));
         if (!src) return;
 
-        if (dashboardQrPreview) {
+        if (QR_EXPORTS_ENABLED && dashboardQrPreview) {
             dashboardQrPreview.classList.toggle('is-qr-3ds', normalized === '3DS');
             dashboardQrPreview.classList.toggle('is-qr-wiiu', normalized === 'WIIU');
             dashboardQrPreview.classList.toggle('is-qr-tomodachi', normalized === 'TOMODACHI');
@@ -332,6 +438,8 @@
         dashboardState = result;
         activeExportMii = result.mii;
         activeExportLabel = result.miiName || 'Mii';
+        applyExportPolicy(result);
+        applyRendererPolicy(result);
 
         if (dashboardMiiName) dashboardMiiName.textContent = result.miiName || 'Decoded Mii';
         if (dashboardCreatedOn) {
@@ -362,19 +470,31 @@
             dashboardQrPreview.classList.toggle('has-tomodachi-qr', Boolean(result.qrTomodachiDataUri));
             dashboardQrPreview.classList.toggle('has-miitopia-qr', ENABLE_MIITOPIA_QRS && Boolean(result.qrMiitopiaDataUri));
         }
+        const qrAvailable = QR_EXPORTS_ENABLED
+            && ALLOWED_EXPORT_FORMATS.has('qr')
+            && Boolean(result.qr3dsDataUri || result.qrWiiuDataUri || result.qrTomodachiDataUri);
+        const dashboardQrCard = document.getElementById('dashboardQrCard');
+        if (dashboardQrCard) dashboardQrCard.hidden = !qrAvailable;
+        if (dashboardQrPreview) dashboardQrPreview.hidden = !qrAvailable;
+        if (!qrAvailable) {
+            dashboardQr?.removeAttribute('src');
+            dashboardQrLink?.removeAttribute('href');
+        }
 
         renderInfoRows(result.infoRows || []);
         renderTomodachiRows(result.tomodachiRows || []);
-        const hasTomodachiQr = Boolean(result.qrTomodachiDataUri);
-        const hasMiitopiaQr = ENABLE_MIITOPIA_QRS && Boolean(result.qrMiitopiaDataUri);
+        const hasTomodachiQr = qrAvailable && Boolean(result.qrTomodachiDataUri);
+        const hasMiitopiaQr = qrAvailable && ENABLE_MIITOPIA_QRS && Boolean(result.qrMiitopiaDataUri);
         document.querySelectorAll('[data-qr-tab="TOMODACHI"]').forEach((tab) => {
             tab.hidden = !hasTomodachiQr;
         });
         document.querySelectorAll('[data-qr-tab="MIITOPIA"]').forEach((tab) => {
             tab.hidden = !hasMiitopiaQr;
         });
-        setSpecialQrOptionAvailability(hasTomodachiQr, hasMiitopiaQr);
-        setDashboardQrConsole(hasTomodachiQr ? 'TOMODACHI' : '3DS');
+        if (qrAvailable) {
+            setSpecialQrOptionAvailability(hasTomodachiQr, hasMiitopiaQr);
+            setDashboardQrConsole(hasTomodachiQr ? 'TOMODACHI' : '3DS');
+        }
         if (dashboardSaveJsonBtn) {
             dashboardSaveJsonBtn.hidden = !(dashboardConfig.isAdmin && result.sourceMiiId);
         }
@@ -450,8 +570,8 @@
         activeExportLabel = label;
         activeExportUsesEditedJson = useEditedJson;
         if (exportLabel) exportLabel.textContent = label;
-        if (exportFormat) exportFormat.value = '';
-        if (exportQrConsole) {
+        if (exportFormat) exportFormat.value = defaultExportFormat;
+        if (ALLOWED_EXPORT_FORMATS.has('qr') && exportQrConsole) {
             const defaultMii = useEditedJson ? dashboardState?.mii : mii;
             const hasTomodachiQr = hasTomodachiData(defaultMii);
             const hasMiitopiaQr = hasMiitopiaQrData(defaultMii);
@@ -474,8 +594,11 @@
     }
 
     async function requestExport() {
-        const requestedFormat = String(exportFormat?.value || '').trim();
-        const format = requestedFormat || 'qr';
+        const requestedFormat = String(exportFormat?.value || '').trim().toLowerCase();
+        const format = requestedFormat || defaultExportFormat;
+        if (!format || !ALLOWED_EXPORT_FORMATS.has(format)) {
+            throw new Error('Choose one of the currently available export formats.');
+        }
         const miiForExport = activeExportUsesEditedJson
             ? getAppliedDashboardMii({ showError: false })
             : activeExportMii;
@@ -492,9 +615,14 @@
                 miiData: miiForExport,
                 format,
                 special: Boolean(exportSpecial?.checked),
-                qrConsole: requestedFormat
+                sourceMiiId: dashboardState?.sourceMiiId || undefined,
+                downloadPolicyToken: dashboardState?.downloadPolicyToken || undefined,
+                downloadPolicyMiiData: dashboardState?.downloadPolicyToken
+                    ? dashboardState?.mii
+                    : undefined,
+                qrConsole: ALLOWED_EXPORT_FORMATS.has('qr')
                     ? (exportQrConsole?.value || getDefaultQrConsoleForMii(miiForExport))
-                    : getDefaultQrConsoleForMii(miiForExport)
+                    : undefined
             })
         });
 
@@ -654,11 +782,23 @@
         lastAnalyzeError = '';
         setInlineMessage(messageId, loadingMessage, 'info');
 
+        const requestPayload = preserveSourceMiiId
+            ? {
+                ...payload,
+                miiId: dashboardState?.sourceMiiId || undefined,
+                downloadPolicyToken: dashboardState?.downloadPolicyToken || undefined,
+                downloadPolicyMiiData: dashboardState?.downloadPolicyToken
+                    ? dashboardState?.mii
+                    : undefined,
+                rendererProfile: payload?.rendererProfile || dashboardState?.rendererProfile || undefined
+            }
+            : payload;
+
         try {
             const response = await fetch('/miiDashboard/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(requestPayload)
             });
             const result = await response.json();
             if (result.error) {
@@ -667,6 +807,11 @@
 
             if (preserveSourceMiiId && dashboardState?.sourceMiiId && !result.sourceMiiId) {
                 result.sourceMiiId = dashboardState.sourceMiiId;
+                result.sourceMiiEra = dashboardState.sourceMiiEra || '';
+                result.downloadPolicyToken = dashboardState.downloadPolicyToken || '';
+                result.allowedExportFormats = Array.isArray(dashboardState.allowedExportFormats)
+                    ? [...dashboardState.allowedExportFormats]
+                    : undefined;
             }
 
             renderDashboard(result, { skipScroll, clearInputs });
@@ -767,7 +912,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     miiId: dashboardState.sourceMiiId,
-                    miiData: checkedResult.mii
+                    miiData: checkedResult.mii,
+                    rendererProfile: checkedResult.rendererProfile || dashboardState.rendererProfile || undefined
                 })
             });
             const result = await response.json();
@@ -830,6 +976,36 @@
         openExportModal(null, `${dashboardState.miiName || 'Mii'} (applied JSON)`, { useEditedJson: true });
     });
 
+    dashboardRenderAsBtn?.addEventListener('click', () => {
+        if (!dashboardState?.mii || !dashboardRenderAsMenu) return;
+        dashboardRenderAsMenu.hidden = !dashboardRenderAsMenu.hidden;
+        dashboardRenderAsBtn.setAttribute('aria-expanded', dashboardRenderAsMenu.hidden ? 'false' : 'true');
+    });
+
+    document.querySelectorAll('[data-renderer-profile]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            if (!dashboardState?.mii) return;
+            const rendererProfile = String(button.dataset.rendererProfile || '').trim().toUpperCase();
+            if (!rendererProfile || rendererProfile === dashboardState.rendererProfile) return;
+            const rendererProfileLabel = getRendererProfileLabel(rendererProfile);
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Rendering...';
+            await analyzeDashboardPayload(
+                { miiData: dashboardState.mii, rendererProfile },
+                {
+                    loadingMessage: `Rendering as ${rendererProfileLabel}...`,
+                    successMessage: `Rendered as ${rendererProfileLabel}.`,
+                    preserveSourceMiiId: true,
+                    skipScroll: true,
+                    clearInputs: false,
+                    messageId: 'dashboardActionMessage'
+                }
+            );
+            button.textContent = originalText;
+        });
+    });
+
     dashboardJsonDownloadBtn?.addEventListener('click', () => {
         if (!dashboardState?.mii) return;
         openExportModal(null, `${dashboardState.miiName || 'Mii'} (applied JSON)`, { useEditedJson: true });
@@ -837,10 +1013,11 @@
 
     dashboardUploadBtn?.addEventListener('click', () => {
         if (!dashboardUploadForm) return;
+        syncUploadMiiDataFromAppliedJson();
         dashboardUploadForm.hidden = false;
-        setInlineMessage('dashboardActionMessage', 'Upload options opened below.', 'success');
+        setInlineMessage('dashboardActionMessage', 'Upload form opened below.', 'success');
         dashboardUploadForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        document.getElementById('dashboardUploadDesc')?.focus();
+        dashboardUploadDesc?.focus();
     });
 
     dashboardInstructionsBtn?.addEventListener('click', () => {

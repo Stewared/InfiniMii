@@ -7,7 +7,14 @@ After=network-online.target mongod.service
 Type=simple
 WorkingDirectory=__APP_DIR__
 Environment=NODE_ENV=production
+# The default LTD runtime is __APP_DIR__/ltd-renderer/dcmp with its converted
+# asset drop beside it. LTD_RENDERER_ROOT and LTD_RENDERER_ASSET_ROOT in
+# env.json or this EnvironmentFile may override those repository-relative paths.
 EnvironmentFile=-/etc/default/infinimii
+# Builds source-sealed, host-specific acceleration modules using the renderer
+# root/Python configured in the environment or env.json. A compiler and the
+# configured Python development headers must be installed on the host.
+ExecStartPre=__NODE_BIN__ __APP_DIR__/scripts/buildNativeLtdRenderer.js
 ExecStart=__NODE_BIN__ __APP_DIR__/index.js
 Restart=always
 RestartSec=5

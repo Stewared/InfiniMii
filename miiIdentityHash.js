@@ -15,7 +15,10 @@ const MII_IDENTITY_HASH_FIELDS = [
 
 const MII_IDENTITY_HASH_VERSION = "mii-face-v4";
 const MII_OFFICIAL_IDENTITY_HASH_VERSION = "mii-face-general-v2";
+const LTD_IDENTITY_HASH_VERSION = "mii-ltd-face-v1";
+const LTD_OFFICIAL_IDENTITY_HASH_VERSION = "mii-ltd-face-general-v1";
 const MII_IDENTITY_HASH_PREFIX = `${MII_IDENTITY_HASH_VERSION}:`;
+const CURRENT_MII_IDENTITY_HASH_PATTERN = `(?:${MII_IDENTITY_HASH_VERSION}|${MII_OFFICIAL_IDENTITY_HASH_VERSION}|${LTD_IDENTITY_HASH_VERSION}|${LTD_OFFICIAL_IDENTITY_HASH_VERSION}):`;
 
 const MOUTH_TYPES_WITH_HASHED_COLOR = new Set([
     1,
@@ -98,7 +101,7 @@ function normalizeFeatureForMiiIdentityHash(field, value) {
 }
 
 function hasCurrentMiiIdentityHashVersion(value) {
-    return typeof value === "string" && value.startsWith(MII_IDENTITY_HASH_PREFIX);
+    return typeof value === "string" && new RegExp(`^${CURRENT_MII_IDENTITY_HASH_PATTERN}`).test(value);
 }
 
 function getComparableMiiSource(mii) {
@@ -148,6 +151,18 @@ function getMiiIdentityHashVersion({ includeGeneral = false } = {}) {
     return includeGeneral ? MII_OFFICIAL_IDENTITY_HASH_VERSION : MII_IDENTITY_HASH_VERSION;
 }
 
+function getLtdIdentityHash(mii, { includeGeneral = false } = {}) {
+    const source = getPlainComparableMiiSource(mii);
+    const appearanceHash = String(source?.ltdAppearanceHash || "").toLowerCase();
+    if (!/^[0-9a-f]{64}$/.test(appearanceHash)) return "";
+    const version = includeGeneral ? LTD_OFFICIAL_IDENTITY_HASH_VERSION : LTD_IDENTITY_HASH_VERSION;
+    const payload = includeGeneral
+        ? `${appearanceHash}:${JSON.stringify(normalizeValueForMiiIdentityHash(source.general))}`
+        : appearanceHash;
+    const digest = crypto.createHash("sha256").update(`${version}:${payload}`).digest("hex");
+    return `${version}:${digest}`;
+}
+
 function getMiiIdentityHashPayload(mii, { includeGeneral = false } = {}) {
     const source = normalizeMiiForIdentityHash(mii);
     if (!source || typeof source !== "object") return source;
@@ -166,7 +181,7 @@ function getMiiIdentityHashPayload(mii, { includeGeneral = false } = {}) {
     return payload;
 }
 
-function getMiiIdentityHash(mii, options = {}) {
+function getClassicMiiIdentityHash(mii, options = {}) {
     const payload = getMiiIdentityHashPayload(mii, options);
     if (!payload || typeof payload !== "object") return "";
     const hashVersion = getMiiIdentityHashVersion(options);
@@ -177,6 +192,27 @@ function getMiiIdentityHash(mii, options = {}) {
         .digest("hex");
 
     return `${hashVersion}:${digest}`;
+}
+
+function getMiiIdentityHashCandidates(mii, options = {}) {
+    const hashes = [];
+    const ltdHash = getLtdIdentityHash(mii, options);
+    if (ltdHash) hashes.push(ltdHash);
+    const classicHash = getClassicMiiIdentityHash(mii, options);
+    if (classicHash && !hashes.includes(classicHash)) hashes.push(classicHash);
+    return hashes;
+}
+
+// Mongo stores the ordinary (appearance-only) identity hash for every record,
+// including official Miis. Callers may still compare includeGeneral candidates
+// after loading those records, but the database prefilter must use the stored
+// appearance namespace or it cannot retrieve them.
+function getMiiIdentityLookupHashCandidates(mii) {
+    return getMiiIdentityHashCandidates(mii, { includeGeneral: false });
+}
+
+function getMiiIdentityHash(mii, options = {}) {
+    return getMiiIdentityHashCandidates(mii, options)[0] || "";
 }
 
 function setMiiIdentityHash(mii) {
@@ -193,8 +229,11 @@ function areMiisTheSame(miiA, miiB) {
 
 export {
     MII_IDENTITY_HASH_PREFIX,
+    CURRENT_MII_IDENTITY_HASH_PATTERN,
     areMiisTheSame,
     getMiiIdentityHash,
+    getMiiIdentityHashCandidates,
+    getMiiIdentityLookupHashCandidates,
     getMiiIdentityHashPayload,
     getMiiIdentityHashVersion,
     hasCurrentMiiIdentityHashVersion,

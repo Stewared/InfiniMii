@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "purpose": "Outfit selection inferred from the user-supplied in-game Kestron capture; these selectors are external to the ShareMii payload",
+  "target": {
+    "share_mii_path": "mii1.ltd",
+    "share_mii_sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b",
+    "display_name": "Kestron",
+    "share_mii_contains_outfit_fields": false
+  },
+  "reference_capture": {
+    "path": "reference.png",
+    "byte_length": 286709,
+    "sha256": "e86994fbc303a39d880235348c9253a123612b9c511652a0809240850b6b2291",
+    "dimensions": [337, 637]
+  },
+  "selection_scope": {
+    "source": "visual match against the title's complete cloth catalog plus Cloth/ClothModelParam RSDB rows",
+    "confidence": "high",
+    "color_variation": 10,
+    "color_variation_evidence": "The lime base, pale doodle line art, green ribbed sock cuff, and standard shoe upper/sole match variation 10 across all three selected projects. World lighting makes the captured surfaces darker and warmer than their unlit albedo.",
+    "not_claimed": "The clothing IDs and variation are not encoded anywhere in the 434-byte mii1.ltd file. They are an external capture-derived presentation state."
+  },
+  "items": [
+    {
+      "logical_slot": "tops",
+      "record": "ClothTopsTshirtLongDefault",
+      "cloth_index": 77,
+      "old_cloth_index": 540,
+      "key_hash": 3887460442,
+      "model_hash": 2919942693,
+      "param_hash": 1951359658,
+      "body_base_cutline": 3312601720,
+      "is_enable_character_color": true,
+      "model_resource": "ClothTopsTshirtLong",
+      "model_name": "ClothTopsTshirtLong",
+      "texture_project": "ClothTopsTshirtLongTexDefault",
+      "albedo": "ClothTopsTshirtLongTexDefault_Body_Alb.10",
+      "normal": "ClothTopsTshirtLongTexDefault_Body_Nrm",
+      "mask": "ClothTopsTshirtLongTexDefault_Body_Msk",
+      "material_information": "ClothTopsTshirtLongTexDefault_Body_Mic",
+      "visual_evidence": "Exact round collar, oversized short-sleeve silhouette, four-panel UV layout, lime field, and white abstract doodle pattern."
+    },
+    {
+      "logical_slot": "socks",
+      "record": "ClothSocksDefault",
+      "cloth_index": 339,
+      "old_cloth_index": 161,
+      "key_hash": 3644932053,
+      "model_hash": 2007275074,
+      "param_hash": 3269456192,
+      "body_base_cutline": 2895499086,
+      "is_enable_character_color": true,
+      "model_resource": "BodyBaseDefault",
+      "texture_project": "ClothSocksBodyBaseTexDefault",
+      "albedo": "ClothSocksBodyBaseTexDefault_Socks_Alb.10",
+      "normal": "ClothSocksBodyBaseTexDefault_Socks_Nrm",
+      "skin_mask": "ClothSocksBodyBaseTexDefault_Socks_Skm",
+      "visual_evidence": "The captured green ankle sock and its darker ribbed cuff match the variation-10 albedo on BodyBaseDefault's Socks shape."
+    },
+    {
+      "logical_slot": "shoes",
+      "record": "ClothShoesStandardDefault",
+      "cloth_index": 382,
+      "old_cloth_index": 241,
+      "key_hash": 2267040903,
+      "model_hash": 316856340,
+      "param_hash": 2224689772,
+      "body_base_cutline": 1032020994,
+      "is_enable_character_color": true,
+      "model_resource": "ClothShoesStandard",
+      "model_name": "ClothShoesStandard",
+      "texture_project": "ClothShoesStandardTexDefault",
+      "albedo": "ClothShoesStandardTexDefault_Body_Alb.10",
+      "normal": "ClothShoesStandardTexDefault_Body_Nrm",
+      "material_information": "ClothShoesStandardTexDefault_Body_Mic",
+      "visual_evidence": "The simple rounded green upper, pale sole, and standard low shoe proportions match this model and variation."
+    }
+  ],
+  "sources": [
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Model/ClothTopsTshirtLong.bfres", "byte_length": 140416, "sha256": "efbc13ad570b2f28bad37f70c7111a66374a13072dffdcf69f76ff26da8edd85"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Model/ClothShoesStandard.bfres", "byte_length": 45792, "sha256": "a9f792d12b539f846dab2c7f584a4ff2e7ef242b550273bd34aeb09c83a7a125"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.10.bntx", "byte_length": 118896, "sha256": "80c0522aeba44f45e11cfde3e09a78ebf4747ef31ca1e1085f0410fcaa7e52cc"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Nrm.bntx", "byte_length": 258160, "sha256": "7b156962752d44cbda999b3765dd4048b7d442def7466a4aac90986c20e7d2e0"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Msk.bntx", "byte_length": 135280, "sha256": "a992ab113d2283f58d9ab175b30f1fbb3e5e08ca39b47f8de430f1689d8b5402"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Mic.bntx", "byte_length": 118896, "sha256": "5668bf5123a1a416593b30bd1c3dac3bad84745cb736b4e8c8b71ce1663d32fd"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothShoesStandardTexDefault_Body_Alb.10.bntx", "byte_length": 57456, "sha256": "bb15f8604f3c2e0d103f91a13f78d159d3448272429cfb935a622667a640e0c8"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothShoesStandardTexDefault_Body_Nrm.bntx", "byte_length": 94320, "sha256": "9503d8d7e86f2ca3dae26770688b022084eb58f69ceac3f84d749e6fd7deb553"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothShoesStandardTexDefault_Body_Mic.bntx", "byte_length": 57456, "sha256": "35362c487b0d7b3ffe08a5fde0b1236ffdd786fad8357146273b62ae3f20ebdc"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothSocksBodyBaseTexDefault_Socks_Alb.10.bntx", "byte_length": 73840, "sha256": "70122ed5ff5079515b385155b2f7f2cc6ba97ae97a23951a25d63fec0b32d226"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothSocksBodyBaseTexDefault_Socks_Nrm.bntx", "byte_length": 163952, "sha256": "f711ad95bc71227c70b7dfb87b6a7e4f2021f69474d9bbfec116003623b6ec60"},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothSocksBodyBaseTexDefault_Socks_Skm.bntx", "byte_length": 86128, "sha256": "59fdd5c92511680e0a1f03d50430fd6355fc1715d991ef946805c7757e3c5cb6"}
+  ],
+  "current_renderer_boundary": {
+    "geometry": "Exact BFRES geometry, exact IconPose skinning, and exact Kestron body scale",
+    "textures": "All ten selected albedo/normal/material-information/skin-mask surfaces have exact native BNTX mip chains cataloged (90 levels total); the compiled top, bottoms, and shoe programs omit their serialized _alp0 assignments, so those alpha-mask surfaces are inactive evidence rather than runtime opacity inputs",
+    "materials": "Top body GameAll 984, bottoms body GameAll 936, shoes GameAll 912, and BodyBaseDefault BodyFoot socks GameAll 324 are cataloged by the checked outfit/body program ledgers; local active albedo/normal/roughness inputs are reproduced, top/bottom Softmesh program 36 is skipped fail-closed, and environment-dependent GameUber lobes remain bounded below",
+    "lighting": "Portable GameUber approximation; the reference capture's environment/light/static-shadow buffers are not reproduced",
+    "pose": "IconPose is a deterministic preview pose, not the world-idle pose visible in the capture"
+  }
+}

@@ -1,5 +1,9 @@
 <%
 const footerHasMii = typeof mii !== 'undefined' && mii;
+const footerExportValues = (typeof exportFormats !== 'undefined' && Array.isArray(exportFormats) ? exportFormats : [])
+    .map((format) => String(format?.value || '').trim().toLowerCase())
+    .filter(Boolean);
+const footerQrExportsEnabled = footerExportValues.includes('qr');
 const footerMiiDateMetadata = footerHasMii && typeof getMiiDateMetadata === 'function'
     ? getMiiDateMetadata(mii, typeof pageUpdatedAt !== 'undefined' ? pageUpdatedAt : undefined)
     : null;
@@ -16,10 +20,10 @@ const resolvedUpdatedAt = (() => {
 const hasResolvedUpdatedAt = resolvedUpdatedAt instanceof Date && !Number.isNaN(resolvedUpdatedAt.getTime());
 %>
 <div class="content-metadata" hidden>
-    <p><strong>Site Summary:</strong> InfiniMii is a searchable database and toolkit for Nintendo Mii characters, including browsing, downloads, QR codes, conversion tools, transfer guides, and official Mii preservation.</p>
+    <p><strong>Site summary:</strong> InfiniMii is a searchable Mii archive with <%= footerQrExportsEnabled ? 'file and QR downloads' : 'LTD downloads and QR scanning' %>, format conversion, transfer guides, and records of official Nintendo Miis.</p>
     <% if (hasResolvedUpdatedAt) { %>
     <p class="last-updated">
-        <strong>Last Updated:</strong>
+        <strong>Last updated:</strong>
         <time datetime="<%= resolvedUpdatedAt.toISOString() %>">
             <%= resolvedUpdatedAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
         </time>
@@ -29,7 +33,7 @@ const hasResolvedUpdatedAt = resolvedUpdatedAt instanceof Date && !Number.isNaN(
 
 <footer class="site-footer">
     <div class="footer-scrape-links sr-only" aria-hidden="true">
-        <h3>Guides & Help</h3>
+        <h3>Guides and help</h3>
         <ul>
             <li><a href="/guides/transfer" tabindex="-1">How to Transfer Miis</a></li>
             <li><a href="/guides/formats" tabindex="-1">Mii Format Guide</a></li>
@@ -45,20 +49,20 @@ const hasResolvedUpdatedAt = resolvedUpdatedAt instanceof Date && !Number.isNaN(
             <ul>
                 <li><a href="/trending">Trending</a></li>
                 <li><a href="/top">Top</a></li>
-                <li><a href="/recent">Recently Added</a></li>
+                <li><a href="/recent">Recently added</a></li>
                 <li><a href="/official">Official Nintendo Miis</a></li>
                 <li><a href="/random">Random Miis</a></li>
             </ul>
         </div>
         
         <div class="footer-section">
-            <h3>Tools & Features</h3>
+            <h3>Tools</h3>
             <ul>
-                <li><a href="/miiDashboard">Mii Dashboard & Converter</a></li>
-                <li><a href="/qr">QR Code Scanner</a></li>
-                <li><a href="/amiibo">Amiibo Tools</a></li>
-                <li><a href="/wiimote">Wii Remote Tools</a></li>
-                <li><a href="/upload">Upload Your Mii</a></li>
+                <li><a href="/miiDashboard">Mii Dashboard and converter</a></li>
+                <li><a href="/qr">QR code scanner</a></li>
+                <li><a href="/amiibo">Amiibo tools</a></li>
+                <li><a href="/wiimote">Wii Remote tools</a></li>
+                <li><a href="/upload">Upload a Mii</a></li>
                 <li><a href="/search">Search Miis</a></li>
                 <li><a href="/mii/average">The Average Mii</a></li>
             </ul>
@@ -70,9 +74,9 @@ const hasResolvedUpdatedAt = resolvedUpdatedAt instanceof Date && !Number.isNaN(
                 <li><a href="<%= discordInvite %>" target="_blank" rel="noopener">Discord</a></li>
                 <li><a href="/contact">Contact</a></li>
                 <li><a href="/about">About InfiniMii</a></li>
-                <li><a href="/guidelines">Community Guidelines</a></li>
-                <li><a href="/privacy">Privacy Policy</a></li>
-                <li><a href="/tos">Terms of Service</a></li>
+                <li><a href="/guidelines">Community guidelines</a></li>
+                <li><a href="/privacy">Privacy policy</a></li>
+                <li><a href="/tos">Terms of service</a></li>
                 <li><a href="/mods">Official InfiniMii Accounts</a></li>
             </ul>
         </div>
@@ -80,7 +84,7 @@ const hasResolvedUpdatedAt = resolvedUpdatedAt instanceof Date && !Number.isNaN(
     
     <div class="footer-bottom">
         <p>&copy;<%= (new Date).getFullYear() %> Stewared. Not affiliated with Nintendo. Nintendo, Nintendo DS, Wii, Nintendo 3DS, Wii U, Amiibo, Nintendo Switch, Switch 2, and Mii are trademarks of Nintendo.</p>
-        <p>Brought to you by <a href="https://stewared.com/">Stewared</a> | Open Source on <a href="https://github.com/Stewared/InfiniMii">Github</a> | <a href="https://github.com/Stewared/MiiJS" target="_blank" rel="noopener">MiiJS</a> | <a href="<%= paypalDonateUrl || 'https://www.paypal.com/donate?business=kestron@kestron.com&no_recurring=0&item_name=Stewared&item_number=InfiniMii' %>">Donate</a> | <a target="_blank" href="https://infinimii.com/feed.xml">RSS</a></p>
+        <p>Built by <a href="https://stewared.com/">Stewared</a> | Source code on <a href="https://github.com/Stewared/InfiniMii">GitHub</a> | <a href="https://github.com/Stewared/MiiJS" target="_blank" rel="noopener">MiiJS</a> | <a href="<%= paypalDonateUrl || 'https://www.paypal.com/donate?business=kestron@kestron.com&no_recurring=0&item_name=Stewared&item_number=InfiniMii' %>">Donate</a> | <a target="_blank" href="https://infinimii.com/feed.xml">RSS</a></p>
     </div>
 </footer>
 

@@ -2,8 +2,24 @@
     const safeAvailableTags = Array.isArray(availableTags) ? availableTags : [];
     const safeSelectedTags = Array.isArray(selectedTags) ? selectedTags : [];
     const safeExcludedTags = (typeof excludedTags !== 'undefined' && Array.isArray(excludedTags)) ? excludedTags : [];
-    const selectedTagSet = new Set(safeSelectedTags.map(tag => String(tag || '').toLowerCase()));
-    const excludedTagSet = new Set(safeExcludedTags.map(tag => String(tag || '').toLowerCase()));
+    const selectedTagSet = new Set(safeSelectedTags.map(tag => String(tag || '').trim().toLowerCase()).filter(Boolean));
+    const excludedTagSet = new Set(safeExcludedTags.map(tag => String(tag || '').trim().toLowerCase()).filter(Boolean));
+    const filterTagCatalog = [];
+    const seenFilterTags = new Set();
+    [...safeAvailableTags, ...safeSelectedTags].forEach((tag) => {
+        const tagLabel = String(tag || '').trim();
+        const tagKey = tagLabel.toLowerCase();
+        if (!tagLabel || seenFilterTags.has(tagKey) || (excludedTagSet.has(tagKey) && !selectedTagSet.has(tagKey))) return;
+        seenFilterTags.add(tagKey);
+        filterTagCatalog.push(tagLabel);
+    });
+    const activeExcludedTags = safeExcludedTags.filter((tag, index, values) => {
+        const tagKey = String(tag || '').trim().toLowerCase();
+        return tagKey
+            && !selectedTagSet.has(tagKey)
+            && values.findIndex(value => String(value || '').trim().toLowerCase() === tagKey) === index;
+    });
+    const activeTagFilterCount = selectedTagSet.size + activeExcludedTags.length;
     const panelPrefix = (typeof tagUiIdPrefix === 'string' && tagUiIdPrefix.trim())
         ? tagUiIdPrefix.trim()
         : 'search-tags';
@@ -11,53 +27,143 @@
     const showTagManagement = (typeof renderTagManagement === 'boolean') ? renderTagManagement : true;
 %>
 <% if (showTagFilters) { %>
-    <section class="search-tags-panel" aria-label="Filter by tags">
-        <h3 class="search-tags-title">Filter by Tags</h3>
-        <% if (safeAvailableTags.length > 0) { %>
-            <div class="tag-filter-options">
-                <% safeAvailableTags.forEach(tag => { %>
-                    <%
-                        const tagKey = String(tag || '').toLowerCase();
-                        const tagState = selectedTagSet.has(tagKey)
-                            ? 'include'
-                            : (excludedTagSet.has(tagKey) ? 'exclude' : 'neutral');
-                    %>
-                    <div
-                        class="tri-filter-control tag-filter-control"
-                        data-tri-filter
-                        data-filter-kind="tag"
-                        data-filter-label="<%= tag %>"
-                        data-include-name="tags"
-                        data-exclude-name="excludeTags"
-                        data-state="<%= tagState %>"
+    <section class="search-tags-panel" aria-labelledby="<%= panelPrefix %>-filter-title" data-tag-filter-panel>
+        <header class="advanced-filter-heading search-tags-heading">
+            <div>
+                <h3 class="search-tags-title" id="<%= panelPrefix %>-filter-title">Tags</h3>
+                <p id="<%= panelPrefix %>-filter-help">Choose tags that every result should include.</p>
+            </div>
+            <output class="tag-filter-count" data-tag-filter-count aria-live="polite"><%= activeTagFilterCount %> active</output>
+        </header>
+
+        <% if (filterTagCatalog.length > 0) { %>
+            <div class="tag-filter-toolbar">
+                <label class="tag-filter-search" for="<%= panelPrefix %>-filter-search">
+                    <span class="sr-only">Find a tag</span>
+                    <input
+                        id="<%= panelPrefix %>-filter-search"
+                        type="search"
+                        inputmode="search"
+                        autocomplete="off"
+                        placeholder="Find a tag"
+                        data-tag-filter-search
+                    >
+                </label>
+                <button type="button" class="tag-filter-clear" data-tag-filter-clear <%= activeTagFilterCount === 0 ? 'disabled' : '' %>>Clear</button>
+            </div>
+
+            <div class="tag-filter-options" aria-describedby="<%= panelPrefix %>-filter-help" data-tag-filter-options>
+                <% filterTagCatalog.forEach((tag, index) => { %>
+                    <% const tagKey = String(tag || '').toLowerCase(); %>
+                    <label
+                        class="advanced-search-check tag-filter-check"
+                        for="<%= panelPrefix %>-filter-<%= index %>"
+                        data-tag-filter-entry
+                        data-tag-filter-value="<%= tagKey %>"
                     >
                         <input
-                            type="hidden"
-                            data-tri-filter-input
-                            name="<%= tagState === 'exclude' ? 'excludeTags' : 'tags' %>"
+                            id="<%= panelPrefix %>-filter-<%= index %>"
+                            type="checkbox"
+                            name="tags"
                             value="<%= tag %>"
-                            <%= tagState === 'neutral' ? 'disabled' : '' %>
+                            data-tag-filter-checkbox
+                            <%= selectedTagSet.has(tagKey) ? 'checked' : '' %>
                         >
-                        <button
-                            type="button"
-                            class="tag-filter-option tri-filter-option <%= tagState === 'include' ? 'is-include' : (tagState === 'exclude' ? 'is-exclude' : 'is-neutral') %>"
-                            data-tri-filter-button
-                            aria-pressed="<%= tagState === 'include' ? 'true' : (tagState === 'exclude' ? 'mixed' : 'false') %>"
-                            aria-label="<%= tag %> tag: <%= tagState %>. Click to <%= tagState === 'neutral' ? 'include' : (tagState === 'include' ? 'exclude' : 'reset') %>."
-                        >
-                            <span class="tri-filter-status" aria-hidden="true">
-                                <span class="tri-filter-icon tri-filter-icon-include"><%- include('icon', { name: 'check', size: 12 }) %></span>
-                                <span class="tri-filter-icon tri-filter-icon-exclude"><%- include('icon', { name: 'x', size: 12 }) %></span>
-                            </span>
-                            <span class="tag-marquee-content"><%= tag %></span>
-                        </button>
-                    </div>
+                        <span><%= tag %></span>
+                    </label>
                 <% }) %>
             </div>
+            <p class="tag-filter-no-match" data-tag-filter-no-match hidden>No tags match that search.</p>
+
+            <% if (activeExcludedTags.length > 0) { %>
+                <fieldset class="advanced-era-filters tag-exclusion-filters">
+                    <legend>Excluded tags</legend>
+                    <p>These tags are excluded by the current search. Uncheck one to remove that exclusion.</p>
+                    <div class="advanced-era-filter-options">
+                        <% activeExcludedTags.forEach((tag, index) => { %>
+                            <label
+                                class="advanced-search-check tag-filter-check tag-filter-check-excluded"
+                                for="<%= panelPrefix %>-excluded-<%= index %>"
+                                data-tag-filter-entry
+                                data-tag-filter-value="<%= String(tag || '').toLowerCase() %>"
+                            >
+                                <input
+                                    id="<%= panelPrefix %>-excluded-<%= index %>"
+                                    type="checkbox"
+                                    name="excludeTags"
+                                    value="<%= tag %>"
+                                    data-tag-filter-checkbox
+                                    checked
+                                >
+                                <span><%= tag %></span>
+                            </label>
+                        <% }) %>
+                    </div>
+                </fieldset>
+            <% } %>
         <% } else { %>
             <p class="tag-filter-empty">No tags are available yet.</p>
         <% } %>
     </section>
+
+    <script>
+        (() => {
+            document.querySelectorAll('[data-tag-filter-panel]').forEach((panel) => {
+                if (panel.dataset.tagFilterReady === 'true') return;
+                panel.dataset.tagFilterReady = 'true';
+
+                const searchInput = panel.querySelector('[data-tag-filter-search]');
+                const clearButton = panel.querySelector('[data-tag-filter-clear]');
+                const countOutput = panel.querySelector('[data-tag-filter-count]');
+                const noMatchMessage = panel.querySelector('[data-tag-filter-no-match]');
+                const entries = Array.from(panel.querySelectorAll('[data-tag-filter-entry]'));
+                const checkboxes = Array.from(panel.querySelectorAll('[data-tag-filter-checkbox]'));
+
+                const updateCount = () => {
+                    const activeCount = checkboxes.filter((checkbox) => checkbox.checked).length;
+                    if (countOutput) countOutput.textContent = `${activeCount} active`;
+                    if (clearButton) clearButton.disabled = activeCount === 0;
+                };
+
+                const filterEntries = () => {
+                    const searchValue = (searchInput?.value || '').trim().toLocaleLowerCase();
+                    let visibleCount = 0;
+
+                    entries.forEach((entry) => {
+                        const isVisible = !searchValue || (entry.dataset.tagFilterValue || '').includes(searchValue);
+                        entry.hidden = !isVisible;
+                        if (isVisible) visibleCount += 1;
+                    });
+
+                    if (noMatchMessage) noMatchMessage.hidden = visibleCount !== 0;
+                };
+
+                searchInput?.addEventListener('input', filterEntries);
+                searchInput?.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') event.preventDefault();
+                    if (event.key === 'Escape' && searchInput.value) {
+                        event.preventDefault();
+                        searchInput.value = '';
+                        filterEntries();
+                    }
+                });
+
+                panel.addEventListener('change', (event) => {
+                    if (event.target.matches('[data-tag-filter-checkbox]')) updateCount();
+                });
+
+                clearButton?.addEventListener('click', () => {
+                    checkboxes.forEach((checkbox) => {
+                        checkbox.checked = false;
+                    });
+                    updateCount();
+                    searchInput?.focus();
+                });
+
+                updateCount();
+            });
+        })();
+    </script>
 <% } %>
 
 <% if (showTagManagement && isModerator) { %>

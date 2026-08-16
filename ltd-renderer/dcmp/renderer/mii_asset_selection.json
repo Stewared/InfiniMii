@@ -1,0 +1,843 @@
+{
+  "schema_version": 1,
+  "purpose": "Archived deterministic rendering-part resolution for Emma's mii3.ltd CharInfoEx payload.",
+  "input": {
+    "path": "mii3.ltd",
+    "byte_length": 434,
+    "sha256": "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776",
+    "char_info_ex_file_offset": 9,
+    "char_info_ex_length": 152,
+    "parsed_companion": "renderer/mii.json"
+  },
+  "container_layout": {
+    "coverage": {
+      "first_file_offset_hex": "0x000",
+      "last_file_offset_hex": "0x1b1",
+      "byte_count": 434,
+      "machine_readable_field_ledger": "renderer/mii_fields.csv",
+      "ledger_rows": 157,
+      "physical_nonzero_length_rows": 146,
+      "covered_bytes": 434,
+      "missing_bytes": 0,
+      "overlapping_physical_bytes": 0
+    },
+    "spans": [
+      {
+        "range_hex_inclusive": "0x000-0x008",
+        "length": 9,
+        "name": "ShareMii v2 header",
+        "fields": {
+          "version_u8": 2,
+          "has_canvas_u8": 0,
+          "has_ugc_texture_u8": 0,
+          "reserved_u8": 0,
+          "legacy_padding_u8": 0,
+          "char_info_length_u32le": 152
+        }
+      },
+      {
+        "range_hex_inclusive": "0x009-0x0a0",
+        "length": 152,
+        "name": "CharInfoEx",
+        "fields": {
+          "uuid_bytes": "3c763c0380212e3896fea36903ab9217",
+          "uuid_display": "3c763c03-8021-2e38-96fe-a36903ab9217",
+          "internal_name_utf16le_11": "no name",
+          "font_region": 0,
+          "gender": 1,
+          "height": 65,
+          "build": 64,
+          "region_move": 0,
+          "appearance_bytes": "Named individually in renderer/mii_fields.csv and resolved in selectors below.",
+          "schema_version": 45
+        }
+      },
+      {
+        "range_hex_inclusive": "0x0a1-0x0e8",
+        "length": 72,
+        "name": "personality, voice, enum hashes, and birthday",
+        "storage": "18 consecutive signed i32 little-endian values",
+        "fields_in_order": {
+          "sociability": 2,
+          "audaciousness": 4,
+          "activeness": 6,
+          "commonsense": 5,
+          "gaiety": 6,
+          "voice_formant": 25,
+          "voice_speed": 28,
+          "voice_intonation": 0,
+          "voice_pitch": 34,
+          "voice_tension": 5,
+          "voice_preset_type_hash": 991922965,
+          "face_gender_hash": 991922965,
+          "pronoun_type_hash": 632254181,
+          "cloth_style_hash": 991922965,
+          "birthday_year": 2000,
+          "birthday_day": 14,
+          "birthday_direct_age": -1,
+          "birthday_month": 5
+        },
+        "known_hash_meanings": {
+          "991922965_hex": "0x3b1f8b15 = female for voice preset, face gender, and cloth style",
+          "632254181_hex": "0x25af6ee5 = she"
+        }
+      },
+      {
+        "range_hex_inclusive": "0x0e9-0x128",
+        "length": 64,
+        "name": "ShareMii display name",
+        "storage": "UTF-16LE char16[32], NUL padded",
+        "value": "Emma"
+      },
+      {
+        "range_hex_inclusive": "0x129-0x1a8",
+        "length": 128,
+        "name": "ShareMii pronunciation",
+        "storage": "UTF-16LE char16[64], NUL padded",
+        "value": "Emma"
+      },
+      {
+        "range_hex_inclusive": "0x1a9-0x1ab",
+        "length": 3,
+        "name": "love-gender flags",
+        "raw_bytes": [0, 1, 0],
+        "meaning": {"male": false, "female": true, "third": false}
+      },
+      {
+        "range_hex_inclusive": "0x1ac-0x1ae",
+        "length": 3,
+        "name": "canvas marker",
+        "raw_hex": "a3a3a3",
+        "meaning": "Three-byte A3 sentinel because header.has_canvas is false; no canvas bytes follow."
+      },
+      {
+        "range_hex_inclusive": "0x1af-0x1b1",
+        "length": 3,
+        "name": "UGC texture marker",
+        "raw_hex": "a3a3a3",
+        "meaning": "Three-byte A3 sentinel because header.has_ugc_texture is false; no UGC texture bytes follow."
+      }
+    ],
+    "tail_semantics": {
+      "fixed_tail_start_hex": "0x0a1",
+      "fixed_tail_length": 273,
+      "optional_canvas_present": false,
+      "optional_ugc_texture_present": false,
+      "bytes_after_ugc_marker": 0,
+      "parse_consumes_exact_file_length": true
+    }
+  },
+  "resolution_rules": {
+    "part_identity": "Match the serialized selector to PartsIndex inside the requested Category. Never infer PartsIndex from a decimal suffix in FileName.",
+    "zero_is_not_universal_none": "PartsIndex 0 is a real asset in some categories (Faceline00 and Eyebrow00) and an explicit *Nothing record in others.",
+    "nothing_gate": "A resolved *Nothing record has neither TextureName nor ModelUnit and contributes no draw call. Its stored transform and color bytes remain serialized state only.",
+    "flag_gate": "Feature flags are applied after PartsIndex resolution. A disabled flag suppresses the feature even when its color/transform bytes are nonzero.",
+    "hair_subselector_gate": "hairTypeFront and hairTypeBack are subordinate editor/composition state. They are only consumed when the selected main Category=Hair record advertises the corresponding attachability. HairAll073 does not advertise IsAttachableHairFront and has no attach-info, so both subordinate values are ignored for this Mii."
+  },
+  "hair_composition_decision": {
+    "selected_main_hair": "HairAll073",
+    "selected_main_parts_index": 258,
+    "render_hair_all_model": true,
+    "render_hair_front_model": false,
+    "render_hair_back_model": false,
+    "raw_hair_front_type": 2,
+    "raw_hair_back_type": 0,
+    "why": [
+      "HairAll073 is the unique Category=Hair record whose internal PartsIndex is 258.",
+      "HairAll073 has a complete ModelUnit, empty Components, and no IsAttachableHairFront or HairPartsAttachInfo property; absent boolean properties deserialize false.",
+      "HairFront002 is a valid Category=HairFront PartsIndex=2 candidate, but the selected main hair record does not enable it.",
+      "HairBack000 is not PartsIndex 0. Its internal Category is Hair and its internal PartsIndex is 206, and it explicitly advertises IsAttachableHairFront=true. Therefore raw hairTypeBack=0 must not be resolved to HairBack000 by filename suffix.",
+      "The presence of set_front/set_side/set_top bones is not an enable signal: MiiHairFront002 itself contains the same generic socket trio."
+    ],
+    "inactive_diagnostic_candidates": {
+      "hair_front": {
+        "record": "HairFront002",
+        "parts_index": 2,
+        "source_model": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairFront002.bfres"
+      },
+      "hair_back_filename_ordinal_only": {
+        "record": "HairBack000",
+        "internal_parts_index": 206,
+        "source_model": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairBack000.bfres",
+        "warning": "This is useful for diagnosing the editor byte, but it is not selected by Category+PartsIndex for this Mii."
+      }
+    }
+  },
+  "records": {
+    "Faceline00": {
+      "category": "Faceline",
+      "parts_index": 0,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Faceline00.mii__Parts.bgyml",
+      "fmdb": "Work/Model/Mii/MiiHead/MiiHead00/output/MiiHead00.fmdb",
+      "source_bfres": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHead00.bfres",
+      "render_obj": "renderer/assets/models/MiiHead00/MiiHead00.obj",
+      "textures": [
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiHead00_Head_Nmh.png"
+      ]
+    },
+    "HairAll073": {
+      "category": "Hair",
+      "parts_index": 258,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/HairAll073.mii__Parts.bgyml",
+      "fmdb": "Work/Model/Mii/MiiHairAll/MiiHairAll073/output/MiiHairAll073.fmdb",
+      "phive_phcl": "Work/Phive/Cloth/MiiHairAll073.phcl",
+      "source_bfres": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairAll073.bfres",
+      "render_obj": "renderer/assets/models/MiiHairAll073/MiiHairAll073.obj",
+      "is_selectable_sub_color": true,
+      "is_attachable_hair_front": false,
+      "components": {},
+      "textures": [
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiHairAll073_Msk.png",
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiHairAll073_Nrm.png",
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiHairAll073_Mim.png",
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiHairAll073_Mgh.png"
+      ]
+    },
+    "HairFront002": {
+      "category": "HairFront",
+      "parts_index": 2,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/HairFront002.mii__Parts.bgyml",
+      "fmdb": "Work/Model/Mii/MiiHairFront/MiiHairFront002/output/MiiHairFront002.fmdb",
+      "source_bfres": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairFront002.bfres",
+      "is_flippable": true,
+      "enabled_for_this_mii": false
+    },
+    "HairBack000": {
+      "category": "Hair",
+      "parts_index": 206,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/HairBack000.mii__Parts.bgyml",
+      "fmdb": "Work/Model/Mii/MiiHairBack/MiiHairBack000/output/MiiHairBack000.fmdb",
+      "source_bfres": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairBack000.bfres",
+      "is_attachable_hair_front": true,
+      "enabled_for_this_mii": false
+    },
+    "Eye002": {
+      "category": "Eye",
+      "parts_index": 2,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eye002.mii__Parts.bgyml",
+      "texture_name": "Eye002",
+      "texture_png": "../ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eye002.png",
+      "axis_for_expression": [0.386, -0.037],
+      "eye_accessory_ref": "Work/Mii/EyeAccessoryParam/Eye002.mii__EyeAccessoryParam.gyml",
+      "eye_accessory_row_id": 1640263226
+    },
+    "EyelashUpper01": {
+      "category": "EyelashUpper",
+      "parts_index": 2,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/EyelashUpper01.mii__Parts.bgyml",
+      "texture_name": "EyelashUpper01",
+      "texture_png": "../ltdDemo_converted_assets/textures_png/1/Tex/Pack/EyelashUpper01.png"
+    },
+    "Eyebrow00": {
+      "category": "Eyebrow",
+      "parts_index": 0,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eyebrow00.mii__Parts.bgyml",
+      "texture_name": "Eyebrow00",
+      "texture_png": "../ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eyebrow00.png",
+      "axis_for_expression": [0.3, 0.18]
+    },
+    "Nose25": {
+      "category": "Nose",
+      "parts_index": 27,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Nose25.mii__Parts.bgyml",
+      "fmdb": "Work/Model/Mii/MiiNose/MiiNose25/output/MiiNose25.fmdb",
+      "source_bfres": "../ltdDemo_converted_assets/decompressed/1/Model/MiiNose25.bfres",
+      "render_obj": "renderer/assets/models/MiiNose25/MiiNose25.obj",
+      "textures": [
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiNose25_Hgt.png",
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiNose25_Mim.png",
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiNose25_NoseLine_Msk.png"
+      ]
+    },
+    "Mouth045": {
+      "category": "Mouth",
+      "parts_index": 46,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mouth045.mii__Parts.bgyml",
+      "texture_name": "Mouth045",
+      "texture_png": "../ltdDemo_converted_assets/textures_png/1/Tex/Pack/Mouth045.png",
+      "is_mouth_open": false
+    },
+    "Glass08": {
+      "category": "Glass",
+      "parts_index": 9,
+      "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Glass08.mii__Parts.bgyml",
+      "fmdb": "Work/Model/Mii/MiiGlass/MiiGlass08/output/MiiGlass08.fmdb",
+      "source_bfres": "../ltdDemo_converted_assets/decompressed/1/Model/MiiGlass08.bfres",
+      "render_obj": "renderer/assets/models/MiiGlass08/MiiGlass08.obj",
+      "textures": [
+        "../ltdDemo_converted_assets/textures_png/1/Tex/MiiGlass08_Nrm.png"
+      ],
+      "active_materials": ["Flame__mt_Body", "Trs__mt_LensTrs"],
+      "inactive_materials": ["Opa__mt_LensOpa"],
+      "lens_selection": {
+        "material_mode_field": "glass_lens_material_mode / CharInfoEx+0x92",
+        "material_mode_value": 0,
+        "binary_visibility": "FUN_7101d7daf0 enables every material, then hides mt_LensTrs only for mode 2; modes 0 and 1 hide mt_LensOpa",
+        "active_shape": "Trs__mt_LensTrs",
+        "const_color_albedo": [0.0, 0.0, 0.0, 1.0],
+        "const_single_alpha": 0.0,
+        "glass_decay_color": [1.0, 1.0, 1.0, 0.0],
+        "render_state": "translucent, premultiplied RGB blend (one, one-minus-source-alpha), alpha test disabled, depth write disabled",
+        "normal_texture": "MiiGlass08_Nrm",
+        "derivation": "FUN_7101d7c4e0 mode 0 forces common color 8, produces decay (1,1,1), and sets alpha 0. Exact Trs GameUber selection and the unrecovered environment/reflection boundary are recorded in renderer/mii3_gameuber_programs.json."
+      }
+    },
+    "nothing_records": {
+      "EarNothing": {"category": "Ear", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/EarNothing.mii__Parts.bgyml"},
+      "WrinkleLowerNothing": {"category": "WrinkleLower", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/WrinkleLowerNothing.mii__Parts.bgyml"},
+      "WrinkleUpperNothing": {"category": "WrinkleUpper", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/WrinkleUpperNothing.mii__Parts.bgyml"},
+      "MakeUpperNothing": {"category": "MakeUpper", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/MakeUpperNothing.mii__Parts.bgyml"},
+      "MakeLowerNothing": {"category": "MakeLower", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/MakeLowerNothing.mii__Parts.bgyml"},
+      "HighlightNothing": {"category": "Highlight", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/HighlightNothing.mii__Parts.bgyml"},
+      "EyelashLowerNothing": {"category": "EyelashLower", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/EyelashLowerNothing.mii__Parts.bgyml"},
+      "EyelidUpperNothing": {"category": "EyelidUpper", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/EyelidUpperNothing.mii__Parts.bgyml"},
+      "EyelidLowerNothing": {"category": "EyelidLower", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/EyelidLowerNothing.mii__Parts.bgyml"},
+      "BeardNothing": {"category": "Beard", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/BeardNothing.mii__Parts.bgyml"},
+      "BeardShortNothing": {"category": "BeardShort", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/BeardShortNothing.mii__Parts.bgyml"},
+      "MustacheNothing": {"category": "Mustache", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/MustacheNothing.mii__Parts.bgyml"},
+      "GlassNothing": {"category": "Glass", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/GlassNothing.mii__Parts.bgyml"},
+      "MoleNothing": {"category": "Mole", "parts_index": 0, "metadata": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/MoleNothing.mii__Parts.bgyml"}
+    }
+  },
+  "selectors": [
+    {
+      "field": "faceline_type",
+      "char_info_offset_hex": "0x2c",
+      "file_offset_hex": "0x35",
+      "raw": 0,
+      "category": "Faceline",
+      "record": "Faceline00",
+      "enabled": true,
+      "associated": {"faceline_color": 100}
+    },
+    {
+      "field": "wrinkle_lower_type",
+      "char_info_offset_hex": "0x2e",
+      "file_offset_hex": "0x37",
+      "raw": 0,
+      "category": "WrinkleLower",
+      "record": "WrinkleLowerNothing",
+      "enabled": false,
+      "stored_transform": {"scale": 6, "aspect": 3, "x": 2, "y": 15}
+    },
+    {
+      "field": "wrinkle_upper_type",
+      "char_info_offset_hex": "0x33",
+      "file_offset_hex": "0x3c",
+      "raw": 0,
+      "category": "WrinkleUpper",
+      "record": "WrinkleUpperNothing",
+      "enabled": false,
+      "stored_transform": {"scale": 6, "aspect": 3, "x": 7, "y": 23}
+    },
+    {
+      "field": "makeup_upper_type",
+      "char_info_offset_hex": "0x38",
+      "file_offset_hex": "0x41",
+      "raw": 0,
+      "category": "MakeUpper",
+      "record": "MakeUpperNothing",
+      "enabled": false,
+      "associated": {"color": 89},
+      "stored_transform": {"scale": 6, "aspect": 3, "x": 1, "y": 12}
+    },
+    {
+      "field": "makeup_lower_type",
+      "char_info_offset_hex": "0x3e",
+      "file_offset_hex": "0x47",
+      "raw": 0,
+      "category": "MakeLower",
+      "record": "MakeLowerNothing",
+      "enabled": false,
+      "associated": {"color": 25},
+      "stored_transform": {"scale": 5, "aspect": 3, "x": 6, "y": 19}
+    },
+    {
+      "field": "hair_type",
+      "char_info_offset_hex": "0x44",
+      "file_offset_hex": "0x4d",
+      "width_bytes": 2,
+      "endianness": "little",
+      "raw": 258,
+      "category": "Hair",
+      "record": "HairAll073",
+      "enabled": true,
+      "associated": {"primary_color": 53, "secondary_color": 1, "style_flags_raw": 0}
+    },
+    {
+      "field": "hair_front_type",
+      "char_info_offset_hex": "0x48",
+      "file_offset_hex": "0x51",
+      "raw": 2,
+      "category": "HairFront",
+      "record": "HairFront002",
+      "enabled": false,
+      "gate": "Selected main record HairAll073 has IsAttachableHairFront=false."
+    },
+    {
+      "field": "hair_back_type",
+      "char_info_offset_hex": "0x49",
+      "file_offset_hex": "0x52",
+      "raw": 0,
+      "category": "subordinate hair editor state",
+      "record": null,
+      "enabled": false,
+      "gate": "Selected main record is HairAll073. Do not map this byte to HairBack000; that record's actual PartsIndex is 206."
+    },
+    {
+      "field": "ear_type",
+      "char_info_offset_hex": "0x4b",
+      "file_offset_hex": "0x54",
+      "raw": 0,
+      "category": "Ear",
+      "record": "EarNothing",
+      "enabled": false,
+      "stored_transform": {"scale": 2, "y": 4}
+    },
+    {
+      "field": "eye_type",
+      "char_info_offset_hex": "0x4e",
+      "file_offset_hex": "0x57",
+      "raw": 2,
+      "category": "Eye",
+      "record": "Eye002",
+      "enabled": true,
+      "associated": {"color": 8, "shadow_color": 64},
+      "stored_transform": {"scale": 4, "aspect": 3, "rotate": 4, "x": 2, "y": 12}
+    },
+    {
+      "field": "eye_highlight_type",
+      "char_info_offset_hex": "0x56",
+      "file_offset_hex": "0x5f",
+      "raw": 0,
+      "category": "Highlight",
+      "record": "HighlightNothing",
+      "enabled": false,
+      "stored_transform": {"scale": 0, "aspect": 0, "rotate": 0, "x": 0, "y": 0}
+    },
+    {
+      "field": "eyelash_upper_type",
+      "char_info_offset_hex": "0x5c",
+      "file_offset_hex": "0x65",
+      "raw": 2,
+      "category": "EyelashUpper",
+      "record": "EyelashUpper01",
+      "enabled": true,
+      "stored_transform_delta": {"scale": 0, "aspect": 0, "rotate": 0, "x": 0, "y": 0},
+      "base_transform_source": "Eye002 EyeAccessory row 1640263226"
+    },
+    {
+      "field": "eyelash_lower_type",
+      "char_info_offset_hex": "0x62",
+      "file_offset_hex": "0x6b",
+      "raw": 0,
+      "category": "EyelashLower",
+      "record": "EyelashLowerNothing",
+      "enabled": false,
+      "stored_transform": {"scale": 0, "aspect": 0, "rotate": 0, "x": 0, "y": 0}
+    },
+    {
+      "field": "eyelid_upper_type",
+      "char_info_offset_hex": "0x68",
+      "file_offset_hex": "0x71",
+      "raw": 0,
+      "category": "EyelidUpper",
+      "record": "EyelidUpperNothing",
+      "enabled": false,
+      "stored_transform": {"scale": 0, "aspect": 0, "rotate": 0, "x": 0, "y": 0}
+    },
+    {
+      "field": "eyelid_lower_type",
+      "char_info_offset_hex": "0x6e",
+      "file_offset_hex": "0x77",
+      "raw": 0,
+      "category": "EyelidLower",
+      "record": "EyelidLowerNothing",
+      "enabled": false,
+      "stored_transform": {"scale": 0, "aspect": 0, "rotate": 0, "x": 0, "y": 0}
+    },
+    {
+      "field": "eyebrow_type",
+      "char_info_offset_hex": "0x74",
+      "file_offset_hex": "0x7d",
+      "raw": 0,
+      "category": "Eyebrow",
+      "record": "Eyebrow00",
+      "enabled": true,
+      "associated": {"color": 1},
+      "stored_transform": {"scale": 4, "aspect": 3, "rotate": 6, "x": 4, "y": 10}
+    },
+    {
+      "field": "nose_type",
+      "char_info_offset_hex": "0x7b",
+      "file_offset_hex": "0x84",
+      "raw": 27,
+      "category": "Nose",
+      "record": "Nose25",
+      "enabled": true,
+      "stored_transform": {"scale": 4, "y": 9}
+    },
+    {
+      "field": "mouth_type",
+      "char_info_offset_hex": "0x7e",
+      "file_offset_hex": "0x87",
+      "raw": 46,
+      "category": "Mouth",
+      "record": "Mouth045",
+      "enabled": true,
+      "associated": {"color": 19, "inverted": false},
+      "stored_transform": {"scale": 4, "aspect": 3, "rotate": 0, "y": 13}
+    },
+    {
+      "field": "beard_type",
+      "char_info_offset_hex": "0x84",
+      "file_offset_hex": "0x8d",
+      "raw": 0,
+      "category": "Beard",
+      "record": "BeardNothing",
+      "enabled": false,
+      "associated": {"color": 8}
+    },
+    {
+      "field": "stubble_type",
+      "char_info_offset_hex": "0x86",
+      "file_offset_hex": "0x8f",
+      "raw": 0,
+      "category": "BeardShort",
+      "record": "BeardShortNothing",
+      "enabled": false,
+      "associated": {"color": 8}
+    },
+    {
+      "field": "mustache_type",
+      "char_info_offset_hex": "0x88",
+      "file_offset_hex": "0x91",
+      "raw": 0,
+      "category": "Mustache",
+      "record": "MustacheNothing",
+      "enabled": false,
+      "associated": {"color": 8, "inverted": false},
+      "stored_transform": {"scale": 4, "aspect": 3, "y": 10}
+    },
+    {
+      "field": "glass_primary_type",
+      "char_info_offset_hex": "0x8d",
+      "file_offset_hex": "0x96",
+      "raw": 9,
+      "category": "Glass",
+      "record": "Glass08",
+      "enabled": true,
+      "associated": {"color": 8},
+      "stored_transform": {"scale": 4, "aspect": 3, "y": 11}
+    },
+    {
+      "field": "glass_lens_material_mode",
+      "char_info_offset_hex": "0x92",
+      "file_offset_hex": "0x9b",
+      "raw": 0,
+      "category": "Glass material state (not PartsIndex)",
+      "record": null,
+      "enabled": true,
+      "associated": {"glass_lens_color": 8},
+      "material_effect": "This is not a second Glass selector. Mode 0 hides Opa__mt_LensOpa and leaves Trs__mt_LensTrs visible with the mode-0 lens uniforms."
+    },
+    {
+      "field": "mole_presence",
+      "selector": "face_flags bit 7",
+      "char_info_offset_hex": "0x2b",
+      "file_offset_hex": "0x34",
+      "raw": 0,
+      "category": "Mole",
+      "record": "MoleNothing",
+      "enabled": false,
+      "stored_transform": {"scale": 4, "x": 2, "y": 20},
+      "note": "There is no separate mole type byte. CharInfoEx face_flags bit 7 is the Mole enable gate; it is clear, so no mole is drawn."
+    }
+  ],
+  "flags": {
+    "face_flags_offset": {"char_info_hex": "0x2b", "file_hex": "0x34", "raw": 0},
+    "special_mii": {"bit": 0, "value": false, "effect": "nn::mii::CharInfo.type is not 1; special-origin normalization is inactive."},
+    "bangs_side": {"bit": 1, "value": false, "effect": "No subordinate-bangs side/flip selection."},
+    "back_dual_color": {"bit": 2, "value": false, "effect": "Do not apply secondary hair color to the back/main layer."},
+    "bangs_dual_color": {"bit": 3, "value": false, "effect": "Do not apply secondary hair color to a bangs/front layer."},
+    "eye_shadow_enabled": {"bit": 4, "value": false, "effect": "Ignore stored eye shadow color 64."},
+    "mouth_inverted": {"bit": 5, "value": false},
+    "mustache_inverted": {"bit": 6, "value": false},
+    "mole_enabled": {"bit": 7, "value": false, "effect": "Suppress Mole."},
+    "hair_style_flags_offset": {"char_info_hex": "0x4a", "file_hex": "0x53", "raw": 0},
+    "hair_left_side": false,
+    "hair_right_side": false
+  },
+  "colors": {
+    "nose_line": {
+      "enabled": true,
+      "source": "nn::mii::GetNoselineColor / recovered modern FFL lineage",
+      "srgb_rgba": [0.1333333, 0.09411765, 0.09019608, 1.0],
+      "srgb_bytes_rgba": [34, 24, 23, 255],
+      "hex_rgb": "#221817"
+    },
+    "faceline": {
+      "serialized_id": 100,
+      "meaning": "Real nn::mii FacelineColor 0, not a sentinel.",
+      "editor_order_index_zero_based": 1,
+      "editor_skin_color_order": [110, 100, 106, 107, 103, 101, 111, 112, 102, 104, 108, 113, 105, 109],
+      "srgb_rgba": [1.0, 0.82745099, 0.67843139, 1.0],
+      "srgb_bytes_rgba": [255, 211, 173, 255],
+      "hex_rgb": "#FFD3AD",
+      "linear_rgba": [1.0, 0.65140569, 0.41788515, 1.0]
+    },
+    "hair_primary": {
+      "serialized_id": 53,
+      "enabled": true,
+      "palette": "nn::mii common",
+      "srgb_rgba": [0.537255, 0.6509804, 0.9803922, 1.0],
+      "srgb_bytes_rgba": [137, 166, 250, 255],
+      "hex_rgb": "#89A6FA",
+      "linear_rgba": [0.2501584, 0.3813261, 0.9559736, 1.0]
+    },
+    "hair_secondary": {
+      "serialized_id": 1,
+      "enabled": false,
+      "gate": "backDualColor=false and bangsDualColor=false",
+      "srgb_rgba": [0.2509804, 0.1254902, 0.0627451, 1.0],
+      "srgb_bytes_rgba": [64, 32, 16, 255],
+      "hex_rgb": "#402010",
+      "linear_rgba": [0.05126946, 0.01444384, 0.00518152, 1.0]
+    },
+    "eye": {"serialized_id": 8, "enabled": true, "srgb_rgba": [0.0, 0.0, 0.0, 1.0], "hex_rgb": "#000000"},
+    "eye_shadow": {"serialized_id": 64, "enabled": false, "gate": "eyeShadowEnabled=false", "srgb_rgba": [0.5294118, 0.8980393, 0.7137255, 1.0], "hex_rgb": "#87E5B6"},
+    "eyebrow": {"serialized_id": 1, "enabled": true, "srgb_rgba": [0.2509804, 0.1254902, 0.0627451, 1.0], "hex_rgb": "#402010", "linear_rgba": [0.05126946, 0.01444384, 0.00518152, 1.0]},
+    "mouth_lower_or_common": {"serialized_id": 19, "enabled": true, "srgb_rgba": [0.8470589, 0.3215687, 0.0313726, 1.0], "hex_rgb": "#D85208", "linear_rgba": [0.6866855, 0.08437625, 0.00242822, 1.0]},
+    "mouth_upper_lip": {"serialized_id": 19, "enabled": true, "srgb_rgba": [0.509804, 0.1882353, 0.0941177, 1.0], "hex_rgb": "#823018", "linear_rgba": [0.2232281, 0.02955684, 0.00913407, 1.0]},
+    "glass_primary": {"serialized_id": 8, "enabled": true, "srgb_rgba": [0.0, 0.0, 0.0, 1.0], "hex_rgb": "#000000"},
+    "makeup_upper_stored_only": {"serialized_id": 89, "enabled": false, "srgb_rgba": [0.6509804, 0.3019608, 0.1176471, 1.0], "hex_rgb": "#A64D1E"},
+    "makeup_lower_stored_only": {"serialized_id": 25, "enabled": false, "srgb_rgba": [1.0, 0.4509804, 0.4, 1.0], "hex_rgb": "#FF7366"},
+    "beard_stubble_mustache_stored_only": {"serialized_id": 8, "enabled": false, "srgb_rgba": [0.0, 0.0, 0.0, 1.0]},
+    "glass_lens_mode0": {"serialized_id": 8, "enabled": true, "srgb_rgba": [0.0, 0.0, 0.0, 1.0], "hex_rgb": "#000000", "active_material": "Trs__mt_LensTrs", "literal_alpha": 0.0}
+  },
+  "active_render_set": {
+    "geometry": ["Faceline00/MiiHead00", "HairAll073/MiiHairAll073", "Nose25/MiiNose25", "Glass08/MiiGlass08"],
+    "projected_or_mask_textures": ["Eye002", "EyelashUpper01", "Eyebrow00", "Mouth045"],
+    "material_textures": ["MiiHead00_Head_Nmh", "MiiHairAll073_Msk", "MiiHairAll073_Nrm", "MiiHairAll073_Mim", "MiiHairAll073_Mgh", "MiiNose25_Hgt", "MiiNose25_Mim", "MiiNose25_NoseLine_Msk", "MiiGlass08_Nrm"],
+    "active_glass_lens": "Trs__mt_LensTrs (glass_lens_material_mode=0); Opa__mt_LensOpa is hidden",
+    "omitted": ["HairFront002", "HairBack000", "EarNothing", "WrinkleLowerNothing", "WrinkleUpperNothing", "MakeUpperNothing", "MakeLowerNothing", "HighlightNothing", "EyelashLowerNothing", "EyelidUpperNothing", "EyelidLowerNothing", "BeardNothing", "BeardShortNothing", "MustacheNothing", "GlassNothing", "MoleNothing", "eye shadow"]
+  },
+  "hair_shader_pipeline": {
+    "shader_archive": "GameAll",
+    "program_index": 1056,
+    "gradient_texture": "MiiHairAll073_Mgh",
+    "gradient_channel": "native R",
+    "formula": "mix(mii_hair_color_srgb0.rgb,mii_hair_color_srgb1.rgb,Mgh.r), followed by per-channel pow(abs(rgb),2.2)",
+    "primary_color_index": 53,
+    "stored_secondary_color_index": 1,
+    "back_dual_color_enabled": false,
+    "effective_secondary_color_index": 53,
+    "gate_source": "FUN_7101d7e010 writes the primary endpoint to both main/back slots when face_flags.back_dual_color is false",
+    "mip_cache": "renderer/texture_mips.json"
+  },
+  "face_sprite_sampler": {
+    "source_constructor": "FUN_7101d88f98 (configure_mii_material_sampler)",
+    "descriptor_builder": "FUN_7100ba6e00",
+    "descriptor_bytes": "01 01 01 00 00 01 29 00",
+    "filter_word": "0x29",
+    "decoded_filter": {
+      "magnification": "linear",
+      "minification": "linear",
+      "mip_filter": "nearest"
+    },
+    "min_lod": -1000.0,
+    "max_lod": 1000.0,
+    "lod_bias": -0.7,
+    "address_mode_u": "mirror",
+    "address_mode_v": "mirror",
+    "address_mode_w": "mirror",
+    "border_color": "white",
+    "max_anisotropy": "1:1",
+    "target_768_result": {
+      "Eye002": "mip 0",
+      "EyelashUpper01": "mip 0",
+      "Eyebrow00": "mip 0",
+      "Mouth045": "mip 0"
+    },
+    "implementation": "Pillow bilinear sampling from each source mip-0 PNG is exact for the selected 768px target; active quad UVs stay within 0..1, so mirror addressing does not alter an interior sample"
+  },
+  "eye_accessory_defaults": {
+    "source": "../ltdDemo_converted_assets/decompressed/1/RSDB/MiiEyeAccessoryParam.Trial.100.rstbl.byml",
+    "row_id": 1640263226,
+    "eye_record": "Eye002",
+    "eyelash_upper": {"default_parts_index": 0, "scale": 8, "aspect": 3, "rotate": 29, "x": 19, "y": 13},
+    "eyelash_lower": {"default_parts_index": 0, "scale": 6, "aspect": 3, "rotate": 16, "x": 12, "y": 25},
+    "eyelid_upper": {"default_parts_index": 0, "scale": 8, "aspect": 3, "rotate": 0, "x": 12, "y": 10},
+    "eyelid_lower": {"default_parts_index": 0, "scale": 3, "aspect": 4, "rotate": 0, "x": 12, "y": 25},
+    "highlight": {"default_parts_index": 0, "scale": 4, "aspect": 3, "rotate": 0, "x": 16, "y": 16},
+    "eyeline_default_enable": false,
+    "composition_status": "Recovered for the active upper-eyelash path from FUN_7101d74350 and the binary vtable at 0x71039a6350. The target's five zero deltas combine with the Eye002 row to [x=19,y=13,rotate=29,scale=8,aspect=3].",
+    "binary_backed_upper_eyelash_formula": {
+      "dispatcher_helper": "FUN_7101d74350 (cases 8/9)",
+      "resource_accessor_vtable": "0x71039a6350",
+      "default_combiner_method": "vtable +0x40 / code 0x7101d87854",
+      "expression_axis_method": "vtable +0xA8 / code 0x7101d87f88",
+      "rotation_correction_method": "vtable +0x98 / code 0x7101d87ec4",
+      "eye002_axis": [0.386, -0.037],
+      "eyelash_upper01_axis": [0.0, 0.0],
+      "eye_rotation_correction_ticks": 4,
+      "eyelash_rotation_correction_ticks": 0,
+      "raw_descriptors": {
+        "eye_right": {"origin": [30.22077, 31.364655], "size": [13.893749, 11.7], "rotation_degrees": 0.0, "pivot": [25.449778, 31.766241]},
+        "eyelash_right": {"origin": [22.645235, 30.489355], "size": [6.4506693, 5.4321427], "rotation_degrees": 326.25},
+        "eyelash_left": {"origin": [41.354767, 30.489355], "signed_size": [-6.4506693, 5.4321427], "rotation_degrees": -326.25}
+      },
+      "atlas_placements": {
+        "right_center": [22.645235, 30.489355],
+        "left_center": [41.354767, 30.489355],
+        "size": [5.73861, 5.0392222],
+        "right_rotation_degrees": 326.25,
+        "left_rotation_degrees": 33.75
+      }
+    }
+  },
+  "model_attachment_transforms": {
+    "convention": "Local BFRES bone values as exported. Rotation arrays are raw exporter rotation vectors and must not be assumed to be normalized quaternions.",
+    "head": {
+      "source": "renderer/assets/models/MiiHead00/bfres.json",
+      "bones": [
+        {"index": 0, "name": "Root", "parent": -1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1], "scale": [1, 1, 1]},
+        {"index": 1, "name": "Mdl_Root", "parent": 0, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1], "scale": [1, 1, 1]},
+        {"index": 2, "name": "Head", "parent": 1, "translation": [0, 0.33757368, -0.04278029], "rotation": [0, 0, 0, 1], "scale": [1, 1, 1]},
+        {"index": 3, "name": "set_beard", "parent": 2, "translation": [0, -0.33757368, 0.04278029], "rotation": [0, 0, 0, 1], "scale": [1, 1, 1]},
+        {"index": 4, "name": "set_ear", "parent": 2, "translation": [0.22904015, -0.10865675, 0.075926706], "rotation": [-0.07704521, -0.49825785, -0.28226563, 1], "scale": [1, 1, 1]},
+        {"index": 5, "name": "set_hair", "parent": 2, "translation": [0, -0.33757368, 0.04278029], "rotation": [0, 0, 0, 1], "scale": [1, 1, 1]},
+        {"index": 6, "name": "set_nose", "parent": 2, "translation": [0, -0.10757367, 0.3027803], "rotation": [0, 0, 0, 1], "scale": [1, 1, 1]},
+        {"index": 7, "name": "Mask", "parent": 1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1], "scale": [1, 1, 1]}
+      ]
+    },
+    "selected_hair": {
+      "source": "renderer/assets/models/MiiHairAll073/bfres.json",
+      "attach_to": "MiiHead00/Head/set_hair",
+      "attachment_world_translation_in_head_model": [0, 0, 0],
+      "attachment_explanation": "Head local translation plus set_hair local translation cancels exactly.",
+      "model_bones": [
+        {"index": 0, "name": "nw4f_root", "parent": -1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 1, "name": "Root", "parent": 0, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 2, "name": "Hair_Root", "parent": 1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 3, "name": "Hair_A_L", "parent": 2, "translation": [0.2507143, 0.2, 0.06957706], "rotation": [0, 0, -1.5707965, 1]},
+        {"index": 4, "name": "Z_Hair_A_L", "parent": 3, "translation": [0.29365245, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 5, "name": "Hair_A_R", "parent": 2, "translation": [-0.250714, 0.2, 0.0695771], "rotation": [3.141593, 0, -1.5707965, 1]},
+        {"index": 6, "name": "Z_Hair_A_R", "parent": 5, "translation": [0.2936525, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 7, "name": "Hair_B_L", "parent": 2, "translation": [0.32794937, 0.2, -0.10605354], "rotation": [0, 0, -1.5707965, 1]},
+        {"index": 8, "name": "Z_Hair_B_L", "parent": 7, "translation": [0.34887636, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 9, "name": "Hair_B_R", "parent": 2, "translation": [-0.327949, 0.2, -0.106054], "rotation": [3.141593, 0, 1.5707965, 1]},
+        {"index": 10, "name": "Z_Hair_B_R", "parent": 9, "translation": [-0.348876, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 11, "name": "Hair_C", "parent": 2, "translation": [0, 0.2, -0.40544066], "rotation": [0, 0, -1.5707965, 1]},
+        {"index": 12, "name": "Z_Hair_C", "parent": 11, "translation": [0.4, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 13, "name": "Root_1", "parent": 0, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 14, "name": "Mdl_Root", "parent": 13, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"index": 15, "name": "Hair", "parent": 14, "translation": [0, 0.26780194, -0.11275542], "rotation": [0, 0, 0, 1]},
+        {"index": 16, "name": "set_front", "parent": 15, "translation": [0, 0.41089806, 0.22941671], "rotation": [0.26176074, 0, 0, 1]},
+        {"index": 17, "name": "set_side", "parent": 15, "translation": [0.16680661, 0.3247288, 0.319557], "rotation": [0.6983271, -0.20400171, -1.0150095, 1]},
+        {"index": 18, "name": "set_top", "parent": 15, "translation": [0, 0.43876672, 0.064805135], "rotation": [0, 0, 0, 1]}
+      ]
+    },
+    "inactive_hair_front_candidate": {
+      "source_bfres": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairFront002.bfres",
+      "root_chain": [
+        {"name": "Root", "parent": -1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "Mdl_Root", "parent": 0, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "Hair", "parent": 1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]}
+      ],
+      "generic_sockets": [
+        {"name": "set_front", "parent": 2, "translation": [0, 0.675, 0.08], "rotation": [0.26179942, 0, 0, 1]},
+        {"name": "set_side", "parent": 2, "translation": [0.14438128, 0.61777616, 0.13971394], "rotation": [0.50519294, -0.2728578, -0.7421136, 1]},
+        {"name": "set_top", "parent": 2, "translation": [0, 0.6775, -0.04], "rotation": [0, 0, 0, 1]}
+      ]
+    },
+    "inactive_hair_back_candidate": {
+      "source_bfres": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairBack000.bfres",
+      "root_chain": [
+        {"name": "Root", "parent": -1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "Mdl_Root", "parent": 0, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "Hair", "parent": 1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]}
+      ]
+    },
+    "nose": {
+      "source": "renderer/assets/models/MiiNose25/bfres.json",
+      "attach_to": "MiiHead00/Head/set_nose",
+      "bones": [
+        {"name": "Root", "parent": -1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "Mdl_Root", "parent": 0, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "Nose", "parent": 1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "NoseLine", "parent": 1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]}
+      ]
+    },
+    "glass": {
+      "source": "renderer/assets/models/MiiGlass08/bfres.json",
+      "bones": [
+        {"name": "Root", "parent": -1, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "Mdl_Root", "parent": 0, "translation": [0, 0, 0], "rotation": [0, 0, 0, 1]},
+        {"name": "Glass", "parent": 1, "translation": [0, 0, -0.29564834], "rotation": [0, 0, 0, 1]},
+        {"name": "Flame", "parent": 2, "translation": [0, -0.020441873, 0.2956493], "rotation": [0, 0, 0, 1]},
+        {"name": "Opa", "parent": 2, "translation": [0, -0.0003751132, 0.29564834], "rotation": [0, 0, 0, 1]},
+        {"name": "Trs", "parent": 2, "translation": [0, -0.0003751132, 0.29564834], "rotation": [0, 0, 0, 1]}
+      ]
+    }
+  },
+  "ffl_reference_transform_baseline": {
+    "status": "Exact legacy FFL reference for the projected face layers. The older Nose/Glass baseline values below are retained as lineage evidence only and are not rendered; FUN_7101d6d538 provides the authoritative LTD model transforms in binary_backed_model_transforms.",
+    "sources": [
+      "C:/Users/kestr/Coding/Tamadachi/third_party/ffl/src/FFLiRawMask.cpp",
+      "C:/Users/kestr/Coding/Tamadachi/third_party/ffl/src/detail/FFLiCharInfo.cpp",
+      "C:/Users/kestr/Coding/Tamadachi/third_party/ffl/src/FFLiCharModelCreator.cpp"
+    ],
+    "mask_space": "64x64",
+    "constants": {"spacing_mul": 0.88961464, "pos_x_mul": 1.7792293, "pos_y_mul": 1.0760943, "pos_x_add": 3.5323312, "pos_y_add": 4.629278},
+    "computed_target": {
+      "eye": {"right_inner_edge_origin": [30.22077072, 31.3646546], "left_inner_edge_origin": [33.77922928, 31.3646546], "raw_descriptor_size": [13.89375, 11.7], "displayed_center_right": [24.04072901775, 31.3646546], "displayed_center_left": [39.95927098225, 31.3646546], "displayed_size": [12.3600834045, 10.85370975], "right_rotation_degrees": 0.0, "left_rotation_degrees": 0.0},
+      "eyebrow": {"right_inner_edge_origin": [30.22077074, 27.310749], "left_inner_edge_origin": [33.77922926, 27.310749], "raw_descriptor_size": [13.1625, 11.7], "displayed_center_right": [24.3659943905, 27.310749], "displayed_center_left": [39.6340056095, 27.310749], "displayed_size": [11.709552699, 10.85370975], "right_rotation_degrees": 0.0, "left_rotation_degrees": 0.0},
+      "mouth": {"center": [32.0, 43.2480759], "raw_descriptor_size": [16.0875, 11.7], "displayed_size": [14.311675521, 10.85370975], "rotation_degrees": 0.0},
+      "nose_legacy_reference_not_rendered": {"uniform_scale": 1.1, "y_offset_from_face_center": -1.5},
+      "glass_legacy_reference_not_rendered": {"uniform_scale": 1.0, "y_offset_from_face_center": 5.0, "z_offset_from_face_center": 2.0}
+    }
+  },
+  "binary_backed_model_transforms": {
+    "source": "FUN_7101d6d538 (calculate_mii_face_geometry_layout)",
+    "nose_and_nose_line": {
+      "cases": [5, 6],
+      "formula": "set_nose + (0,(noseY-9)*-0.015,0); uniform scale=(noseScale*0.175+0.4)/1.1",
+      "target_translation": [0, 0.23, 0.26],
+      "target_uniform_scale": 1.0
+    },
+    "glass": {
+      "case": 1,
+      "formula": "set_nose + (0,0.05+(glassY-12)*-0.015,0.02); scaleX/Z=glassScale*0.15+0.4; scaleY=scaleX*(glassAspect*0.12+0.64)",
+      "target_translation": [0, 0.295, 0.28],
+      "target_scale": [1.0, 1.0, 1.0],
+      "frame_bone_translation": [0, -0.020441873, 0],
+      "opaque_lens_bone_translation": [0, -0.0003751132, 0],
+      "translucent_lens_bone_translation": [0, -0.0003751132, 0]
+    }
+  },
+  "evidence": [
+    {"path": "mii3.ltd", "length": 434, "sha256": "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776", "proves": "Exact input identity."},
+    {"path": "../ltdDemo_filesystem/program/0/main.elf", "length": 65253956, "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a", "proves": "Binary-backed face descriptor helper, resource-accessor vtable, EyeAccessory combiner, expression-axis getter, and rotation corrections."},
+    {"path": "renderer/mii_fields.csv", "length": 15696, "sha256": "4f70b3f093b581b97c13756b1c56cb2c675148719e39a8d69765662f86426600", "proves": "A no-gap, no-overlap ledger naming all 434 physical bytes plus decoded bit fields, including CharInfoEx revision 45, the special-Mii flag, and the distinct Glass Parts and lens-material fields."},
+    {"path": "../ltdDemo_filesystem/program/1/Editor/MiiEditorColorOrder/System.editor__mii__ColorOrder.bgyml", "length": 560, "sha256": "18bec50cac8176240e01f4dfbcadfa229a72c441bd6ce4a1f8dca64e4d2eec0c", "proves": "Skin ID 100 is a real editor color and its order."},
+    {"path": "renderer/assets/color_tables.json", "length": 16702, "sha256": "bfd3e98b88443275c30d7ceb0f526a9cfe62e345c496a36dc4795aefb295ec29", "proves": "Recovered nn::mii sRGB palettes."},
+    {"path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/HairAll073.mii__Parts.bgyml", "length": 820, "sha256": "8fd912e737e84c7e4c6c1bda0dddc27502728eb6d8c86ddaca54eb37691c6bdb", "proves": "Hair PartsIndex 258, ModelUnit, and lack of attachability."},
+    {"path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/HairFront002.mii__Parts.bgyml", "length": 748, "sha256": "0d487c23b1e10d89a942ddc813bb55db428135427e8e1458d365715794563e75", "proves": "Subordinate front candidate PartsIndex 2 and resource."},
+    {"path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/HairBack000.mii__Parts.bgyml", "length": 6556, "sha256": "49e2d4a226990a5b0bc260b98d86de60f7dc73b98a356f24900b3124d074d313", "proves": "HairBack000 is main Category Hair PartsIndex 206 and attachable, not PartsIndex 0."},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/RSDB/MiiEyeAccessoryParam.Trial.100.rstbl.byml", "length": 22152, "sha256": "287123e7f81370469345515dcba19ec37f698aac329272667c86e2d98d21f8ea", "proves": "Eye002 accessory defaults."},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHead00.bfres", "length": 70464, "sha256": "34de7ea1b16260641ceee537207a9497dda588e0a43288811be1b5a7ac037283", "proves": "Head model and attachment skeleton."},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairAll073.bfres", "length": 287688, "sha256": "55f7bb17846e6b69b4788d9d7d1f906cfce274f069f90754ab5d0364ea6d554e", "proves": "Selected hair mesh, materials, textures, and skeleton."},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairFront002.bfres", "length": 74688, "sha256": "96725f2cb3173fac8a3ccb7f1b25310555d1d7803331d6faa87084b66aed245b", "proves": "Inactive front candidate has generic sockets itself."},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairBack000.bfres", "length": 91072, "sha256": "251688cd7ff31936bedc3f91fa1e737fd3f1403867b8804132b182d0015c73e5", "proves": "Inactive back diagnostic model."},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiNose25.bfres", "length": 33600, "sha256": "2e3a729d8a97c378d59db1af98b971cbb0660b02a2f8fb0a245045370316ecde", "proves": "Selected nose model."},
+    {"path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiGlass08.bfres", "length": 66416, "sha256": "12ebbafc0df70e1dcabde855dda6a19211d3222716b4a518f07a7616cb17602e", "proves": "Selected glass model."}
+  ],
+  "known_limits": [
+    "The active Eye002/EyelashUpper01 zero-delta path is recovered exactly; the general nonzero-delta paths for other eye accessories have not been implemented in the portable renderer.",
+    "The active upper-eyelash compositor is binary-backed from LTD; remaining legacy face layers use the matching local FFL lineage formulas.",
+    "Hair cloth simulation from MiiHairAll073.phcl is not represented by a static OBJ render.",
+    "MiiHairAll073 is a skinned mesh. A renderer that ignores its weights or bind transforms can create gaps or displaced strands even when asset selection is correct.",
+    "The portable renderer applies translation(0,0,0.10) @ scale(0.65,1,1) to fit the curved face-mask mesh; this is an explicit approximation for the unrecovered GPU MiiMask projection matrix."
+  ]
+}

@@ -1,0 +1,3145 @@
+{
+  "schema_version": 1,
+  "native_backend_available": true,
+  "size": 128,
+  "runs": [
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "exit_code": 0,
+      "elapsed_ms": 2526.805
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "exit_code": 0,
+      "elapsed_ms": 961.443
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "exit_code": 0,
+      "elapsed_ms": 903.639
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "exit_code": 0,
+      "elapsed_ms": 963.321
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "exit_code": 0,
+      "elapsed_ms": 1447.371
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "exit_code": 0,
+      "elapsed_ms": 1162.283
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "exit_code": 0,
+      "elapsed_ms": 1148.442
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "exit_code": 0,
+      "elapsed_ms": 1250.484
+    }
+  ],
+  "draw_aggregate": [
+    {
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "calls": 8,
+      "triangles": 8832,
+      "elapsed_ms": 340.193,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 1808,
+      "elapsed_ms": 263.693,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "calls": 8,
+      "triangles": 2304,
+      "elapsed_ms": 207.388,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "calls": 8,
+      "triangles": 6192,
+      "elapsed_ms": 172.036,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "calls": 8,
+      "triangles": 8344,
+      "elapsed_ms": 129.101,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "calls": 8,
+      "triangles": 4064,
+      "elapsed_ms": 112.709,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 1920,
+      "elapsed_ms": 105.538,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 3136,
+      "elapsed_ms": 91.126,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 1696,
+      "elapsed_ms": 65.806,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 992,
+      "elapsed_ms": 54.682,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 2144,
+      "elapsed_ms": 51.099,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 640,
+      "elapsed_ms": 44.095,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "hair_endpoint",
+      "program_index": 564,
+      "group": "Hair__mt_Hair",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair564EqualEndpoint",
+      "calls": 4,
+      "triangles": 3004,
+      "elapsed_ms": 43.793,
+      "fixtures": [
+        "mii2.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 768,
+      "elapsed_ms": 41.419,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "hair_anisotropic",
+      "program_index": 612,
+      "group": "Hair__mt_Hair",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair612",
+      "calls": 2,
+      "triangles": 1948,
+      "elapsed_ms": 38.651,
+      "fixtures": [
+        "mii1.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "ear",
+      "program_index": 372,
+      "group": "Ear__mt_Ear",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 4,
+      "triangles": 1440,
+      "elapsed_ms": 26.29,
+      "fixtures": [
+        "mii1.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 2,
+      "triangles": 740,
+      "elapsed_ms": 21.866,
+      "fixtures": [
+        "mii1.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "beard_anisotropic",
+      "program_index": 468,
+      "group": "Beard__mt_Beard",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Beard468",
+      "calls": 2,
+      "triangles": 676,
+      "elapsed_ms": 12.996,
+      "fixtures": [
+        "mii1.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 8,
+      "triangles": 96,
+      "elapsed_ms": 7.174,
+      "fixtures": [
+        "mii0.ltd",
+        "mii1.ltd",
+        "mii2.ltd",
+        "mii4.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 2,
+      "triangles": 4,
+      "elapsed_ms": 1.227,
+      "fixtures": [
+        "mii1.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    }
+  ],
+  "stage_aggregate": [
+    {
+      "stage": "face_atlas_composition",
+      "calls": 16,
+      "elapsed_ms": 796.99,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "stage": "faceline_target_composition",
+      "calls": 8,
+      "elapsed_ms": 75.797,
+      "pixel_backend": "python-numpy-pillow"
+    }
+  ],
+  "draws": [
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 0.722,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 0.523,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 0.663,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.622,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 0.448,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 0.486,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 40.984,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 0.458,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 0.413,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 45.49,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 16.148,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 10.686,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 30.724,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "gameuber_mask0_facepaint",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 16.504,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "texture",
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 14.431,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 13.156,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 21.871,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 1.203,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 14.105,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 26.32,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 21.793,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 9.534,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 9.991,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 50.566,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 34.399,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 22.614,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 29.84,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "gameuber_mask0_facepaint",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 16.265,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "texture",
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 0.594,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 0.513,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 0.537,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.476,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 0.407,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 0.458,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 41.95,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 0.464,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 0.41,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 22.008,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 3.041,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 2.38,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 8.581,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "triangles": 2,
+      "elapsed_ms": 0.59,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "alpha_texture",
+        "depth_write",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 14.053,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "ear",
+      "program_index": 372,
+      "group": "Ear__mt_Ear",
+      "triangles": 360,
+      "elapsed_ms": 10.37,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "ear",
+      "program_index": 372,
+      "group": "Ear__mt_Ear",
+      "triangles": 360,
+      "elapsed_ms": 10.035,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "clockwise_front_face",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "hair_anisotropic",
+      "program_index": 612,
+      "group": "Hair__mt_Hair",
+      "triangles": 974,
+      "elapsed_ms": 20.362,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair612",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "anisotropic_proxy",
+        "front_edge_light_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "triangles": 370,
+      "elapsed_ms": 17.759,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "parallax_texture",
+        "specular_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "family": "beard_anisotropic",
+      "program_index": 468,
+      "group": "Beard__mt_Beard",
+      "triangles": 338,
+      "elapsed_ms": 6.859,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Beard468",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "anisotropic_proxy",
+        "front_edge_light_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 15.29,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 15.412,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 26.975,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 1.987,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 15.456,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 25.864,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 25.204,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 13.87,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 11.557,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 51.071,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 34.579,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 23.061,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 7.925,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "triangles": 2,
+      "elapsed_ms": 0.636,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "alpha_texture",
+        "depth_write",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 13.72,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "ear",
+      "program_index": 372,
+      "group": "Ear__mt_Ear",
+      "triangles": 360,
+      "elapsed_ms": 3.057,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "ear",
+      "program_index": 372,
+      "group": "Ear__mt_Ear",
+      "triangles": 360,
+      "elapsed_ms": 2.827,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "clockwise_front_face",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "hair_anisotropic",
+      "program_index": 612,
+      "group": "Hair__mt_Hair",
+      "triangles": 974,
+      "elapsed_ms": 18.289,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair612",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "anisotropic_proxy",
+        "front_edge_light_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "triangles": 370,
+      "elapsed_ms": 4.107,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "parallax_texture",
+        "specular_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "family": "beard_anisotropic",
+      "program_index": 468,
+      "group": "Beard__mt_Beard",
+      "triangles": 338,
+      "elapsed_ms": 6.138,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Beard468",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "anisotropic_proxy",
+        "front_edge_light_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 8.411,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 0.534,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 0.581,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.495,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 0.488,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 0.476,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 34.534,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 0.484,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 0.414,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 26.163,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 2.846,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 2.277,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 30.853,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "gameuber_mask0_facepaint",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1130,
+      "elapsed_ms": 18.06,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "texture",
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "hair_endpoint",
+      "program_index": 564,
+      "group": "Hair__mt_Hair",
+      "triangles": 934,
+      "elapsed_ms": 8.963,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair564EqualEndpoint",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "family": "hair_endpoint",
+      "program_index": 564,
+      "group": "Hair__mt_Hair",
+      "triangles": 568,
+      "elapsed_ms": 13.636,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair564EqualEndpoint",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 11.019,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 7.732,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 15.514,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.579,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 10.65,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 19.568,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 17.278,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 5.73,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 8.559,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 50.505,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 35.017,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 23.014,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 29.613,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "gameuber_mask0_facepaint",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1130,
+      "elapsed_ms": 17.927,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "texture",
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "hair_endpoint",
+      "program_index": 564,
+      "group": "Hair__mt_Hair",
+      "triangles": 934,
+      "elapsed_ms": 8.155,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair564EqualEndpoint",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "family": "hair_endpoint",
+      "program_index": 564,
+      "group": "Hair__mt_Hair",
+      "triangles": 568,
+      "elapsed_ms": 13.039,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair564EqualEndpoint",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 0.748,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 0.592,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 0.589,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.518,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 0.455,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 0.63,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 50.251,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 0.827,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 0.688,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 31.659,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 3.17,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 2.322,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 34.722,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "gameuber_mask0_facepaint",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 16.55,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 14.59,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 12.637,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 24.396,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 1.293,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 12.673,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 31.736,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 31.699,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 10.051,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 12.063,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 62.731,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 42.836,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 26.355,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 35.13,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "gameuber_mask0_facepaint",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 16.022,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 63.963,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 4.687,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "portrait",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 21.827,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 4.547,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 3.761,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii0.ltd",
+      "view": "full-body",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 17.61,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 115.26,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 98.339,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "portrait",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.843,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 98.316,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 94.828,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii1.ltd",
+      "view": "full-body",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.892,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 75.48,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 71.836,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "portrait",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 16.604,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 73.611,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 72.674,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii2.ltd",
+      "view": "full-body",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 16.198,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 4.559,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 5.618,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "portrait",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.985,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 4.552,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 4.96,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\mii4.ltd",
+      "view": "full-body",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.837,
+      "pixel_backend": "python-numpy-pillow"
+    }
+  ]
+}

@@ -61,6 +61,10 @@ const envTemplate = readEnvs(
 const isBeta = Boolean(envs.beta);
 const optionalEnvs = new Set([
     "researchHook",
+    "LTD_RENDERER_ROOT",
+    "LTD_RENDERER_ASSET_ROOT",
+    "LTD_RENDERER_PYTHON",
+    "LTD_RENDERER_PERSISTENT_WORKER",
     "TOMODACHI_NATIVE_RENDERER_BIN_DIR",
     "TOMODACHI_NATIVE_RENDER_CONCURRENCY",
     "INDEXNOW_KEY",

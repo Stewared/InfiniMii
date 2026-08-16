@@ -1,0 +1,559 @@
+{
+  "schema_version": 2,
+  "description": "Archived regression evidence for Emma in mii3.ltd: exact HairAll073 MGH (_user1) expression, runtime endpoint gate, GameAll program 1056, and native mip surfaces. This fixture is not a current renderer target.",
+  "generator": "tools/build_hair_shader_expression.py",
+  "fixture_scope": {
+    "status": "archived non-current regression fixture",
+    "share_mii": "mii3.ltd",
+    "display_name": "Emma",
+    "part": "HairAll073 / MiiHairAll073 / mt_Hair",
+    "current_renderer_artifacts_intentionally_not_inputs": [
+      "mii1.ltd",
+      "mii2.ltd",
+      "renderer/mii.json",
+      "renderer/mii_asset_selection.json",
+      "renderer/mii_material_state.json",
+      "renderer/mii2_material_state.json",
+      "renderer/mii2_gameuber_programs.json",
+      "renderer/mii2_texture_mips.json",
+      "renderer/texture_mips.json"
+    ],
+    "material_evidence_method": "regenerate a one-BFRES material catalog in an OS temporary directory, inspect it, then delete it without mutating renderer state",
+    "texture_evidence_method": "inspect and hash every native deswizzled BC4 mip directly from MiiHairAll073_Mgh.bntx; no decoded live texture cache is required"
+  },
+  "source_artifacts": {
+    "bfsha": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/Shader/GameUber.Trial.100.product.Nin_NX_NVN.bfsha",
+      "byte_length": 12858712,
+      "sha256": "1423f4f8e63261c2f920794881ee9c48eda4932f33a5e61534cd6dbf46dc2ccb"
+    },
+    "bfres": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairAll073.bfres",
+      "byte_length": 287688,
+      "sha256": "55f7bb17846e6b69b4788d9d7d1f906cfce274f069f90754ab5d0364ea6d554e"
+    },
+    "mgh_bntx": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHairAll073_Mgh.bntx",
+      "byte_length": 401520,
+      "sha256": "c27b8be5f26938db3e3e97cd2f5a067e04b964b08bd48882928a0ba07da6fb65"
+    },
+    "main_elf": {
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "byte_length": 65253956,
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a"
+    },
+    "mii3_ltd": {
+      "path": "mii3.ltd",
+      "byte_length": 434,
+      "sha256": "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776"
+    },
+    "color_tables": {
+      "path": "renderer/assets/color_tables.json",
+      "byte_length": 16702,
+      "sha256": "bfd3e98b88443275c30d7ceb0f526a9cfe62e345c496a36dc4795aefb295ec29"
+    },
+    "fixture_material_exporter": {
+      "path": "tools/bfres-exporter/bin/Release/net9.0/BfresExporter.exe",
+      "byte_length": 156160,
+      "sha256": "785900066f3f44331c39eb982d8b10446e9d4e7b62c850c7f132f914c8585cb6"
+    },
+    "functions_catalog": {
+      "path": "manifests/functions.csv",
+      "byte_length": 17658644,
+      "sha256": "01f998b6c0ab58a0dd797b9c03f92c1154bccb3ff361b6990fd98c2018aeb1aa"
+    },
+    "runtime_caller_shard": {
+      "path": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+      "byte_length": 3717377,
+      "sha256": "4846fda016407541588f168a58479677f4bba190822b1ec4388aac59b8cc79b6"
+    },
+    "runtime_binder_shard": {
+      "path": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "byte_length": 4030968,
+      "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+    }
+  },
+  "inspection_toolchain": {
+    "inspector": "tools/inspect_hair_shader_expression.ps1",
+    "bfsha_library": {
+      "path": "../tools/Switch-Toolbox/BfshaLibrary.dll",
+      "byte_length": 90112,
+      "sha256": "26c292e8eac8eb00fa87bdce85c247639d9b0ea04d23f4aad3050555afee5dc7"
+    },
+    "bntx_plugin": {
+      "path": "../tools/Switch-Toolbox/FirstPlugin.Plg.dll",
+      "byte_length": 7555584,
+      "sha256": "1c1d62290009196845e5478e0288ea868d3085e69571572735c9b8a65a1d857e"
+    },
+    "generic_texture_library": {
+      "path": "../tools/Switch-Toolbox/Toolbox.Library.dll",
+      "byte_length": 6954496,
+      "sha256": "a48faf7e2fe00fe82bdbbd576c788d53161e2419cd19103290658eded29789a7"
+    },
+    "bntx_library": {
+      "path": "../tools/Switch-Toolbox/Syroot.NintenTools.NSW.Bntx.dll",
+      "byte_length": 59392,
+      "sha256": "00344116499ab9267dfcbdc6f1c0bb4a558b648fbda9cff7257507dbc9dddaf7"
+    }
+  },
+  "program_selection": {
+    "shader_archive": "GameUber",
+    "shader_model": "GameAll",
+    "bfsha_version": [
+      0,
+      9,
+      1,
+      1
+    ],
+    "program_count": 1140,
+    "program_index": 1056,
+    "material_options": {
+      "gsys_geometry_culling": 1,
+      "enable_parallax_mapping_light": 1,
+      "enable_alpha_tex": 1,
+      "enable_normal_map": 1,
+      "enable_occlusion_map": 1,
+      "enable_texture_user1": 1,
+      "enable_expression0": 1,
+      "clamp_albedo": 1,
+      "replace_albedo": 1,
+      "flippable_horizontal": 1,
+      "enable_aniso_specular": 1,
+      "enable_world_ao": 0,
+      "enable_area_env": 1,
+      "enable_area_env_blend": 1,
+      "enable_ground_gi_blend": 1,
+      "enable_scatter_emission": 1,
+      "is_mii_face": 1,
+      "enable_mii_emission": 1,
+      "expression0": 1893597200,
+      "map_albedo": 100,
+      "map_alpha": 11,
+      "map_normal": 12,
+      "map_roughness": 1101,
+      "map_specular_mask": 18,
+      "map_channel_specular_mask": 20,
+      "map_edge_light_mask": 18,
+      "map_occlusion": 18,
+      "map_shadow": 18
+    },
+    "mesh_and_system_options": {
+      "gsys_weight": 2,
+      "gsys_index_stream_format": 0,
+      "gsys_assign_type": "gsys_assign_material",
+      "system_id": 0
+    },
+    "pixel_binary": {
+      "stream_0": {
+        "byte_length": 2176,
+        "sha256": "01f86d326f337122e3e23a024906d414727396aad1050da9103aa663a6806e91"
+      },
+      "stream_1": {
+        "byte_length": 9472,
+        "sha256": "9d69b0e2c0f19e78b958518424eef482a10ef94cee6199fc80ff4402cc49be60"
+      },
+      "stream_1_header_bytes": 48,
+      "maxwell_code": {
+        "byte_length": 9424,
+        "sha256": "f8a88df4a1fe29864565e160e4de13cb924c2a647237a1708d742b1c63929b8a"
+      },
+      "memory": {
+        "byte_length": 256,
+        "sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1"
+      }
+    }
+  },
+  "compiled_interface": {
+    "samplers": {
+      "_alp0": {
+        "model_index": 1,
+        "fragment_location": -1,
+        "texture": "MiiHairAll073_Msk",
+        "compiled_fragment_status": "not present in program 1056"
+      },
+      "_n0": {
+        "model_index": 2,
+        "fragment_location": 8,
+        "texture": "MiiHairAll073_Nrm",
+        "decoder_sampler_index": 1,
+        "decoder_descriptor_offset": 24
+      },
+      "_o0": {
+        "model_index": 7,
+        "fragment_location": 15,
+        "texture": "MiiHairAll073_Mim",
+        "decoder_sampler_index": 4,
+        "decoder_descriptor_offset": 38
+      },
+      "_user1": {
+        "model_index": 9,
+        "fragment_location": 17,
+        "texture": "MiiHairAll073_Mgh",
+        "decoder_sampler_index": 2,
+        "decoder_descriptor_offset": 42,
+        "descriptor_relation": "2 * fragment_location + 8"
+      }
+    },
+    "material_uniform_block": {
+      "model_dictionary_index": 4,
+      "block_index": 4,
+      "byte_size": 1168,
+      "fragment_location": 8,
+      "decoder_constant_buffer": 11,
+      "uniforms": {
+        "mii_hair_color0": {
+          "index": 205,
+          "byte_offset": 433,
+          "block_index": 4
+        },
+        "mii_hair_color1": {
+          "index": 206,
+          "byte_offset": 449,
+          "block_index": 4
+        },
+        "mii_hair_color_srgb0": {
+          "index": 207,
+          "byte_offset": 465,
+          "block_index": 4
+        },
+        "mii_hair_color_srgb1": {
+          "index": 208,
+          "byte_offset": 481,
+          "block_index": 4
+        },
+        "mii_hair_color_srgb0_decoded_slot": 29,
+        "mii_hair_color_srgb1_decoded_slot": 30
+      }
+    },
+    "user1_uv_transform": {
+      "mode": "ModeMaya",
+      "mode_value": 0,
+      "scaling": [
+        1,
+        1
+      ],
+      "rotation": 0,
+      "translation": [
+        0,
+        0
+      ]
+    }
+  },
+  "expression": {
+    "texture_sample": {
+      "sampler": "_user1",
+      "texture": "MiiHairAll073_Mgh",
+      "format_and_channel": "BC4_UNORM native R",
+      "decoded_source": "texture_2.x",
+      "decoded_register": "gpr_2",
+      "uv": "base in_attr0.xy (identity tex_mtx_user1)"
+    },
+    "exact_operation_order_per_rgb_channel": [
+      "delta = mii_hair_color_srgb1 - mii_hair_color_srgb0",
+      "mixed_srgb = fma(delta, Mgh.r, mii_hair_color_srgb0)",
+      "logged = log2(abs(mixed_srgb))",
+      "scaled = logged * uintBitsToFloat(0x400CCCCD)",
+      "hair_linear = exp2(scaled)"
+    ],
+    "float_constant": {
+      "uint32": 1074580685,
+      "hex": "0x400CCCCD",
+      "float32": 2.2
+    },
+    "exact_vector_equation": "exp2(log2(abs(fma(mii_hair_color_srgb1.rgb - mii_hair_color_srgb0.rgb, Mgh.r, mii_hair_color_srgb0.rgb))) * 2.2)",
+    "portable_equivalent": "pow(abs(mix(mii_hair_color_srgb0.rgb, mii_hair_color_srgb1.rgb, Mgh.r)), vec3(2.2))",
+    "interpretation": "Interpolate the two sRGB-named endpoints first, then apply a simple 2.2 power. This is neither linear-endpoint interpolation nor the piecewise standard sRGB transfer."
+  },
+  "runtime_endpoint_binding": {
+    "functions": {
+      "bind_material_parameters": {
+        "address": "0x7101d7c4e0",
+        "raw_name": "FUN_7101d7c4e0",
+        "canonical_name": "bind_mii_material_parameters_for_slot",
+        "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+        "original_main_c_line_span": [
+          8377420,
+          8378095
+        ],
+        "original_main_c_byte_span": [
+          279952622,
+          279977283
+        ],
+        "split_file_payload_offset": 2106969
+      },
+      "refresh_from_char_info": {
+        "address": "0x7101d7e010",
+        "raw_name": "FUN_7101d7e010",
+        "canonical_name": "refresh_mii_face_object_from_char_info",
+        "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+        "original_main_c_line_span": [
+          8378301,
+          8378386
+        ],
+        "original_main_c_byte_span": [
+          279984481,
+          279987387
+        ],
+        "split_file_payload_offset": 2138828
+      },
+      "refresh_all_part_materials": {
+        "address": "0x7101b7e220",
+        "raw_name": "FUN_7101b7e220",
+        "canonical_name": "refresh_all_mii_face_part_materials",
+        "source": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+        "original_main_c_line_span": [
+          8132074,
+          8132121
+        ],
+        "original_main_c_byte_span": [
+          272038318,
+          272040244
+        ],
+        "split_file_payload_offset": 1518672
+      }
+    },
+    "evidence_offsets": {
+      "primary_color_id_state_offset": "0xA0",
+      "main_secondary_color_id_state_offset": "0xA4",
+      "alternate_secondary_color_id_state_offset": "0xA8",
+      "main_secondary_flag_mask": "0x04",
+      "alternate_secondary_flag_mask": "0x08",
+      "hair_all_material_slot": 0,
+      "slot_zero_material_pointer_offset": "0xF0",
+      "binder_local_line_spans": {
+        "linear_endpoints": [
+          65364,
+          65413
+        ],
+        "srgb_endpoints": [
+          65457,
+          65520
+        ],
+        "gate_writes": [
+          66135,
+          66149
+        ]
+      },
+      "caller_local_line_span": [
+        46544,
+        46546
+      ],
+      "palette_to_srgb_exponent": {
+        "uint32_hex": "0x3EE8BA2E",
+        "float32": 0.4545454
+      }
+    },
+    "gate_equations": {
+      "primary": "state[0xA0] = primary_color_id",
+      "main_secondary": "state[0xA4] = (face_flags & 0x04) ? stored_secondary_color_id : primary_color_id",
+      "alternate_secondary": "state[0xA8] = (face_flags & 0x08) ? stored_secondary_color_id : primary_color_id",
+      "hair_all_slot": "slot 0 selects state[0xA4]"
+    },
+    "bfres_static_defaults_not_fixture_runtime_values": {
+      "mii_hair_color0": [
+        0.05126946,
+        0.01444384,
+        0.00518152,
+        1
+      ],
+      "mii_hair_color1": [
+        0.05126946,
+        0.01444384,
+        0.00518152,
+        1
+      ],
+      "mii_hair_color_srgb0": [
+        0.2509804,
+        0.1254902,
+        0.0627451,
+        1
+      ],
+      "mii_hair_color_srgb1": [
+        0.2509804,
+        0.1254902,
+        0.0627451,
+        1
+      ]
+    },
+    "fixture_mii3_ltd": {
+      "face_flags_raw": 0,
+      "back_dual_color": false,
+      "bangs_dual_color": false,
+      "primary_color_index": 53,
+      "stored_secondary_color_index": 1,
+      "effective_secondary_color_index": 53,
+      "primary_srgb_rgba": [
+        0.537255,
+        0.6509804,
+        0.9803922,
+        1.0
+      ],
+      "primary_srgb_hex": "#89A6FAFF",
+      "stored_secondary_srgb_rgba": [
+        0.2509804,
+        0.1254902,
+        0.0627451,
+        1.0
+      ],
+      "stored_secondary_srgb_hex": "#402010FF",
+      "effective_secondary_srgb_rgba": [
+        0.537255,
+        0.6509804,
+        0.9803922,
+        1.0
+      ],
+      "instance_simplification": "Both active endpoints are common color 53, so Mgh remains sampled and structurally active but cancels from Emma's base-color value."
+    }
+  },
+  "mgh_texture_and_sampling": {
+    "native_bntx": {
+      "name": "MiiHairAll073_Mgh",
+      "width": 768,
+      "height": 768,
+      "mip_count": 10,
+      "format": "BC4_UNORM",
+      "red_channel": "Red",
+      "green_channel": "Zero",
+      "blue_channel": "Zero",
+      "alpha_channel": "One",
+      "tile_mode": "Default",
+      "block_height_log2": 0,
+      "mip_offsets": [
+        0,
+        294912,
+        368640,
+        387072,
+        391680,
+        393728,
+        394240,
+        394752,
+        395264,
+        395776
+      ],
+      "stored_swizzled_lengths": [
+        396288,
+        101376,
+        27648,
+        9216,
+        4608,
+        2560,
+        2048,
+        1536,
+        1024,
+        512
+      ],
+      "raw_deswizzled_mips": [
+        {
+          "level": 0,
+          "width": 768,
+          "height": 768,
+          "byte_length": 294912,
+          "sha256": "1a02e08447ea386f6b1c66407fc4920ce298c4204a3d2124984f78839b92e1df"
+        },
+        {
+          "level": 1,
+          "width": 384,
+          "height": 384,
+          "byte_length": 73728,
+          "sha256": "6c1e640c7c30de6bc36d8c1b69a0d8230fe30656297add309c296edaed7f7155"
+        },
+        {
+          "level": 2,
+          "width": 192,
+          "height": 192,
+          "byte_length": 18432,
+          "sha256": "308fe6db10959677b56532416ae36b38402cb5b3be6ad6836e591d7d971deeac"
+        },
+        {
+          "level": 3,
+          "width": 96,
+          "height": 96,
+          "byte_length": 4608,
+          "sha256": "b684f5bf020eb0eccb2fa1f49ea9a55c89d0061868eacd3e059e6f3629793e5d"
+        },
+        {
+          "level": 4,
+          "width": 48,
+          "height": 48,
+          "byte_length": 1152,
+          "sha256": "16721a10a6c1df1a3e934c7e318ea2493b96cc5376501737162b0396913589f0"
+        },
+        {
+          "level": 5,
+          "width": 24,
+          "height": 24,
+          "byte_length": 288,
+          "sha256": "59b107ecf8ed516d75f2d27b842126d2374c737ab66295b128719d76b9deb006"
+        },
+        {
+          "level": 6,
+          "width": 12,
+          "height": 12,
+          "byte_length": 72,
+          "sha256": "afdc2f6d22d0fcbc64e3f95886f816e9114e8c307432df0f70c0a7c816adf671"
+        },
+        {
+          "level": 7,
+          "width": 6,
+          "height": 6,
+          "byte_length": 32,
+          "sha256": "2c388a5ff9f6bc75c6fa5f64119c1b988a418581c5eac06eb4e6252520ed6b07"
+        },
+        {
+          "level": 8,
+          "width": 3,
+          "height": 3,
+          "byte_length": 8,
+          "sha256": "48b4a9f229e3b4baa34456e9302292afa87903098cb15eac4f7881a9468b6d35"
+        },
+        {
+          "level": 9,
+          "width": 1,
+          "height": 1,
+          "byte_length": 8,
+          "sha256": "92fd949b438785f8cff570528b775d588904a7abcefacab63ec0694d6e9ccb4d"
+        }
+      ]
+    },
+    "bfres_sampler": {
+      "wrap_u": "Repeat",
+      "wrap_v": "Repeat",
+      "min_filter": "Linear",
+      "mag_filter": "Linear",
+      "mipmap_filter": "Linear",
+      "max_anisotropy_ratio": "2:1",
+      "min_lod": 0,
+      "max_lod": 13,
+      "lod_bias": 0
+    },
+    "native_mip_evidence": {
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHairAll073_Mgh.bntx",
+      "surface_api": "FirstPlugin.TextureData.GetImageData(0, mip, 0)",
+      "level_count": 10,
+      "expected_sha256_in_level_order": [
+        "1a02e08447ea386f6b1c66407fc4920ce298c4204a3d2124984f78839b92e1df",
+        "6c1e640c7c30de6bc36d8c1b69a0d8230fe30656297add309c296edaed7f7155",
+        "308fe6db10959677b56532416ae36b38402cb5b3be6ad6836e591d7d971deeac",
+        "b684f5bf020eb0eccb2fa1f49ea9a55c89d0061868eacd3e059e6f3629793e5d",
+        "16721a10a6c1df1a3e934c7e318ea2493b96cc5376501737162b0396913589f0",
+        "59b107ecf8ed516d75f2d27b842126d2374c737ab66295b128719d76b9deb006",
+        "afdc2f6d22d0fcbc64e3f95886f816e9114e8c307432df0f70c0a7c816adf671",
+        "2c388a5ff9f6bc75c6fa5f64119c1b988a418581c5eac06eb4e6252520ed6b07",
+        "48b4a9f229e3b4baa34456e9302292afa87903098cb15eac4f7881a9468b6d35",
+        "92fd949b438785f8cff570528b775d588904a7abcefacab63ec0694d6e9ccb4d"
+      ],
+      "all_level_hashes_verified": true
+    },
+    "switch_toolbox_extraction": {
+      "exact_raw_surface_api": "FirstPlugin.TextureData.GetImageData(0, mip, 0)",
+      "decoded_surface_api": "FirstPlugin.TextureData.GetBitmap(0, mip, 0)",
+      "full_chain_dds_api": "inherited GenericTexture.SaveDDS(path)",
+      "unsafe_api_in_hashed_build": "FirstPlugin.TextureData.Export(string) recursively calls itself; do not use it"
+    },
+    "portable_renderer_status": {
+      "fixture_cache_policy": "No decoded PNG cache is duplicated for this archived fixture; the exact ten native deswizzled surfaces are identified by dimensions, byte lengths, and SHA-256 above.",
+      "sampling_state": "linear min/mag, linear mip interpolation, native 2:1 anisotropy"
+    }
+  },
+  "portability_limit": "The MGH base-color expression is concrete and portable. Full GameAll frame equivalence still depends on title global lighting/environment, anisotropic specular, scatter, shadow, and other downstream stages not represented by this archived expression fixture."
+}

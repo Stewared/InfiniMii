@@ -2,8 +2,12 @@
 <html lang="en">
     <head>
         <%
-        const pageTitle = 'Nintendo Mii Characters FAQ - Everything About, Formats & Conversion';
-        const pageDesc = 'Complete FAQ about Mii characters: What are Miis? How to transfer between systems? QR code usage? Format differences? Expert answers to all your Mii questions.';
+        const faqExportValues = (Array.isArray(exportFormats) ? exportFormats : [])
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const faqLegacyExportsEnabled = faqExportValues.some((value) => value !== 'ltd');
+        const pageTitle = 'Nintendo Mii Characters FAQ - Formats, LTD & Conversion';
+        const pageDesc = 'Answers about Mii characters, transfers, QR codes, file formats, LTD conversion, and the limits of LTD previews on InfiniMii.';
         const canonicalUrl = `${baseUrl}/faq`;
         const keywords = 'mii faq, mii questions, what is a mii, mii help, mii guide, nintendo mii, tomodachi life, mii maker';
         const breadcrumbs = [
@@ -41,10 +45,12 @@
                 },
                 {
                     "@type": "Question",
-                    "name": "Can I convert Miis from Wii to 3DS or back again?",
+                    "name": faqLegacyExportsEnabled ? 'Can I convert Miis between Nintendo systems?' : 'Can I convert older Mii files to LTD?',
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "Yes. InfiniMii can convert Miis between Wii, 3DS, Wii U, and other supported formats, though older systems may lose some detail."
+                        "text": faqLegacyExportsEnabled
+                            ? 'InfiniMii accepts supported Mii files and converts them to the formats listed in its export tools.'
+                            : 'Miis from Living the Dream keep their original LTD files. Miis from other systems can use the compatible export formats listed on the site.'
                     }
                 },
                 {
@@ -76,12 +82,12 @@
                 <p class="faq-lede">A practical guide to what Miis are, how transfers work, and which tools to use when you want to move or share them.</p>
                 
                 <nav class="faq-nav" aria-label="FAQ Categories">
-                    <h2>Browse by Topic</h2>
+                    <h2>Browse by topic</h2>
                     <ul class="faq-nav-list">
                         <li><a href="#basics">Mii Basics</a></li>
                         <li><a href="#transfer">Transferring Miis</a></li>
                         <li><a href="#qr-codes">QR Codes</a></li>
-                        <li><a href="#conversion">Format Conversion</a></li>
+                        <li><a href="#ltd-support">LTD Support</a></li>
                         <li><a href="#systems">Nintendo Systems</a></li>
                         <li><a href="#infinimii">Using InfiniMii</a></li>
                     </ul>
@@ -96,7 +102,7 @@
                         <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                             <div itemprop="text">
                                 <p><strong>A Mii</strong> is a digital avatar character created and used on <strong>Nintendo gaming systems</strong> including the Wii, Nintendo DS, Nintendo 3DS, Wii U, and Nintendo Switch.</p>
-                                <p>Miis are customizable avatars representing you or any character you create, featuring:</p>
+                                <p>You can create a Mii based on yourself, another person, or a fictional character. Editable details include:</p>
                                 <ul>
                                     <li>Adjustable facial features (eyes, nose, mouth)</li>
                                     <li>Various hairstyles and colors</li>
@@ -133,7 +139,7 @@
                         <h3 itemprop="name">Can I use Miis in games?</h3>
                         <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                             <div itemprop="text">
-                                <p><strong>Yes!</strong> Many Nintendo games use Miis as playable characters or NPCs:</p>
+                                <p>Yes. Many Nintendo games use Miis as playable characters or NPCs:</p>
                                 
                                 <h4>Wii Games:</h4>
                                 <ul>
@@ -207,7 +213,7 @@
                                     </tbody>
                                 </table>
                                 
-                                <p><a href="/guides/transfer" class="cta-link">→ View Complete Transfer Guide</a></p>
+                                <p><a href="/guides/transfer" class="cta-link">→ Read the transfer guide</a></p>
                             </div>
                         </div>
                     </div>
@@ -225,7 +231,7 @@
                             <div itemprop="text">
                                 <p>A <strong>Mii QR code</strong> is a scannable image that contains all the data needed to recreate a Mii character on your Nintendo system.</p>
                                 
-                                <h4>How to Scan a Mii QR Code:</h4>
+                                <h4>How to scan a Mii QR code:</h4>
                                 <ol>
                                     <li>On your <strong>3DS</strong> or <strong>Wii U</strong>, open <strong>Mii Maker</strong></li>
                                     <li>Tap <strong>"QR Code/Image Options"</strong></li>
@@ -236,43 +242,34 @@
                                 
                                 <p>QR codes work with: 3DS, Wii U, Tomodachi Life, and Miitomo (discontinued)</p>
                                 
-                                <p><a href="/qr" class="cta-link">→ Scan a QR Code Now</a></p>
+                                <p><a href="/qr" class="cta-link">→ Open the QR scanner</a></p>
                             </div>
                         </div>
                     </div>
                 </section>
                 
-                <section id="qr-codes" class="faq-section">
+                <section id="ltd-support" class="faq-section">
                     <h2>Tomodachi Life: Living the Dream</h2>
                     
                     <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
-                        <h3 itemprop="name">Why Don't You Support Tomodachi Life: Living the Dream?</h3>
+                        <h3 itemprop="name">How does InfiniMii support Living the Dream Miis?</h3>
                         <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                             <div itemprop="text">
-                                <p>
-                                    There are a few reasons Tomodachi Life: Living the Dream is yet to be supported.
-                                    <ul>
-                                        <li>The format is still very new and being worked to be understood in its entirety, as the game is still new and does not feature an official sharing method.</li>
-                                        <li>The rendering is still not even understood very well for Tomodachi Life (3DS), which while efforts are being made, is still a game over a decade old. This new game supports much more, and will likely take longer (This is subjective and subject to swift and unexpected invalidation, but it is still not currently possible).</li>
-                                        <li>Other sites that do only support screenshots and photos of the screen, which while this works and is entirely an option, is not up to quality and presentation standards we wish to use when any image could be uploaded instead of controlled Mii uploads, which makes moderation 10x harder, especially with the expanded freedom the game presents.</li>
-                                        <li>We technically don't even have Switch rendering! You may notice this if you upload a Switch Mii with certain glasses types, they get backported to ver3 format. This is because we use a Wii U renderer, which works for everything including Switch Miis, save for a couple glasses types. Colors are just easy to inject and therefore the Wii U renderer works for 97% of Switch Miis, and the ones that don't are only a glasses type off.</li>
-                                        <li>There is a certain safety to not supporting the latest and greatest thing in the world of fansites where giving too much enhanced functionality can put you in a legal grey area. This site has been carefully limited to minimize this risk, such as the lack of an onboard Mii maker. This would've taken very little effort to setup, it was a conscious exclusion for legal safety.</li>
-                                        <li>There's far less creativity to a Mii in our eyes when you can literally take an MS Paint to the face, and this site is designed to showcase creativity at its finest.</li>
-                                    </ul>
-                                    All that being said, if the format comes to be understood better, and rendering becomes possible, we may come to support this in the future, which we as the site creators are actually actively looking into, experimenting, and researching for.
-                                </p>
+                                <p>InfiniMii keeps native LTD files unchanged. Miis created for Living the Dream can only be downloaded as LTD files. Miis from earlier systems keep the compatible conversion options listed on the site.</p>
+                                <p>InfiniMii creates transparent previews for LTD Miis that use data its renderer has verified. If a file contains unverified Mii data, the site does not generate an approximate preview.</p>
+                                <p>Some Living the Dream data, including clothing, wardrobe items, and Canvas or user-generated content, cannot yet be rendered reliably. That data remains in the original LTD file even when the site cannot display it.</p>
                             </div>
                         </div>
                     </div>
                 </section>
                 
                 <section class="still-have-questions">
-                    <h2>Still Have Questions?</h2>
-                    <p>Can't find what you're looking for? Join our community:</p>
+                    <h2>Need more help?</h2>
+                    <p>Ask the community or open a related guide:</p>
                     <ul class="support-links">
                         <li><a href="<%= discordInvite %>" target="_blank" rel="noopener noreferrer">Join Discord</a> - Get help from the community</li>
-                        <li><a href="/upload">Upload a Mii</a> - Start using InfiniMii</li>
-                        <li><a href="/guides/transfer">Transfer Guide</a> - Comprehensive system-to-system instructions</li>
+                        <li><a href="/upload">Upload a Mii</a> - Add a Mii to your account</li>
+                        <li><a href="/guides/transfer">Transfer Guide</a> - Instructions by source and destination system</li>
                     </ul>
                 </section>
             </article>

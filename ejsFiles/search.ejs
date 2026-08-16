@@ -3,7 +3,7 @@
     <head>
         <%
         const pageTitle = 'Search Mii Characters - InfiniMii';
-        const pageDesc = 'Search our vast collection of Mii characters for all Nintendo systems. Find official Nintendo Miis, community creations, and celebrity Miis for Wii, 3DS, Wii U, and Switch.';
+        const pageDesc = 'Search InfiniMii by Mii name, uploader, description, tags, and supported Nintendo system.';
         const canonicalUrl = baseUrl + '/search';
         const keywords = 'search mii, find mii character, mii database, mii search engine';
         const breadcrumbs = [
@@ -23,10 +23,10 @@
         <%- include('accountDisplay') %>
         <main class="content" role="main">
             <%- include('sidebar') %>
-            <section class="utility-container" aria-labelledby="search-heading">
+            <section class="utility-container search-utility-container" aria-labelledby="search-heading">
                 <header class="search-page-intro">
-                    <h1>Search Mii Characters</h1>
-                    <p>Search by character name, uploader, description, and tags to find Miis anywhere in the InfiniMii archive.</p>
+                    <h1 id="search-heading">Search Mii Characters</h1>
+                    <p>Search the archive by Mii name, uploader, description, or tags.</p>
                 </header>
                 <%- include('advancedSearchControls', {
                     formAction: '/searchResults',
@@ -51,9 +51,9 @@
                     birthdayDayOptions
                 }) %>
 
-                <!-- This is here for SEO/LLM-O -->
+                <!-- Search examples -->
                 <div class="search-tips" hidden>
-                        <h3>Search Tips:</h3>
+                        <h3>Search tips</h3>
                         <ul>
                             <li>Search by character name (e.g., "Mario", "Link", "Pikachu")</li>
                             <li>Find official Nintendo Miis by searching for game titles</li>

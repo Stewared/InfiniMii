@@ -1,0 +1,884 @@
+{
+  "schema_version": 2,
+  "description": "Source-bound MiiMask semantics for the live Kestron Normal-expression face compositor.",
+  "generator": "tools/check_mii_mask_semantics.py --write",
+  "target": {
+    "path": "mii1.ltd",
+    "sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b",
+    "byte_length": 434,
+    "display_name": "Kestron",
+    "internal_name": "no name",
+    "face_flags_raw": 0,
+    "selectors": {
+      "eye_type": 2,
+      "eye_color": 50,
+      "eyebrow_type": 19,
+      "eyebrow_color": 1,
+      "mouth_type": 15,
+      "mouth_color": 19,
+      "mustache_type": 4,
+      "mustache_color": 1
+    }
+  },
+  "sources": {
+    "mii_mask_bnsh": {
+      "path": "../ltdDemo_filesystem/program/1/Shader/MiiMask.bnsh",
+      "byte_length": 12696,
+      "sha256": "4e2cc870a9d447992ce2b5e930597e1c5aacab8d892eab58b6d385a2bb3d77b0"
+    },
+    "main_elf": {
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "byte_length": 65253956,
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a"
+    },
+    "mii_parts_bntx": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/Tex/Pack/MiiParts.bntx",
+      "byte_length": 11194648,
+      "sha256": "531848fc8485f86fa703a652b5fc0c51d0d70c1f13aec13e244a22ee6c5e3f97"
+    },
+    "mii_parts_rsdb": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/MiiParts.Trial.100.rstbl.byml",
+      "byte_length": 511616,
+      "sha256": "2b73cd38ead127f3e50a00639ec29aa40273a11982e8ad5c724331404fcf2c3a"
+    },
+    "mii_expression_rsdb": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/MiiExpression.Trial.100.rstbl.byml",
+      "byte_length": 18040,
+      "sha256": "abee13101f457ce42afcf09d622885cba7301ac3b8c4a9506314e6a9ce94994f"
+    },
+    "decompiled_pipeline": {
+      "path": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "byte_length": 4030968,
+      "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+    },
+    "decompiled_visibility": {
+      "path": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+      "byte_length": 3717377,
+      "sha256": "4846fda016407541588f168a58479677f4bba190822b1ec4388aac59b8cc79b6"
+    },
+    "decompiled_gpu_clear": {
+      "path": "src/functions/internal/batch_00/7100500000/2198_functions.inc",
+      "byte_length": 31627,
+      "sha256": "3bb39ab27f4976140d3141d057b477e4f43876536c0a1a4234df9e7578bcb7a6"
+    },
+    "active_parts": {
+      "path": "renderer/mii_active_parts.json",
+      "byte_length": 28405,
+      "sha256": "0c2bcba3da747fd7183e81ad9c5f48e31fe51109a10fa5db9a74a96af63db216"
+    },
+    "color_table": {
+      "path": "renderer/assets/color_tables.json",
+      "byte_length": 16702,
+      "sha256": "bfd3e98b88443275c30d7ceb0f526a9cfe62e345c496a36dc4795aefb295ec29"
+    },
+    "mii_head00_bfres": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHead00.bfres",
+      "byte_length": 70464,
+      "sha256": "34de7ea1b16260641ceee537207a9497dda588e0a43288811be1b5a7ac037283"
+    },
+    "mii_head00_metadata": {
+      "path": "renderer/assets/models/MiiHead00/bfres.json",
+      "byte_length": 12072,
+      "sha256": "5a290c636ca180ac31c5787b973d9ce0a85092f9f8322d06093a1a8cc176ce3d"
+    },
+    "material_state": {
+      "path": "renderer/mii_material_state.json",
+      "byte_length": 417213,
+      "sha256": "5e59925fb60c4f27c504b6b0d74371809a632d2a48ec3a2ddd632df0331d2463"
+    },
+    "gameuber_active_programs": {
+      "path": "renderer/gameuber_active_programs.json",
+      "byte_length": 457550,
+      "sha256": "185710a5c82ecd78cd9ec8682311f82319f1cd9cec9a60ff2d3dba5e7bf09156"
+    },
+    "gameuber_face_mask_instructions": {
+      "path": "tools/_shader_work/face_mask.sass.bin",
+      "byte_length": 6272,
+      "sha256": "628a1382cca4c2418fedb56c713f33a19538b2ed0e0e19fbb04bf5f9a8f7bb77"
+    },
+    "gameuber_face_mask_disassembly": {
+      "path": "tools/_shader_work/disassembly/face_mask.sm53.sass",
+      "byte_length": 36588,
+      "sha256": "225fdb5f21dce97ce2e3f48ea4c1db007f3bf559ff62cc20427f12b77ca77f00"
+    }
+  },
+  "shader": {
+    "fragment_container_file_offset": "0x2200",
+    "sass_address_origin_file_offset": "0x2250",
+    "instruction_stream_file_offset": "0x2280",
+    "jump_table_file_offset": "0x2800",
+    "selector": "mode=clamp(uint(selector)-1,0,9); BRX jump_table[mode]",
+    "jump_targets_by_selector_1_to_10": [
+      "0xb8",
+      "0xd8",
+      "0x140",
+      "0x178",
+      "0x1b0",
+      "0x200",
+      "0x2b8",
+      "0x310",
+      "0x350",
+      "0x4d8"
+    ],
+    "sample_registers": {
+      "r": "R4",
+      "g": "R5",
+      "b": "R2",
+      "a": "R3"
+    },
+    "active_modes": {
+      "3": {
+        "sass_target": "0x140",
+        "file_range": [
+          "0x2390",
+          "0x23c8"
+        ],
+        "byte_length": 56,
+        "sha256": "6a9d6a10c2ced919920e2494bd0d3e0143189670a22b657969d47dcaaf9fecb8",
+        "formula": "out.rgb=C1.rgb; out.a=sample.r"
+      },
+      "7": {
+        "sass_target": "0x2b8",
+        "file_range": [
+          "0x2508",
+          "0x2560"
+        ],
+        "byte_length": 88,
+        "sha256": "b2caf21b4d49dea7bfaaf7bcf4c8f353131b45ed685800da5333912b866f9ea0",
+        "formula": "out.rgb=sample.g*C2.rgb+sample.b*C3.rgb; out.a=saturate(sample.a-sample.r)"
+      },
+      "8": {
+        "sass_target": "0x310",
+        "file_range": [
+          "0x2560",
+          "0x25a0"
+        ],
+        "byte_length": 64,
+        "sha256": "86c1a3955237eeabc50fd67758f47d4042308539e5e804ba3b9add0be1521b27",
+        "formula": "out.rgb=sample.b*C3.rgb; out.a=saturate(sample.a-sample.r-sample.g)"
+      }
+    },
+    "shared_epilogue": {
+      "sass_range": [
+        "0x530",
+        "0x570"
+      ],
+      "file_range": [
+        "0x2780",
+        "0x27c0"
+      ],
+      "byte_length": 64,
+      "sha256": "c9a34de5bbcb64acec51fe6b8f4a883259195f901d4d998f6756b0257649d8b5",
+      "formula": "discard when out.a==0 and mode!=9"
+    }
+  },
+  "native_render_targets": {
+    "format_code": "0x0b06",
+    "format_name": "RGBA8_SRGB",
+    "pooled_constructor": {
+      "va_range": [
+        "0x7101b7ab00",
+        "0x7101b7ae60"
+      ],
+      "byte_length": 864,
+      "sha256": "a088df752ebcf65ab60dcb53ff1dee8b720594bb768566ea5f56e501f96bf6c1",
+      "format_literal_va": "0x7101b7ad90",
+      "format_literal_instruction": "MOV W20,#0xb06",
+      "faceline_descriptor_call_va": "0x7101b7adcc",
+      "mask_descriptor_call_va": "0x7101b7ade8"
+    },
+    "built_in_descriptors": {
+      "va_range": [
+        "0x7101b7a8f4",
+        "0x7101b7a94c"
+      ],
+      "byte_length": 88,
+      "sha256": "6298271bd0ff839e1d726fb75af5c21e2820550172ce1530b2497b8eb028384b",
+      "faceline_dimensions": [
+        128,
+        256
+      ],
+      "mask_dimensions": [
+        256,
+        256
+      ]
+    },
+    "warning": "0x0b01 is the request-config default, not the live faceline/mask target format"
+  },
+  "cpu_selector": {
+    "function": "FUN_7101d75d68",
+    "standard_descriptor_color_space_selector": 1,
+    "mouth015": {
+      "category": 5,
+      "selected_equals_base": true,
+      "mouth_inverted_flag": false,
+      "vtable_special_flag": false,
+      "default_lip_flag": false,
+      "selected_mode": 8,
+      "reason": "face bit5 is clear; Mouth015 is the base part; +0xc0 UseTextureColor is false"
+    },
+    "vtable_slot_24": {
+      "vtable_va": "0x71039a6350",
+      "slot_offset": "0xc0",
+      "entry_va": "0x71039a6410",
+      "stored_addend": "0x0000000001d88118",
+      "target_va": "0x7101d88118",
+      "implementation_size": 116,
+      "implementation_sha256": "1eb23c9ab2d0332d8c3b18f5eb1766dd0744c2fb230e0f5bf84da9b5252873a0",
+      "resource_byte": "0x12b",
+      "semantic": "category 2/5 UseTextureColor query"
+    }
+  },
+  "resources": {
+    "parts_configs": {
+      "eye": {
+        "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eye002.mii__Parts.bgyml",
+        "sha256": "37da75a8b23944721e5becea54a2af01225c28efc8be4c754413e24187410526",
+        "Category": "Eye",
+        "FileName": "Eye002",
+        "PartsIndex": 2,
+        "TextureName": "Eye002"
+      },
+      "eyebrow": {
+        "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eyebrow19.mii__Parts.bgyml",
+        "sha256": "fbb284232dcf45e4020d5f27d00991e21599202b0e24a3fc9cce5f818a46307e",
+        "Category": "Eyebrow",
+        "FileName": "Eyebrow19",
+        "PartsIndex": 19,
+        "TextureName": "Eyebrow19"
+      },
+      "mouth": {
+        "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mouth015.mii__Parts.bgyml",
+        "sha256": "e4837e47df45dfb46779af787daa229447e625ea8df7660088b2293f03c884d6",
+        "Category": "Mouth",
+        "FileName": "Mouth015",
+        "PartsIndex": 15,
+        "TextureName": "Mouth015"
+      },
+      "mustache": {
+        "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mustache03.mii__Parts.bgyml",
+        "sha256": "c4af28882a97be4e2d7720318ff7d7fbd0bf6fa0476da289c6af0ffb444b4b0f",
+        "Category": "Mustache",
+        "FileName": "Mustache03",
+        "PartsIndex": 4,
+        "TextureName": "Mustache03"
+      }
+    },
+    "mouth015_rsdb": {
+      "row_index": 666,
+      "dictionary_offset": "0x72a78",
+      "fields": {
+        "__RowId": "Work/Mii/Parts/Mouth015.mii__Parts.gyml",
+        "PartsIndex": 15,
+        "FileName": "Mouth015",
+        "TextureName": "Mouth015",
+        "UseTextureColor": false,
+        "IsEnableMouthLipDefault": false,
+        "IsMouthOpen": false,
+        "IsSelectableColor": true,
+        "IsSelectableSubColor": false
+      }
+    },
+    "normal_expression": {
+      "row_index": 45,
+      "dictionary_offset": "0x2f80",
+      "blank_override_fields": {
+        "EyePartsLName": "",
+        "EyePartsRName": "",
+        "EyebrowPartsLName": "",
+        "EyebrowPartsRName": "",
+        "MouthPartsName": "",
+        "MustachePartsName": "",
+        "EyeLocationName": "",
+        "EyebrowLocationName": "",
+        "MouthLocationName": "",
+        "MustacheLocationName": ""
+      }
+    },
+    "textures": {
+      "Eye002": {
+        "path": "../ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eye002.png",
+        "sha256": "09ef2f144b86bed745138b8971e73901e9f52e4b31bd27be6018249f7981b873",
+        "dimensions": [
+          152,
+          128
+        ],
+        "rgba_range": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ]
+        ],
+        "rgba_nonzero_pixels": [
+          1951,
+          0,
+          1841,
+          5159
+        ],
+        "channel_equalities": {
+          "r_eq_g": false,
+          "r_eq_b": false
+        }
+      },
+      "Eyebrow19": {
+        "path": "../ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eyebrow19.png",
+        "sha256": "59405c34d99fe64840d9985ac6c9fc297354ed3ddb78bb3dd0f44d4a1e2c8a37",
+        "dimensions": [
+          144,
+          128
+        ],
+        "rgba_range": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            255,
+            255
+          ]
+        ],
+        "rgba_nonzero_pixels": [
+          2075,
+          2075,
+          2075,
+          18432
+        ],
+        "channel_equalities": {
+          "r_eq_g": true,
+          "r_eq_b": true
+        }
+      },
+      "Mouth015": {
+        "path": "../ltdDemo_converted_assets/textures_png/1/Tex/Pack/Mouth015.png",
+        "sha256": "d74b21588699ff9bab60d3f3b957197067bf2f90998ea478f137908422d53d08",
+        "dimensions": [
+          176,
+          128
+        ],
+        "rgba_range": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            255
+          ]
+        ],
+        "rgba_nonzero_pixels": [
+          694,
+          477,
+          0,
+          2612
+        ],
+        "channel_equalities": {
+          "r_eq_g": false,
+          "r_eq_b": false
+        }
+      },
+      "Mustache03": {
+        "path": "../ltdDemo_converted_assets/textures_png/1/Tex/Pack/Mustache03.png",
+        "sha256": "a62a82ca0eb3dfa2f8648ce1f6d2e5eaf72bdd2fc9d3b2b8fb298c42d9091e39",
+        "dimensions": [
+          256,
+          512
+        ],
+        "rgba_range": [
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            0,
+            255
+          ],
+          [
+            255,
+            255
+          ]
+        ],
+        "rgba_nonzero_pixels": [
+          7461,
+          7461,
+          7461,
+          131072
+        ],
+        "channel_equalities": {
+          "r_eq_g": true,
+          "r_eq_b": true
+        }
+      }
+    }
+  },
+  "colors": {
+    "transfer": "sRGB entries (the second color in each FFL linear/sRGB pair)",
+    "mode3_c1_common_1_srgb": [
+      0.2509804,
+      0.1254902,
+      0.0627451,
+      1.0
+    ],
+    "eye_mode7_c2_srgb": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "eye_mode7_c3_common_50_srgb": [
+      0.1647059,
+      0.509804,
+      0.8313726,
+      1.0
+    ],
+    "mouth_mode8_c3_srgb": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "portable_atlas_storage": "sRGB values; common[1] stores RGBA8 (64,32,16,255)"
+  },
+  "draw": {
+    "dispatcher_order": "pass0 cases 0..21, then pass1 cases 0..20",
+    "active_layers": [
+      {
+        "case": 0,
+        "name": "mustache_character_right",
+        "texture": "Mustache03",
+        "mode": 3,
+        "origin": [
+          32.0,
+          41.4484027
+        ],
+        "center": [
+          26.795754356,
+          41.4484027
+        ],
+        "raw_size": [
+          11.700000000000001,
+          23.400000000000002
+        ],
+        "display_size": [
+          10.408491288,
+          21.7074195
+        ],
+        "rotation_degrees": 0.0,
+        "mirrored": false
+      },
+      {
+        "case": 1,
+        "name": "mustache_character_left",
+        "texture": "Mustache03",
+        "mode": 3,
+        "origin": [
+          32.0,
+          41.4484027
+        ],
+        "center": [
+          37.204245644,
+          41.4484027
+        ],
+        "raw_size": [
+          11.700000000000001,
+          23.400000000000002
+        ],
+        "display_size": [
+          10.408491288,
+          21.7074195
+        ],
+        "rotation_degrees": 0.0,
+        "mirrored": true
+      },
+      {
+        "case": 2,
+        "name": "mouth",
+        "texture": "Mouth015",
+        "mode": 8,
+        "origin": [
+          32.0,
+          43.2480759
+        ],
+        "center": [
+          32.0,
+          43.2480759
+        ],
+        "raw_size": [
+          13.6125,
+          9.9
+        ],
+        "display_size": [
+          12.109879287,
+          9.18390825
+        ],
+        "rotation_degrees": 0.0,
+        "mirrored": false
+      },
+      {
+        "case": 4,
+        "name": "eyebrow_character_right",
+        "texture": "Eyebrow19",
+        "mode": 3,
+        "origin": [
+          30.22077074,
+          26.2346557
+        ],
+        "center": [
+          24.8116627032658,
+          28.571019081826247
+        ],
+        "raw_size": [
+          13.1625,
+          11.700000000000001
+        ],
+        "display_size": [
+          11.709552699,
+          10.85370975
+        ],
+        "rotation_degrees": 337.5,
+        "mirrored": false
+      },
+      {
+        "case": 5,
+        "name": "eyebrow_character_left",
+        "texture": "Eyebrow19",
+        "mode": 3,
+        "origin": [
+          33.77922926,
+          26.2346557
+        ],
+        "center": [
+          39.1883372967342,
+          28.57101908182625
+        ],
+        "raw_size": [
+          13.1625,
+          11.700000000000001
+        ],
+        "display_size": [
+          11.709552699,
+          10.85370975
+        ],
+        "rotation_degrees": 22.5,
+        "mirrored": true
+      },
+      {
+        "case": 16,
+        "name": "eye_character_right",
+        "texture": "Eye002",
+        "mode": 7,
+        "origin": [
+          30.22077072,
+          31.3646546
+        ],
+        "center": [
+          24.99150466425,
+          31.3646546
+        ],
+        "raw_size": [
+          11.756250000000001,
+          8.712
+        ],
+        "display_size": [
+          10.458532111500002,
+          8.081839259999999
+        ],
+        "rotation_degrees": 0.0,
+        "mirrored": false
+      },
+      {
+        "case": 17,
+        "name": "eye_character_left",
+        "texture": "Eye002",
+        "mode": 7,
+        "origin": [
+          33.77922928,
+          31.3646546
+        ],
+        "center": [
+          39.008495335750005,
+          31.3646546
+        ],
+        "raw_size": [
+          11.756250000000001,
+          8.712
+        ],
+        "display_size": [
+          10.458532111500002,
+          8.081839259999999
+        ],
+        "rotation_degrees": 0.0,
+        "mirrored": true
+      }
+    ],
+    "geometry_formulas": {
+      "side_origin_center": "origin + diag(0.88961464,0.9276675) * R(theta) * (direction*raw_width/2,0)",
+      "mustache": "origin=(32,y*1.0760943+31.763554); raw=(4.5*s,9*s*a); s=0.4*scale+1; a=0.12*aspect+0.64",
+      "mouth": "center=(32,y*1.0760943+29.25885); raw=(6.1875*s,4.5*s*a); rotation=11.25*rotate",
+      "eyebrow": "origin.x=32+direction*(x*0.88961464-1.7792293); origin.y=y*1.0760943+16.549807; raw=(5.0625*s,4.5*s*a)",
+      "eye": "origin.x=32+direction*x*0.88961464; origin.y=y*1.0760943+18.451523; raw=(5.34375*s,4.5*s*a)"
+    },
+    "inactive_optional_layers": [
+      "wrinkle_lower",
+      "wrinkle_upper",
+      "makeup_upper",
+      "makeup_lower",
+      "eye_highlight",
+      "eyelash_upper",
+      "eyelash_lower",
+      "eyelid_upper",
+      "eyelid_lower",
+      "mole",
+      "eye_shadow"
+    ],
+    "gate_state": {
+      "eye_shadow_enabled": false,
+      "mole_enabled": false,
+      "mouth_inverted": false,
+      "mustache_inverted": false
+    }
+  },
+  "downstream_mask_contract": {
+    "generated_target_sequence": {
+      "rgba": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "entry": "FUN_7101d786e0",
+      "float4_wrapper": "FUN_71005fce28",
+      "clear_dispatch": "FUN_71005fce54",
+      "channel_mask": "0xf",
+      "draw_order": "pass0 active cases ascending; case21; pass1 active cases ascending",
+      "pipeline_states": {
+        "pass_0": {
+          "descriptor_words": [
+            0,
+            5,
+            15,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "rgb_blend": {
+            "source": "one",
+            "destination": "zero",
+            "equation": "add"
+          },
+          "alpha_blend": {
+            "source": "one",
+            "destination": "one",
+            "equation": "add"
+          }
+        },
+        "case_21": {
+          "descriptor_words": [
+            1,
+            5,
+            15,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "rgb_blend": {
+            "source": "source_alpha",
+            "destination": "one_minus_source_alpha",
+            "equation": "add"
+          },
+          "alpha_blend": {
+            "source": "one",
+            "destination": "one",
+            "equation": "add"
+          }
+        },
+        "pass_1": {
+          "descriptor_words": [
+            2,
+            5,
+            15,
+            0,
+            0,
+            0,
+            1,
+            0
+          ],
+          "rgb_blend": {
+            "source": "one",
+            "destination": "one_minus_source_alpha",
+            "equation": "add"
+          },
+          "alpha_blend": {
+            "source": "one",
+            "destination": "one",
+            "equation": "add"
+          }
+        }
+      },
+      "rgba8_store_after_every_draw": true,
+      "color_target_view": "RGBA8_UNORM (0x0b01)",
+      "later_sample_view": "RGBA8_SRGB (0x0b06)",
+      "case21_descriptor": "selector zero emits C1=(0,0,0,1) over a fullscreen identity quad; SRC_ALPHA/ONE_MINUS_SRC_ALPHA replaces pass0 RGB with opaque black before pass1",
+      "final_target_alpha": "opaque 1 at every pixel after case21 and pass1",
+      "mii_mask_epilogue": "discard alpha-zero output for every selector except 9"
+    },
+    "mesh": {
+      "shape": "Mask__mt_Mask",
+      "material_index": 1,
+      "bone_index": 7,
+      "vertex_skin_count": 0,
+      "bone": "Mask",
+      "bone_parent_index": 1,
+      "bone_position": [
+        0,
+        0,
+        0
+      ],
+      "bone_rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "bone_scale": [
+        1,
+        1,
+        1
+      ],
+      "conclusion": "rigid identity Mask geometry; no source basis for contracting or hand-fitting it"
+    },
+    "visibility": {
+      "manager_category_mask": "0x0fff",
+      "manager_special_flags": "0x01010101",
+      "object_f85_f86": [
+        1,
+        1
+      ],
+      "category0_path": "FUN_7101b7e350 -> FUN_7101d7daf0 enables all slot-0 materials before the explicit mt_Mask visibility override",
+      "mask_material_visibility_index_field": "+0x390",
+      "conclusion": "the ordinary category-0 path does not hide Mask__mt_Mask"
+    },
+    "bfres_material": {
+      "name": "mt_Mask",
+      "shader_archive": "GameUber",
+      "shading_model": "GameAll",
+      "render_state_mode": "mask",
+      "blend_mode": "none",
+      "alpha_test_enable": "true",
+      "alpha_test_func": "gequal",
+      "alpha_test_value": 0.5,
+      "override_shader": "1"
+    },
+    "selected_gameuber_program": {
+      "program_index": 0,
+      "instruction_sha256": "628a1382cca4c2418fedb56c713f33a19538b2ed0e0e19fbb04bf5f9a8f7bb77",
+      "disassembly_sha256": "225fdb5f21dce97ce2e3f48ea4c1db007f3bf559ff62cc20427f12b77ca77f00",
+      "fragment_alpha_export": "MOV32I R3,0x3f800000 at 0x1728",
+      "shader_kill_count": 0,
+      "literal_identity_draw_result": "opaque alpha 1 outside the generated feature atlas",
+      "conclusion": "program 0 alone cannot be the ordinary visible identity cutout draw"
+    },
+    "emulation_boundary": {
+      "exact_engine_pass": "unresolved downstream shader/pass override",
+      "required_observable_behavior": "reject identity Mask mesh fragments outside generated facial-feature coverage",
+      "literal_target_alpha_cannot_be_coverage": "case21 makes the complete generated _a0 alpha plane opaque before pass1",
+      "portable_coverage_representation": "preserve pass0 ADD(ONE,ONE) feature alpha after every RGBA8_UNORM store as an explicit companion plane; combine it with exact pass1 RGB, then retain the BFRES gequal 0.5 cutout",
+      "representation_evidence": "pass0 is the last source-backed per-feature alpha plane before case21 destroys it; the MiiMask epilogue discards exact zero alpha",
+      "claim_boundary": "the companion plane is source-backed data but its downstream engine wiring is a portable reconstruction, not claimed native target alpha",
+      "reason": "opaque-black generated target plus visible identity Mask geometry and selected GameUber program 0's alpha-one/no-KIL output still require a missing engine/pass override",
+      "prohibited_workarounds": [
+        "opaque skin-filled generated atlas",
+        "using case21/pass1 target alpha as Mask coverage",
+        "contracted or hand-fitted Mask geometry",
+        "hiding Mask__mt_Mask"
+      ]
+    }
+  },
+  "recovered_functions": {
+    "FUN_7101d75d68": {
+      "role": "select modulation and construct all 22 draw descriptors",
+      "sha256": "c9076c419c800b5b1f945c47ff9510c8461d597facddfbbd0f5fcea54beb7f2b"
+    },
+    "FUN_7101d73840": {
+      "role": "mouth geometry and expression transform",
+      "sha256": "3a7164c17001ae0a67b6e27fd953a59067fec2450ae086de09afdd0e549a1878"
+    },
+    "FUN_7101d73b50": {
+      "role": "eyebrow mirrored-origin geometry",
+      "sha256": "02450f5bcba97d7a26011dd1837afdbe880dab43d1f6eb0504017bd18aca217e"
+    },
+    "FUN_7101d786e0": {
+      "role": "dispatch cases 0..21 then 0..20",
+      "sha256": "bad78e10bfd9b2acc91a7dbacb1329368c0216cdba50772a0ff3ea5d64ec676a"
+    },
+    "FUN_7101d78e10": {
+      "role": "per-case draw/gating dispatcher",
+      "sha256": "a6936c82c1168c37d1d7899b9b454773be94f623de7e93095efa762f1225ef7a"
+    },
+    "FUN_7101d7a8c0": {
+      "role": "initialize Mii object visibility flags f85/f86",
+      "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "sha256": "684b12ea9f3e1ae53e53e37b8b0dc1761d4c59625ae59852d5d9f721354f9f78"
+    },
+    "FUN_7101d7daf0": {
+      "role": "enable all materials for an enabled slot, then hide the inactive lens material for slot 1",
+      "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "sha256": "b5d93af16091a5d67fb1cbb321de2f500dba41e5d5a945dddfd23f78e0ea6211"
+    },
+    "FUN_7101b7e350": {
+      "role": "apply slot visibility and its slot-specific material visibility overrides",
+      "source": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+      "sha256": "26f3794e6ec71c89291ba3566950499f72231e247de0498edb6120b10eff7e3a"
+    },
+    "FUN_7101bcbf1c": {
+      "role": "initialize manager category visibility mask",
+      "source": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+      "sha256": "085c4f617d701d5b0647105041d20a9960a59d8ecafc2ce7edefc5c3fb0c60d1"
+    },
+    "FUN_71005fce28": {
+      "role": "package a float4 render-target clear color",
+      "source": "src/functions/internal/batch_00/7100500000/2198_functions.inc",
+      "sha256": "849e2bb9a4e57ed1524c4d302e8e732890ff47ba0c967702f5c599514fd2453a"
+    },
+    "FUN_71005fce54": {
+      "role": "dispatch the four-channel texture clear",
+      "source": "src/functions/internal/batch_00/7100500000/2198_functions.inc",
+      "sha256": "a209d8bb283685705ce26aaba9452dc5d53506af6ec3cc9930217cc8afd215ff"
+    }
+  }
+}

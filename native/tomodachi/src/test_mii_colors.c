@@ -389,8 +389,28 @@ int main(int argc, char **argv) {
         mii_render_hair_color(&params, 71, 1), tomodachi_hair_dye_colors[19]);
     expect_color("mode 2 dyes eyebrows",
         mii_render_eyebrow_color(&params, 71, 1), tomodachi_hair_dye_colors[19]);
-    expect_color("mode 2 keeps facial hair",
+    expect_color("mode 2 dyes facial hair",
+        mii_render_facial_hair_color(&params, 71, 1), tomodachi_hair_dye_colors[19]);
+
+    params.hair_dye_mode = 3;
+    expect_color("reserved mode keeps hair",
+        mii_render_hair_color(&params, 71, 1), mii_common_colors[71]);
+    expect_color("reserved mode keeps eyebrows",
+        mii_render_eyebrow_color(&params, 71, 1), mii_common_colors[71]);
+    expect_color("reserved mode keeps facial hair",
         mii_render_facial_hair_color(&params, 71, 1), mii_common_colors[71]);
+
+    /* Physical HeadType is the native default/forCap/forHeadgear selector. */
+    expect_int("HeadType 5 uses normal model",
+        tomodachi_headwear_visibility_animation_index(5), 0);
+    expect_int("HeadType 6 uses cap model",
+        tomodachi_headwear_visibility_animation_index(6), 1);
+    expect_int("HeadType 7 uses headgear model",
+        tomodachi_headwear_visibility_animation_index(7), 2);
+    expect_int("HeadType 8 uses headgear model",
+        tomodachi_headwear_visibility_animation_index(8), 2);
+    expect_int("HeadType 10 uses normal model",
+        tomodachi_headwear_visibility_animation_index(10), 0);
 
     /* FFL draws eyebrows before eyes with a destination-alpha blend, so an
        opaque eyebrow must retain its RGB when a later eye overlaps it. The

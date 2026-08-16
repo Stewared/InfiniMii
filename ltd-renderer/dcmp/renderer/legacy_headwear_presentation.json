@@ -1,0 +1,1065 @@
+{
+  "schema_version": 1,
+  "description": "Checked target-independent presentation repair for legacy CharInfo hair selectors 34 and 57 that the title bridge lossily maps to LTD Hair 45.",
+  "generator": "tools/build_legacy_headwear_presentation.py --write",
+  "source_boundary": {
+    "selector_source": "original validated legacy CharInfo.hairType sidecar",
+    "selector_is_serialized_in_ltd": false,
+    "canonical_ltd_hair_type_after_bridge": 45,
+    "source_discriminator_values": [
+      34,
+      57
+    ],
+    "mongo_or_person_identity_used": false,
+    "display_name_or_target_hash_used": false,
+    "reference_image_values_used_for_geometry_material_color_or_transform": false,
+    "required_failure": "do not draw legacy headwear when the original validated source selector is absent"
+  },
+  "mapping_proof": {
+    "bridge_loss_set": [
+      34,
+      57
+    ],
+    "direct_classification": "FFL source identifies legacy hair type 34 as beanie and lists both 34 and 57 as hat-mesh selectors",
+    "closed_title_counterpart_set": [
+      "ClothHeadwearHatSimpleCap",
+      "ClothHeadwearHatSimpleKnit"
+    ],
+    "closed_pair_resolution": {
+      "34": "direct beanie classification -> title SimpleKnit",
+      "57": "remaining checked hat selector -> remaining title SimpleCap"
+    },
+    "inference_scope": "selector-to-title-counterpart identity only; no pixels contribute geometry, material, color, or transform data"
+  },
+  "sources": {
+    "cloth_table": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/Cloth.Trial.100.rstbl.byml",
+      "byte_length": 21960,
+      "sha256": "9b1e41bb8ab72655735bb6b8c4ab0cb2d5de54e7396f3f92842d51dd871b4efe"
+    },
+    "cloth_model_param_table": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/ClothModelParam.Trial.100.rstbl.byml",
+      "byte_length": 54872,
+      "sha256": "56765af69a9ab88abea6b6dfafd5deaa9a4da4f1df04279feeda119968dca862"
+    },
+    "title_system_param": {
+      "path": "../ltdDemo_filesystem/program/1/Parameter/MiiSystem/System.mii__SystemParam.bgyml",
+      "byte_length": 2300,
+      "sha256": "5e3d89add124d149f195c12fd7b341e413c282b649c99964387180c742317fd8"
+    },
+    "resource_domain": {
+      "path": "renderer/infinimii_classic_resource_domain.json",
+      "byte_length": 627650,
+      "sha256": "9461fec76d69419a2cb7619226d60e88f4a95816ec330004bc909a78b1934592"
+    },
+    "material_state": {
+      "path": "renderer/classic_bridge_material_state.json",
+      "byte_length": 21660262,
+      "sha256": "8abffc737f3d9e940e4463e90f00d965fc4d59cb7bb5e287a97fecf912800407"
+    },
+    "byml_decoder": {
+      "path": "tools/byml-dump/bin/Release/net9.0/BymlDump.exe",
+      "byte_length": 156160,
+      "sha256": "fd31a4f952b534cdf7d37efc5fc85f4b45fffb7387e3cab5034288998a79a363"
+    },
+    "byml_v7_decoder": {
+      "path": "tools/byml_v7.py",
+      "byte_length": 8178,
+      "sha256": "33aadd3e8e9da7a3ff8ef64eb52238a7ecc71dacd1a631ac54884560cb1ee284"
+    }
+  },
+  "source_evidence": {
+    "recovered_bridge_selector_and_color_copy": {
+      "source": {
+        "path": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+        "byte_length": 4030968,
+        "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+      },
+      "line_start": 52281,
+      "line_end": 52290,
+      "excerpt_sha256": "329616735f93301d6ae582170d4cb19f15b676b535775760e4f9134a9af7cafa",
+      "excerpt": "  bVar6 = *(byte *)((long)param_2 + 0x31);\n  *(ushort *)((long)param_1 + 0x44) = (ushort)bVar6;\n  if ((bVar6 == 0x39) || (bVar6 == 0x22)) {\n    *(undefined2 *)((long)param_1 + 0x44) = 0x2d;\n  }\n  uVar10 = *(undefined1 *)((long)param_2 + 0x32);\n  *(undefined2 *)(param_1 + 9) = 0;\n  *(undefined1 *)((long)param_1 + 0x4a) = 0;\n  *(undefined1 *)((long)param_1 + 0x46) = uVar10;\n  *(undefined1 *)((long)param_1 + 0x47) = uVar10;\n"
+    },
+    "portable_bridge_selector_and_color_copy": {
+      "source": {
+        "path": "MiiJS/miiConversion.js",
+        "byte_length": 70042,
+        "sha256": "9f47649d5b977a1eb10d2034781abce2c8d16e21273983239bbb786109da70c5"
+      },
+      "line_start": 162,
+      "line_end": 166,
+      "excerpt_sha256": "c95c2b8016586c7aeaf40e56d585333d7d187c4831fa94f2090ccab90d3811d4",
+      "excerpt": "    const hairType = source[0x31] === 34 || source[0x31] === 57 ? 45 : source[0x31];\n    target[0x44] = hairType & 0xff;\n    target[0x45] = hairType >>> 8;\n    target[0x46] = source[0x32];\n    target[0x47] = source[0x32];\n"
+    },
+    "portable_bridge_loss_report": {
+      "source": {
+        "path": "MiiJS/miiConversion.js",
+        "byte_length": 70042,
+        "sha256": "9f47649d5b977a1eb10d2034781abce2c8d16e21273983239bbb786109da70c5"
+      },
+      "line_start": 1224,
+      "line_end": 1233,
+      "excerpt_sha256": "c43b6a915ca14e48224eaace23605f4e25bd846aa18ab8fc460f0fd477d32c04",
+      "excerpt": "    if (charInfo[0x31] === 34 || charInfo[0x31] === 57) {\n        report.summary.appearanceSelectorLossless = false;\n        reportField(report, \"transformed\", \"collapsed_legacy_hair_selector\", {\n            sourcePath: \"CharInfo.hairType\",\n            targetPath: \"ltd.charInfo.hairType\",\n            sourceValue: charInfo[0x31],\n            targetValue: 45,\n            reversible: false,\n            provenance: \"local-title-decomp-FUN_7101d69220\"\n        });\n"
+    },
+    "ffl_beanie_and_for_hat_selector_note": {
+      "source": {
+        "path": "../../_tmp_ffl_testing/src/Shader.cpp",
+        "byte_length": 32217,
+        "sha256": "bf27ebdf168992aff8ad8b04fc81875599f41b497fac5f38b5e1b6915ee321dc"
+      },
+      "line_start": 350,
+      "line_end": 353,
+      "excerpt_sha256": "611fadcc46197f49852795125d459a51392930f4b0d4f9399edfdaae723fcd1a",
+      "excerpt": "     * in the FFL resource on Wii U, all shapes where color's stride is 0 use the value: <1, 1, 0, 1>\n     * ... EXCEPT for where R is 0 in: hair type 34/beanie, and hair\n     *              for hat meshes: 18, 23, 34, 39, 45, 57, 114, 127\n     */\n"
+    },
+    "ffl_hat_and_hair_shape_types": {
+      "source": {
+        "path": "../../_tmp_ffl_testing/ffl/src/FFLiCharModelCreator.cpp",
+        "byte_length": 35006,
+        "sha256": "fcceed4859b019b96c575aeea23173608cc55422c1e8dc6f6964d53eb4dfb92d"
+      },
+      "line_start": 361,
+      "line_end": 388,
+      "excerpt_sha256": "bff3ac463c467bb52544e9dd358bd5cf32d939e9849f02c05281571651a00d41",
+      "excerpt": "FFLiShapeType ConvertShapePartsTypeToShapeType(FFLiShapePartsType partsType)\n{\n    switch (partsType)\n    {\n    case FFLI_SHAPE_PARTS_TYPE_BEARD:\n        return FFLI_SHAPE_TYPE_OPA_BEARD;\n    case FFLI_SHAPE_PARTS_TYPE_HAT_NORMAL:\n        return FFLI_SHAPE_TYPE_OPA_HAT_NORMAL;\n    case FFLI_SHAPE_PARTS_TYPE_HAT_CAP:\n        return FFLI_SHAPE_TYPE_OPA_HAT_CAP;\n    case FFLI_SHAPE_PARTS_TYPE_FACELINE:\n        return FFLI_SHAPE_TYPE_OPA_FACELINE;\n    case FFLI_SHAPE_PARTS_TYPE_GLASS:\n        return FFLI_SHAPE_TYPE_XLU_GLASS;\n    case FFLI_SHAPE_PARTS_TYPE_MASK:\n        return FFLI_SHAPE_TYPE_XLU_MASK;\n    case FFLI_SHAPE_PARTS_TYPE_NOSELINE:\n        return FFLI_SHAPE_TYPE_XLU_NOSELINE;\n    case FFLI_SHAPE_PARTS_TYPE_NOSE:\n        return FFLI_SHAPE_TYPE_OPA_NOSE;\n    case FFLI_SHAPE_PARTS_TYPE_HAIR_NORMAL:\n        return FFLI_SHAPE_TYPE_OPA_HAIR_NORMAL;\n    case FFLI_SHAPE_PARTS_TYPE_HAIR_CAP:\n        return FFLI_SHAPE_TYPE_OPA_HAIR_CAP;\n    case FFLI_SHAPE_PARTS_TYPE_FOREHEAD_NORMAL:\n        return FFLI_SHAPE_TYPE_OPA_FOREHEAD_NORMAL;\n    case FFLI_SHAPE_PARTS_TYPE_FOREHEAD_CAP:\n        return FFLI_SHAPE_TYPE_OPA_FOREHEAD_CAP;\n"
+    },
+    "ffl_hat_model_shape_selection": {
+      "source": {
+        "path": "../../_tmp_ffl_testing/ffl/src/FFLiCharModelCreator.cpp",
+        "byte_length": 35006,
+        "sha256": "fcceed4859b019b96c575aeea23173608cc55422c1e8dc6f6964d53eb4dfb92d"
+      },
+      "line_start": 477,
+      "line_end": 505,
+      "excerpt_sha256": "53aaaddcc3ae447006dd86d110d04fb32e13dfefb8a3aa113e9455655680f689",
+      "excerpt": "struct ModelTypeShapePartsInfo\n{\n    bool                enable;\n    FFLiShapePartsType  partsType;\n};\n\nconst ModelTypeShapePartsInfo* GetModelTypeShapePartsInfo(u32 modelFlag)\n{\n    static ModelTypeShapePartsInfo modelTypeShapePartsInfo[2 * FFL_MODEL_TYPE_MAX] = {\n        // FFL_MODEL_TYPE_NORMAL\n        { false, FFLI_SHAPE_PARTS_TYPE_HAIR_NORMAL },\n        { false, FFLI_SHAPE_PARTS_TYPE_HAT_NORMAL },\n        { false, FFLI_SHAPE_PARTS_TYPE_FOREHEAD_NORMAL },\n        // FFL_MODEL_TYPE_HAT\n        { false, FFLI_SHAPE_PARTS_TYPE_HAIR_CAP },\n        { false, FFLI_SHAPE_PARTS_TYPE_HAT_CAP },\n        { false, FFLI_SHAPE_PARTS_TYPE_FOREHEAD_CAP }\n    };\n\n    bool modelType0Enable = modelFlag & FFL_MODEL_FLAG_NORMAL;\n    bool modelType1Enable = modelFlag & FFL_MODEL_FLAG_HAT;\n\n    modelTypeShapePartsInfo[0 * 3 + 0].enable = modelType0Enable;\n    modelTypeShapePartsInfo[0 * 3 + 1].enable = modelType0Enable;\n    modelTypeShapePartsInfo[0 * 3 + 2].enable = modelType0Enable;\n\n    modelTypeShapePartsInfo[1 * 3 + 0].enable = modelType1Enable;\n    modelTypeShapePartsInfo[1 * 3 + 1].enable = modelType1Enable;\n    modelTypeShapePartsInfo[1 * 3 + 2].enable = modelType1Enable;\n"
+    },
+    "ffl_hair_selector_and_flip_initialization": {
+      "source": {
+        "path": "../../_tmp_ffl_testing/ffl/src/FFLiCharModelCreator.cpp",
+        "byte_length": 35006,
+        "sha256": "fcceed4859b019b96c575aeea23173608cc55422c1e8dc6f6964d53eb4dfb92d"
+      },
+      "line_start": 550,
+      "line_end": 579,
+      "excerpt_sha256": "9369074e2ad44b5ed44837a9dca2f34dafc5c8f85893e69e580e7688a06ee074",
+      "excerpt": "FFLResult InitShapes(FFLiCharModel* pModel, FFLiResourceLoader * pResLoader, const FFLiCoordinate* pCoordinate)\n{\n    u32 modelFlag = pModel->charModelDesc.modelFlag & 7;\n\n    FFLResult result = InitShape(pModel, FFLI_SHAPE_PARTS_TYPE_FACELINE, pModel->charInfo.parts.faceType, 1.0f, 1.0f, NULL, false, pResLoader, pCoordinate);\n    if (result != FFL_RESULT_OK)\n        return result;\n\n    if (modelFlag & (FFL_MODEL_FLAG_NORMAL |\n                     FFL_MODEL_FLAG_HAT))\n    {\n        const ModelTypeShapePartsInfo* modelTypeShapePartsInfo = GetModelTypeShapePartsInfo(modelFlag);\n\n        bool flipHair = pModel->charInfo.parts.hairDir > 0;\n\n        for (u32 i = 0; i < 2 * FFL_MODEL_TYPE_MAX; i++)\n        {\n            if (modelTypeShapePartsInfo[i].enable)\n            {\n                result = InitShape(pModel, modelTypeShapePartsInfo[i].partsType, pModel->charInfo.parts.hairType, 1.0f, 1.0f, &pModel->hairPos, flipHair, pResLoader, pCoordinate);\n                if (result != FFL_RESULT_OK)\n                {\n                    DeleteShape_Hair(pModel, i);\n                    DeleteShape_Faceline(pModel);\n                    return result;\n                }\n            }\n        }\n\n    }\n"
+    },
+    "ffl_cap_texture_selector": {
+      "source": {
+        "path": "../../_tmp_ffl_testing/ffl/src/FFLiCharModelCreator.cpp",
+        "byte_length": 35006,
+        "sha256": "fcceed4859b019b96c575aeea23173608cc55422c1e8dc6f6964d53eb4dfb92d"
+      },
+      "line_start": 717,
+      "line_end": 725,
+      "excerpt_sha256": "af86c401a255eaaa867862694cc352506a45c7520c3be1a63dd5b3e89b89435e",
+      "excerpt": "FFLResult InitTextures(FFLiCharModel* pModel, FFLiResourceLoader* pResLoader)\n{\n    if (FFLiCanDrawShape(&(pModel->drawParam[FFLI_SHAPE_TYPE_OPA_HAT_NORMAL])) ||\n        FFLiCanDrawShape(&(pModel->drawParam[FFLI_SHAPE_TYPE_OPA_HAT_CAP])))\n    {\n        FFLResult result = FFLiLoadTextureWithAllocate(&pModel->pCapTexture, FFLI_TEXTURE_PARTS_TYPE_CAP, pModel->charInfo.parts.hairType, pResLoader);\n        if (result != FFL_RESULT_OK)\n            return result;\n    }\n"
+    },
+    "recovered_title_hat_setting_parser": {
+      "source": {
+        "path": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+        "byte_length": 4030968,
+        "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+      },
+      "line_start": 48802,
+      "line_end": 48839,
+      "excerpt_sha256": "e2dd99418346749a700c944f40ccb4fa6174ba3336daf6fc15d993154b713499",
+      "excerpt": "      lStack_80 = lVar8 + 0x128;\n      local_88 = DAT_7103a5aad0 + 0x10;\n      plStack_68 = &local_88;\n      local_70 = \"HatOffsetTrans\";\n      uVar7 = (**(code **)*param_2)(param_2,&local_70);\n      if ((int)uVar7 != 1) {\n        lVar8 = param_1;\n        do {\n          lVar10 = lVar8;\n          if ((((*(byte *)(lVar10 + 0x1b4) & 1) != 0) || (*(long *)(lVar10 + 0x10) == 0)) ||\n             ((plVar12 = *(long **)(lVar10 + 0x18), plVar12 == (long *)0x0 ||\n              ((*(int *)((long)plVar12 + 0xc) != *(int *)(lVar10 + 0x20) ||\n               (puVar5 = (undefined8 *)*plVar12, puVar5 == (undefined8 *)0x0)))))) break;\n          if (((*pbVar3 & 1) == 0) && (iVar4 = thunk_EXT_FUN_02e95df0(pbVar3), iVar4 != 0)) {\n            *plVar2 = lVar11 + 0x10;\n            thunk_EXT_FUN_02e95df0(pbVar3);\n          }\n          lVar8 = (**(code **)*puVar5)(puVar5,plVar2);\n        } while (lVar8 != 0);\n        lVar8 = param_1;\n        do {\n          lVar9 = lVar8;\n          if (((((*(byte *)(lVar9 + 0x1b4) & 1) != 0) || (*(long *)(lVar9 + 0x10) == 0)) ||\n              (plVar12 = *(long **)(lVar9 + 0x18), plVar12 == (long *)0x0)) ||\n             ((*(int *)((long)plVar12 + 0xc) != *(int *)(lVar9 + 0x20) ||\n              (puVar5 = (undefined8 *)*plVar12, puVar5 == (undefined8 *)0x0)))) break;\n          if (((*pbVar3 & 1) == 0) && (iVar4 = thunk_EXT_FUN_02e95df0(pbVar3), iVar4 != 0)) {\n            *plVar2 = lVar11 + 0x10;\n            thunk_EXT_FUN_02e95df0(pbVar3);\n          }\n          lVar8 = (**(code **)*puVar5)(puVar5,plVar2);\n        } while (lVar8 != 0);\n        local_78 = lVar9 + 0x11c;\n        plStack_68 = &local_88;\n        local_88 = DAT_7103a66760 + 0x10;\n        local_70 = \"HatOffsetRotate\";\n        lStack_80 = lVar10 + 0x110;\n        uVar7 = (**(code **)*param_2)(param_2,&local_70);\n"
+    }
+  },
+  "color_contract": {
+    "runtime_field": "effective canonical hair_color_primary",
+    "legacy_source_byte": "CharInfo[0x32]",
+    "canonical_destinations": [
+      "CharInfoEx[0x46] hair_color_primary",
+      "CharInfoEx[0x47] hair_color_secondary"
+    ],
+    "allowed_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "title_color_variation_hashes_in_index_order": [
+      1847234945,
+      3225380472,
+      2090560987,
+      3801160378,
+      2131419734,
+      3941755401,
+      1824275636,
+      1140983308
+    ],
+    "albedo_binding": "<resource>_Body_Alb.<hair_color_primary:02d> -> mt_Body/_a0",
+    "favorite_color_is_not_the_variation_selector": true,
+    "title_is_enable_character_color": false
+  },
+  "hat_compatible_hair": {
+    "canonical_selector": 45,
+    "parts_record": "HairAllLegacy045",
+    "parts_config": {
+      "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/HairAllLegacy045.mii__Parts.bgyml",
+      "byte_length": 752,
+      "sha256": "8f7eda288f7d7d2dda5dd5591b1b68539a60b8428c7821a2b5ecde15f0786790"
+    },
+    "model_role": "ModelUnitForHat",
+    "model_resource": {
+      "role": "ModelUnitForHat",
+      "fmdb": "Work/Model/Mii/MiiHairAll/MiiHairAllLegacy045/output/MiiHairAllLegacyHat045.fmdb",
+      "resource_name": "MiiHairAllLegacy045",
+      "bfres": {
+        "path": "../ltdDemo_converted_assets/decompressed/1/Model/MiiHairAllLegacy045.bfres",
+        "byte_length": 91072,
+        "sha256": "bf695bf9bdcf689ee40440314b08293d490612d465b1761d97d029d6960ee6e2"
+      }
+    },
+    "prepared_metadata": {
+      "path": "renderer/assets/models/MiiHairAllLegacy045/bfres.json",
+      "byte_length": 12525,
+      "sha256": "6bee6a9270b6afb08b44a3393e51b58aaf24144288260802861fd7db02634e36"
+    },
+    "prepared_obj": {
+      "path": "renderer/assets/models/MiiHairAllLegacy045/MiiHairAllLegacyHat045.obj",
+      "byte_length": 83955,
+      "sha256": "296708a65e12a5254ffc799be9a839b9ce7cf9f192fefcdd18824eb55d71cdf9"
+    },
+    "prepared_model": "MiiHairAllLegacyHat045",
+    "shape": "Hair__mt_Hair",
+    "rigid_bone_index": 2,
+    "vertex_skin_count": 0,
+    "object_space_bounds": {
+      "vertex_count": 731,
+      "minimum": [
+        -0.26930836,
+        0.10091247,
+        -0.33995613
+      ],
+      "maximum": [
+        0.2699749,
+        0.47050947,
+        0.0908041
+      ]
+    },
+    "flip_policy": "apply the existing effective canonical hair-direction mirror to the for-hat model too"
+  },
+  "hat_attachment": {
+    "source": {
+      "path": "../ltdDemo_filesystem/program/1/Parameter/MiiSystem/System.mii__SystemParam.bgyml",
+      "byte_length": 2300,
+      "sha256": "5e3d89add124d149f195c12fd7b341e413c282b649c99964387180c742317fd8"
+    },
+    "decoder": {
+      "path": "tools/byml_v7.py",
+      "byte_length": 8178,
+      "sha256": "33aadd3e8e9da7a3ff8ef64eb52238a7ecc71dacd1a631ac54884560cb1ee284"
+    },
+    "byml": {
+      "byte_order": "little-endian YB",
+      "version": 7,
+      "root_offset": 852,
+      "root_entries": {
+        "HatOffsetRotate": {
+          "key_index": 18,
+          "entry_offset": 952,
+          "node_offset": 1964
+        },
+        "HatOffsetTrans": {
+          "key_index": 19,
+          "entry_offset": 960,
+          "node_offset": 1992
+        }
+      }
+    },
+    "translation": {
+      "xyz": [
+        0.0,
+        0.3779999911785126,
+        -0.037140000611543655
+      ],
+      "float32_bits": [
+        "0x00000000",
+        "0x3ec18937",
+        "0xbd18201d"
+      ],
+      "value_offsets": [
+        2000,
+        2008,
+        2016
+      ]
+    },
+    "rotation_degrees": {
+      "xyz": [
+        -12.0,
+        0.0,
+        0.0
+      ],
+      "float32_bits": [
+        "0xc1400000",
+        "0x00000000",
+        "0x00000000"
+      ],
+      "value_offsets": [
+        1972,
+        1980,
+        1988
+      ]
+    },
+    "portable_local_matrix": {
+      "formula": "translation(HatOffsetTrans) @ rotation_x(radians(HatOffsetRotate.X))",
+      "column_vector_rows": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.9781476007338057,
+          0.20791169081775934,
+          0.3779999911785126
+        ],
+        [
+          0.0,
+          -0.20791169081775934,
+          0.9781476007338057,
+          -0.037140000611543655
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "scope": "portable local execution of the two named title settings; the recovered deserializer proves their identity and storage, while a direct title consumer call site has not been identified"
+    }
+  },
+  "headwear": [
+    {
+      "legacy_hair_type": 34,
+      "canonical_ltd_hair_type": 45,
+      "presentation_kind": "simple_knit",
+      "resource_name": "ClothHeadwearHatSimpleKnit",
+      "cloth_row": {
+        "CameraKey": "ClothHeadwearHat",
+        "ClothIndex": 719,
+        "KeyHash": 2596488367,
+        "ModelHash": 2208624104,
+        "OldClothIndex": 586,
+        "ParamHash": 2368689463,
+        "PriceKey": "ClothHeadwearHatSimpleKnit",
+        "Type": "Headwear",
+        "Usage": "Cloth",
+        "__RowId": "ClothHeadwearHatSimpleKnit"
+      },
+      "model_param_row": {
+        "BodyBaseCutline": 2895499086,
+        "ColorVariation": [
+          {
+            "Color": 1847234945,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 3225380472,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 2090560987,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 3801160378,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 2131419734,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 3941755401,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 1824275636,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 1140983308,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          }
+        ],
+        "HeadwearEffectOffset": 3069107721,
+        "HeadwearType": 1365271312,
+        "IsAccessoryOnBack": false,
+        "IsAccessoryScarf": false,
+        "IsEnableCharacterColor": false,
+        "ModelUnit": {
+          "Fmdb": "Work/Model/Body/ClothHeadwear/ClothHeadwearHatSimpleKnit/output/ClothHeadwearHatSimpleKnit.fmdb",
+          "FmdbIn": "",
+          "IgnoreHandScale": false,
+          "ModelName": "ClothHeadwearHatSimpleKnit",
+          "ModelNameIn": "",
+          "ModelResName": "ClothHeadwearHatSimpleKnit",
+          "PhivePhcl": "",
+          "Scale": 1,
+          "TextureProjectName": ""
+        },
+        "ShoesType": 957022509,
+        "SubAccessoryHash0": 0,
+        "SubAccessoryHash1": 0,
+        "__RowId": 2208624104
+      },
+      "bfres": {
+        "path": "../ltdDemo_converted_assets/decompressed/1/Model/ClothHeadwearHatSimpleKnit.bfres",
+        "byte_length": 49880,
+        "sha256": "c871937b6fc91c27b224bffd9a99eed468ac8138585a66d40b1bfebafc99c1e8"
+      },
+      "prepared_model": {
+        "metadata": {
+          "path": "renderer/assets/models/ClothHeadwearHatSimpleKnit/bfres.json",
+          "byte_length": 5823,
+          "sha256": "8ed25b3c9fab15bf19a9c0abca733d61ea800f2cd7833f8c5129cc1a3072d5ac"
+        },
+        "obj": {
+          "path": "renderer/assets/models/ClothHeadwearHatSimpleKnit/ClothHeadwearHatSimpleKnit.obj",
+          "byte_length": 134429,
+          "sha256": "875c018337acc08f995e825527894757542e18223771a808e00cee0e599b758f"
+        },
+        "model": "ClothHeadwearHatSimpleKnit",
+        "shape": "SimpleKnit__mt_Body",
+        "material": "mt_Body",
+        "rigid_bone_index": 2,
+        "vertex_skin_count": 0,
+        "vertex_count": 1083,
+        "prepared_index_count": 2160,
+        "catalog_index_count": 3672,
+        "object_space_bounds": {
+          "vertex_count": 1083,
+          "minimum": [
+            -0.3020487,
+            -0.002808642,
+            -0.33756953
+          ],
+          "maximum": [
+            0.30323675,
+            0.40137687,
+            0.34694314
+          ]
+        },
+        "bind_chain": [
+          {
+            "name": "Root",
+            "parent_index": -1,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "name": "Mdl_Root",
+            "parent_index": 0,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "name": "SimpleKnit",
+            "parent_index": 1,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      "material": {
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll",
+        "checked_shader_options": {
+          "enable_albedo": "True",
+          "enable_normal_map": "True",
+          "enable_roughness_map": "True",
+          "replace_albedo": "True",
+          "enable_mii_face_mask": "True",
+          "flip_mii_face_mask": "True",
+          "map_albedo": "10",
+          "map_normal": "12",
+          "map_roughness": "1101",
+          "map_specular_mask": "13",
+          "map_channel_specular_mask": "300",
+          "map_edge_light_mask": "13",
+          "map_channel_edge_light_mask": "300",
+          "map_channel_skin_mask": "1"
+        },
+        "texture_assignments": {
+          "_a0": {
+            "texture_ref": "ClothHeadwearHatSimpleKnit_Body_Alb.00",
+            "shader_samplers": [
+              "_a0"
+            ]
+          },
+          "_n0": {
+            "texture_ref": "ClothHeadwearHatSimpleKnit_Body_Nrm",
+            "shader_samplers": [
+              "_n0"
+            ]
+          },
+          "_r0": {
+            "texture_ref": "ClothHeadwearHatSimpleKnit_Body_Mic",
+            "shader_samplers": [
+              "_r0"
+            ]
+          }
+        },
+        "render_state": {
+          "gsys_render_state_mode": [
+            "opaque"
+          ],
+          "gsys_render_state_display_face": [
+            "front"
+          ],
+          "gsys_render_state_blend_mode": [
+            "none"
+          ],
+          "gsys_depth_test_enable": [
+            "true"
+          ],
+          "gsys_depth_test_func": [
+            "lequal"
+          ],
+          "gsys_depth_test_write": [
+            "true"
+          ],
+          "gsys_alpha_test_enable": [
+            "false"
+          ]
+        }
+      },
+      "texture_variations": [
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Alb.00",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Alb.00.bntx",
+            "byte_length": 94320,
+            "sha256": "55386a8344e249cd3a6fdfcb71d4a4609591948e3caa56c0f2392caf7407ffb7"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Alb.01",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Alb.01.bntx",
+            "byte_length": 94320,
+            "sha256": "20b7f2a6e80793025d8b9b6d00f12bc33538dea526725c8bb031ab88acc959ca"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Alb.02",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Alb.02.bntx",
+            "byte_length": 94320,
+            "sha256": "d0dde28ac8af284852228aee2aed9fddda439f885c56b2f67441552f01221f45"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Alb.03",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Alb.03.bntx",
+            "byte_length": 94320,
+            "sha256": "26ef4925cfe2585f1acd68daf2dbf233da9e90e80c7e8b64e647be5071f8cc24"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Alb.04",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Alb.04.bntx",
+            "byte_length": 94320,
+            "sha256": "2bac419cc04fbe2368d40d826b743df76ce2494dd98328ec849fe99c0ac8e877"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Alb.05",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Alb.05.bntx",
+            "byte_length": 94320,
+            "sha256": "4180aede7dee48641542dd8115a777c6e2b1274a8bbc290e8f622d9e825015ef"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Alb.06",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Alb.06.bntx",
+            "byte_length": 94320,
+            "sha256": "ae108974b319ef08777a503ecad3834a333918241b61e158d1ec85ed8e381be9"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Alb.07",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Alb.07.bntx",
+            "byte_length": 94320,
+            "sha256": "4e816e52d80be5d64d0b13a07876ee1bf7009a67a880f2fb1fff98910b032898"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Nrm",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Nrm.bntx",
+            "byte_length": 204912,
+            "sha256": "421b30ad05e94eb84d332a3e3760f8ac1a13a08c5214a81506770f7828906473"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleKnit_Body_Mic",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleKnit_Body_Mic.bntx",
+            "byte_length": 94320,
+            "sha256": "d8e6aacf326cd11195f71de2efa15a36cf252d7d6ca3b93a42fa877bcfbf4f10"
+          }
+        }
+      ]
+    },
+    {
+      "legacy_hair_type": 57,
+      "canonical_ltd_hair_type": 45,
+      "presentation_kind": "simple_cap",
+      "resource_name": "ClothHeadwearHatSimpleCap",
+      "cloth_row": {
+        "CameraKey": "ClothHeadwearHat",
+        "ClothIndex": 718,
+        "KeyHash": 1222132018,
+        "ModelHash": 374316681,
+        "OldClothIndex": 585,
+        "ParamHash": 800274935,
+        "PriceKey": "ClothHeadwearHatSimpleCap",
+        "Type": "Headwear",
+        "Usage": "Cloth",
+        "__RowId": "ClothHeadwearHatSimpleCap"
+      },
+      "model_param_row": {
+        "BodyBaseCutline": 2895499086,
+        "ColorVariation": [
+          {
+            "Color": 1847234945,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 3225380472,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 2090560987,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 3801160378,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 2131419734,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 3941755401,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 1824275636,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          },
+          {
+            "Color": 1140983308,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          }
+        ],
+        "HeadwearEffectOffset": 3069107721,
+        "HeadwearType": 1365271312,
+        "IsAccessoryOnBack": false,
+        "IsAccessoryScarf": false,
+        "IsEnableCharacterColor": false,
+        "ModelUnit": {
+          "Fmdb": "Work/Model/Body/ClothHeadwear/ClothHeadwearHatSimpleCap/output/ClothHeadwearHatSimpleCap.fmdb",
+          "FmdbIn": "",
+          "IgnoreHandScale": false,
+          "ModelName": "ClothHeadwearHatSimpleCap",
+          "ModelNameIn": "",
+          "ModelResName": "ClothHeadwearHatSimpleCap",
+          "PhivePhcl": "",
+          "Scale": 1,
+          "TextureProjectName": ""
+        },
+        "ShoesType": 957022509,
+        "SubAccessoryHash0": 0,
+        "SubAccessoryHash1": 0,
+        "__RowId": 374316681
+      },
+      "bfres": {
+        "path": "../ltdDemo_converted_assets/decompressed/1/Model/ClothHeadwearHatSimpleCap.bfres",
+        "byte_length": 70384,
+        "sha256": "bdd7616d06793ee2d2bd92456c97c9fbdf2543e5532276dfc274a2d5e61e34bf"
+      },
+      "prepared_model": {
+        "metadata": {
+          "path": "renderer/assets/models/ClothHeadwearHatSimpleCap/bfres.json",
+          "byte_length": 5835,
+          "sha256": "6d607b8417065ab98b3383cd6e5104ae1b4b4267c96ea35da93931704881274d"
+        },
+        "obj": {
+          "path": "renderer/assets/models/ClothHeadwearHatSimpleCap/ClothHeadwearHatSimpleCap.obj",
+          "byte_length": 194880,
+          "sha256": "743a3b851e8b1d33738cfa35ed64dee3873e18c7cc6d218fb2fa6c871b1586f0"
+        },
+        "model": "ClothHeadwearHatSimpleCap",
+        "shape": "SimpleCap__mt_Body",
+        "material": "mt_Body",
+        "rigid_bone_index": 2,
+        "vertex_skin_count": 0,
+        "vertex_count": 1643,
+        "prepared_index_count": 2646,
+        "catalog_index_count": 4494,
+        "object_space_bounds": {
+          "vertex_count": 1643,
+          "minimum": [
+            -0.3013522,
+            -0.073510334,
+            -0.34610227
+          ],
+          "maximum": [
+            0.2997136,
+            0.37378067,
+            0.4855492
+          ]
+        },
+        "bind_chain": [
+          {
+            "name": "Root",
+            "parent_index": -1,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "name": "Mdl_Root",
+            "parent_index": 0,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "name": "SimpleCap",
+            "parent_index": 1,
+            "position": [
+              0,
+              0,
+              0
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      "material": {
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll",
+        "checked_shader_options": {
+          "enable_albedo": "True",
+          "enable_normal_map": "True",
+          "enable_roughness_map": "True",
+          "replace_albedo": "True",
+          "enable_mii_face_mask": "True",
+          "flip_mii_face_mask": "True",
+          "map_albedo": "10",
+          "map_normal": "12",
+          "map_roughness": "1101",
+          "map_specular_mask": "13",
+          "map_channel_specular_mask": "300",
+          "map_edge_light_mask": "13",
+          "map_channel_edge_light_mask": "300",
+          "map_channel_skin_mask": "1"
+        },
+        "texture_assignments": {
+          "_a0": {
+            "texture_ref": "ClothHeadwearHatSimpleCap_Body_Alb.00",
+            "shader_samplers": [
+              "_a0"
+            ]
+          },
+          "_n0": {
+            "texture_ref": "ClothHeadwearHatSimpleCap_Body_Nrm",
+            "shader_samplers": [
+              "_n0"
+            ]
+          },
+          "_r0": {
+            "texture_ref": "ClothHeadwearHatSimpleCap_Body_Mic",
+            "shader_samplers": [
+              "_r0"
+            ]
+          }
+        },
+        "render_state": {
+          "gsys_render_state_mode": [
+            "opaque"
+          ],
+          "gsys_render_state_display_face": [
+            "front"
+          ],
+          "gsys_render_state_blend_mode": [
+            "none"
+          ],
+          "gsys_depth_test_enable": [
+            "true"
+          ],
+          "gsys_depth_test_func": [
+            "lequal"
+          ],
+          "gsys_depth_test_write": [
+            "true"
+          ],
+          "gsys_alpha_test_enable": [
+            "false"
+          ]
+        }
+      },
+      "texture_variations": [
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Alb.00",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Alb.00.bntx",
+            "byte_length": 94320,
+            "sha256": "4210c79eac398260da67768b58ccbf6c7703a3d447426beb8bd5bf2351d405fa"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Alb.01",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Alb.01.bntx",
+            "byte_length": 94320,
+            "sha256": "15a0a6bbfdd8a8e8672aac15fa89e0573c1e47e4ded727613e8dbab3c56aefef"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Alb.02",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Alb.02.bntx",
+            "byte_length": 94320,
+            "sha256": "5d0b60ba32825bcc3e0f48969f699a824887ed20b4c39eb5b4bd0416471d6514"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Alb.03",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Alb.03.bntx",
+            "byte_length": 94320,
+            "sha256": "470b62dd9aa78f11309800e20e24e2277fa42de53869b2d980e454c7b7353fd5"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Alb.04",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Alb.04.bntx",
+            "byte_length": 94320,
+            "sha256": "c6dfa19de1190decbf190d6da018041848a57a6d04afc901367e6f66f0e8a437"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Alb.05",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Alb.05.bntx",
+            "byte_length": 94320,
+            "sha256": "ee01e7360eb19ec775d339977a96457e033314cdb6f40f69213ad8e621cf2b9c"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Alb.06",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Alb.06.bntx",
+            "byte_length": 94320,
+            "sha256": "ddcea60f2e8f9f5b3584f3f5655a528c07871e49c852eeb367f10f78f9420aad"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Alb.07",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Alb.07.bntx",
+            "byte_length": 94320,
+            "sha256": "8d2e42fb423b1f572a6df3b23e7c28e833727d57814651857d0d4c844e0f4272"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Nrm",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Nrm.bntx",
+            "byte_length": 204912,
+            "sha256": "beae6abfb9401f84d4f577f5a4ce1a232b007ca07c4f87d21c2b0d240638f8ac"
+          }
+        },
+        {
+          "name": "ClothHeadwearHatSimpleCap_Body_Mic",
+          "source": {
+            "path": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothHeadwearHatSimpleCap_Body_Mic.bntx",
+            "byte_length": 94320,
+            "sha256": "9a8968c7b59d0e271731a8b6e4c2d957c20063d8e1e555914da867c17b2bc4fc"
+          }
+        }
+      ]
+    }
+  ],
+  "runtime_draw_contract": {
+    "admission": "legacy source selector 34 or 57 AND canonical LTD hair selector 45",
+    "normal_hair_action": "replace the ordinary Hair 45 model draw with ModelUnitForHat",
+    "draw_sequence": [
+      "hat-compatible Hair 45 opaque draw",
+      "selected title headwear opaque draw"
+    ],
+    "headwear_transform": "head_scene_transform @ translation(HatOffsetTrans) @ rotation_x(radians(HatOffsetRotate.X)) @ prepared_rigid_shape_bind_transform",
+    "prepared_rigid_shape_bind_transform": "identity for both checked resources",
+    "model_unit_scale": 1,
+    "additional_title_hat_attachment": {
+      "formula": "translation(HatOffsetTrans) @ rotation_x(radians(HatOffsetRotate.X))",
+      "column_vector_rows": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.9781476007338057,
+          0.20791169081775934,
+          0.3779999911785126
+        ],
+        [
+          0.0,
+          -0.20791169081775934,
+          0.9781476007338057,
+          -0.037140000611543655
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "scope": "portable local execution of the two named title settings; the recovered deserializer proves their identity and storage, while a direct title consumer call site has not been identified"
+    },
+    "height_policy": "use the same attached head_scene_transform as head, hair, ears, and nose; apply the fixed title HatOffset translation/rotation locally exactly once, and never rescale or offset by body height again",
+    "headwear_albedo_override": "replace serialized .00 at mt_Body/_a0 with the checked indexed variation from color_contract",
+    "normal_and_roughness_bindings": {
+      "_n0": "<resource>_Body_Nrm",
+      "_r0": "<resource>_Body_Mic"
+    },
+    "raster_state": {
+      "display_face": "front",
+      "cull": "back",
+      "depth_test": "lequal",
+      "depth_write": true,
+      "blend": "none",
+      "alpha_test": false
+    },
+    "background_contract": "unchanged transparent portrait background; headwear is ordinary opaque geometry with per-pixel coverage"
+  },
+  "fail_closed": [
+    "source selector missing, unvalidated, or not exactly 34/57",
+    "canonical LTD hair selector is not 45",
+    "hair color index outside 0..7",
+    "any source, title SystemParam, title row, BFRES, prepared model, material, texture, bind transform, or mapping evidence drift",
+    "any attempt to infer the source discriminator from LTD Hair 45, a name, a target hash, or rendered pixels"
+  ]
+}

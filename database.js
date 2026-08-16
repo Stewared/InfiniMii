@@ -29,6 +29,14 @@ const miiSchema = new mongoose.Schema({
     extUserURL: { type: String, default: "", trim: true, maxlength: 2048 },
     uploadedOn: { type: Number, default: () => Date.now(), index: true },
     console: { type: String, default: "3DS" },
+    era: {
+        type: String,
+        // CFCD is the 3DS/Tomodachi-era Mii format; FFCD is the distinct Wii U
+        // variant. TL remains temporarily accepted only so the validated
+        // backfill can migrate the legacy bucket to CFCD without schema loss.
+        enum: ["RCD", "TL", "CFCD", "FFCD", "CHARINFO", "LTD"],
+        index: true
+    },
     general: {
         height: Number,
         weight: Number,
@@ -40,6 +48,7 @@ const miiSchema = new mongoose.Schema({
     meta: {
         creatorName: { type: String, default: "" },
         name: { type: String, default: "" },
+        miiId: { type: String, default: "" },
         console: { type: String, default: "3DS", },
         type: mongoose.Schema.Types.Mixed,
     },
@@ -56,6 +65,27 @@ const miiSchema = new mongoose.Schema({
     tl: mongoose.Schema.Types.Mixed,
     mt: mongoose.Schema.Types.Mixed,
     miitopia: mongoose.Schema.Types.Mixed,
+    // The exact LTD container is authoritative. The decoded/query projection
+    // remains in the ordinary fields above; typed arrays from fields.ltd are
+    // intentionally never serialized into BSON.
+    ltdData: { type: Buffer, select: false },
+    ltdSha256: { type: String, index: true },
+    ltdAppearanceHash: { type: String, index: true },
+    ltdVersion: { type: Number, enum: [2, 3] },
+    ltdCharInfo: mongoose.Schema.Types.Mixed,
+    ltdProvenance: mongoose.Schema.Types.Mixed,
+    ltdConversionReport: mongoose.Schema.Types.Mixed,
+    facepaintUsage: {
+        type: String,
+        enum: ["none", "partial", "full"],
+        default: "none",
+        index: true
+    },
+    facepaintCoverage: mongoose.Schema.Types.Mixed,
+    ltdRender: mongoose.Schema.Types.Mixed,
+    // TL/RFL render identity is deliberately separate from authoritative LTD
+    // provenance so classic images can invalidate old LTD-rendered cache files.
+    imageRender: mongoose.Schema.Types.Mixed,
     officialCategories: { type: [String], default: [] },
     tags: { type: [String], default: [], index: true },
     published: { type: Boolean, default: false, index: true },
@@ -102,6 +132,14 @@ const userSchema = new mongoose.Schema({
     oauthIdentities: { type: [oauthIdentitySchema], default: [] },
     blockedTags: { type: [String], default: [] },
     blockedOfficialCategories: { type: [String], default: [] },
+    blockedMiiEras: {
+        type: [{ type: String, enum: ["RCD", "CFCD", "FFCD", "CHARINFO", "LTD"] }],
+        default: []
+    },
+    blockedFacepaintUsages: {
+        type: [{ type: String, enum: ["partial", "full"] }],
+        default: []
+    },
     hiddenMiiIds: { type: [String], default: [] },
     externalMiiPreference: {
         type: String,
@@ -154,6 +192,8 @@ const reservedUsernameSchema = new mongoose.Schema({
 // Queue of mii IDs to be rerendered
 const rerenderQueueSchema = new mongoose.Schema({
     miiId: { type: String, required: true, unique: true, index: true },
+    intent: { type: String, enum: ["ltd"], required: true },
+    rendererRevision: { type: String, required: true },
     addedAt: { type: Number, default: () => Date.now() }
 });
 rerenderQueueSchema.index({ addedAt: 1 });

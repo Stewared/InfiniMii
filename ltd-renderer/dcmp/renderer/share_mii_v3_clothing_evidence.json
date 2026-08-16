@@ -1,0 +1,555 @@
+{
+  "schema_version": 1,
+  "purpose": "Source-checked boundary between the current ShareMii v3 fixture, the title's independent outfit structures, and renderer-only presentation clothing.",
+  "source_share_mii": {
+    "path": "mii2.ltd",
+    "sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+    "byte_length": 964,
+    "display_name": "Johnny Thunder",
+    "pronunciation": "Johnny Thunder"
+  },
+  "serialized_container": {
+    "version": 3,
+    "sections": [
+      {
+        "name": "format_header",
+        "offset": 0,
+        "offset_hex": "0x000",
+        "byte_length": 4,
+        "end_exclusive": 4,
+        "end_exclusive_hex": "0x004",
+        "clothing_relevance": "version/presence flags; no outfit state"
+      },
+      {
+        "name": "char_info_length",
+        "offset": 4,
+        "offset_hex": "0x004",
+        "byte_length": 4,
+        "end_exclusive": 8,
+        "end_exclusive_hex": "0x008",
+        "clothing_relevance": "little-endian length of CharInfoEx"
+      },
+      {
+        "name": "char_info_ex",
+        "offset": 8,
+        "offset_hex": "0x008",
+        "byte_length": 152,
+        "end_exclusive": 160,
+        "end_exclusive_hex": "0x0a0",
+        "clothing_relevance": "Mii face/body/parts record; no ClothSet fields"
+      },
+      {
+        "name": "personality_and_voice",
+        "offset": 160,
+        "offset_hex": "0x0a0",
+        "byte_length": 72,
+        "end_exclusive": 232,
+        "end_exclusive_hex": "0x0e8",
+        "clothing_relevance": "18 little-endian int32 values; includes one cloth-style/gender hash"
+      },
+      {
+        "name": "display_name",
+        "offset": 232,
+        "offset_hex": "0x0e8",
+        "byte_length": 64,
+        "end_exclusive": 296,
+        "end_exclusive_hex": "0x128",
+        "clothing_relevance": "UTF-16LE[32]"
+      },
+      {
+        "name": "pronunciation",
+        "offset": 296,
+        "offset_hex": "0x128",
+        "byte_length": 128,
+        "end_exclusive": 424,
+        "end_exclusive_hex": "0x1a8",
+        "clothing_relevance": "UTF-16LE[64]"
+      },
+      {
+        "name": "sexuality",
+        "offset": 424,
+        "offset_hex": "0x1a8",
+        "byte_length": 4,
+        "end_exclusive": 428,
+        "end_exclusive_hex": "0x1ac",
+        "clothing_relevance": "fixed four-byte sexuality payload"
+      },
+      {
+        "name": "canvas_marker",
+        "offset": 428,
+        "offset_hex": "0x1ac",
+        "byte_length": 4,
+        "end_exclusive": 432,
+        "end_exclusive_hex": "0x1b0",
+        "clothing_relevance": "A3 x4"
+      },
+      {
+        "name": "canvas_zstandard_frame",
+        "offset": 432,
+        "offset_hex": "0x1b0",
+        "byte_length": 219,
+        "end_exclusive": 651,
+        "end_exclusive_hex": "0x28b",
+        "clothing_relevance": "facepaint canvas payload"
+      },
+      {
+        "name": "ugc_texture_marker",
+        "offset": 651,
+        "offset_hex": "0x28b",
+        "byte_length": 4,
+        "end_exclusive": 655,
+        "end_exclusive_hex": "0x28f",
+        "clothing_relevance": "A4 x4"
+      },
+      {
+        "name": "ugc_texture_zstandard_frame",
+        "offset": 655,
+        "offset_hex": "0x28f",
+        "byte_length": 309,
+        "end_exclusive": 964,
+        "end_exclusive_hex": "0x3c4",
+        "clothing_relevance": "facepaint UGC texture payload"
+      }
+    ],
+    "coverage": {
+      "covered_byte_length": 964,
+      "unassigned_ranges": []
+    },
+    "clothing_fields": {
+      "cloth_style_or_gender_hash": {
+        "personality_index": 13,
+        "file_offset": 212,
+        "file_offset_hex": "0x0d4",
+        "value": 232570486,
+        "value_hex": "0x0ddcbe76",
+        "decoded": "male",
+        "scope": "Scalar style/gender classification only; not a Cloth KeyHash, coordinate, slot list, material, or color/variation."
+      },
+      "cloth_set": null,
+      "coordinate_key_hash": null,
+      "coordinate_color_or_variation": null,
+      "slot_key_hashes": null,
+      "slot_colors_or_variations": null
+    },
+    "embedded_payload_scope": "The codec names and apply path identify both Zstandard frames as facepaint canvas/UGC texture data. They are not clothing textures or ClothSet records."
+  },
+  "runtime_outfit_state": {
+    "type": "game::ClothSet",
+    "owning_state": "MiiModelRenderState",
+    "slots": [
+      {
+        "index": 0,
+        "name": "All",
+        "key_hash_offset": 692,
+        "key_hash_offset_hex": "0x2b4",
+        "color_or_variation_offset": 696,
+        "color_or_variation_offset_hex": "0x2b8",
+        "empty_sentinel": "ClothAllEmpty",
+        "empty_sentinel_hash": 408221693,
+        "empty_sentinel_hash_hex": "0x1854f7fd"
+      },
+      {
+        "index": 1,
+        "name": "Topslong",
+        "key_hash_offset": 700,
+        "key_hash_offset_hex": "0x2bc",
+        "color_or_variation_offset": 704,
+        "color_or_variation_offset_hex": "0x2c0",
+        "empty_sentinel": "ClothTopslongEmpty",
+        "empty_sentinel_hash": 3650220396,
+        "empty_sentinel_hash_hex": "0xd991f16c"
+      },
+      {
+        "index": 2,
+        "name": "Tops",
+        "key_hash_offset": 708,
+        "key_hash_offset_hex": "0x2c4",
+        "color_or_variation_offset": 712,
+        "color_or_variation_offset_hex": "0x2c8",
+        "empty_sentinel": "ClothTopsEmpty",
+        "empty_sentinel_hash": 3466222506,
+        "empty_sentinel_hash_hex": "0xce9a5baa"
+      },
+      {
+        "index": 3,
+        "name": "BottomsA",
+        "key_hash_offset": 716,
+        "key_hash_offset_hex": "0x2cc",
+        "color_or_variation_offset": 720,
+        "color_or_variation_offset_hex": "0x2d0",
+        "empty_sentinel": "ClothBottomsAEmpty",
+        "empty_sentinel_hash": 1100460512,
+        "empty_sentinel_hash_hex": "0x4197b1e0"
+      },
+      {
+        "index": 4,
+        "name": "BottomsB",
+        "key_hash_offset": 724,
+        "key_hash_offset_hex": "0x2d4",
+        "color_or_variation_offset": 728,
+        "color_or_variation_offset_hex": "0x2d8",
+        "empty_sentinel": "ClothBottomsBEmpty",
+        "empty_sentinel_hash": 3211393114,
+        "empty_sentinel_hash_hex": "0xbf69f85a"
+      },
+      {
+        "index": 5,
+        "name": "Shoes",
+        "key_hash_offset": 732,
+        "key_hash_offset_hex": "0x2dc",
+        "color_or_variation_offset": 736,
+        "color_or_variation_offset_hex": "0x2e0",
+        "empty_sentinel": "ClothShoesEmpty",
+        "empty_sentinel_hash": 2661441231,
+        "empty_sentinel_hash_hex": "0x9ea25ecf"
+      },
+      {
+        "index": 6,
+        "name": "Accessory",
+        "key_hash_offset": 740,
+        "key_hash_offset_hex": "0x2e4",
+        "color_or_variation_offset": 744,
+        "color_or_variation_offset_hex": "0x2e8",
+        "empty_sentinel": "ClothAccessoryEmpty",
+        "empty_sentinel_hash": 3463891885,
+        "empty_sentinel_hash_hex": "0xce76cbad"
+      },
+      {
+        "index": 7,
+        "name": "Headwear",
+        "key_hash_offset": 748,
+        "key_hash_offset_hex": "0x2ec",
+        "color_or_variation_offset": 752,
+        "color_or_variation_offset_hex": "0x2f0",
+        "empty_sentinel": "ClothHeadwearEmpty",
+        "empty_sentinel_hash": 73273798,
+        "empty_sentinel_hash_hex": "0x045e11c6"
+      }
+    ],
+    "coordinate": {
+      "key_hash_offset": 760,
+      "key_hash_offset_hex": "0x2f8",
+      "color_or_variation_offset": 764,
+      "color_or_variation_offset_hex": "0x2fc"
+    },
+    "separation_from_char_info": "CharInfoEx occupies MiiModelRenderState +0xb0..+0x147. The outfit pairs begin at +0x2b4 and are resolved only after the 0x98-byte character copy."
+  },
+  "serialized_title_outfit_schemas": {
+    "cloth_slot_selector_set": {
+      "fields": [
+        "Coordinate",
+        "All",
+        "Topslong",
+        "Tops",
+        "BottomsA",
+        "BottomsB",
+        "Shoes",
+        "Accessory",
+        "Headwear"
+      ],
+      "owning_type_name_status": "unknown; proposed name only"
+    },
+    "game_cloth_set_param": {
+      "type_tag": "game__ClothSetParam",
+      "wrapper_field": "MiiClothSet",
+      "fields": [
+        "CoordinateHash",
+        "CoordinateColor",
+        "AllHash",
+        "AllColor",
+        "TopslongHash",
+        "TopslongColor",
+        "TopsHash",
+        "TopsColor",
+        "BottomsHash",
+        "BottomsColor",
+        "SocksHash",
+        "SocksColor",
+        "ShoesHash",
+        "ShoesColor",
+        "AccessoryHash",
+        "AccessoryColor",
+        "HeadwearHash",
+        "HeadwearColor",
+        "TopsIn"
+      ],
+      "distinct_from_runtime_cloth_set": "This resource parameter has Bottoms/Socks fields; runtime game::ClothSet has BottomsA/BottomsB and no Socks slot. The two layouts are not conflated."
+    }
+  },
+  "decomp_symbols": {
+    "status": "source_checked_semantic_names_for_promotion",
+    "functions": [
+      {
+        "address": "0x7100de5090",
+        "raw_name": "FUN_7100de5090",
+        "proposed_name": "sync_mii_character_data_and_refresh_render_models",
+        "category": "mii_actor_rendering",
+        "confidence": "high",
+        "source": "src/functions/internal/batch_01/7100d00000/2397_functions.inc:134478",
+        "evidence": "Copies exactly 0x98 CharInfoEx bytes, then invokes the separate outfit resolver."
+      },
+      {
+        "address": "0x7101bcbf1c",
+        "raw_name": "FUN_7101bcbf1c",
+        "proposed_name": "initialize_mii_model_render_state",
+        "category": "mii_model_rendering",
+        "confidence": "high",
+        "source": "src/functions/internal/batch_04/7101b00000/2462_functions.inc:82008",
+        "evidence": "Initializes the independent eight slot-pair fields in Mii render state."
+      },
+      {
+        "address": "0x7101bce0c0",
+        "raw_name": "FUN_7101bce0c0",
+        "proposed_name": "resolve_and_attach_mii_cloth_models",
+        "category": "mii_outfit_rendering",
+        "confidence": "high",
+        "source": "src/functions/internal/batch_04/7101b00000/2462_functions.inc:83415",
+        "evidence": "Consumes eight runtime KeyHash/color pairs and an optional coordinate fallback."
+      },
+      {
+        "address": "0x7101803b98",
+        "raw_name": "FUN_7101803b98",
+        "proposed_name": "deserialize_cloth_slot_selector_set",
+        "category": "mii_outfit_parameters",
+        "confidence": "medium-high",
+        "source": "src/functions/internal/batch_03/7101800000/2455_functions.inc:1231",
+        "evidence": "Reads the exact Coordinate/All/Topslong/Tops/BottomsA/BottomsB/Shoes/Accessory/Headwear selector fields."
+      },
+      {
+        "address": "0x7101804170",
+        "raw_name": "FUN_7101804170",
+        "proposed_name": "serialize_cloth_slot_selector_set",
+        "category": "mii_outfit_parameters",
+        "confidence": "medium-high",
+        "source": "src/functions/internal/batch_03/7101800000/2455_functions.inc:1413",
+        "evidence": "Writes the same nine selector fields; the owning ABI type name is not claimed."
+      },
+      {
+        "address": "0x710180b9c4",
+        "raw_name": "FUN_710180b9c4",
+        "proposed_name": "deserialize_cloth_set_param_fields",
+        "category": "mii_outfit_parameters",
+        "confidence": "high",
+        "source": "src/functions/internal/batch_03/7101800000/2455_functions.inc:3886",
+        "evidence": "Reads the exact 19-field ClothSetParam resource schema."
+      },
+      {
+        "address": "0x710180c300",
+        "raw_name": "FUN_710180c300",
+        "proposed_name": "serialize_cloth_set_param_fields",
+        "category": "mii_outfit_parameters",
+        "confidence": "high",
+        "source": "src/functions/internal/batch_03/7101800000/2455_functions.inc:4198",
+        "evidence": "Writes the exact 19-field ClothSetParam resource schema."
+      },
+      {
+        "address": "0x7101856d68",
+        "raw_name": "FUN_7101856d68",
+        "proposed_name": "serialize_mii_actor_cloth_set_param",
+        "category": "mii_outfit_parameters",
+        "confidence": "high",
+        "source": "src/functions/internal/batch_03/7101800000/2455_functions.inc:24023",
+        "evidence": "Binds field MiiClothSet to exact serialization type tag game__ClothSetParam."
+      }
+    ],
+    "globals": [
+      {
+        "address": "0x710399cd58",
+        "raw_name": "DAT_710399cd58",
+        "proposed_name": "mii_model_render_state_vtable",
+        "category": "mii_model_rendering",
+        "confidence": "high",
+        "boundary": "Owning render-state vtable; complete class ABI is not claimed."
+      },
+      {
+        "address": "0x7103a64fc8",
+        "raw_name": "DAT_7103a64fc8",
+        "proposed_name": "cloth_slot_selector_field_type_info",
+        "category": "mii_outfit_serialization_metadata",
+        "confidence": "medium",
+        "boundary": "Cached field-type descriptor used throughout the nine selector fields."
+      },
+      {
+        "address": "0x7103a64fd0",
+        "raw_name": "DAT_7103a64fd0",
+        "proposed_name": "cloth_slot_selector_field_type_info_guard",
+        "category": "mii_outfit_serialization_metadata",
+        "confidence": "medium",
+        "boundary": "One-time initialization guard paired with DAT_7103a64fc8."
+      },
+      {
+        "address": "0x7103a65008",
+        "raw_name": "DAT_7103a65008",
+        "proposed_name": "cloth_set_param_scalar_field_type_info",
+        "category": "mii_outfit_serialization_metadata",
+        "confidence": "medium",
+        "boundary": "Cached scalar field descriptor used for ClothSetParam hash/color fields."
+      },
+      {
+        "address": "0x7103a65010",
+        "raw_name": "DAT_7103a65010",
+        "proposed_name": "cloth_set_param_scalar_field_type_info_guard",
+        "category": "mii_outfit_serialization_metadata",
+        "confidence": "medium",
+        "boundary": "One-time initialization guard paired with DAT_7103a65008."
+      },
+      {
+        "address": "0x7103a65458",
+        "raw_name": "DAT_7103a65458",
+        "proposed_name": "cloth_set_param_struct_type_info",
+        "category": "mii_outfit_serialization_metadata",
+        "confidence": "medium-high",
+        "boundary": "Structured type descriptor paired with exact game__ClothSetParam tag."
+      },
+      {
+        "address": "0x7103a65460",
+        "raw_name": "DAT_7103a65460",
+        "proposed_name": "cloth_set_param_struct_type_info_guard",
+        "category": "mii_outfit_serialization_metadata",
+        "confidence": "medium-high",
+        "boundary": "One-time initialization guard paired with DAT_7103a65458."
+      }
+    ],
+    "data_types": [
+      {
+        "raw_name": null,
+        "proposed_name": "LtDShareMiiV3",
+        "category": "mii_serialization",
+        "recovery_status": "recovered_serialized_schema",
+        "layout_evidence": "The checked fixture is fully covered by the exact 964-byte v3 section map."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "LtDMiiCharInfoEx",
+        "category": "mii_character_data",
+        "recovery_status": "inferred_name_exact_size",
+        "layout_evidence": "FUN_7100de5090 copies the record byte-for-byte with size 0x98."
+      },
+      {
+        "raw_name": "game::ClothSet",
+        "proposed_name": "game::ClothSet",
+        "category": "mii_outfit_selection",
+        "recovery_status": "exact_named_type_recovered_layout",
+        "layout_evidence": "Eight ordered runtime KeyHash/color pairs, outside CharInfoEx."
+      },
+      {
+        "raw_name": "game__ClothSetParam",
+        "proposed_name": "game::ClothSetParam",
+        "category": "mii_outfit_parameters",
+        "recovery_status": "exact_serialization_type_tag_recovered_fields",
+        "layout_evidence": "Exact type tag and 19 serialized field names; distinct from game::ClothSet."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "ClothSlotSelectorSet",
+        "category": "mii_outfit_parameters",
+        "recovery_status": "inferred_type_exact_fields",
+        "layout_evidence": "Nine exact selector fields; owning title ABI name remains unknown."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiModelRenderState",
+        "category": "mii_model_rendering",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "Eight slot pairs and coordinate pair are recovered; complete 0x12d0 ABI is not claimed."
+      }
+    ]
+  },
+  "renderer_selection_policy": {
+    "selection_kind": "renderer presentation preset",
+    "profile": {
+      "share_mii_path": "mii2.ltd",
+      "share_mii_sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+      "display_name": "Johnny Thunder",
+      "variation_index": 0,
+      "slot_variation_provenance": {
+        "tops": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, or claimed title default",
+        "bottoms": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, or claimed title default",
+        "socks": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, or claimed title default",
+        "shoes": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, or claimed title default"
+      }
+    },
+    "slots": [
+      {
+        "logical_slot": "tops",
+        "selection_kind": "title price-zero presentation resource",
+        "resource": "ClothTopsTshirtLongDefault",
+        "key_hash": 3887460442,
+        "model_resource": "ClothTopsTshirtLong",
+        "resolved_body_program_index": 984
+      },
+      {
+        "logical_slot": "bottoms",
+        "selection_kind": "title price-zero presentation resource",
+        "resource": "ClothBottomsPantsLongDefault",
+        "key_hash": 633900255,
+        "model_resource": "ClothBottomsPantsLong",
+        "resolved_body_program_index": 936
+      },
+      {
+        "logical_slot": "socks",
+        "selection_kind": "title price-zero presentation resource",
+        "resource": "ClothSocksDefault",
+        "key_hash": 3644932053,
+        "model_resource": "",
+        "resolved_body_program_index": 324
+      },
+      {
+        "logical_slot": "shoes",
+        "selection_kind": "title price-zero presentation resource",
+        "resource": "ClothShoesStandardDefault",
+        "key_hash": 2267040903,
+        "model_resource": "ClothShoesStandard",
+        "resolved_body_program_index": 912
+      }
+    ],
+    "cloth_style_hash_used_to_select_slots_or_colors": false,
+    "reference_image_used_to_select_slots_or_colors": false,
+    "claim_of_title_default": false,
+    "explanation": "Variation 00 and the four price-zero resources are explicit neutral presentation choices for Johnny Thunder. They are not recovered from v3."
+  },
+  "sources": {
+    "share_mii_v3_byte_ledger": {
+      "path": "renderer/share_mii_v3_source.json",
+      "byte_length": 11149,
+      "sha256": "fdd7c1754fc13a3b80e8196a45f429d5b20cf420d6669f42699e22b73858a474"
+    },
+    "presentation_outfit": {
+      "path": "renderer/presentation_outfit.json",
+      "byte_length": 23749,
+      "sha256": "076753585cbba35c4702ba125e0aa29bfef547b8b52b651fb247b9dce572f58f"
+    },
+    "local_decomp": {
+      "src/functions/internal/batch_01/7100d00000/2397_functions.inc": {
+        "path": "src/functions/internal/batch_01/7100d00000/2397_functions.inc",
+        "byte_length": 4665000,
+        "sha256": "e70352641bc0a5b1c8ceecbcf0074dba8614a67ef0902ca33bea6d995df3c6ad"
+      },
+      "src/functions/internal/batch_04/7101b00000/2462_functions.inc": {
+        "path": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+        "byte_length": 3717377,
+        "sha256": "4846fda016407541588f168a58479677f4bba190822b1ec4388aac59b8cc79b6"
+      },
+      "src/functions/internal/batch_03/7101800000/2455_functions.inc": {
+        "path": "src/functions/internal/batch_03/7101800000/2455_functions.inc",
+        "byte_length": 1843511,
+        "sha256": "a5b0d4510d6f1c38e765681557bc368768682454f117ab8dc5d411c6e0c5c08f"
+      }
+    },
+    "primary_codec_cross_checks": [
+      {
+        "url": "https://github.com/alexislours/ltd-save-editor/blob/d2afc2cf8774374e8f5365d15130a1e4fa5cc1d5/packages/ltd-sharemii/src/codec.ts",
+        "evidence": "LtdMii v3 fields and exact section sizes/markers; no ClothSet field."
+      },
+      {
+        "url": "https://github.com/alexislours/ltd-save-editor/blob/d2afc2cf8774374e8f5365d15130a1e4fa5cc1d5/packages/ltd-sharemii/src/applyMii.ts",
+        "evidence": "Extract/apply paths read Mii/personality/names/sexuality/facepaint only."
+      },
+      {
+        "url": "https://github.com/alexislours/ltd-save-editor/blob/d2afc2cf8774374e8f5365d15130a1e4fa5cc1d5/packages/ltd-sharemii/src/ugcKinds.ts",
+        "evidence": "Mii .ltd and clothing UGC .ltdc are distinct share-item kinds."
+      }
+    ]
+  },
+  "conclusion": "The checked 964-byte ShareMii v3 contains no renderer-resolvable outfit. Only its 0x0ddcbe76 cloth-style/gender classification may be reported; garment resources and variations must remain explicit presentation policy."
+}

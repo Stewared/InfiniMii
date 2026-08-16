@@ -23,9 +23,9 @@
         <section class="utility-container auth-shell" aria-labelledby="signup-heading">
             <div class="auth-panel">
                 <div class="auth-copy">
-                    <p class="auth-kicker">Create your account</p>
-                    <h1 id="signup-heading">Build your InfiniMii profile</h1>
-                    <p class="auth-lede">Share your best creations with the world, and access a suite of tools to amplify all of your Mii needs!</p>
+                    <p class="auth-kicker">New account</p>
+                    <h1 id="signup-heading">Create an InfiniMii account</h1>
+                    <p class="auth-lede">Upload Miis, keep a private collection, and publish the Miis you want to share.</p>
                 </div>
 
                 <form id="signupForm" class="auth-form">
@@ -101,7 +101,7 @@
                     });
                 },
                 onSuccess: (result, messageDiv) => {
-                    messageDiv.textContent = result.message || 'Account created successfully! Check your email to verify.';
+                    messageDiv.textContent = result.message || 'Account created. Check your email to verify it.';
                     messageDiv.className = 'form-message success';
                     messageDiv.style.display = 'block';
                 }

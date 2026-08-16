@@ -278,7 +278,8 @@ window.showImportModal = function() {
         return;
     }
 
-    document.getElementById('importMiiId').value = '';
+    const storedMiiIdInput = document.getElementById('importMiiId');
+    if (storedMiiIdInput) storedMiiIdInput.value = '';
     document.getElementById('importRcdFile').value = '';
     const rawInput = document.getElementById('importRawMiiData');
     if (rawInput) rawInput.value = '';
@@ -295,7 +296,8 @@ window.importMii = async function() {
 
         const formData = new FormData();
         const selectedFile = document.getElementById('importRcdFile')?.files?.[0] || null;
-        const miiId = document.getElementById('importMiiId')?.value?.trim() || '';
+        const miiIdInput = document.getElementById('importMiiId');
+        const miiId = miiIdInput?.value?.trim() || '';
         const rawMiiData = document.getElementById('importRawMiiData')?.value?.trim() || '';
 
         if (selectedFile) formData.append('miiFile', selectedFile);
@@ -308,7 +310,10 @@ window.importMii = async function() {
         else if (rawMiiData) detectedSource = 'raw data';
 
         if (!detectedSource) {
-            log('Provide at least one source: .rcd file, Mii ID, or raw base64/hex data', 'error');
+            const availableSources = miiIdInput
+                ? '.rcd file, Mii ID, or raw base64/hex data'
+                : '.rcd file or raw base64/hex data';
+            log(`Provide at least one source: ${availableSources}`, 'error');
             return;
         }
 

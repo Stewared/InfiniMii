@@ -1,0 +1,195 @@
+{
+  "schema_version": 2,
+  "kind": "classic_bridge_portrait_framing",
+  "classification": "user_directed_reference_calibrated",
+  "scope": {
+    "consumer": "portable classic-bridge portrait presentation",
+    "reference_pixels_authorize": [
+      "portrait crop width",
+      "portrait crop height",
+      "portrait crop center"
+    ],
+    "reference_pixels_do_not_authorize": [
+      "CharInfoEx or PartsIndex values",
+      "model selection or geometry transforms",
+      "material, texture, shader, lighting, or post-process values",
+      "per-character appearance fitting"
+    ],
+    "appearance_pixels_used_for_material_or_geometry": false,
+    "fixture_policy": "numbered ShareMii portraits without an explicit classic-bridge manifest retain the recovered head-only MiiIcon path"
+  },
+  "reference": {
+    "path": "referenceFraming.png",
+    "sha256": "053436da6cb7244c6c58506588fa280b5e87acde69f1a4b2b9ce6a3ff8e314c7",
+    "byte_length": 120284,
+    "png_mode": "RGBA",
+    "size": [
+      512,
+      512
+    ],
+    "alpha_bbox": {
+      "threshold": "alpha > 127",
+      "xyxy_exclusive": [
+        104,
+        78,
+        410,
+        512
+      ]
+    }
+  },
+  "source_backed_base": {
+    "snapshot": "EditorMiiPreview",
+    "ledger": "renderer/title_mii_icon_snapshot.json",
+    "json_pointer": "/resolved_profiles/EditorMiiPreview/camera",
+    "projection": "Perspective",
+    "camera_at": [
+      0.0,
+      0.97,
+      0.0
+    ],
+    "camera_position": [
+      0.0,
+      0.96,
+      9.4
+    ],
+    "vertical_fov_degrees": 15.0,
+    "focal_plane_distance_z": 9.4
+  },
+  "fixed_crop": {
+    "base_viewport_size": [
+      512,
+      512
+    ],
+    "xyxy_exclusive": [
+      156,
+      141,
+      356,
+      349
+    ],
+    "size": [
+      200,
+      208
+    ],
+    "center": [
+      256.0,
+      245.0
+    ],
+    "upward_center_shift_pixels": 11.0,
+    "vertical_extent_scale": 0.40625
+  },
+  "derived_camera": {
+    "derivation": {
+      "base_half_height": "9.4 * tan(radians(15) / 2)",
+      "vertical_fov_degrees": "degrees(2 * atan(tan(radians(15) / 2) * (208 / 512)))",
+      "camera_at_y": "0.97 + (11 / 512) * (2 * base_half_height)",
+      "horizontal_projection_scale": "208 / 200",
+      "world_bounds": "[-half_height / horizontal_projection_scale, +half_height / horizontal_projection_scale, camera_at_y - half_height, camera_at_y + half_height]"
+    },
+    "base_half_height": 1.237533477321521,
+    "vertical_fov_degrees": 6.122961298090818,
+    "camera_at_y": 1.023175266603659,
+    "horizontal_projection_scale": 1.04,
+    "half_height": 0.5027479751618679,
+    "world_bounds": [
+      -0.48341151457871906,
+      0.48341151457871906,
+      0.5204272914417912,
+      1.5259232417655268
+    ]
+  },
+  "portrait_tracking": {
+    "classification": "user_directed_semantic_head_anchor_relative",
+    "applies_to_views": [
+      "appearance_bust_portrait"
+    ],
+    "excluded_views": [
+      "posed_full_body",
+      "screenshot_reference_outfit",
+      "appearance_portrait"
+    ],
+    "source_bone": "Head",
+    "source_pose": "renderer/assets/animations/IconPose.json",
+    "attachment_function": "renderer.model_pose.attached_part_transform",
+    "body_scale_function": "renderer.model_pose.mii_body_scale",
+    "calibration_char_info": {
+      "build": 64,
+      "height": 64
+    },
+    "calibration_body_scale": [
+      0.7001668214797974,
+      0.6584083437919617,
+      0.6584083437919617
+    ],
+    "calibration_head_anchor_y": 0.697384743433266,
+    "calibration_camera_at_y": 1.023175266603659,
+    "camera_at_offset_y": 0.325790523170393,
+    "camera_at_y_formula": "attached_part_transform(IconPose.Head, mii_body_scale(build, height)).translation_y + camera_at_offset_y",
+    "camera_position_y_formula": "camera_at_y - 0.01",
+    "fixed_projection_fields": [
+      "camera_distance",
+      "vertical_fov_degrees",
+      "horizontal_projection_scale"
+    ],
+    "projected_head_anchor_y_at_512": 421.07491585,
+    "appearance_pixels_used_for_tracking": false,
+    "scope": "The user-directed crop follows the source-backed posed Head attachment only; it never inspects character pixels, hair bounds, or other appearance geometry. Full-body presentation remains on the fixed EditorMiiPreview camera."
+  },
+  "validation": {
+    "foreground_definition": "native render-target alpha is greater than 8; no background subtraction or chroma key",
+    "bbox_convention": "xyxy exclusive",
+    "bbox_tolerances_at_512": {
+      "width_target": 306,
+      "width_tolerance": 10,
+      "center_x_target": 256.0,
+      "center_x_tolerance": 2.0,
+      "height_min": 390,
+      "height_max": 460,
+      "bottom": 512
+    },
+    "bridge_samples": [
+      {
+        "record_id": "1SEg1",
+        "source_ltd": "renderer/infinimii_output/source_bundle/1SEg1.converted.ltd",
+        "active_parts": "renderer/infinimii_output/active_parts/1SEg1.json",
+        "render": "renderer/infinimii_output/renders/1SEg1/mii.png",
+        "report": "renderer/infinimii_output/renders/1SEg1/render_report.json",
+        "audit_observed_bbox": [
+          107,
+          63,
+          404,
+          512
+        ]
+      },
+      {
+        "record_id": "QWvah",
+        "source_ltd": "renderer/infinimii_output/source_bundle/QWvah.converted.ltd",
+        "active_parts": "renderer/infinimii_output/active_parts/QWvah.json",
+        "render": "renderer/infinimii_output/renders/QWvah/mii.png",
+        "report": "renderer/infinimii_output/renders/QWvah/render_report.json",
+        "audit_observed_bbox": [
+          100,
+          62,
+          411,
+          512
+        ]
+      }
+    ],
+    "semantic_guards": {
+      "bridge_view": "appearance_bust_portrait",
+      "bridge_camera": "EditorMiiPreview",
+      "bridge_required_triangle_prefixes": [
+        "body:",
+        "reference_top:"
+      ],
+      "fixture_input": "mii1.ltd",
+      "fixture_view": "appearance_portrait",
+      "fixture_camera": "MiiIcon",
+      "fixture_forbidden_triangle_prefixes": [
+        "body:",
+        "reference_top:",
+        "presentation_bottoms:",
+        "reference_shoes:"
+      ]
+    }
+  }
+}

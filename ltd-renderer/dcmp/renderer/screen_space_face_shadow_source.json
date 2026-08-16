@@ -1,0 +1,641 @@
+{
+  "schema_version": 1,
+  "description": "Authenticated title screen-space Mii face-shadow/prepass evidence and fail-closed execution boundary.",
+  "generator": "tools/build_screen_space_face_shadow_source.py",
+  "target": "Kestron's Let’s Dream / Living the Dream title program 1",
+  "reference_image_values_used": false,
+  "source_artifacts": {
+    "system_param_byml": {
+      "path": "../ltdDemo_filesystem/program/1/Parameter/GfxSystem/System.gfx__SystemParam.bgyml",
+      "byte_length": 1672,
+      "sha256": "27eb95f5c285705957ca0b4c0d0f6141f4b230c93a14d9f103e439b0f7217c2c"
+    },
+    "main_elf": {
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "byte_length": 65253956,
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a"
+    },
+    "renderer_decomp": {
+      "path": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+      "byte_length": 3717377,
+      "sha256": "4846fda016407541588f168a58479677f4bba190822b1ec4388aac59b8cc79b6"
+    },
+    "head816_sass": {
+      "path": "tools/_shader_work/disassembly/head.sm53.sass",
+      "byte_length": 47404,
+      "sha256": "bf4de306f94d14b6bb3fb46e2fee6eb7d7cac79b0bd7fc301d215aa1811935dd"
+    },
+    "head816_glsl": {
+      "path": "tools/_shader_work/translated/head.glsl",
+      "byte_length": 54088,
+      "sha256": "c3805bb86b6c9b6add749d146457a2dbaa7ec56a443652912cf2ff5160e15e95"
+    },
+    "active_programs": {
+      "path": "renderer/gameuber_active_programs.json",
+      "byte_length": 457550,
+      "sha256": "185710a5c82ecd78cd9ec8682311f82319f1cd9cec9a60ff2d3dba5e7bf09156"
+    },
+    "runtime_inputs": {
+      "path": "renderer/gameuber_runtime_inputs.json",
+      "byte_length": 6604053,
+      "sha256": "a41c3583a077fa812f44e99d5787f08d6f67f8cee9f45ba614163758e14743b8"
+    },
+    "game_prepass_archive": {
+      "path": "../ltdDemo_converted_assets/archives_extracted/1/Shader/GamePrePass.Nin_NX_NVN.release/GamePrePass.sharcb",
+      "byte_length": 3702784,
+      "sha256": "0ec021b24e4f8aae459d48ad65eba40aed5b3b927396a0256ff78e407a88caea"
+    }
+  },
+  "native_parameter_contract": {
+    "constructor_function": "FUN_7101b0dd38",
+    "reflection_function_range": "0x7101b0e0b8..0x7101b0ebdc",
+    "records": [
+      {
+        "name": "EnableSSFaceShadow",
+        "native_field_offset": 368,
+        "native_field_offset_hex": "0x170",
+        "string_vaddr_hex": "0x71030cd08d",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e578",
+          "0x7101b0f824"
+        ],
+        "origin": "system_param_byml_override",
+        "present_in_system_param_byml": true,
+        "native_default": false,
+        "effective_value": true
+      },
+      {
+        "name": "EnableSSFaceShadowFade",
+        "native_field_offset": 369,
+        "native_field_offset_hex": "0x171",
+        "string_vaddr_hex": "0x7103147bbb",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e888",
+          "0x7101b0fa20"
+        ],
+        "origin": "system_param_byml_override",
+        "present_in_system_param_byml": true,
+        "native_default": false,
+        "effective_value": true
+      },
+      {
+        "name": "SSFaceShadowSearchNum",
+        "native_field_offset": 352,
+        "native_field_offset_hex": "0x160",
+        "string_vaddr_hex": "0x71030f1d50",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e5d4",
+          "0x7101b0f854"
+        ],
+        "origin": "native_constructor_default",
+        "present_in_system_param_byml": false,
+        "native_default": 10,
+        "effective_value": 10
+      },
+      {
+        "name": "SSFaceShadowSearchLen",
+        "native_field_offset": 348,
+        "native_field_offset_hex": "0x15c",
+        "string_vaddr_hex": "0x710314dc27",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e630",
+          "0x7101b0f894"
+        ],
+        "origin": "system_param_byml_override",
+        "present_in_system_param_byml": true,
+        "native_default": 0.10000000149011612,
+        "native_default_bits": "0x3dcccccd",
+        "effective_value": 0.029999999329447746,
+        "effective_bits": "0x3cf5c28f"
+      },
+      {
+        "name": "SSFaceShadowSoftness",
+        "native_field_offset": 356,
+        "native_field_offset_hex": "0x164",
+        "string_vaddr_hex": "0x71031604b9",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e680",
+          "0x7101b0f8cc"
+        ],
+        "origin": "system_param_byml_override",
+        "present_in_system_param_byml": true,
+        "native_default": 1.0,
+        "native_default_bits": "0x3f800000",
+        "effective_value": 0.10000000149011612,
+        "effective_bits": "0x3dcccccd"
+      },
+      {
+        "name": "SSFaceShadowCenterY",
+        "native_field_offset": 324,
+        "native_field_offset_hex": "0x144",
+        "string_vaddr_hex": "0x71030ebb65",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e72c",
+          "0x7101b0f93c"
+        ],
+        "origin": "native_constructor_default",
+        "present_in_system_param_byml": false,
+        "native_default": 0.0,
+        "native_default_bits": "0x00000000",
+        "effective_value": 0.0,
+        "effective_bits": "0x00000000"
+      },
+      {
+        "name": "SSFaceShadowScaleY",
+        "native_field_offset": 344,
+        "native_field_offset_hex": "0x158",
+        "string_vaddr_hex": "0x7103153ab4",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e7d8",
+          "0x7101b0f9ac"
+        ],
+        "origin": "system_param_byml_override",
+        "present_in_system_param_byml": true,
+        "native_default": 1.0,
+        "native_default_bits": "0x3f800000",
+        "effective_value": 0.30000001192092896,
+        "effective_bits": "0x3e99999a"
+      },
+      {
+        "name": "SSFaceShadowDepthOfs",
+        "native_field_offset": 332,
+        "native_field_offset_hex": "0x14c",
+        "string_vaddr_hex": "0x710316c66d",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e834",
+          "0x7101b0f9f0"
+        ],
+        "origin": "system_param_byml_override",
+        "present_in_system_param_byml": true,
+        "native_default": 0.0,
+        "native_default_bits": "0x00000000",
+        "effective_value": 9.999999747378752e-05,
+        "effective_bits": "0x38d1b717"
+      },
+      {
+        "name": "SSFaceShadowFadeStart",
+        "native_field_offset": 340,
+        "native_field_offset_hex": "0x154",
+        "string_vaddr_hex": "0x710311ce23",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e8e8",
+          "0x7101b0fa58"
+        ],
+        "origin": "system_param_byml_override",
+        "present_in_system_param_byml": true,
+        "native_default": 10.0,
+        "native_default_bits": "0x41200000",
+        "effective_value": 20.0,
+        "effective_bits": "0x41a00000"
+      },
+      {
+        "name": "SSFaceShadowFadeEnd",
+        "native_field_offset": 336,
+        "native_field_offset_hex": "0x150",
+        "string_vaddr_hex": "0x7103141589",
+        "registration_and_serialization_xrefs": [
+          "0x7101b0e938",
+          "0x7101b0fa90"
+        ],
+        "origin": "system_param_byml_override",
+        "present_in_system_param_byml": true,
+        "native_default": 11.0,
+        "native_default_bits": "0x41300000",
+        "effective_value": 30.0,
+        "effective_bits": "0x41f00000"
+      }
+    ],
+    "effective_rule": "native constructor defaults followed by shipped System.gfx__SystemParam BYML overrides"
+  },
+  "same_view_face_shadow_prepass": {
+    "object_initializer": "FUN_7101b800e0",
+    "object_name": "ScreenSpaceFaceShadowMap",
+    "draw_function": "FUN_7101b805b0",
+    "target_name": "FaceShadowMap",
+    "raw_target_descriptor": "0x100000059",
+    "raw_format_field": "0x59",
+    "dimensions": "current render-target width and height supplied by stage 0x0c",
+    "draw_list_gate": "draw-list count > 0 and layer-mask intersection",
+    "draw_dispatch": "FUN_7102701580",
+    "render_context_install_offset_hex": "0x40",
+    "create_and_draw_stage": "0x0c",
+    "restore_and_cleanup_stage": "0x0f",
+    "world_space_orthographic_projection": false,
+    "unresolved": [
+      "raw format enum semantics for descriptor field 0x59",
+      "exact producer draw-list membership and clear value",
+      "proof that render-context +0x40 is the Head816 gsys_static_depth_shadow view",
+      "the cbuf15 upload joining named SSFaceShadow parameters to offsets 0x7f0..0x810"
+    ]
+  },
+  "head816_receiver": {
+    "program_index": 816,
+    "material_options": {
+      "enable_screenspace_face_shadow": true,
+      "enable_cheap_sss": true
+    },
+    "samplers": [
+      {
+        "name": "_a0",
+        "model_index": 0,
+        "fragment_location": 1,
+        "decoder_offset": 10,
+        "runtime_status": "unresolved_live_skin_texture_replaces_bfres_dummy"
+      },
+      {
+        "name": "_n0",
+        "model_index": 2,
+        "fragment_location": 8,
+        "decoder_offset": 24,
+        "runtime_status": "resolved_static_assignment"
+      },
+      {
+        "name": "gsys_user3",
+        "model_index": 14,
+        "fragment_location": 26,
+        "decoder_offset": 60,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      },
+      {
+        "name": "gsys_user2",
+        "model_index": 16,
+        "fragment_location": 25,
+        "decoder_offset": 58,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      },
+      {
+        "name": "gsys_user5",
+        "model_index": 17,
+        "fragment_location": 28,
+        "decoder_offset": 64,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      },
+      {
+        "name": "gsys_half_normalized_linear_depth",
+        "model_index": 18,
+        "fragment_location": 20,
+        "decoder_offset": 48,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      },
+      {
+        "name": "gsys_normalized_linear_depth",
+        "model_index": 19,
+        "fragment_location": 19,
+        "decoder_offset": 46,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      },
+      {
+        "name": "gsys_user4",
+        "model_index": 20,
+        "fragment_location": 27,
+        "decoder_offset": 62,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      },
+      {
+        "name": "gsys_projection0",
+        "model_index": 21,
+        "fragment_location": 6,
+        "decoder_offset": 20,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      },
+      {
+        "name": "gsys_static_depth_shadow",
+        "model_index": 25,
+        "fragment_location": 3,
+        "decoder_offset": 14,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      },
+      {
+        "name": "gsys_light_prepass",
+        "model_index": 26,
+        "fragment_location": 5,
+        "decoder_offset": 18,
+        "runtime_status": "unresolved_without_frame_or_resource_capture"
+      }
+    ],
+    "face_shadow_search": {
+      "sampler": "gsys_static_depth_shadow",
+      "decoder_offset": 14,
+      "sample_instruction_address_hex": "0x0910",
+      "cbuf15_byte_offsets": [
+        2032,
+        2036,
+        2048,
+        2052,
+        2056,
+        2060,
+        2064
+      ],
+      "cbuf15_byte_offsets_hex": [
+        "0x7f0",
+        "0x7f4",
+        "0x800",
+        "0x804",
+        "0x808",
+        "0x80c",
+        "0x810"
+      ],
+      "decoded_behavior": "bounded screen-UV depth search, receiver comparison, then fade/softness accumulation",
+      "named_parameter_upload_mapping_status": "unresolved"
+    },
+    "cheap_sss_input": {
+      "gsys_user4_g_sample_instruction_address_hex": "0x00b8",
+      "gsys_light_prepass_sample_instruction_address_hex": "0x0f28",
+      "interpolation_instruction_addresses_hex": [
+        "0x18c8",
+        "0x18d0",
+        "0x1910"
+      ],
+      "equation": "base=(r29_pre*r30); delta=r31_pre-base; x=base+gsys_user4.g*delta",
+      "mix_source": "gsys_user4.g",
+      "not_a_valid_mix_source": [
+        "portable Lambert diffuse",
+        "gsys_light_prepass.g sampled value alone"
+      ],
+      "r29_r30_r31_provenance": "wider title lighting/environment/prepass pipeline; exact per-fragment values unavailable"
+    }
+  },
+  "game_prepass": {
+    "archive": {
+      "path": "../ltdDemo_converted_assets/archives_extracted/1/Shader/GamePrePass.Nin_NX_NVN.release/GamePrePass.sharcb",
+      "byte_length": 3702784,
+      "sha256": "0ec021b24e4f8aae459d48ad65eba40aed5b3b927396a0256ff78e407a88caea",
+      "binary_pool_base_offset": 1409024,
+      "container_match_rule": "each decoded container must occur once at its declared archive offset"
+    },
+    "stages": [
+      {
+        "key": "point_light_pixel",
+        "program": "LightPrePassPointLight",
+        "program_base_index": 0,
+        "archive_variation_index": 1,
+        "archive_pool_relative_offset": 1024,
+        "artifact": "point_base_pixel.container.bin",
+        "glsl": "point_base_pixel.glsl",
+        "reflection": "point_base_pixel.json",
+        "uniform_blocks": [
+          {
+            "name": "Context",
+            "location": 0,
+            "byte_size": 208
+          },
+          {
+            "name": "PointLightView",
+            "location": 1,
+            "byte_size": 96
+          }
+        ],
+        "samplers": [
+          "cDepth",
+          "cNormal"
+        ],
+        "outputs": [
+          "additive point-light RGB"
+        ],
+        "archive_absolute_offset": 1410048,
+        "container": {
+          "path": "tools/_light_prepass_work/point_base_pixel.container.bin",
+          "byte_length": 1024,
+          "sha256": "c693ba8d5569ad3493155d9144f7480462d3db1337b3c100a10aa74635357eb2"
+        },
+        "decoded_glsl": {
+          "path": "tools/_light_prepass_work/point_base_pixel.glsl",
+          "byte_length": 3812,
+          "sha256": "8b134b5d38da26bbfbf05ab03f8b37f4785bde34285fa9c2fc432db21c4b0474"
+        },
+        "decoder_reflection": {
+          "path": "tools/_light_prepass_work/point_base_pixel.json",
+          "byte_length": 283,
+          "sha256": "37c678f52b8b0cde5df3a133dc00c2c9f572b03e82bc1bc36c9579e48d653f46"
+        },
+        "literal_archive_match": true
+      },
+      {
+        "key": "spot_light_pixel",
+        "program": "LightPrePassSpotLight",
+        "program_base_index": 108,
+        "archive_variation_index": 109,
+        "archive_pool_relative_offset": 81408,
+        "artifact": "spot_base_pixel.container.bin",
+        "glsl": "spot_base_pixel.glsl",
+        "reflection": "spot_base_pixel.json",
+        "uniform_blocks": [
+          {
+            "name": "Context",
+            "location": 0,
+            "byte_size": 208
+          },
+          {
+            "name": "SpotLightView",
+            "location": 1,
+            "byte_size": 176
+          }
+        ],
+        "samplers": [
+          "cDepth",
+          "cNormal"
+        ],
+        "outputs": [
+          "additive spot-light RGB"
+        ],
+        "archive_absolute_offset": 1490432,
+        "container": {
+          "path": "tools/_light_prepass_work/spot_base_pixel.container.bin",
+          "byte_length": 1024,
+          "sha256": "03e5c6e204d18ac12c47bfebf6ba94994f1f0df062fbd57b92a4a25293bc08d6"
+        },
+        "decoded_glsl": {
+          "path": "tools/_light_prepass_work/spot_base_pixel.glsl",
+          "byte_length": 4397,
+          "sha256": "1044b0e902101ba088715b633770848b73150d916334c33549aeefa7bbf96945"
+        },
+        "decoder_reflection": {
+          "path": "tools/_light_prepass_work/spot_base_pixel.json",
+          "byte_length": 285,
+          "sha256": "45c13db9029bd76bf5f2212095255da7f49ad1843e983b78769b436941a23579"
+        },
+        "literal_archive_match": true
+      },
+      {
+        "key": "area_environment_light_pixel",
+        "program": "LightPrePassAreaEnvLight",
+        "program_base_index": 144,
+        "archive_variation_index": 145,
+        "archive_pool_relative_offset": 110848,
+        "artifact": "area_base_pixel.container.bin",
+        "glsl": "area_base_pixel.glsl",
+        "reflection": "area_base_pixel.json",
+        "uniform_blocks": [
+          {
+            "name": "Context",
+            "location": 0,
+            "byte_size": 208
+          },
+          {
+            "name": "AreaEnvLightView",
+            "location": 1,
+            "byte_size": 112
+          }
+        ],
+        "samplers": [
+          "cDepth",
+          "cNormal",
+          "cEnvIdBuffer"
+        ],
+        "outputs": [
+          "additive area-environment-light RGB"
+        ],
+        "archive_absolute_offset": 1519872,
+        "container": {
+          "path": "tools/_light_prepass_work/area_base_pixel.container.bin",
+          "byte_length": 1024,
+          "sha256": "072b140dadbdb3f64de9110ebedc01f4a700559f2c5a1451d7ad8ad6caba1e28"
+        },
+        "decoded_glsl": {
+          "path": "tools/_light_prepass_work/area_base_pixel.glsl",
+          "byte_length": 4487,
+          "sha256": "02327014a61ecc3cd71b9f3c6fd708eef10d4715e1c7def4cfebe89d3fe1a7c7"
+        },
+        "decoder_reflection": {
+          "path": "tools/_light_prepass_work/area_base_pixel.json",
+          "byte_length": 322,
+          "sha256": "a34bfea6dda1406b372b32ea32da147444e46deb20642be00ffc9cda886a8de8"
+        },
+        "literal_archive_match": true
+      },
+      {
+        "key": "pre_shading_pixel",
+        "program": "PreShading",
+        "program_base_index": 290,
+        "archive_variation_index": 291,
+        "archive_pool_relative_offset": 175616,
+        "artifact": "preshading_pixel.container.bin",
+        "glsl": "preshading_pixel.glsl",
+        "reflection": "preshading_pixel.json",
+        "uniform_blocks": [
+          {
+            "name": "Context",
+            "location": 0,
+            "byte_size": 2496
+          },
+          {
+            "name": "Env",
+            "location": 1,
+            "byte_size": 9024
+          },
+          {
+            "name": "GlobalUBO",
+            "location": 2,
+            "byte_size": 3376
+          }
+        ],
+        "samplers": [
+          "cDepth",
+          "cNormal",
+          "cIrradianceMap",
+          "cHemisphereLightMap",
+          "cGroundAlbedoMap",
+          "cInscatter",
+          "cEnvId",
+          "cMaterialId"
+        ],
+        "outputs": [
+          "frag_color0 RGB lighting",
+          "frag_color1 auxiliary pre-shading output"
+        ],
+        "archive_absolute_offset": 1584640,
+        "container": {
+          "path": "tools/_light_prepass_work/preshading_pixel.container.bin",
+          "byte_length": 2816,
+          "sha256": "f8c2aeba405825ae7fd75c4d7429628b6cd0411e66c34c99703e7dc6c372e2e3"
+        },
+        "decoded_glsl": {
+          "path": "tools/_light_prepass_work/preshading_pixel.glsl",
+          "byte_length": 22583,
+          "sha256": "1709a2cf0ecca690cdd0eb3c60d2ae1242eaff2b9252cc537a3b428d89774483"
+        },
+        "decoder_reflection": {
+          "path": "tools/_light_prepass_work/preshading_pixel.json",
+          "byte_length": 515,
+          "sha256": "9f64f258a9c390be1c3467a445f51311ab9bcaafc05e14a8db518455560f1042"
+        },
+        "literal_archive_match": true
+      },
+      {
+        "key": "shadow_prepass_default_pixel",
+        "program": "ShadowPrePass",
+        "program_base_index": 292,
+        "archive_variation_index": 293,
+        "archive_pool_relative_offset": 179200,
+        "artifact": "shadow_first_pixel.container.bin",
+        "glsl": "shadow_first_pixel.glsl",
+        "reflection": "shadow_first_pixel.json",
+        "uniform_blocks": [
+          {
+            "name": "Common",
+            "location": 0,
+            "byte_size": 416
+          }
+        ],
+        "samplers": [
+          "cLinearDepth",
+          "cDynamicShadowCascade"
+        ],
+        "outputs": [
+          "shadow-prepass value mixed with cClearColor"
+        ],
+        "selection_boundary": "This is the all-zero/default archive variation; no runtime evidence selects it for Kestron.",
+        "archive_absolute_offset": 1588224,
+        "container": {
+          "path": "tools/_light_prepass_work/shadow_first_pixel.container.bin",
+          "byte_length": 768,
+          "sha256": "be2d92b5f0a9cb42d2c16009bd8f5853c78f0f0a1b04c7674052ad7789233db9"
+        },
+        "decoded_glsl": {
+          "path": "tools/_light_prepass_work/shadow_first_pixel.glsl",
+          "byte_length": 3365,
+          "sha256": "6f854708c083c11604dcf42cc4257b1ce008a666bddc10326ce7ac639cfff91a"
+        },
+        "decoder_reflection": {
+          "path": "tools/_light_prepass_work/shadow_first_pixel.json",
+          "byte_length": 211,
+          "sha256": "e632295583b5b73ba56a2bfe11319e5403525c487e4d0909381c197455d20c7e"
+        },
+        "literal_archive_match": true
+      }
+    ],
+    "creation_clear_content_boundary": {
+      "content_producers_proven": [
+        "PreShading fragment writes frag_color0 RGB lighting and frag_color1 auxiliary output.",
+        "Point, spot, and area-environment fragments compute additive light RGB.",
+        "The decoded default ShadowPrePass fragment combines the shadow sample with cClearColor."
+      ],
+      "unresolved": [
+        "Kestron-selected prepass variations",
+        "render-target allocation dimensions and formats",
+        "attachment routing from prepass outputs to gsys_light_prepass/gsys_shadow_prepass",
+        "clear values and clear call sites",
+        "draw lists and exact per-light records"
+      ]
+    }
+  },
+  "execution_boundary": {
+    "actual_face_shadow_execution": false,
+    "face_shadow_status": "inactive_missing_face_shadow_inputs",
+    "cheap_sss_status_without_gsys_light_prepass": "inactive_missing_light_prepass",
+    "cheap_sss_correction_without_exact_title_input": "disabled",
+    "neutral_face_shadow_visibility": 1.0,
+    "forbidden_substitutions": [
+      "portable visible depth buffer",
+      "world-space orthographic depth projection",
+      "percentage-closer filtering invented outside the decoded shader",
+      "raw portable Lambert diffuse as the cheap-SSS input"
+    ],
+    "activation_requirements": [
+      "authenticated gsys_light_prepass and gsys_user4 resources from the same selected draw",
+      "authenticated r29/r30/r31 interpolation terms or their complete exact producers",
+      "FaceShadowMap attachment format, clear, draw list, binding, and cbuf15 upload join",
+      "an implemented kernel checked against the selected Head816 instruction stream"
+    ]
+  }
+}

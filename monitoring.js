@@ -7,6 +7,7 @@ const monitoringState = globalThis.__infinimiiMonitoringState ?? {
     consoleErrorInstalled: false,
     invalidWebhookUrlLogged: false,
     invalidWebhookUrlsLogged: {},
+    disabledWebhookEnvs: {},
     rawConsoleError: console.error.bind(console),
     rawConsoleWarn: console.warn.bind(console)
 };
@@ -14,6 +15,9 @@ const monitoringState = globalThis.__infinimiiMonitoringState ?? {
 globalThis.__infinimiiMonitoringState = monitoringState;
 if (!monitoringState.invalidWebhookUrlsLogged) {
     monitoringState.invalidWebhookUrlsLogged = {};
+}
+if (!monitoringState.disabledWebhookEnvs) {
+    monitoringState.disabledWebhookEnvs = {};
 }
 
 const rawConsoleError = monitoringState.rawConsoleError;
@@ -525,7 +529,11 @@ function appendAttachments(formData, attachments) {
 }
 
 function sendWebhookPayload(payloadJson, attachments = [], options = {}) {
-    const webhookUrl = getWebhookUrl(options?.webhookEnv);
+    const webhookEnvName = typeof options?.webhookEnv === "string" && options.webhookEnv.trim()
+        ? options.webhookEnv.trim()
+        : "hookUrl";
+    if (monitoringState.disabledWebhookEnvs[webhookEnvName]) return Promise.resolve(false);
+    const webhookUrl = getWebhookUrl(webhookEnvName);
     if (!webhookUrl) return Promise.resolve(false);
 
     return new Promise((resolve, reject) => {
@@ -545,7 +553,10 @@ function sendWebhookPayload(payloadJson, attachments = [], options = {}) {
                 res.resume();
 
                 if (res.statusCode !== 200 && res.statusCode !== 204) {
-                    reject(new Error(`Discord webhook returned status ${res.statusCode}`));
+                    const error = new Error(`Discord webhook returned status ${res.statusCode}`);
+                    error.statusCode = res.statusCode;
+                    error.webhookEnvName = webhookEnvName;
+                    reject(error);
                     return;
                 }
 
@@ -569,6 +580,16 @@ function installConsoleErrorWebhook() {
         try {
             const { payloadJson, attachments } = buildConsoleErrorWebhookPayload(args);
             void sendWebhookPayload(payloadJson, attachments).catch((error) => {
+                if (error?.statusCode === 404) {
+                    const webhookEnvName = error.webhookEnvName || "hookUrl";
+                    if (!monitoringState.disabledWebhookEnvs[webhookEnvName]) {
+                        monitoringState.disabledWebhookEnvs[webhookEnvName] = true;
+                        rawConsoleWarn(
+                            `[monitoring] ${webhookEnvName} returned 404; webhook forwarding is disabled until restart.`
+                        );
+                    }
+                    return;
+                }
                 rawConsoleError("[monitoring] Failed to forward console.error to the webhook:", error);
             });
         } catch (error) {

@@ -3,6 +3,8 @@
     <head>
         <%
         const pageTitle = 'Tomodachi Life Island Address Search - InfiniMii';
+        const islandQrExportsEnabled = (Array.isArray(exportFormats) ? exportFormats : [])
+            .some((format) => String(format?.value || '').trim().toLowerCase() === 'qr');
         const pageDesc = 'Search for a possible Tomodachi Life island ID from an island address using WebGPU in your browser.';
         const canonicalUrl = `${baseUrl}/islandAddresses`;
         const keywords = 'tomodachi life island address, island id search, tomodachi life island id, mii island address';
@@ -139,16 +141,18 @@
                         </div>
                     </div>
 
-                    <div id="islandMiiQrResult" class="island-address-qr-result" hidden>
-                        <div class="island-address-qr-preview">
-                            <span class="island-address-result-label">Generated Mii QR</span>
-                            <img id="islandMiiQrImage" alt="Generated Tomodachi Life Mii QR code" hidden>
+                    <% if (islandQrExportsEnabled) { %>
+                        <div id="islandMiiQrResult" class="island-address-qr-result" hidden>
+                            <div class="island-address-qr-preview">
+                                <span class="island-address-result-label">Generated Mii QR</span>
+                                <img id="islandMiiQrImage" alt="Generated Tomodachi Life Mii QR code" hidden>
+                            </div>
+                            <div class="island-address-qr-details">
+                                <p id="islandMiiQrStatus" class="note">QR not generated yet.</p>
+                                <a id="islandMiiQrDownload" class="btn-secondary island-address-download" href="#" download="tomodachi-life-mii.png" hidden>Download QR</a>
+                            </div>
                         </div>
-                        <div class="island-address-qr-details">
-                            <p id="islandMiiQrStatus" class="note">QR not generated yet.</p>
-                            <a id="islandMiiQrDownload" class="btn-secondary island-address-download" href="#" download="tomodachi-life-mii.png" hidden>Download QR</a>
-                        </div>
-                    </div>
+                    <% } %>
                 </section>
             </section>
 

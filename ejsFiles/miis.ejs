@@ -3,6 +3,8 @@
     <head>
         <%
             const currentPathName = currentPath.split('?')[0];
+            const browseQrExportsEnabled = (Array.isArray(exportFormats) ? exportFormats : [])
+                .some((format) => String(format?.value || '').trim().toLowerCase() === 'qr');
             const usesOffsetPagination = pagination?.mode === 'offset';
             const isRandomPage = currentPathName === '/random';
             const currentPageNumber = usesOffsetPagination ? null : (pagination?.currentPage || 1);
@@ -18,7 +20,39 @@
             const hasTagFilters = Boolean(tagFilterSummary);
             const safeSearchQuery = typeof searchQuery === 'string' ? searchQuery.trim() : '';
             const isLikedMiisPage = currentPathName === '/myLikedMiis';
-            const likedMiisSort = query.sort === 'likes' ? 'likes' : 'latest';
+            const likedMiisSort = typeof likedSort !== 'undefined' && likedSort === 'likes'
+                ? 'likes'
+                : 'latest';
+            const likedMiisDirection = typeof likedSortDirection !== 'undefined' && likedSortDirection === 'asc'
+                ? 'asc'
+                : 'desc';
+            const hasTextSearchSort = Boolean(
+                safeSearchQuery
+                && typeof selectedSearchFields !== 'undefined'
+                && Array.isArray(selectedSearchFields)
+                && selectedSearchFields.length > 0
+            );
+            const resultSortValues = [
+                ...(hasTextSearchSort ? ['relevance'] : []),
+                'alphabetical',
+                'trending',
+                'top',
+                'latest'
+            ];
+            const selectedResultSort = typeof searchSort !== 'undefined' && resultSortValues.includes(searchSort)
+                ? searchSort
+                : (hasTextSearchSort ? 'relevance' : 'top');
+            const defaultResultDirection = selectedResultSort === 'alphabetical' ? 'asc' : 'desc';
+            const selectedResultDirection = typeof searchDirection !== 'undefined' && ['asc', 'desc'].includes(searchDirection)
+                ? searchDirection
+                : defaultResultDirection;
+            const resultDirectionLabels = {
+                relevance: { asc: 'Least relevant first', desc: 'Best match first' },
+                alphabetical: { asc: 'A to Z', desc: 'Z to A' },
+                trending: { asc: 'Least trending first', desc: 'Most trending first' },
+                top: { asc: 'Least liked first', desc: 'Most liked first' },
+                latest: { asc: 'Oldest first', desc: 'Newest first' }
+            }[selectedResultSort];
             const canonicalUrl = `${baseUrl}${currentPath}`;
             const breadcrumbs = [{ name: 'Home', url: '/' }];
             let pageTitle = title || 'Browse Mii Characters - InfiniMii';
@@ -26,14 +60,16 @@
             let keywords = 'mii characters, browse miis, nintendo miis, download miis';
             let pageRobots;
             let introHeading = 'Browse Mii Characters';
-            let introBody = 'Explore Mii characters from the InfiniMii collection, then open any page to download exports, QR codes, and recreation details.';
+            let introBody = browseQrExportsEnabled
+                ? 'Open a Mii to download its files, view compatible QR codes, or read its recreation details.'
+                : 'Open a Mii to download its LTD file or read its recreation details.';
 
             if (currentPathName === '/trending') {
                 pageTitle = `Trending Mii Characters${pageSuffix} - InfiniMii`;
                 pageDesc = 'Browse the Mii characters currently getting the most attention on InfiniMii.';
                 keywords = 'trending miis, popular mii characters, hot miis';
                 introHeading = 'Trending Mii Characters';
-                introBody = 'These Miis are attracting the most attention right now across the InfiniMii community.';
+                introBody = 'These Miis are receiving the most attention on InfiniMii right now.';
                 breadcrumbs.push({ name: 'Trending', url: '/trending' });
             } else if (currentPathName === '/top') {
                 pageTitle = `Top Rated Mii Characters${pageSuffix} - InfiniMii`;
@@ -47,25 +83,28 @@
                 pageDesc = 'See the latest Mii character uploads added to InfiniMii.';
                 keywords = 'recent miis, latest mii uploads, new mii characters';
                 introHeading = 'Recent Mii Uploads';
-                introBody = 'See the newest Mii characters uploaded to the site, including fresh recreations and recent official additions.';
+                introBody = 'See the newest community uploads and official additions.';
                 breadcrumbs.push({ name: 'Recent', url: '/recent' });
             } else if (currentPathName === '/random') {
                 pageTitle = `Random Mii Characters${pageSuffix} - InfiniMii`;
-                pageDesc = 'Explore a random set of Mii characters from the InfiniMii database.';
+                pageDesc = 'Browse a random set of Mii characters from InfiniMii.';
                 keywords = 'random miis, surprise mii characters, explore miis';
                 pageRobots = 'noindex, follow, noarchive';
                 introHeading = 'Random Mii Characters';
-                introBody = 'A random roll from the InfiniMii archive for quick discovery and inspiration.';
+                introBody = 'Load a different selection from the archive each time.';
                 breadcrumbs.push({ name: 'Random', url: '/random' });
             } else if (isLikedMiisPage) {
-                pageTitle = `My Liked Miis${likedMiisSort === 'likes' ? ' - Most Likes' : ''}${pageSuffix} - InfiniMii`;
+                const likedSortTitle = likedMiisSort === 'likes'
+                    ? ` - Like Count: ${likedMiisDirection === 'asc' ? 'Low to High' : 'High to Low'}`
+                    : (likedMiisDirection === 'asc' ? ' - Oldest First' : '');
+                pageTitle = `My Liked Miis${likedSortTitle}${pageSuffix} - InfiniMii`;
                 pageDesc = 'Browse the public Miis you have liked on InfiniMii.';
                 keywords = 'liked miis, favorite miis, saved likes';
                 pageRobots = 'noindex, follow, noarchive';
                 introHeading = 'My Liked Miis';
                 introBody = likedMiisSort === 'likes'
-                    ? 'Browse the public Miis you have liked on InfiniMii, sorted by like count.'
-                    : 'Browse the public Miis you have liked on InfiniMii, sorted by newest uploads.';
+                    ? `Browse the public Miis you have liked on InfiniMii, sorted from ${likedMiisDirection === 'asc' ? 'fewest to most' : 'most to fewest'} likes.`
+                    : `Browse the public Miis you have liked on InfiniMii, ${likedMiisDirection === 'asc' ? 'oldest first' : 'newest first'}.`;
                 breadcrumbs.push({ name: 'My Liked Miis', url: '/myLikedMiis' });
             } else if (currentPathName === '/searchResults') {
                 pageTitle = safeSearchQuery
@@ -78,8 +117,8 @@
                 pageRobots = 'noindex, follow, noarchive';
                 introHeading = safeSearchQuery ? `Search Results for "${safeSearchQuery}"` : 'Search Results';
                 introBody = hasTagFilters
-                    ? `Filtering the InfiniMii archive by ${tagFilterSummary}.`
-                    : 'Filtering the InfiniMii archive by your requested search terms.';
+                    ? `Showing Miis ${tagFilterSummary}.`
+                    : 'Showing Miis that match your search.';
                 breadcrumbs.push({ name: 'Search', url: '/search' });
             }
 
@@ -125,6 +164,7 @@
                     const encodedTagQuery = selectedTagParams.map(tag => '&tags=' + encodeURIComponent(tag)).join('');
                     const selectedSearchFieldParams = Array.isArray(selectedSearchFields) ? selectedSearchFields : [];
                     const encodedSortQuery = query.sort ? '&sort=' + encodeURIComponent(query.sort) : '';
+                    const encodedDirectionQuery = query.direction ? '&direction=' + encodeURIComponent(query.direction) : '';
                     const encodedSearchFieldQuery = currentPath.startsWith('/searchResults')
                         ? '&searchFieldsConfigured=1' + selectedSearchFieldParams.map(field => '&searchIn=' + encodeURIComponent(field)).join('')
                         : '';
@@ -161,8 +201,50 @@
                             advancedSearchFilters,
                             favoriteColorOptions,
                             birthdayMonthOptions,
-                            birthdayDayOptions
+                            birthdayDayOptions,
+                            selectedResultSort,
+                            selectedResultDirection
                         }) %>
+                        <div class="results-sort-toolbar">
+                            <form class="results-sort-form" method="GET" action="/searchResults">
+                                <%
+                                    Object.entries(query || {}).forEach(([paramName, paramValue]) => {
+                                        if (['sort', 'direction', 'start', 'page'].includes(paramName)) return;
+                                        const values = Array.isArray(paramValue) ? paramValue : [paramValue];
+                                        values.forEach((value) => {
+                                            if (typeof value === 'undefined' || value === null || typeof value === 'object') return;
+                                %>
+                                    <input type="hidden" name="<%= paramName %>" value="<%= value %>">
+                                <%
+                                        });
+                                    });
+                                %>
+                                <label for="search-results-sort">Sort by</label>
+                                <select
+                                    id="search-results-sort"
+                                    name="sort"
+                                    onchange="if (this.form) { if (this.form.requestSubmit) { this.form.requestSubmit(); } else { this.form.submit(); } }"
+                                >
+                                    <% if (hasTextSearchSort) { %>
+                                        <option value="relevance" <%= selectedResultSort === 'relevance' ? 'selected' : '' %>>Best match</option>
+                                    <% } %>
+                                    <option value="alphabetical" <%= selectedResultSort === 'alphabetical' ? 'selected' : '' %>>Alphabetical</option>
+                                    <option value="trending" <%= selectedResultSort === 'trending' ? 'selected' : '' %>>Trending</option>
+                                    <option value="top" <%= selectedResultSort === 'top' ? 'selected' : '' %>>Top</option>
+                                    <option value="latest" <%= selectedResultSort === 'latest' ? 'selected' : '' %>>Latest</option>
+                                </select>
+                                <label for="search-results-direction">Direction</label>
+                                <select
+                                    id="search-results-direction"
+                                    name="direction"
+                                    aria-label="Sort direction"
+                                    onchange="if (this.form) { if (this.form.requestSubmit) { this.form.requestSubmit(); } else { this.form.submit(); } }"
+                                >
+                                    <option value="asc" <%= selectedResultDirection === 'asc' ? 'selected' : '' %>><%= resultDirectionLabels.asc %></option>
+                                    <option value="desc" <%= selectedResultDirection === 'desc' ? 'selected' : '' %>><%= resultDirectionLabels.desc %></option>
+                                </select>
+                            </form>
+                        </div>
                         <% if (hasActiveSearchQuery || (Array.isArray(selectedTags) && selectedTags.length > 0) || (Array.isArray(excludedTags) && excludedTags.length > 0) || hasActiveAdvancedSearch) { %>
                             <p class="search-results-summary">
                                 <%= pagination?.total ?? displayedMiis.length %> result<%= (pagination?.total ?? displayedMiis.length) === 1 ? '' : 's' %>
@@ -183,16 +265,26 @@
                     </section>
                 <% } else if (isLikedMiisPage) { %>
                     <section class="search-results-search" aria-label="Sort liked Miis">
-                        <form method="GET" action="/myLikedMiis">
-                            <label for="liked-miis-sort" class="sr-only">Sort liked Miis</label>
+                        <form class="results-sort-form" method="GET" action="/myLikedMiis">
+                            <label for="liked-miis-sort">Sort by</label>
                             <select
                                 id="liked-miis-sort"
                                 name="sort"
                                 aria-label="Sort liked Miis"
                                 onchange="if (this.form) { if (this.form.requestSubmit) { this.form.requestSubmit(); } else { this.form.submit(); } }"
                             >
-                                <option value="latest" <%= likedMiisSort === 'latest' ? 'selected' : '' %>>Latest</option>
-                                <option value="likes" <%= likedMiisSort === 'likes' ? 'selected' : '' %>>Most Likes</option>
+                                <option value="latest" <%= likedMiisSort === 'latest' ? 'selected' : '' %>>Upload date</option>
+                                <option value="likes" <%= likedMiisSort === 'likes' ? 'selected' : '' %>>Like count</option>
+                            </select>
+                            <label for="liked-miis-direction">Direction</label>
+                            <select
+                                id="liked-miis-direction"
+                                name="direction"
+                                aria-label="Sort liked Miis direction"
+                                onchange="if (this.form) { if (this.form.requestSubmit) { this.form.requestSubmit(); } else { this.form.submit(); } }"
+                            >
+                                <option value="asc" <%= likedMiisDirection === 'asc' ? 'selected' : '' %>><%= likedMiisSort === 'likes' ? 'Least liked first' : 'Oldest first' %></option>
+                                <option value="desc" <%= likedMiisDirection === 'desc' ? 'selected' : '' %>><%= likedMiisSort === 'likes' ? 'Most liked first' : 'Newest first' %></option>
                             </select>
                         </form>
                         <p class="search-results-summary">
@@ -202,21 +294,21 @@
                 <% } %>
 
                 <%
-                    let emptyStateTitle = 'No Miis Found';
+                    let emptyStateTitle = 'No Miis found';
                     let emptyStateBody = 'There are no public Miis to show here yet.';
                     let emptyStateIconPath = 'M479.82 976 423.36 925.85Q311 824.46 235.5 749.5 160 674.54 114.5 608.77q-45.5-65.77-62-120.85Q36 432.85 36 385.15q0-96 64.5-160.58Q165 160 260 160q54 0 102 24.5t82 70.5q34-46 82-70.5t102-24.5q95 0 159.5 64.57Q852 288.15 852 384.15q0 48.7-16.5 104-16.5 55.31-62 121.08-45.5 65.77-121.12 140.88-75.61 75.12-188.1 175.74L479.82 976Z';
 
                     if (currentPathName === '/searchResults') {
-                        emptyStateTitle = 'No Search Results';
+                        emptyStateTitle = 'No search results';
                         emptyStateBody = safeSearchQuery || hasSelectedTags
                             ? 'Try a broader search, fewer tags, or another spelling.'
                             : 'Enter a search term or choose tags to find Miis.';
                         emptyStateIconPath = 'M784 936 532 684q-30 24-69 38t-83 14q-109 0-184.5-75.5T120 476q0-109 75.5-184.5T380 216q109 0 184.5 75.5T640 476q0 44-14 83t-38 69l252 252-56 56ZM380 656q75 0 127.5-52.5T560 476q0-75-52.5-127.5T380 296q-75 0-127.5 52.5T200 476q0 75 52.5 127.5T380 656Z';
                     } else if (isLikedMiisPage) {
-                        emptyStateTitle = 'No Liked Miis Yet';
+                        emptyStateTitle = 'No liked Miis yet';
                         emptyStateBody = 'Like a few Miis and they will show up here.';
                     } else if (currentPathName === '/official') {
-                        emptyStateTitle = 'No Official Miis Found';
+                        emptyStateTitle = 'No official Miis found';
                         emptyStateBody = 'No official Miis match this category yet.';
                     }
                 %>
@@ -319,7 +411,7 @@
                 <% } else if (pagination && pagination.mode !== 'offset' && pagination.mode !== 'random' && pagination.totalPages > 1) { %>
                     <div class="pagination">
                         <a
-                            <% if (pagination.currentPage > 1) { %>href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>"<% } %>
+                            <% if (pagination.currentPage > 1) { %>href="?page=<%= pagination.currentPage - 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %><%= encodedDirectionQuery %>"<% } %>
                             class="pagination-btn"
                             <%= pagination.currentPage > 1 ? '' : 'aria-disabled="true" tabindex="-1"' %>
                         >&larr; Previous</a>
@@ -343,7 +435,7 @@
                         </span>
 
                         <a
-                            <% if (pagination.currentPage < pagination.totalPages) { %>href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %>"<% } %>
+                            <% if (pagination.currentPage < pagination.totalPages) { %>href="?page=<%= pagination.currentPage + 1 %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %><%= query.category ? '&category=' + encodeURIComponent(query.category) : '' %><%= pagination.seed ? '&seed=' + pagination.seed : '' %><%= encodedTagQuery %><%= encodedSearchFieldQuery %><%= encodedSortQuery %><%= encodedDirectionQuery %>"<% } %>
                             class="pagination-btn"
                             <%= pagination.currentPage < pagination.totalPages ? '' : 'aria-disabled="true" tabindex="-1"' %>
                         >Next &rarr;</a>

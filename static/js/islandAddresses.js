@@ -329,6 +329,7 @@ const ui = {
     oceanOptions: document.getElementById("islandOceanOptions"),
     measure: document.getElementById("islandMeasure")
 };
+const ISLAND_QR_EXPORTS_ENABLED = Boolean(ui.miiQrResult);
 
 let device;
 let pipeline;
@@ -779,8 +780,8 @@ async function analyzeUploadedMii() {
         if (file !== uploadedMiiFile) return;
 
         uploadedMiiHasTomodachiLifeData = Boolean(payload.hasTomodachiLifeData);
-        uploadedMiiCanGenerateQr = true;
-        setIslandNameControl(true, payload.islandName || "");
+        uploadedMiiCanGenerateQr = ISLAND_QR_EXPORTS_ENABLED;
+        setIslandNameControl(ISLAND_QR_EXPORTS_ENABLED, payload.islandName || "");
 
         if (!uploadedMiiHasTomodachiLifeData) {
             setUploadStatus(`Loaded ${payload.miiName || "Mii"}. No Tomodachi Life data found, so the address fields were left as-is.`);
@@ -805,7 +806,7 @@ async function analyzeUploadedMii() {
 }
 
 async function generateUploadedMiiQr(islandId) {
-    if (!uploadedMiiFile || !uploadedMiiCanGenerateQr || !islandId) return;
+    if (!ISLAND_QR_EXPORTS_ENABLED || !uploadedMiiFile || !uploadedMiiCanGenerateQr || !islandId) return;
 
     const serial = ++qrGenerationSerial;
     const file = uploadedMiiFile;

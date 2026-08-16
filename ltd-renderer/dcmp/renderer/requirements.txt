@@ -1,0 +1,5 @@
+numpy==2.5.1
+Pillow==12.2.0
+moderngl==5.12.0
+glcontext==3.0.0
+zstandard==0.25.0

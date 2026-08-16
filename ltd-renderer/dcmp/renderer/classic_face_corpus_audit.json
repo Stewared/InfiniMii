@@ -1,0 +1,614 @@
+{
+  "schema_version": 1,
+  "status": "ALL_FROZEN_INFINIMII_CLASSIC_FACES_ADMITTED",
+  "contract": {
+    "path": "renderer/classic_face_presentation.json",
+    "sha256": "c42bc7f191df2090bd349d731a9e485eadec9d63cc37bd0f7656cbd9cdb714b6",
+    "key": "classic_face_presentation_v1",
+    "faceline_key": "classic_make_lower_make_upper_wrinkle_upper_wrinkle_lower_beard_short_ordered_v2",
+    "runtime_profile": {
+      "path": "renderer/classic_mii_runtime_profile.json",
+      "sha256": "3fdb6566f8fa9099ab0054c460349fea52bdae3b950bc656c3e59ce8885b510d",
+      "key": "classic-title-ryujinx-usa-special-normalization-v1"
+    }
+  },
+  "corpus": {
+    "manifest_sha256": "052103e866698aa0468500e011074cf3b2f0e58f19d4985803d405894778c62b",
+    "active_parts_manifest_sha256": "c934f75952ac4b2a681c57347689461611c5d8db462b8b788fd9de8887dabc7b",
+    "canonical_ltd_count": 3152,
+    "accepted_count": 3152,
+    "remaining_face_blocker_count": 0,
+    "actual_face_draw_count": 3152,
+    "actual_face_draw_aggregate_sha256": "73a8d434a9e29ca0bc87a6fd37ba1c35a9e015d273341eeadb58c79f2226feca"
+  },
+  "coverage": {
+    "selector_counts": {
+      "faceline_type": {
+        "0": 893,
+        "1": 460,
+        "2": 429,
+        "3": 122,
+        "4": 363,
+        "5": 113,
+        "6": 245,
+        "7": 144,
+        "8": 112,
+        "9": 168,
+        "10": 69,
+        "11": 34
+      },
+      "wrinkle_lower_type": {
+        "0": 2685,
+        "1": 51,
+        "2": 115,
+        "3": 47,
+        "5": 180,
+        "6": 74
+      },
+      "wrinkle_upper_type": {
+        "0": 2398,
+        "1": 112,
+        "2": 72,
+        "3": 75,
+        "4": 90,
+        "5": 49,
+        "6": 176,
+        "7": 180
+      },
+      "makeup_upper_type": {
+        "0": 3045,
+        "1": 107
+      },
+      "makeup_lower_type": {
+        "0": 2291,
+        "1": 613,
+        "2": 121,
+        "3": 127
+      },
+      "eye_type": {
+        "0": 34,
+        "1": 38,
+        "2": 154,
+        "3": 59,
+        "4": 104,
+        "5": 32,
+        "6": 28,
+        "7": 65,
+        "8": 79,
+        "9": 54,
+        "10": 19,
+        "11": 26,
+        "12": 18,
+        "13": 34,
+        "14": 23,
+        "15": 97,
+        "16": 39,
+        "17": 116,
+        "18": 83,
+        "19": 12,
+        "20": 28,
+        "21": 26,
+        "22": 22,
+        "23": 67,
+        "24": 48,
+        "25": 59,
+        "26": 54,
+        "27": 69,
+        "28": 45,
+        "29": 85,
+        "30": 56,
+        "31": 43,
+        "32": 90,
+        "33": 100,
+        "34": 40,
+        "35": 74,
+        "36": 47,
+        "37": 100,
+        "38": 36,
+        "39": 70,
+        "40": 88,
+        "41": 82,
+        "42": 51,
+        "43": 50,
+        "44": 49,
+        "45": 44,
+        "46": 22,
+        "47": 7,
+        "48": 41,
+        "49": 90,
+        "50": 10,
+        "51": 33,
+        "52": 8,
+        "53": 53,
+        "54": 47,
+        "55": 9,
+        "56": 25,
+        "57": 20,
+        "58": 96,
+        "59": 54
+      },
+      "eye_highlight_type": {
+        "0": 3133,
+        "3": 19
+      },
+      "eyelash_upper_type": {
+        "0": 2184,
+        "1": 457,
+        "2": 396,
+        "3": 115
+      },
+      "eyelash_lower_type": {
+        "0": 3108,
+        "1": 44
+      },
+      "eyelid_upper_type": {
+        "0": 3032,
+        "1": 120
+      },
+      "eyelid_lower_type": {
+        "0": 3091,
+        "1": 61
+      },
+      "eyebrow_type": {
+        "0": 467,
+        "1": 237,
+        "2": 58,
+        "3": 61,
+        "4": 99,
+        "5": 45,
+        "6": 262,
+        "7": 104,
+        "8": 166,
+        "9": 265,
+        "10": 48,
+        "11": 68,
+        "12": 225,
+        "13": 35,
+        "14": 68,
+        "15": 77,
+        "16": 16,
+        "17": 38,
+        "18": 91,
+        "19": 381,
+        "20": 163,
+        "21": 101,
+        "22": 34,
+        "23": 43
+      },
+      "mouth_type": {
+        "0": 113,
+        "1": 202,
+        "2": 42,
+        "3": 31,
+        "4": 34,
+        "5": 109,
+        "6": 67,
+        "7": 24,
+        "8": 205,
+        "9": 73,
+        "10": 97,
+        "11": 16,
+        "12": 58,
+        "13": 75,
+        "14": 97,
+        "15": 205,
+        "16": 23,
+        "17": 109,
+        "18": 54,
+        "19": 337,
+        "20": 20,
+        "21": 218,
+        "22": 235,
+        "23": 184,
+        "24": 97,
+        "25": 71,
+        "26": 26,
+        "27": 41,
+        "28": 11,
+        "29": 72,
+        "30": 45,
+        "31": 9,
+        "32": 2,
+        "33": 113,
+        "34": 13,
+        "35": 24
+      },
+      "beard_type": {
+        "0": 2857,
+        "1": 129,
+        "2": 100,
+        "3": 66
+      },
+      "stubble_type": {
+        "0": 2988,
+        "1": 77,
+        "2": 30,
+        "3": 30,
+        "4": 26,
+        "5": 1
+      },
+      "mustache_type": {
+        "0": 2776,
+        "1": 91,
+        "2": 121,
+        "3": 92,
+        "4": 56,
+        "5": 16
+      }
+    },
+    "distinct_face_flag_combinations": 21,
+    "face_flag_combination_counts": {
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":false,\"mole_enabled\":false,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":false}": 1643,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":false,\"mole_enabled\":false,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":true}": 337,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":false,\"mole_enabled\":false,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":false}": 531,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":false,\"mole_enabled\":false,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":true}": 109,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":false,\"mole_enabled\":true,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":false}": 120,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":false,\"mole_enabled\":true,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":true}": 31,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":false,\"mole_enabled\":true,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":false}": 27,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":false,\"mole_enabled\":true,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":true}": 7,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":true,\"mole_enabled\":false,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":false}": 4,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":true,\"mole_enabled\":false,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":false}": 18,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":true,\"mole_enabled\":false,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":true}": 1,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":true,\"mole_enabled\":true,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":false}": 1,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":true,\"mole_enabled\":true,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":false}": 3,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":false,\"eye_shadow_enabled\":true,\"mole_enabled\":true,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":true}": 1,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":true,\"eye_shadow_enabled\":false,\"mole_enabled\":false,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":false}": 181,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":true,\"eye_shadow_enabled\":false,\"mole_enabled\":false,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":true}": 34,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":true,\"eye_shadow_enabled\":false,\"mole_enabled\":false,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":false}": 65,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":true,\"eye_shadow_enabled\":false,\"mole_enabled\":false,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":true}": 17,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":true,\"eye_shadow_enabled\":false,\"mole_enabled\":true,\"mouth_inverted\":false,\"mustache_inverted\":false,\"special_mii\":false}": 18,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":true,\"eye_shadow_enabled\":false,\"mole_enabled\":true,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":false}": 2,
+      "{\"back_dual_color\":false,\"bangs_dual_color\":false,\"bangs_side\":true,\"eye_shadow_enabled\":false,\"mole_enabled\":true,\"mouth_inverted\":true,\"mustache_inverted\":false,\"special_mii\":true}": 2
+    },
+    "distinct_faceline_layer_combinations": 98,
+    "distinct_ordinary_layer_combinations": 2459,
+    "normalization_actions": {
+      "ordinary_noop": 2612,
+      "replace_with_sdk_default": 1,
+      "special_preserved_matching_region": 8,
+      "special_preserved_no_region_move": 531
+    },
+    "nothing_no_draw_counts": {
+      "eye_highlight": 3133,
+      "eyebrow": 43,
+      "eyelash_lower": 3108,
+      "eyelash_upper": 2184,
+      "eyelid_lower": 3091,
+      "eyelid_upper": 3032,
+      "mole": 2940,
+      "mustache": 2776
+    }
+  },
+  "representative_smoke_outputs": {
+    "beard_short": {
+      "id": "Bxe7T",
+      "canonical_ltd_sha256": "ac50bb9a77a9a094c8af57d2f5300d170399357ae7a04678c4bed55f1411a32a",
+      "rgba8_sha256": "e7056d45f32cc9b47b56828e4fc9b67df0a4c210e8a59c8db3f6962a23448c97",
+      "dispatcher_cases": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        16,
+        17,
+        20
+      ],
+      "shader_modes": [
+        3,
+        3,
+        8,
+        3,
+        3,
+        7,
+        7,
+        3
+      ]
+    },
+    "eye_shadow": {
+      "id": "Xaa0j",
+      "canonical_ltd_sha256": "152b5c7c8fd9c93875fccc5281ecc531cc20ca4c10b9aaa9d369bd959e2d2514",
+      "rgba8_sha256": "b9eda152008e3abcf7b1c4b412be385310dd82e34271e3134df151fdc410b740",
+      "dispatcher_cases": [
+        2,
+        4,
+        5,
+        8,
+        9,
+        16,
+        17
+      ],
+      "shader_modes": [
+        2,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2
+      ]
+    },
+    "eyebrow_nothing": {
+      "id": "bYOXG",
+      "canonical_ltd_sha256": "ca06761610c7430ff0a9deea2a0e38e5a9d74634abff25576d77fadaf0c00744",
+      "rgba8_sha256": "c14275d0ce73dcda109bcd88f445462397c923fb95f4c65765b8bdd8517aa174",
+      "dispatcher_cases": [
+        2,
+        16,
+        17
+      ],
+      "shader_modes": [
+        8,
+        7,
+        7
+      ]
+    },
+    "highlight": {
+      "id": "Nn4xl",
+      "canonical_ltd_sha256": "a1250c0ef149fc2192de7c1e5e78ddd85a4985e8ddeb54e0cc9696ee1d8a76ea",
+      "rgba8_sha256": "630055cd23625e43fc985d5ea322d414e9c10c1c2bbb898e0a18c950fd913fbf",
+      "dispatcher_cases": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        16,
+        17,
+        20
+      ],
+      "shader_modes": [
+        3,
+        3,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7,
+        3
+      ]
+    },
+    "lower_lash": {
+      "id": "xrtbt",
+      "canonical_ltd_sha256": "fd16d43ca28d8b2838b9d5ff5cff6653f430a2c226ca1944a1b9857eac1d2bd5",
+      "rgba8_sha256": "2f8926ced6298377481bf1eaf2a7aca8cee99d2c660b66be11db7bb1925cdfef",
+      "dispatcher_cases": [
+        2,
+        4,
+        5,
+        10,
+        11,
+        16,
+        17,
+        20
+      ],
+      "shader_modes": [
+        8,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7,
+        3
+      ]
+    },
+    "lower_lid": {
+      "id": "yTvdD",
+      "canonical_ltd_sha256": "bab16456ecf0e492a06b21c92f2dba8580a211957cdc61c2514d4ec04579789a",
+      "rgba8_sha256": "780280d15e9c2c373c228f1bf4693e631989cfe6d6c28360056b5fd5c41440f3",
+      "dispatcher_cases": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        14,
+        15,
+        16,
+        17,
+        20
+      ],
+      "shader_modes": [
+        3,
+        3,
+        8,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7,
+        3
+      ]
+    },
+    "makeup_upper": {
+      "id": "BoKj6",
+      "canonical_ltd_sha256": "72e16ed34da942cff64cbcdac20fe91d6b2ed8525e2f82c4de573acae2223b38",
+      "rgba8_sha256": "54b29c01bbe267c168a15d9f054b7bac88ea22d61e91e7c14348c65400046743",
+      "dispatcher_cases": [
+        2,
+        4,
+        5,
+        8,
+        9,
+        16,
+        17
+      ],
+      "shader_modes": [
+        2,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7
+      ]
+    },
+    "mole": {
+      "id": "Bxe7T",
+      "canonical_ltd_sha256": "ac50bb9a77a9a094c8af57d2f5300d170399357ae7a04678c4bed55f1411a32a",
+      "rgba8_sha256": "e7056d45f32cc9b47b56828e4fc9b67df0a4c210e8a59c8db3f6962a23448c97",
+      "dispatcher_cases": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        16,
+        17,
+        20
+      ],
+      "shader_modes": [
+        3,
+        3,
+        8,
+        3,
+        3,
+        7,
+        7,
+        3
+      ]
+    },
+    "upper_lash_1": {
+      "id": "DHrJj",
+      "canonical_ltd_sha256": "562378108bc9a6ebe42d0fe21ca0ba146d399030c79089949e6a64d048da0c49",
+      "rgba8_sha256": "737d2a7010d2015f11a54e572eaa065b9576d0a924d3894f0e086c29ca01d946",
+      "dispatcher_cases": [
+        2,
+        4,
+        5,
+        8,
+        9,
+        16,
+        17
+      ],
+      "shader_modes": [
+        8,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7
+      ]
+    },
+    "upper_lash_2": {
+      "id": "orqX9",
+      "canonical_ltd_sha256": "0de6245d173566a16dec005dc75816ccb6670f7733233c45fe31f6a9b3ecffe1",
+      "rgba8_sha256": "3e556e3b9d86d28564f5c516d9344a6902cef5e0cd76ffb51a4c458d505dc45c",
+      "dispatcher_cases": [
+        2,
+        4,
+        5,
+        8,
+        9,
+        16,
+        17
+      ],
+      "shader_modes": [
+        2,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7
+      ]
+    },
+    "upper_lash_3": {
+      "id": "Nn4xl",
+      "canonical_ltd_sha256": "a1250c0ef149fc2192de7c1e5e78ddd85a4985e8ddeb54e0cc9696ee1d8a76ea",
+      "rgba8_sha256": "630055cd23625e43fc985d5ea322d414e9c10c1c2bbb898e0a18c950fd913fbf",
+      "dispatcher_cases": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        16,
+        17,
+        20
+      ],
+      "shader_modes": [
+        3,
+        3,
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7,
+        3
+      ]
+    },
+    "upper_lid": {
+      "id": "6e7tE",
+      "canonical_ltd_sha256": "69939f910b2aedf1da6305aef21a891ac120b22368b0f5e8a504585b8961df47",
+      "rgba8_sha256": "6256112eb337f4642dd80336cc2534ec21e9de4e6590785d658a3b2451a6464c",
+      "dispatcher_cases": [
+        2,
+        4,
+        5,
+        8,
+        9,
+        12,
+        13,
+        16,
+        17
+      ],
+      "shader_modes": [
+        2,
+        3,
+        3,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7
+      ]
+    },
+    "wrinkle_lower": {
+      "id": "orqX9",
+      "canonical_ltd_sha256": "0de6245d173566a16dec005dc75816ccb6670f7733233c45fe31f6a9b3ecffe1",
+      "rgba8_sha256": "3e556e3b9d86d28564f5c516d9344a6902cef5e0cd76ffb51a4c458d505dc45c",
+      "dispatcher_cases": [
+        2,
+        4,
+        5,
+        8,
+        9,
+        16,
+        17
+      ],
+      "shader_modes": [
+        2,
+        3,
+        3,
+        3,
+        3,
+        7,
+        7
+      ]
+    }
+  },
+  "database_reads": false,
+  "database_writes": false,
+  "reference_pixel_inference": false
+}

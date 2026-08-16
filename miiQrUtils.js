@@ -1,7 +1,6 @@
-import miijs from "miijs";
-
 import { cloneSerializable } from "./miiDataUtils.js";
 import { renderStoredMiiImage } from "./miiImageRenderer.js";
+import { renderServerQrPng } from "./serverQrRenderer.js";
 
 // Miitopia QR support remains available in MiiJS but is intentionally hidden
 // on InfiniMii until the site feature is ready to be enabled.
@@ -105,5 +104,8 @@ export async function makeRenderedQrFromPayload(qrPayload, miiFields, qrOptions 
         nextQrOptions.label = miiFields.meta.name;
     }
 
-    return miijs.makeQR(qrPayload, nextQrOptions);
+    return renderServerQrPng(qrPayload, {
+        ...nextQrOptions,
+        special: miiFields?.meta?.type === "Special"
+    });
 }

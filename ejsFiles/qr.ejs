@@ -3,6 +3,13 @@
     <head>
         <%
         const pageTitle = 'Scan Mii QR Codes - InfiniMii';
+        const qrScannerExportFormats = Array.isArray(exportFormats) ? exportFormats : [];
+        const qrScannerExportValues = qrScannerExportFormats
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const qrScannerLegacyExportsEnabled = qrScannerExportValues.some((value) => value !== 'ltd');
+        const qrScannerQrExportsEnabled = qrScannerExportValues.includes('qr');
+        const defaultQrScannerExportFormat = qrScannerExportValues[0] || '';
         const pageDesc = 'Use your camera to scan a Mii QR code, then export the decoded data or upload the Mii through InfiniMii.';
         const canonicalUrl = `${baseUrl}/qr`;
         const keywords = 'scan mii qr code, mii qr scanner, 3ds qr code, wii u qr code';
@@ -39,7 +46,7 @@
             <section class="qr-page" aria-labelledby="qr-heading">
                 <section class="utility-container qr-intro-card" aria-labelledby="qr-heading">
                     <h1 id="qr-heading">Scan a Mii QR Code</h1>
-                    <p>Point your camera at a compatible Mii QR code to decode it, then export it into another format or upload it to InfiniMii.</p>
+                    <p>Point your camera at a compatible Mii QR code to decode it, then export it as LTD or upload it to InfiniMii.</p>
                 </section><br>
 
                 <form method="POST" enctype="multipart/form-data" action="/exportMii" class="convert qr-panel" hidden>
@@ -48,32 +55,38 @@
                         <div id="convert-error-message" class="form-message" style="display: none;"></div>
                         <input type="hidden" name="miiData" class="convert-miidata">
                         <label for="qr-output-format">Export format:</label>
-                        <input type="text" id="qr-output-format" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
+                        <input type="text" id="qr-output-format" name="format" list="exportFormatOptions" value="<%= defaultQrScannerExportFormat %>" placeholder="Choose an export format..." required<%- qrScannerLegacyExportsEnabled ? '' : ' readonly aria-readonly="true"' %>>
                         <datalist id="exportFormatOptions">
-                            <% exportFormats.forEach(fmt => { %>
+                            <% qrScannerExportFormats.forEach(fmt => { %>
                                 <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
                             <% }) %>
                         </datalist>
-                        <div class="qr-inline-options">
-                            <label class="qr-inline-option">
-                                <input type="checkbox" name="special">
-                                <span>Download as Special Mii</span>
-                            </label>
-                            <label class="qr-inline-option qr-inline-select" for="qr-export-console">
-                                <span>QR Console:</span>
-                                <select id="qr-export-console" name="qrConsole">
-                                    <option value="3DS">3DS</option>
-                                    <option value="WIIU">Wii U</option>
-                                </select>
-                            </label>
-                        </div>
+                        <% if (qrScannerLegacyExportsEnabled || qrScannerQrExportsEnabled) { %>
+                            <div class="qr-inline-options">
+                                <% if (qrScannerLegacyExportsEnabled) { %>
+                                    <label class="qr-inline-option">
+                                        <input type="checkbox" name="special">
+                                        <span>Download as Special Mii</span>
+                                    </label>
+                                <% } %>
+                                <% if (qrScannerQrExportsEnabled) { %>
+                                    <label class="qr-inline-option qr-inline-select" for="qr-export-console">
+                                        <span>QR Console:</span>
+                                        <select id="qr-export-console" name="qrConsole">
+                                            <option value="3DS">3DS</option>
+                                            <option value="WIIU">Wii U</option>
+                                        </select>
+                                    </label>
+                                <% } %>
+                            </div>
+                        <% } %>
                         <div class="qr-button-row">
                             <input type="submit" value="Export">
                             <button type="button" id="qrCopyHexBtn">Copy Hex</button>
                             <button type="button" id="qrCopyBase64Btn">Copy Base64</button>
                             <button type="button" id="qrInstructionsBtn">Recreation Instructions</button>
                         </div>
-                        <h6>*Note: Down-level conversions may have limitations.</h6>
+                        <h6><%= qrScannerLegacyExportsEnabled ? 'Some details may change when converting to an older Mii format.' : 'Living the Dream Miis keep their original LTD download.' %></h6>
                     </fieldset>
                 </form>
 
@@ -99,7 +112,7 @@
                         <input type="button" value="Scan Again" onclick="start()">
                     </div>
 
-                    <div id="loadingMessage"><%- include('icon', { name: 'camera', size: 18, class: 'icon-inline' }) %> Click the start button to begin scanning</div>
+                    <div id="loadingMessage"><%- include('icon', { name: 'camera', size: 18, class: 'icon-inline' }) %> Select Start Scanning to use the camera</div>
                     <canvas id="canvas" hidden></canvas>
                     <div id="output" hidden>
                         <div id="outputMessage">No QR code detected.</div>

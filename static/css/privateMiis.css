@@ -107,7 +107,7 @@
     line-height: 1.25;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--system-font);
     display: flex;
     align-items: center;
     justify-content: center;

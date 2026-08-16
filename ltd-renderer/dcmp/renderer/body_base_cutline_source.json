@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "description": "Exact selected BodyBaseCutline numeric-hash rows; no image-derived geometry decisions.",
+  "generator": "tools/build_body_base_cutline_source.py",
+  "source": {
+    "path": "../ltdDemo_filesystem/program/1/Parameter/MiiSystem/System.mii__SystemParam.bgyml",
+    "byte_length": 2300,
+    "sha256": "5e3d89add124d149f195c12fd7b341e413c282b649c99964387180c742317fd8",
+    "byml_version": 7,
+    "body_base_cutline_node_offset": 1088,
+    "entry_count": 18
+  },
+  "mesh_hash_algorithm": "MurmurHash3 x86 32-bit, seed 0",
+  "reference_image_values_used": false,
+  "entries": [
+    {
+      "key": 3312601720,
+      "key_hex": "0xc5724a78",
+      "presentation_record": "ClothTopsTshirtLongDefault",
+      "dictionary_offset": 1720,
+      "mesh_array_offset": 1732,
+      "mesh_hashes": [
+        "0xcdb78d9e",
+        "0x7d25514e"
+      ],
+      "mesh_names": [
+        "BodyChest",
+        "BodyArm"
+      ],
+      "body_base_obj_groups_hidden": [
+        "BodyChest__mt_Tops",
+        "BodyArm__mt_Tops"
+      ]
+    },
+    {
+      "key": 2895499086,
+      "key_hex": "0xac95cf4e",
+      "presentation_record": "ClothSocksDefault",
+      "dictionary_offset": 1680,
+      "mesh_array_offset": 1692,
+      "mesh_hashes": [],
+      "mesh_names": [],
+      "body_base_obj_groups_hidden": []
+    },
+    {
+      "key": 1032020994,
+      "key_hex": "0x3d836402",
+      "presentation_record": "ClothShoesStandardDefault",
+      "dictionary_offset": 1520,
+      "mesh_array_offset": 1532,
+      "mesh_hashes": [
+        "0xd7d2454b"
+      ],
+      "mesh_names": [
+        "BodySole"
+      ],
+      "body_base_obj_groups_hidden": [
+        "BodySole__mt_Socks"
+      ]
+    },
+    {
+      "key": 3296514992,
+      "key_hex": "0xc47cd3b0",
+      "presentation_record": "ClothBottomsPantsLongDefault",
+      "dictionary_offset": 1696,
+      "mesh_array_offset": 1708,
+      "mesh_hashes": [
+        "0xf657ff89"
+      ],
+      "mesh_names": [
+        "BodyHip"
+      ],
+      "body_base_obj_groups_hidden": [
+        "BodyHip__mt_Bottoms"
+      ]
+    }
+  ]
+}

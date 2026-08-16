@@ -5,6 +5,10 @@ const resolvedBaseUrl = typeof baseUrl !== 'undefined' && baseUrl
   ? String(baseUrl).replace(/\/+$/, '')
   : '';
 const resolvedPageUpdatedAt = typeof pageUpdatedAt !== 'undefined' ? pageUpdatedAt : undefined;
+const structuredExportValues = (typeof exportFormats !== 'undefined' && Array.isArray(exportFormats) ? exportFormats : [])
+  .map((format) => String(format?.value || '').trim().toLowerCase())
+  .filter(Boolean);
+const includeMiiQrSchema = structuredExportValues.includes('qr');
 if (typeof mii !== 'undefined' && !(String(pageRobotsValue).toLowerCase().includes('noindex'))) {
 %>
 <%
@@ -162,5 +166,7 @@ const scriptJson = typeof toScriptJson === 'function'
 <script type="application/ld+json"><%- scriptJson(characterSchema, 2) %></script>
 <script type="application/ld+json"><%- scriptJson(miiCreativeWorkSchema, 2) %></script>
 <script type="application/ld+json"><%- scriptJson(miiPreviewSchema, 2) %></script>
+<% if (includeMiiQrSchema) { %>
 <script type="application/ld+json"><%- scriptJson(miiQrSchema, 2) %></script>
+<% } %>
 <% } %>

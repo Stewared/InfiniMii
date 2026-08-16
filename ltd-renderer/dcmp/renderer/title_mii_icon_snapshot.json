@@ -1,0 +1,1304 @@
+{
+  "schema_version": 4,
+  "purpose": "Deterministic evidence ledger for the GfxMiiIcon and EditorMiiPreview snapshot lighting and post-process state",
+  "confidence_classes": {
+    "exact": "Directly encoded in a hashed parameter resource, split pseudocode, or a hashed main.elf instruction range.",
+    "derived_exact": "Deterministically calculated from exact inputs with the recovered executable formula.",
+    "high_confidence_inference": "The role is fixed by data flow and context, but a generic binder or downstream implementation was not fully recovered.",
+    "unresolved": "The snapshot only supplies a value or enable bit; the downstream GPU algorithm or environment input is not established."
+  },
+  "sources": {
+    "main_elf": {
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "byte_length": 65253956,
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a",
+      "instruction_ranges": [
+        {
+          "role": "convert_degrees_to_radians_derived_field",
+          "virtual_address_start": "0x7100bfdfec",
+          "virtual_address_end_exclusive": "0x7100bfe02c",
+          "file_offset": 12578796,
+          "byte_length": 64,
+          "sha256": "12853bfeadc97302508bcc3102f5b7c70b1c1bb666ec37f51b23251c655896e9"
+        },
+        {
+          "role": "construct_gfx_snapshot_setting_defaults",
+          "virtual_address_start": "0x7101b084f8",
+          "virtual_address_end_exclusive": "0x7101b086a8",
+          "file_offset": 28349688,
+          "byte_length": 432,
+          "sha256": "55f0a88412f758f346641e3b9f354c4bf63f799b35196020efdcd78ea1d230e0"
+        },
+        {
+          "role": "gfx_mii_icon_constructor_resource_selection_prefix",
+          "virtual_address_start": "0x7101bc7f40",
+          "virtual_address_end_exclusive": "0x7101bc82a0",
+          "file_offset": 29134656,
+          "byte_length": 864,
+          "sha256": "c8eaf658540778fe49e7be2961f21e51b0efd83259599783ad65ad783d471d25"
+        },
+        {
+          "role": "compute_snapshot_light_travel_direction",
+          "virtual_address_start": "0x7101c6b284",
+          "virtual_address_end_exclusive": "0x7101c6b314",
+          "file_offset": 29803140,
+          "byte_length": 144,
+          "sha256": "aa5ad84c40674405c15b251ad59d3f219897f043834b8797d9146418aebd7f21"
+        },
+        {
+          "role": "pack_snapshot_scene_lighting_constants",
+          "virtual_address_start": "0x71017c5030",
+          "virtual_address_end_exclusive": "0x71017c518c",
+          "file_offset": 24928304,
+          "byte_length": 348,
+          "sha256": "b4860c63bbe75e9c698aa03d4a1da5c9bf0b92b874c86ade0f87d80b5f814157"
+        },
+        {
+          "role": "compute_global_inverse_exposure_scalar",
+          "virtual_address_start": "0x71017c5344",
+          "virtual_address_end_exclusive": "0x71017c5378",
+          "file_offset": 24929092,
+          "byte_length": 52,
+          "sha256": "30e0f4e4c88694fdd0bcde358d48a43724f9391225186051bb1adce3fe12d7b9"
+        },
+        {
+          "role": "compute_postprocess_exposure_uniform_candidate",
+          "virtual_address_start": "0x7101bad760",
+          "virtual_address_end_exclusive": "0x7101bad79c",
+          "file_offset": 29026144,
+          "byte_length": 60,
+          "sha256": "5b27b394180b75a3a292b80d1f4106cf25a15ab77418ed3432f3052765a78075"
+        },
+        {
+          "role": "map_capture_icon_format_index_to_nvn_format",
+          "virtual_address_start": "0x7101c6868c",
+          "virtual_address_end_exclusive": "0x7101c686a8",
+          "file_offset": 29791884,
+          "byte_length": 28,
+          "sha256": "3c08669ba5d2836aa312fa70b419403914d0b12ce15f061b9b3bc8d5656b0460"
+        },
+        {
+          "role": "construct_capture_icon_with_format_index_0x21",
+          "virtual_address_start": "0x7101dd7b68",
+          "virtual_address_end_exclusive": "0x7101dd7b94",
+          "file_offset": 31296360,
+          "byte_length": 44,
+          "sha256": "708a347ea00e6e8f340dee637ce576d938826284a016981f48a2cb9683b2dfb7"
+        }
+      ],
+      "data_ranges": [
+        {
+          "role": "capture_icon_format_index_0x21_table_entry",
+          "virtual_address_start": "0x71032dee74",
+          "virtual_address_end_exclusive": "0x71032dee78",
+          "file_offset": 53344068,
+          "byte_length": 4,
+          "bytes_hex": "38000000",
+          "uint32_little_endian": "0x38",
+          "sha256": "6fea016a651b6460fdd05e8073e5114413e814d86781e4dc4e8c3592dc851128"
+        }
+      ],
+      "dynamic_imports": {
+        "plt_0x7102e95f50": "powf",
+        "plt_0x7102e95f80": "exp2f",
+        "confidence": "exact"
+      }
+    },
+    "split_pseudocode": [
+      {
+        "path": "src/functions/internal/batch_01/7100b00000/2391_functions.inc",
+        "byte_length": 1527992,
+        "sha256": "8a08c2d901f6e2f6e7279e422bdd74c1d7bdcd05f0e44831b04ea2167bf97ef7"
+      },
+      {
+        "path": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+        "byte_length": 3717377,
+        "sha256": "4846fda016407541588f168a58479677f4bba190822b1ec4388aac59b8cc79b6"
+      },
+      {
+        "path": "src/functions/internal/batch_04/7101c00000/2465_functions.inc",
+        "byte_length": 2569108,
+        "sha256": "a574d01eeabd8d6256009e7f23f356eb1b5a02a9abdfb6690484e1ed0a5b44da"
+      },
+      {
+        "path": "src/functions/internal/batch_03/7101700000/2454_functions.inc",
+        "byte_length": 3312801,
+        "sha256": "751e15ff767fedfb7dcbcc4e43ffebf30d8d5186f757df385fff0d21637fba4c"
+      },
+      {
+        "path": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+        "byte_length": 4030968,
+        "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+      }
+    ],
+    "parameters": {
+      "gfx_mii_icon_system": {
+        "path": "../ltdDemo_filesystem/program/1/Parameter/GfxMiiIcon/System.gfx__MiiIconParam.bgyml",
+        "byte_length": 80,
+        "sha256": "685dc49876642c6e5dd736123e82b5712edc6dd17219a3cd2e94c833b28b0b49",
+        "decoded_document": {
+          "SnapshotSettingName": "MiiIcon"
+        }
+      },
+      "default_snapshot": {
+        "path": "../ltdDemo_filesystem/program/1/Parameter/GfxSnapshotSetting/Default.gfx__SnapshotSetting.bgyml",
+        "byte_length": 212,
+        "sha256": "d1d182fc9a9c65f177530bccc111c06ff319f1b95205a8118e45548586db5501",
+        "decoded_document": {
+          "BloomClampedLuminance": 1.5,
+          "BloomExpand": 0.005,
+          "IsPfxBloom": true,
+          "IsPfxSSAA": true,
+          "LightIntensity": 6,
+          "LightLatitude": 40,
+          "LightLongitude": -20
+        }
+      },
+      "mii_icon_snapshot": {
+        "path": "../ltdDemo_filesystem/program/1/Parameter/GfxSnapshotSetting/MiiIcon.gfx__SnapshotSetting.bgyml",
+        "byte_length": 552,
+        "sha256": "27cc1ca729a40ab71f25e19668621df83a51ac450a4d88404ea69caa3bdf93d3",
+        "decoded_document": {
+          "$parent": "Work/Parameter/GfxSnapshotSetting/Default.gfx__SnapshotSetting.gyml",
+          "BloomClampedLuminance": 1.5,
+          "BloomExpand": 0.005,
+          "BloomIntensity": 0.7,
+          "CameraAt": {
+            "X": 0,
+            "Y": 0.45,
+            "Z": 0
+          },
+          "CameraCtrlType": 2290120104,
+          "CameraDist": 1,
+          "CameraLongitude": 0,
+          "CameraUp": {
+            "X": 0,
+            "Y": 1,
+            "Z": 0
+          },
+          "IsNormalizeBlendOnlyBloom": true,
+          "IsPfxSSAA": true,
+          "ProjFar": 2,
+          "ProjHeight": 1.31,
+          "ProjNear": 0,
+          "ProjType": 3009892172
+        }
+      },
+      "editor_mii_preview_snapshot": {
+        "path": "../ltdDemo_filesystem/program/1/Parameter/GfxSnapshotSetting/EditorMiiPreview.gfx__SnapshotSetting.bgyml",
+        "byte_length": 724,
+        "sha256": "4c7db0e39d8f61bb7004e38e25eceb17d38d110cd99990605f4ee73e679f5e5e",
+        "decoded_document": {
+          "$parent": "Work/Parameter/GfxSnapshotSetting/Default.gfx__SnapshotSetting.gyml",
+          "BloomClampedLuminance": 1.5,
+          "BloomExpand": 0.005,
+          "BloomIntensity": 0.7,
+          "CameraAt": {
+            "X": 0,
+            "Y": 0.97,
+            "Z": 0
+          },
+          "CameraPos": {
+            "X": 0,
+            "Y": 0.96,
+            "Z": 9.4
+          },
+          "IsDisableAlbedoClamp": true,
+          "IsDisableSkinEmission": true,
+          "IsPfxBloom": true,
+          "IsPfxSSAA": true,
+          "IsPfxToneMapping": false,
+          "LightColor": {
+            "A": 1,
+            "B": 1,
+            "G": 1,
+            "R": 1
+          },
+          "LightIntensity": 2.5,
+          "ProjFar": 100,
+          "ProjFovy": 15,
+          "ProjOffset": {
+            "X": 0,
+            "Y": 0
+          },
+          "ShadowIntensity": 1.3,
+          "SpecularIntensity": 3.5
+        }
+      }
+    },
+    "game_pfx_shader_archive": {
+      "path": "../ltdDemo_converted_assets/archives_extracted/1/Shader/GamePfx.Nin_NX_NVN.release/GamePfx.sharcb",
+      "byte_length": 5459968,
+      "sha256": "2983a422b1a93d818bb034009bb288237c18b4e8bf9c7e1eeff8c8e4298a531f",
+      "container": {
+        "magic": "SHAB",
+        "version": 11,
+        "string_table_file_offset": "0x150",
+        "variation_array_file_offset": "0x1150",
+        "program_array_file_offset": "0x2ec808",
+        "binary_pool_file_offset": "0x2ed000",
+        "binary_pool_byte_length": "0x248000",
+        "variation_count": 5284,
+        "program_count": 8,
+        "alignment": "0x1000"
+      },
+      "snapshot_pfx_program": {
+        "base_variation_index": 14,
+        "shader_type_indices": {
+          "vertex": 0,
+          "fragment": 1
+        },
+        "macro_order": [
+          {
+            "name": "ENABLE_BLOOM",
+            "values": ["0", "1"]
+          },
+          {
+            "name": "ENABLE_TONEMAPPING",
+            "values": ["0", "1"]
+          },
+          {
+            "name": "CORRECT_BLEND_TYPE",
+            "values": ["0", "1", "2", "3"]
+          },
+          {
+            "name": "GRAYSCALE",
+            "values": ["0", "1"]
+          },
+          {
+            "name": "ENABLE_BG",
+            "values": ["0", "1"]
+          },
+          {
+            "name": "CORRECT_GAMMA",
+            "values": ["0", "1"]
+          },
+          {
+            "name": "ENABLE_EXPOSURE",
+            "values": ["0", "1"]
+          }
+        ],
+        "formula": "combo=fold_left(combo=0, combo=combo*value_count+selected_value_index); variation=14+shader_type_index+2*combo",
+        "confidence": "exact"
+      },
+      "fragment_variations": [
+        {
+          "role": "editor_mii_preview_bloom_tone_off_gamma0_exposure0",
+          "variation_index": 271,
+          "combo_index": 128,
+          "macro_value_indices": [1, 0, 0, 0, 0, 0, 0],
+          "binary_pool_offset": "0x1f400",
+          "file_offset": 3195904,
+          "byte_length": 512,
+          "sha256": "1d04363ffb9cecc14ce02070389a8904893405592fccc40d4982bfce84eda56e",
+          "samplers": {
+            "cSrcTex": 0,
+            "cBloom": 1
+          },
+          "uniform_blocks": []
+        },
+        {
+          "role": "mii_icon_bloom_tone_on_gamma0_exposure0",
+          "variation_index": 399,
+          "combo_index": 192,
+          "macro_value_indices": [1, 1, 0, 0, 0, 0, 0],
+          "binary_pool_offset": "0x2b600",
+          "file_offset": 3245568,
+          "byte_length": 1024,
+          "sha256": "64b776163cdba3e98a57feedf1dbc547d3a3b732fbaea19d976fedd63cec74d7",
+          "samplers": {
+            "cSrcTex": 0,
+            "cBloom": 1
+          },
+          "uniform_blocks": []
+        },
+        {
+          "role": "mii_icon_bloom_tone_on_gamma0_exposure1",
+          "variation_index": 401,
+          "combo_index": 193,
+          "macro_value_indices": [1, 1, 0, 0, 0, 0, 1],
+          "binary_pool_offset": "0x2ba00",
+          "file_offset": 3246592,
+          "byte_length": 1024,
+          "sha256": "aa95a6e43ada1521d7811a15062da5ece2d3470c01072a3f8371e15657e1080a",
+          "samplers": {
+            "cSrcTex": 0,
+            "cBloom": 1
+          },
+          "uniform_blocks": [
+            {
+              "name": "RegisterUBO",
+              "location": 0,
+              "byte_length": 32,
+              "uniforms": {
+                "cExposure": 16
+              }
+            }
+          ]
+        },
+        {
+          "role": "mii_icon_bloom_tone_on_gamma1_exposure0",
+          "variation_index": 403,
+          "combo_index": 194,
+          "macro_value_indices": [1, 1, 0, 0, 0, 1, 0],
+          "binary_pool_offset": "0x2be00",
+          "file_offset": 3247616,
+          "byte_length": 1024,
+          "sha256": "c79062f75edde3e065464ee40752fb069ed00f4be7e360a169ba445515ae6502",
+          "samplers": {
+            "cSrcTex": 0,
+            "cBloom": 1
+          },
+          "uniform_blocks": []
+        }
+      ],
+      "snapshot_expand_fragment": {
+        "program_base_variation_index": 526,
+        "variation_index": 527,
+        "binary_pool_offset": "0x3d600",
+        "file_offset": 3319296,
+        "byte_length": 512,
+        "sha256": "a9fa98bb0c2342db8746939426bd1ba14d38d1a385eb3a34e9040a84f493fc5b",
+        "samplers": {
+          "cSrcTex": 0,
+          "cSrcTexMip": 1
+        }
+      },
+      "static_tone_constants": {
+        "mii_gamma0_file_offsets": {
+          "green_weight": "0x318900",
+          "blue_weight": "0x318904"
+        },
+        "mii_exposure1_file_offsets": {
+          "green_weight": "0x318d00",
+          "blue_weight": "0x318d04"
+        },
+        "mii_gamma1_file_offsets": {
+          "green_weight": "0x319100",
+          "blue_weight": "0x319104"
+        },
+        "red_weight_bits": "0x3e99096c",
+        "red_weight": 0.2989000082015991,
+        "green_weight_bits": "0x3f162b6b",
+        "green_weight": 0.5866000056266785,
+        "blue_weight_bits": "0x3dea4a8c",
+        "blue_weight": 0.1143999993801117,
+        "negative_log2_e_bits": "0xbfb8aa3b",
+        "negative_log2_e": -1.4426950216293335,
+        "inverse_2_2_bits": "0x3ee8ba2e",
+        "inverse_2_2": 0.45454543828964233,
+        "confidence": "exact"
+      },
+      "external_nvn_abi_reference": {
+        "url": "https://code.botw.link/uking/uking/lib/NintendoSDK/include/nvn/nvn.h.html",
+        "enum_value": "0x38",
+        "enum_name": "NVN_FORMAT_RGBA8_SRGB",
+        "confidence": "exact"
+      }
+    }
+  },
+  "named_symbols": {
+    "types": [
+      {
+        "raw_or_resource_name": "gfx__MiiIconParam",
+        "contextual_name": "GfxMiiIconParam",
+        "confidence": "exact",
+        "role": "Selects a snapshot by SnapshotSettingName."
+      },
+      {
+        "raw_or_resource_name": "gfx__SnapshotSetting",
+        "contextual_name": "GfxSnapshotSetting",
+        "confidence": "exact",
+        "byte_size": 336,
+        "role": "Parent-inheritable camera, lighting, environment, and post-process parameter object."
+      },
+      {
+        "raw_or_resource_name": "constructor at 0x7101bc7f40",
+        "contextual_name": "GfxMiiIcon",
+        "confidence": "high_confidence_inference",
+        "role": "Mii icon render owner; stores System resource at +0x3b08 and selected SnapshotSetting resource at +0x3b10."
+      },
+      {
+        "raw_or_resource_name": "runtime object written by FUN_7101c6a720/FUN_7101c6b020/FUN_7101c6b9b0/FUN_7101c6bf50",
+        "contextual_name": "GfxSnapshotRuntimeContext",
+        "confidence": "high_confidence_inference",
+        "role": "Resolved camera, light/environment, post-process scalars, and render flags."
+      },
+      {
+        "raw_or_resource_name": "0x1b0-byte constant payload built by FUN_71017c4cfc",
+        "contextual_name": "GameSceneLightingConstants",
+        "confidence": "high_confidence_inference",
+        "role": "GPU constant payload receiving exact key radiance, light-travel direction, linearized ambient radiance, shadow intensity, and global inverse exposure."
+      },
+      {
+        "raw_or_resource_name": "SnapshotPfx RegisterUBO",
+        "contextual_name": "SnapshotPfxExposureUniformBlock",
+        "confidence": "exact",
+        "byte_size": 32,
+        "role": "Optional exposure-enabled SnapshotPfx uniform block; cExposure is at byte offset 16."
+      }
+    ],
+    "functions": [
+      {
+        "raw_name": "FUN_7100bfdfec",
+        "address": "0x7100bfdfec",
+        "contextual_name": "convertSnapshotDegreesToRadians",
+        "confidence": "exact",
+        "role": "Writes the derived angle as raw_degrees multiplied by float32 bits 0x3c8efa35."
+      },
+      {
+        "raw_name": "FUN_7101b084f8",
+        "address": "0x7101b084f8",
+        "contextual_name": "constructGfxSnapshotSettingDefaults",
+        "confidence": "exact",
+        "role": "Allocates 0x150 bytes and initializes all snapshot defaults."
+      },
+      {
+        "raw_name": "FUN_7101b086a8",
+        "address": "0x7101b086a8",
+        "contextual_name": "deserializeGfxSnapshotSettingFields",
+        "confidence": "exact",
+        "role": "Binds named fields, dual raw/derived values, and presence bytes used by parent inheritance."
+      },
+      {
+        "raw_name": "constructor start 0x7101bc7f40",
+        "address": "0x7101bc7f40",
+        "contextual_name": "constructGfxMiiIconAndLoadSnapshotResources",
+        "confidence": "high_confidence_inference",
+        "role": "Loads Parameter/GfxMiiIcon/System, reads SnapshotSettingName, formats Parameter/GfxSnapshotSetting/%s, and stores the selected resource."
+      },
+      {
+        "raw_name": "FUN_7101c6a720",
+        "address": "0x7101c6a720",
+        "contextual_name": "applyResolvedSnapshotCamera",
+        "confidence": "exact",
+        "role": "Resolves camera fields through the parent chain into the runtime snapshot context."
+      },
+      {
+        "raw_name": "FUN_7101c6b020",
+        "address": "0x7101c6b020",
+        "contextual_name": "applyResolvedSnapshotLightingAndEnvironment",
+        "confidence": "exact",
+        "role": "Resolves light color/intensity/angles, calculates direction, and copies shadow, specular, ambient, environment saturation, and irradiance offset."
+      },
+      {
+        "raw_name": "FUN_7101c6b9b0",
+        "address": "0x7101c6b9b0",
+        "contextual_name": "applyResolvedSnapshotPostProcess",
+        "confidence": "exact",
+        "role": "Copies exposure and bloom scalars and packs bloom, tone-map, SSAA, and normalize-for-blend enable bits."
+      },
+      {
+        "raw_name": "FUN_7101c6bf50",
+        "address": "0x7101c6bf50",
+        "contextual_name": "applyResolvedSnapshotRenderFlags",
+        "confidence": "exact",
+        "role": "Packs outdoor environment, albedo clamp, skin emission, sky, gamma, expand, and normalize-only-bloom flags."
+      },
+      {
+        "raw_name": "FUN_71017c4cfc",
+        "address": "0x71017c4cfc",
+        "contextual_name": "populateGameSceneLightingConstants",
+        "confidence": "high_confidence_inference",
+        "role": "Consumes snapshot runtime lighting fields and writes the exact key, direction, ambient, shadow, and global inverse-exposure constant-buffer values."
+      },
+      {
+        "raw_name": "FUN_7101c68540",
+        "address": "0x7101c68540",
+        "contextual_name": "initializeRenderTargetFromFormatIndex",
+        "confidence": "high_confidence_inference",
+        "role": "Maps a title render-target format index through DAT_71032dedf0 and initializes the GPU target."
+      },
+      {
+        "raw_name": "FUN_7101dd7af0",
+        "address": "0x7101dd7af0",
+        "contextual_name": "constructCaptureIconRenderTarget",
+        "confidence": "high_confidence_inference",
+        "role": "Constructs the CaptureIcon target with title format index 0x21, which maps to NVN format 0x38."
+      }
+    ],
+    "globals": [
+      {
+        "raw_name": "DAT_7103a59d28",
+        "contextual_name": "gParameterResourceManager",
+        "confidence": "high_confidence_inference",
+        "role": "Resource manager used by the GfxMiiIcon constructor prefix to load typed parameter resources."
+      },
+      {
+        "raw_name": "DAT_7103997758",
+        "contextual_name": "GfxSnapshotSettingVtable",
+        "confidence": "high_confidence_inference",
+        "role": "Vtable address written to each 0x150-byte GfxSnapshotSetting object by its constructor."
+      },
+      {
+        "raw_name": "PLT 0x7102e95e90",
+        "contextual_name": "cosf",
+        "confidence": "exact",
+        "role": "Cosine imported by the light-direction calculation."
+      },
+      {
+        "raw_name": "PLT 0x7102e95ea0",
+        "contextual_name": "sinf",
+        "confidence": "exact",
+        "role": "Sine imported by the light-direction calculation."
+      },
+      {
+        "raw_name": "PLT 0x7102e95f50",
+        "contextual_name": "powf",
+        "confidence": "exact",
+        "role": "Raises each serialized ambient RGB component to float32 exponent 2.2 before the ambient constant is packed."
+      },
+      {
+        "raw_name": "PLT 0x7102e95f80",
+        "contextual_name": "exp2f",
+        "confidence": "exact",
+        "role": "Computes the title-wide exposure power used by the scene-light constants and a post-process uniform candidate."
+      },
+      {
+        "raw_name": "DAT_71032dedf0",
+        "contextual_name": "NvnFormatByRenderTargetFormatIndex",
+        "confidence": "high_confidence_inference",
+        "role": "Maps title render-target format indices to NVNformat; entry 0x21 is 0x38."
+      },
+      {
+        "raw_name": "DAT_7103a5bb78",
+        "contextual_name": "gGlobalExposureParameterOwner",
+        "confidence": "high_confidence_inference",
+        "role": "Points to the global parameter object whose ExposureExp field is at +0x6cdc."
+      }
+    ],
+    "resource_strings": [
+      {
+        "address": "0x71030c6cce",
+        "name": "Parameter/GfxMiiIcon/System"
+      },
+      {
+        "address": "0x7103110d75",
+        "name": "gfx__MiiIconParam"
+      },
+      {
+        "address": "0x7103178861",
+        "name": "SnapshotSettingName"
+      },
+      {
+        "address": "0x71030dee65",
+        "name": "Parameter/GfxSnapshotSetting/%s"
+      },
+      {
+        "address": "0x710314155e",
+        "name": "gfx__SnapshotSetting"
+      },
+      {
+        "address": "0x7103111116",
+        "name": "CaptureIcon"
+      },
+      {
+        "archive": "GamePfx.sharcb",
+        "program": "SnapshotPfx"
+      },
+      {
+        "archive": "GamePfx.sharcb",
+        "program": "SnapshotExpand"
+      }
+    ]
+  },
+  "selection_pipeline": {
+    "confidence": "exact",
+    "steps": [
+      "Load Parameter/GfxMiiIcon/System as gfx__MiiIconParam and store the resource at GfxMiiIcon+0x3b08.",
+      "Resolve the parameter object at resource+0x150 and read SnapshotSettingName at object+0x38.",
+      "Format Parameter/GfxSnapshotSetting/%s with that string.",
+      "Load the formatted path as gfx__SnapshotSetting and store the resource at GfxMiiIcon+0x3b10."
+    ],
+    "resolved_system_value": "MiiIcon",
+    "resolved_snapshot_path": "Parameter/GfxSnapshotSetting/MiiIcon"
+  },
+  "snapshot_setting_layout": {
+    "object_byte_size": 336,
+    "parent_resolution_rule": "For each field, use this object's value when its presence byte is set; otherwise walk the parent resource chain until a present value or the constructor default is reached.",
+    "fields": [
+      {
+        "name": "LightColor",
+        "setting_offset": "0xb8",
+        "derived_setting_offset": "0xc8",
+        "presence_offset": "0x12d",
+        "runtime_destination": "0x480..0x48f",
+        "confidence": "exact"
+      },
+      {
+        "name": "LightIntensity",
+        "setting_offset": "0xd8",
+        "presence_offset": "0x12e",
+        "runtime_destination": "0x4a4",
+        "confidence": "exact"
+      },
+      {
+        "name": "LightLatitude",
+        "setting_offset": "0xdc",
+        "derived_setting_offset": "0xe0",
+        "presence_offset": "0x12f",
+        "runtime_destination": "input to 0x4a8..0x4b3",
+        "confidence": "exact"
+      },
+      {
+        "name": "LightLongitude",
+        "setting_offset": "0xe4",
+        "derived_setting_offset": "0xe8",
+        "presence_offset": "0x130",
+        "runtime_destination": "input to 0x4a8..0x4b3",
+        "confidence": "exact"
+      },
+      {
+        "name": "ShadowIntensity",
+        "setting_offset": "0x10c",
+        "presence_offset": "0x131",
+        "runtime_destination": "0x4b4",
+        "confidence": "exact"
+      },
+      {
+        "name": "SpecularIntensity",
+        "setting_offset": "0x110",
+        "presence_offset": "0x132",
+        "runtime_destination": "0x4b8",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsUseEnvMap",
+        "setting_offset": "0x11e",
+        "presence_offset": "0x133",
+        "runtime_destination": "selects environment-map branch versus AmbientColor branch",
+        "confidence": "exact"
+      },
+      {
+        "name": "EnvMapName",
+        "setting_offset": "0x38",
+        "presence_offset": "0x134",
+        "runtime_destination": "environment-map resource path",
+        "confidence": "exact"
+      },
+      {
+        "name": "AmbientColor",
+        "setting_offset": "0x40",
+        "presence_offset": "0x135",
+        "runtime_destination": "0x4bc..0x4cb when IsUseEnvMap=false",
+        "confidence": "exact"
+      },
+      {
+        "name": "AmbientIntensity",
+        "setting_offset": "0x50",
+        "presence_offset": "0x136",
+        "runtime_destination": "0x4cc",
+        "confidence": "exact"
+      },
+      {
+        "name": "EnvMapSaturation",
+        "setting_offset": "0xa0",
+        "presence_offset": "0x137",
+        "runtime_destination": "0x4d0",
+        "confidence": "exact"
+      },
+      {
+        "name": "IrradianceOffsetColor",
+        "setting_offset": "0xa8",
+        "presence_offset": "0x138",
+        "runtime_destination": "0x4d4..0x4e3",
+        "confidence": "exact"
+      },
+      {
+        "name": "ExposureExp",
+        "setting_offset": "0xa4",
+        "presence_offset": "0x139",
+        "runtime_destination": "0x500",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsPfxBloom",
+        "setting_offset": "0x11a",
+        "presence_offset": "0x13a",
+        "runtime_destination": "flags 0xb98 bit 0",
+        "confidence": "exact"
+      },
+      {
+        "name": "BloomThreshold",
+        "setting_offset": "0x60",
+        "presence_offset": "0x13b",
+        "runtime_destination": "0x4f0",
+        "confidence": "exact"
+      },
+      {
+        "name": "BloomIntensity",
+        "setting_offset": "0x5c",
+        "presence_offset": "0x13c",
+        "runtime_destination": "0x4f4",
+        "confidence": "exact"
+      },
+      {
+        "name": "BloomClampedLuminance",
+        "setting_offset": "0x54",
+        "presence_offset": "0x13d",
+        "runtime_destination": "0x4f8",
+        "confidence": "exact"
+      },
+      {
+        "name": "BloomExpand",
+        "setting_offset": "0x58",
+        "presence_offset": "0x13e",
+        "runtime_destination": "0x4fc",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsPfxToneMapping",
+        "setting_offset": "0x11d",
+        "presence_offset": "0x13f",
+        "runtime_destination": "flags 0xb98 bit 1",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsPfxSSAA",
+        "setting_offset": "0x11c",
+        "presence_offset": "0x140",
+        "runtime_destination": "flags 0xb98 bit 2",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsPfxNormalizeForBlend",
+        "setting_offset": "0x11b",
+        "presence_offset": "0x141",
+        "runtime_destination": "flags 0xb98 bit 5",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsUseOutdoorEnvMap",
+        "setting_offset": "0x11f",
+        "presence_offset": "0x142",
+        "runtime_destination": "flags 0xb9a bit 6",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsDisableAlbedoClamp",
+        "setting_offset": "0x114",
+        "presence_offset": "0x143",
+        "runtime_destination": "flags 0xb9a bit 0, inverted",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsDisableSkinEmission",
+        "setting_offset": "0x115",
+        "presence_offset": "0x144",
+        "runtime_destination": "flags 0xb9a bit 1, inverted",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsDrawSky",
+        "setting_offset": "0x116",
+        "presence_offset": "0x145",
+        "runtime_destination": "flags 0xb9a bit 2",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsForceCorrectGamma",
+        "setting_offset": "0x117",
+        "presence_offset": "0x146",
+        "runtime_destination": "flags 0xb9a bit 5",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsForceExpand",
+        "setting_offset": "0x118",
+        "presence_offset": "0x147",
+        "runtime_destination": "flags 0xb9a bit 10",
+        "confidence": "exact"
+      },
+      {
+        "name": "IsNormalizeBlendOnlyBloom",
+        "setting_offset": "0x119",
+        "presence_offset": "0x148",
+        "runtime_destination": "flags 0xb9a bit 11",
+        "confidence": "exact"
+      }
+    ]
+  },
+  "constructor_defaults": {
+    "confidence": "exact",
+    "AmbientColor": {
+      "rgba_float32": [
+        0.7297400236129761,
+        0.7297400236129761,
+        0.7297400236129761,
+        1.0
+      ],
+      "rgb_float32_bits": "0x3f3ad03e"
+    },
+    "AmbientIntensity": 1.0,
+    "BloomClampedLuminance": 4.0,
+    "BloomExpand": 1.0,
+    "BloomIntensity": 0.6000000238418579,
+    "BloomThreshold": 3.0,
+    "EnvMapName": "",
+    "EnvMapSaturation": 1.0,
+    "ExposureExp": 0.0,
+    "IrradianceOffsetColor": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "LightColor_serialized_rgba": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "LightIntensity": 1.0,
+    "LightLatitude_degrees": 180.0,
+    "LightLongitude_degrees": 0.0,
+    "ShadowIntensity": 1.0,
+    "SpecularIntensity": 1.0,
+    "IsDisableAlbedoClamp": false,
+    "IsDisableSkinEmission": false,
+    "IsDrawSky": false,
+    "IsForceCorrectGamma": false,
+    "IsForceExpand": false,
+    "IsNormalizeBlendOnlyBloom": false,
+    "IsPfxBloom": false,
+    "IsPfxNormalizeForBlend": true,
+    "IsPfxSSAA": false,
+    "IsPfxToneMapping": true,
+    "IsUseEnvMap": false,
+    "IsUseOutdoorEnvMap": false
+  },
+  "runtime_formulas": {
+    "angle_conversion": {
+      "confidence": "exact",
+      "float32_multiplier_bits": "0x3c8efa35",
+      "float32_multiplier": 0.01745329238474369,
+      "formula": "radians = float32(degrees * float32_from_bits(0x3c8efa35))"
+    },
+    "light_travel_direction": {
+      "confidence": "exact",
+      "inputs": "phi=derived LightLatitude radians; lambda=derived LightLongitude radians",
+      "formula": "normalize((-cos(phi)*sin(lambda), -sin(phi), -cos(phi)*cos(lambda)))",
+      "meaning": "direction in which light rays travel, written to runtime offsets 0x4a8..0x4b0"
+    },
+    "conventional_surface_to_light_direction": {
+      "confidence": "derived_exact",
+      "formula": "-light_travel_direction",
+      "meaning": "Negation required if a portable proxy uses a conventional surface-to-light L vector; this does not claim that the title's downstream GameUber/prepass response is Lambert."
+    },
+    "scene_lighting_constant_packing": {
+      "confidence": "exact",
+      "source_function": "FUN_71017c4cfc",
+      "key_radiance_formula": "key.rgb = runtimeLightColor.rgb * LightIntensity; key.a = 1",
+      "key_constant_buffer_offset": "0x10",
+      "light_direction_formula": "direction.xyz = runtime light_travel_direction; direction.w = 0",
+      "light_direction_constant_buffer_offset": "0x20",
+      "ambient_formula": "linearAmbient=powf(runtimeAmbient.rgb, float32_from_bits(0x400ccccd)); Y=dot(linearAmbient, float32_weights); saturatedAmbient=Y+EnvMapSaturation*(linearAmbient-Y); ambient.rgb=saturatedAmbient*AmbientIntensity; ambient.a=0",
+      "ambient_pow_exponent_bits": "0x400ccccd",
+      "ambient_pow_exponent": 2.200000047683716,
+      "ambient_luminance_weight_bits": [
+        "0x3e990afe",
+        "0x3f162c23",
+        "0x3dea7371"
+      ],
+      "ambient_luminance_weights": [
+        0.298911988735199,
+        0.5866109728813171,
+        0.11447799950838089
+      ],
+      "ambient_constant_buffer_offset": "0x130",
+      "shadow_formula": "shadow = ShadowIntensity",
+      "shadow_constant_buffer_offset": "0x188",
+      "mii_icon_exact_inputs": {
+        "key_radiance_rgb": [6.0, 6.0, 6.0],
+        "ambient_after_pow_before_saturation_rgb_reference": [
+          0.4999999403953552,
+          0.4999999403953552,
+          0.4999999403953552
+        ],
+        "ambient_intensity": 1.0,
+        "environment_map_saturation": 1.0,
+        "shadow": 1.0
+      },
+      "editor_mii_preview_exact_inputs": {
+        "key_radiance_rgb": [2.5, 2.5, 2.5],
+        "ambient_after_pow_before_saturation_rgb_reference": [
+          0.4999999403953552,
+          0.4999999403953552,
+          0.4999999403953552
+        ],
+        "ambient_intensity": 1.0,
+        "environment_map_saturation": 1.0,
+        "shadow": 1.3
+      }
+    },
+    "global_inverse_exposure": {
+      "confidence": "exact",
+      "source_function": "FUN_71017c4cfc",
+      "source_field": "global parameter object +0x6cdc (ExposureExp)",
+      "formula": "scenePreExposure = 1 / exp2f(ExposureExp) = 2^(-ExposureExp)",
+      "constant_buffer_offset": "0x1a4"
+    },
+    "snapshot_pfx_exposure_uniform_candidate": {
+      "confidence": "high_confidence_inference",
+      "source_instruction_range": "0x7101bad760..0x7101bad79b",
+      "exact_local_formula": "candidate = exp2f(postprocessObject+0x200)",
+      "inferred_binding": "cExposure = 2^(ExposureExp)",
+      "boundary": "The generic binder and the copy from GfxSnapshotRuntimeContext+0x500 to postprocessObject+0x200 were not recovered, so the cExposure binding is not promoted to exact. Both active profiles have ExposureExp=0 and select ENABLE_EXPOSURE=0, making this uncertainty inert."
+    },
+    "snapshot_pfx_variation_index": {
+      "confidence": "exact",
+      "macro_order": [
+        "ENABLE_BLOOM",
+        "ENABLE_TONEMAPPING",
+        "CORRECT_BLEND_TYPE",
+        "GRAYSCALE",
+        "ENABLE_BG",
+        "CORRECT_GAMMA",
+        "ENABLE_EXPOSURE"
+      ],
+      "value_counts": [2, 2, 4, 2, 2, 2, 2],
+      "formula": "combo=fold_left(combo=0, combo=combo*value_count+selected_value_index); variation=14+shader_type_index+2*combo",
+      "fragment_shader_type_index": 1
+    },
+    "snapshot_pfx_compose": {
+      "confidence": "exact",
+      "formula_exposure0": "C.rgb = texture(cSrcTex).rgb + texture(cBloom).rgb",
+      "formula_exposure1": "C.rgb = texture(cSrcTex).rgb + cExposure * texture(cBloom).rgb",
+      "output_alpha": "texture(cBloom).a",
+      "editor_tone_off_output": "out.rgb=C.rgb; out.a=texture(cBloom).a"
+    },
+    "snapshot_pfx_tone_map_gamma0": {
+      "confidence": "exact",
+      "input": "C from snapshot_pfx_compose in the linear HDR working domain",
+      "luminance_formula": "Y=0.2989000082015991*C.r+0.5866000056266785*C.g+0.1143999993801117*C.b",
+      "curve_formula": "E=1-exp(-Y); base=C*(E/Y); shoulder=E*E; target=1-exp(-C); out.rgb=clamp(base+(target-base)*shoulder,0,1)",
+      "portable_zero_limit": "Use E/Y=1 at Y=0; the GPU instruction sequence performs reciprocal then multiply but the analytic limit is exact and avoids 0/0 on CPU.",
+      "output_alpha": "texture(cBloom).a"
+    },
+    "snapshot_pfx_correct_gamma1": {
+      "confidence": "exact",
+      "formula": "out.rgb=pow(toneMapped.rgb, float32_from_bits(0x3ee8ba2e))",
+      "exponent_bits": "0x3ee8ba2e",
+      "exponent": 0.45454543828964233,
+      "active_profile_boundary": "MiiIcon and EditorMiiPreview both set IsForceCorrectGamma=false and therefore select CORRECT_GAMMA=0."
+    },
+    "snapshot_expand": {
+      "confidence": "exact",
+      "formula": "src=texture(cSrcTex); if src.a>0 then out=(src.rgb/src.a,src.a), else out=(texture(cSrcTexMip).rgb,0)"
+    },
+    "capture_icon_color_space": {
+      "confidence": "exact",
+      "target_construction": "FUN_7101dd7af0 passes title format index 0x21; FUN_7101c68540 maps it through DAT_71032dedf0 to NVN enum 0x38; NVN_FORMAT_RGBA8_SRGB is 0x38.",
+      "shader_transfer": "CORRECT_GAMMA=0 performs no shader gamma; CORRECT_GAMMA=1 is the separate pow(1/2.2) specialization.",
+      "working_domain": "SnapshotPfx computes luminance, bloom composition, and an exponential tone curve before any optional output gamma, establishing linear HDR scene semantics even though the exact intermediate render-target storage format remains unresolved.",
+      "portable_rule": "Keep material shading, blending, bloom composition, and tone mapping in linear HDR; encode IEC sRGB exactly once when writing the final CaptureIcon output."
+    },
+    "projection_enum_hashes": {
+      "hash_algorithm": "MurmurHash3 x86 32-bit, seed 0",
+      "Ortho": "0xb3674f4c",
+      "Perspective": "0xaa345185",
+      "confidence": "exact"
+    }
+  },
+  "resolved_profiles": {
+    "MiiIcon": {
+      "inheritance_chain": [
+        "MiiIcon",
+        "Default",
+        "constructor defaults"
+      ],
+      "camera": {
+        "projection": "Ortho",
+        "projection_hash": "0xb3674f4c",
+        "camera_at": [
+          0.0,
+          0.45,
+          0.0
+        ],
+        "camera_distance": 1.0,
+        "camera_longitude_degrees": 0.0,
+        "camera_up": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "projection_near": 0.0,
+        "projection_far": 2.0,
+        "projection_height": 1.31,
+        "square_world_bounds": [
+          -0.655,
+          0.655,
+          -0.205,
+          1.105
+        ],
+        "confidence": "exact"
+      },
+      "lighting": {
+        "light_color_serialized_rgba": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "light_color_runtime_rgba": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "light_color_runtime_confidence": "high_confidence_inference",
+        "light_intensity": 6.0,
+        "light_latitude_degrees": 40.0,
+        "light_longitude_degrees": -20.0,
+        "light_travel_direction_double": [
+          0.26200262947185154,
+          -0.6427876055437831,
+          -0.7198463143679528
+        ],
+        "surface_to_light_direction_double": [
+          -0.26200262947185154,
+          0.6427876055437831,
+          0.7198463143679528
+        ],
+        "light_travel_direction_engine_float32_reference": [
+          0.2620026469230652,
+          -0.6427876353263855,
+          -0.7198463678359985
+        ],
+        "shadow_intensity": 1.0,
+        "specular_intensity": 1.0,
+        "use_environment_map": false,
+        "use_outdoor_environment_map": false,
+        "ambient_color_rgba": [
+          0.7297400236129761,
+          0.7297400236129761,
+          0.7297400236129761,
+          1.0
+        ],
+                                     "ambient_intensity": 1.0,
+                                     "environment_map_saturation": 1.0,
+                                     "scene_constant_buffer_key_radiance_rgb": [
+                                                                                   6.0,
+                                                                                   6.0,
+                                                                                   6.0
+                                                                               ],
+                                     "scene_constant_buffer_ambient_rgb_reference": [
+                                                                                         0.4999999403953552,
+                                                                                         0.4999999403953552,
+                                                                                         0.4999999403953552
+                                                                                     ],
+                                     "irradiance_offset_color_rgba": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "confidence": "exact"
+      },
+      "postprocess": {
+        "exposure_exp": 0.0,
+        "bloom_enabled": true,
+        "bloom_threshold": 3.0,
+        "bloom_intensity": 0.7,
+        "bloom_clamped_luminance": 1.5,
+        "bloom_expand": 0.005,
+        "tone_mapping_enabled": true,
+        "ssaa_enabled": true,
+        "normalize_for_blend_enabled": true,
+        "normalize_blend_only_bloom": true,
+        "albedo_clamp_enabled": true,
+        "skin_emission_enabled": true,
+        "draw_sky": false,
+                                        "force_correct_gamma": false,
+                                        "force_expand": false,
+                                        "snapshot_pfx_fragment_variation_index": 399,
+                                        "snapshot_pfx_macro_value_indices": [
+                                                                                 1,
+                                                                                 1,
+                                                                                 0,
+                                                                                 0,
+                                                                                 0,
+                                                                                 0,
+                                                                                 0
+                                                                             ],
+                                        "snapshot_pfx_rgb_operator": "exact gamma0 tone curve after scene+bloom composition",
+                                        "capture_icon_nvn_format": "NVN_FORMAT_RGBA8_SRGB (0x38)",
+                                        "final_output_transfer": "fixed-function sRGB target conversion, exactly once",
+                                        "confidence": "exact"
+      }
+    },
+    "EditorMiiPreview": {
+      "inheritance_chain": [
+        "EditorMiiPreview",
+        "Default",
+        "constructor defaults"
+      ],
+      "camera": {
+        "projection": "Perspective",
+        "projection_hash": "0xaa345185",
+        "camera_at": [
+          0.0,
+          0.97,
+          0.0
+        ],
+        "camera_position": [
+          0.0,
+          0.96,
+          9.4
+        ],
+        "projection_fovy_degrees": 15.0,
+        "projection_far": 100.0,
+        "projection_offset": [
+          0.0,
+          0.0
+        ],
+        "confidence": "exact"
+      },
+      "lighting": {
+        "light_color_serialized_rgba": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "light_color_runtime_rgba": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "light_color_runtime_confidence": "high_confidence_inference",
+        "light_intensity": 2.5,
+        "light_latitude_degrees": 40.0,
+        "light_longitude_degrees": -20.0,
+        "light_travel_direction_double": [
+          0.26200262947185154,
+          -0.6427876055437831,
+          -0.7198463143679528
+        ],
+        "surface_to_light_direction_double": [
+          -0.26200262947185154,
+          0.6427876055437831,
+          0.7198463143679528
+        ],
+        "shadow_intensity": 1.3,
+        "specular_intensity": 3.5,
+        "use_environment_map": false,
+        "ambient_color_rgba": [
+          0.7297400236129761,
+          0.7297400236129761,
+          0.7297400236129761,
+          1.0
+        ],
+                                              "ambient_intensity": 1.0,
+                                              "environment_map_saturation": 1.0,
+                                              "scene_constant_buffer_key_radiance_rgb": [
+                                                                                            2.5,
+                                                                                            2.5,
+                                                                                            2.5
+                                                                                        ],
+                                              "scene_constant_buffer_ambient_rgb_reference": [
+                                                                                                  0.4999999403953552,
+                                                                                                  0.4999999403953552,
+                                                                                                  0.4999999403953552
+                                                                                              ],
+                                              "confidence": "exact"
+      },
+      "postprocess": {
+        "exposure_exp": 0.0,
+        "bloom_enabled": true,
+        "bloom_threshold": 3.0,
+        "bloom_intensity": 0.7,
+        "bloom_clamped_luminance": 1.5,
+        "bloom_expand": 0.005,
+        "tone_mapping_enabled": false,
+        "ssaa_enabled": true,
+        "normalize_for_blend_enabled": true,
+        "normalize_blend_only_bloom": false,
+        "albedo_clamp_enabled": false,
+        "skin_emission_enabled": false,
+        "draw_sky": false,
+                                                 "force_correct_gamma": false,
+                                                 "force_expand": false,
+                                                 "snapshot_pfx_fragment_variation_index": 271,
+                                                 "snapshot_pfx_macro_value_indices": [
+                                                                                          1,
+                                                                                          0,
+                                                                                          0,
+                                                                                          0,
+                                                                                          0,
+                                                                                          0,
+                                                                                          0
+                                                                                      ],
+                                                 "snapshot_pfx_rgb_operator": "scene+bloom with tone mapping and shader gamma disabled",
+                                                 "final_output_transfer": "unresolved for the EditorMiiPreview destination; do not infer CaptureIcon's target format",
+                                                 "confidence": "exact"
+      }
+    }
+  },
+  "integration_contract": {
+    "exactly_portable_now": [
+      "Feed title lighting constants without energy normalization: key radiance is white*6.0 for MiiIcon and white*2.5 for EditorMiiPreview; the title constant buffer receives the recovered light_travel_direction directly.",
+      "Convert the ambient RGB with powf(component,2.200000047683716), apply the exact 0.298911988735199/0.5866109728813171/0.11447799950838089 luminance saturation mix, then multiply by AmbientIntensity. The inherited Mii/Editor ambient becomes approximately linear RGB 0.49999994.",
+      "If a portable conventional Lambert proxy is retained, negate light_travel_direction to obtain surface-to-light L, but label the response as a proxy rather than recovered title behavior.",
+      "Keep material shading, compositing, bloom, and MiiIcon tone mapping in linear HDR. Apply the exact SnapshotPfx gamma0 curve for MiiIcon variation 399 and encode sRGB exactly once at the final NVN RGBA8_SRGB CaptureIcon target.",
+      "EditorMiiPreview variation 271 performs scene+bloom without tone mapping or shader gamma. Its destination transfer is not proven to be CaptureIcon's transfer.",
+      "The title-wide scene pre-exposure constant is exactly 2^(-ExposureExp). Both active profiles use ExposureExp=0 and no-exposure SnapshotPfx specializations, so the unresolved cExposure binder cannot affect them.",
+      "MiiIcon is orthographic with ProjHeight=1.31; EditorMiiPreview is perspective with 15-degree vertical FOV and CameraPos.z=9.4."
+    ],
+    "important_limits": [
+      "The exact snapshot-to-scene constant-buffer boundary is recovered, but GameUber consumes title light records and gsys_light_prepass terms. A complete raw N dot L, ambient, SSS, anisotropic, environment, and shadow response cannot be reconstructed from these snapshot inputs alone.",
+      "Bloom enabled does not imply visible bloom: extraction, threshold ordering, downsample/blur pyramid, and use of clamp/expand/normalization flags remain unresolved. The final SnapshotPfx combine itself is exact.",
+      "The global inverse exposure is exact. The likely compensating cExposure=2^(ExposureExp) value is not exact because the generic post-process binder was not connected directly to GfxSnapshotRuntimeContext+0x500.",
+      "SnapshotPfx establishes a linear HDR working domain semantically, but the exact intermediate render-target storage format is unresolved.",
+      "SSAA enablement is exact; sample count, jitter pattern, and resolve kernel are unresolved. A portable 2x resolve is an explicit implementation substitution, not recovered title behavior."
+    ]
+  },
+  "unresolved_runtime_inputs": [
+    {
+      "name": "LightColor typed conversion",
+      "classification": "high_confidence_inference",
+      "detail": "The resource binder owns serialized RGBA at +0xb8 and the runtime representation at +0xc8. Runtime copies +0xc8. The generic conversion path was not fully traced; white is a fixed point for the plausible color transforms."
+    },
+    {
+      "name": "Directional-light and ambient shader response",
+      "classification": "unresolved",
+      "detail": "The exact packed key radiance, direction, linearized/saturated ambient, and constant-buffer offsets are recovered. The subsequent GameUber/light-prepass BRDF, SSS, anisotropic, and environment response depends on opaque title light records and proprietary prepass state, so no exact Lambert replacement is justified."
+    },
+    {
+      "name": "Shadow prepass",
+      "classification": "unresolved",
+      "detail": "ShadowIntensity is exact; shadow map geometry, matrices, filtering, bias, and any contact/ground shadow are external runtime inputs."
+    },
+    {
+      "name": "Snapshot ExposureExp-to-cExposure binding",
+      "classification": "high_confidence_inference",
+      "detail": "A scene constant is exactly 2^(-ExposureExp), and a post-process object field is exactly transformed with exp2f before binding. Directly proving runtime+0x500 -> postprocessObject+0x200 -> SnapshotPfx cExposure was blocked by the generic GPU binder. The inferred cExposure=2^(ExposureExp) is inert for both active zero-exposure profiles."
+    },
+    {
+      "name": "Bloom extraction and blur",
+      "classification": "unresolved",
+      "detail": "SnapshotPfx's final scene/bloom combine and tone curve are exact. The upstream luminance extraction, threshold/clamp/expand ordering, downsample pyramid, blur kernel, and normalization behavior are not recovered."
+    },
+    {
+      "name": "Snapshot intermediate render-target storage format",
+      "classification": "unresolved",
+      "detail": "Shader ordering proves linear HDR working-domain semantics, but the exact NVN storage format of the scene and bloom textures sampled by SnapshotPfx was not traced."
+    },
+    {
+      "name": "EditorMiiPreview final output transfer",
+      "classification": "unresolved",
+      "detail": "CaptureIcon is exactly NVN_FORMAT_RGBA8_SRGB, but the EditorMiiPreview destination target was not proven to use the same format."
+    },
+    {
+      "name": "SSAA implementation",
+      "classification": "unresolved",
+      "detail": "Only IsPfxSSAA and its runtime bit are exact. Supersample scale, sample positions, and resolve filter are not recovered."
+    },
+    {
+      "name": "Capture-fit presentation",
+      "classification": "unresolved",
+      "detail": "Background gradient, user screenshot crop/aspect, manually fitted ground shadow, and reference-outfit framing are not GfxSnapshotSetting values and must remain labeled capture-fit choices."
+    }
+  ]
+}

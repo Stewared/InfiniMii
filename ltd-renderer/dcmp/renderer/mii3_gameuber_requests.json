@@ -1,0 +1,59 @@
+[
+  {
+    "key": "head",
+    "resource": "MiiHead00",
+    "model": "MiiHead00",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask",
+    "resource": "MiiHead00",
+    "model": "MiiHead00",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "hair",
+    "kind": "hair",
+    "resource": "MiiHairAll073",
+    "model": "MiiHairAll073",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "nose",
+    "resource": "MiiNose25",
+    "model": "MiiNose25",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line",
+    "resource": "MiiNose25",
+    "model": "MiiNose25",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "glass_frame",
+    "resource": "MiiGlass08",
+    "model": "MiiGlass08",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_translucent",
+    "resource": "MiiGlass08",
+    "model": "MiiGlass08",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_lens_opaque",
+    "resource": "MiiGlass08",
+    "model": "MiiGlass08",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  }
+]

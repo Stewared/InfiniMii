@@ -458,6 +458,13 @@ h6 b,
 }
 
 /* Search page specific */
+.utility-container.search-utility-container {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 800px;
+}
+
 .search-container {
     text-align: center;
 }

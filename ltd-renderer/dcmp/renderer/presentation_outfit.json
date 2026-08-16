@@ -1,0 +1,642 @@
+{
+  "schema_version": 1,
+  "description": "Checked title-resource presentation outfit for canonical full-body renders; no ShareMii clothing state is claimed.",
+  "generator": "tools/build_presentation_outfit.py",
+  "source_boundary": {
+    "share_mii_contains_cloth_set_or_color": false,
+    "selection_kind": "renderer presentation preset",
+    "reference_image_values_used_for_offsets_defaults_or_cutlines": false,
+    "kestron_capture_ledger_scope": "top, socks, and shoes resource/variation provenance only"
+  },
+  "sources": {
+    "cloth_table": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/Cloth.Trial.100.rstbl.byml",
+      "byte_length": 21960,
+      "sha256": "9b1e41bb8ab72655735bb6b8c4ab0cb2d5de54e7396f3f92842d51dd871b4efe"
+    },
+    "cloth_model_param_table": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/ClothModelParam.Trial.100.rstbl.byml",
+      "byte_length": 54872,
+      "sha256": "56765af69a9ab88abea6b6dfafd5deaa9a4da4f1df04279feeda119968dca862"
+    },
+    "price_table": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/Price.Trial.100.rstbl.byml",
+      "byte_length": 22828,
+      "sha256": "aa9cea26df8e8f7c48b015a0a17b8e73c33f78910cdc0c42aa9c713051938ae1"
+    },
+    "gameuber_shader_archive": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/Shader/GameUber.Trial.100.product.Nin_NX_NVN.bfsha",
+      "byte_length": 12858712,
+      "sha256": "1423f4f8e63261c2f920794881ee9c48eda4932f33a5e61534cd6dbf46dc2ccb"
+    },
+    "program_resolver": {
+      "path": "tools/resolve_presentation_outfit_programs.ps1",
+      "byte_length": 9031,
+      "sha256": "414fcd3eb7db8d48f509b8593365c1047683a3f3ff1a90d5230e30266b847d30"
+    },
+    "capture_ledger": {
+      "path": "renderer/reference_capture_outfit.json",
+      "byte_length": 7176,
+      "sha256": "1724ae0c7f3d3991231e092ac190ad3f921a05fb215fcc031d9c82c24cd79daf"
+    },
+    "material_state": {
+      "path": "renderer/reference_outfit_material_state.json",
+      "byte_length": 390006,
+      "sha256": "ea97a36f6074e12ad44f7307c91f1ba4a11237e9c147bb44b3e8fdd7cd0f3d6c"
+    },
+    "texture_mips": {
+      "path": "renderer/reference_outfit_texture_mips.json",
+      "byte_length": 148318,
+      "sha256": "db24bcf9aeb74af43af194b6f9dd137330f32c3c587655d5e11ee089d29ea724"
+    },
+    "body_base_cutline": {
+      "path": "renderer/body_base_cutline_source.json",
+      "byte_length": 2084,
+      "sha256": "e9668fe25d88013a1f5195f909f7db842f61b501f11db9ead25bfbb93b08d4ff"
+    },
+    "body_programs": {
+      "path": "renderer/gameuber_active_programs.json",
+      "byte_length": 457550,
+      "sha256": "185710a5c82ecd78cd9ec8682311f82319f1cd9cec9a60ff2d3dba5e7bf09156"
+    },
+    "title_shader_execution": {
+      "path": "renderer/title_shader_execution.json",
+      "byte_length": 877701,
+      "sha256": "c71572151972e619bde550c7b6a02a361bf3a81ee396c068ff518cc77b655c33"
+    }
+  },
+  "profiles": [
+    {
+      "share_mii_path": "mii0.ltd",
+      "share_mii_sha256": "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef",
+      "display_name": "Spider-Man Noir",
+      "variation_index": 0,
+      "slot_variation_provenance": {
+        "tops": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, display-name inference, reference-image value, or claimed title default",
+        "bottoms": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, display-name inference, reference-image value, or claimed title default",
+        "socks": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, display-name inference, reference-image value, or claimed title default",
+        "shoes": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, display-name inference, reference-image value, or claimed title default"
+      }
+    },
+    {
+      "share_mii_path": "mii1.ltd",
+      "share_mii_sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b",
+      "display_name": "Kestron",
+      "variation_index": 10,
+      "slot_variation_provenance": {
+        "tops": "inherits the separately checked capture-ledger presentation variation 10",
+        "socks": "inherits the separately checked capture-ledger presentation variation 10",
+        "shoes": "inherits the separately checked capture-ledger presentation variation 10",
+        "bottoms": "explicit user-requested renderer presentation choice 10; not claimed as visible or recovered from the capture"
+      }
+    },
+    {
+      "share_mii_path": "mii2.ltd",
+      "share_mii_sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+      "display_name": "Johnny Thunder",
+      "variation_index": 0,
+      "slot_variation_provenance": {
+        "tops": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, or claimed title default",
+        "bottoms": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, or claimed title default",
+        "socks": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, or claimed title default",
+        "shoes": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, or claimed title default"
+      }
+    },
+    {
+      "share_mii_path": "mii3.ltd",
+      "share_mii_sha256": "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776",
+      "display_name": "Emma",
+      "variation_index": 0,
+      "slot_variation_provenance": {
+        "tops": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, reference-image value, or claimed title default",
+        "bottoms": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, reference-image value, or claimed title default",
+        "socks": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, reference-image value, or claimed title default",
+        "shoes": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, reference-image value, or claimed title default"
+      }
+    },
+    {
+      "share_mii_path": "mii4.ltd",
+      "share_mii_sha256": "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391",
+      "display_name": "Spider-Man",
+      "variation_index": 0,
+      "slot_variation_provenance": {
+        "tops": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, display-name inference, reference-image value, or claimed title default",
+        "bottoms": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, display-name inference, reference-image value, or claimed title default",
+        "socks": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, display-name inference, reference-image value, or claimed title default",
+        "shoes": "explicit neutral renderer presentation choice 00; not a ShareMii value, gender inference, display-name inference, reference-image value, or claimed title default"
+      }
+    }
+  ],
+  "slots": [
+    {
+      "logical_slot": "tops",
+      "selection_kind": "title price-zero presentation resource",
+      "cloth_row": {
+        "ClothIndex": 77,
+        "OldClothIndex": 540,
+        "KeyHash": 3887460442,
+        "ModelHash": 2919942693,
+        "ParamHash": 1951359658,
+        "PriceKey": "ClothTopsTshirtLongDefault",
+        "__RowId": "ClothTopsTshirtLongDefault"
+      },
+      "price_row": {
+        "IsBuyOnce": false,
+        "IsFreeFirst": false,
+        "Price": 0,
+        "__RowId": "Work/Component/Price/ClothTopsTshirtLongDefault.actor__PriceParam.gyml"
+      },
+      "model_param_row": {
+        "__RowId": 2919942693,
+        "BodyBaseCutline": 3312601720,
+        "IsEnableCharacterColor": true,
+        "ColorVariation": [
+          {
+            "Color": 1981966015,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          }
+        ],
+        "ModelUnit": {
+          "Fmdb": "Work/Model/Body/ClothTops/ClothTopsTshirtLong/output/ClothTopsTshirtLong.fmdb",
+          "FmdbIn": "Work/Model/Body/ClothTops/ClothTopsTshirtLong/output/ClothTopsTshirtLong_In.fmdb",
+          "IgnoreHandScale": false,
+          "ModelName": "ClothTopsTshirtLong",
+          "ModelNameIn": "ClothTopsTshirtLong_In",
+          "ModelResName": "ClothTopsTshirtLong",
+          "PhivePhcl": "",
+          "Scale": 1,
+          "TextureProjectName": "ClothTopsTshirtLongTexDefault"
+        }
+      },
+      "body_base_cutline": {
+        "key": 3312601720,
+        "key_hex": "0xc5724a78",
+        "presentation_record": "ClothTopsTshirtLongDefault",
+        "dictionary_offset": 1720,
+        "mesh_array_offset": 1732,
+        "mesh_hashes": [
+          "0xcdb78d9e",
+          "0x7d25514e"
+        ],
+        "mesh_names": [
+          "BodyChest",
+          "BodyArm"
+        ],
+        "body_base_obj_groups_hidden": [
+          "BodyChest__mt_Tops",
+          "BodyArm__mt_Tops"
+        ]
+      },
+      "body_program": {
+        "key": "tops_body",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "shape": "Tops__mt_Body",
+        "material": "mt_Body",
+        "vertex_skin_count": 4,
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll",
+        "resolver_candidate_program_index": 984,
+        "raw_compatible_program_indices": [
+          984,
+          1008
+        ],
+        "source_constraints": [
+          {
+            "option": "enable_texture_user0",
+            "value": "0",
+            "evidence": "BFRES material has no _user0 shader-sampler assignment"
+          }
+        ],
+        "resolved_program_index": 984,
+        "compatible_program_indices": [
+          984
+        ],
+        "selection_status": "exact_unique_after_source_constraints",
+        "stages": {
+          "vertex": {
+            "instructions": {
+              "byte_length": 3456,
+              "sha256": "a5fc2b73fba103325a88cc66bbc2b3b146bcac0f8b14df75ba5ab110eecf803c"
+            }
+          },
+          "fragment": {
+            "instructions": {
+              "byte_length": 9600,
+              "sha256": "18632ddd0d13c88d69eb858d8485ba96ed108cf73c1bc94419f13141e860bed6"
+            }
+          }
+        },
+        "resolver": "BfshaLibrary raw compatible-set scan plus explicit missing BFRES sampler constraints and exact system options",
+        "compiled_sampler_activity": {
+          "title_shader_execution_key": "body_tops_program_984",
+          "active_material_samplers": [
+            "_a0",
+            "_e0",
+            "_n0",
+            "_r0"
+          ],
+          "inactive_serialized_assignments": [
+            {
+              "shader_sampler": "_alp0",
+              "material_sampler": "_alp0",
+              "material_sampler_index": 2,
+              "texture_ref": "Dummy_Msk"
+            }
+          ]
+        }
+      },
+      "softmesh_program": {
+        "key": "tops_softmesh",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "shape": "Softmesh__mt_Softmesh",
+        "material": "mt_Softmesh",
+        "vertex_skin_count": 3,
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll",
+        "resolver_candidate_program_index": 36,
+        "raw_compatible_program_indices": [
+          36
+        ],
+        "source_constraints": [],
+        "resolved_program_index": 36,
+        "compatible_program_indices": [
+          36
+        ],
+        "selection_status": "exact_unique_after_source_constraints",
+        "stages": {
+          "vertex": {
+            "instructions": {
+              "byte_length": 2944,
+              "sha256": "e483e94280af102f3e681361687b5eebfbebb09ad2957dfbc0966d952c8c01d3"
+            }
+          },
+          "fragment": {
+            "instructions": {
+              "byte_length": 5248,
+              "sha256": "12456b68bfb2097732229256b18cd0cfa78b3892ab4c89541a1df7fdbfc58b2a"
+            }
+          }
+        },
+        "resolver": "BfshaLibrary raw compatible-set scan plus explicit missing BFRES sampler constraints and exact system options"
+      }
+    },
+    {
+      "logical_slot": "bottoms",
+      "selection_kind": "title price-zero presentation resource",
+      "cloth_row": {
+        "ClothIndex": 246,
+        "OldClothIndex": 333,
+        "KeyHash": 633900255,
+        "ModelHash": 4095609919,
+        "ParamHash": 2256072881,
+        "PriceKey": "ClothBottomsPantsLongDefault",
+        "__RowId": "ClothBottomsPantsLongDefault"
+      },
+      "price_row": {
+        "IsBuyOnce": false,
+        "IsFreeFirst": false,
+        "Price": 0,
+        "__RowId": "Work/Component/Price/ClothBottomsPantsLongDefault.actor__PriceParam.gyml"
+      },
+      "model_param_row": {
+        "__RowId": 4095609919,
+        "BodyBaseCutline": 3296514992,
+        "IsEnableCharacterColor": true,
+        "ColorVariation": [
+          {
+            "Color": 1981966015,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          }
+        ],
+        "ModelUnit": {
+          "Fmdb": "Work/Model/Body/ClothBottoms/ClothBottomsPantsLong/output/ClothBottomsPantsLong.fmdb",
+          "FmdbIn": "",
+          "IgnoreHandScale": false,
+          "ModelName": "ClothBottomsPantsLong",
+          "ModelNameIn": "",
+          "ModelResName": "ClothBottomsPantsLong",
+          "PhivePhcl": "",
+          "Scale": 1,
+          "TextureProjectName": "ClothBottomsPantsLongTexDefault"
+        }
+      },
+      "body_base_cutline": {
+        "key": 3296514992,
+        "key_hex": "0xc47cd3b0",
+        "presentation_record": "ClothBottomsPantsLongDefault",
+        "dictionary_offset": 1696,
+        "mesh_array_offset": 1708,
+        "mesh_hashes": [
+          "0xf657ff89"
+        ],
+        "mesh_names": [
+          "BodyHip"
+        ],
+        "body_base_obj_groups_hidden": [
+          "BodyHip__mt_Bottoms"
+        ]
+      },
+      "body_program": {
+        "key": "bottoms_body",
+        "resource": "ClothBottomsPantsLong",
+        "model": "ClothBottomsPantsLong",
+        "shape": "Bottoms__mt_Body",
+        "material": "mt_Body",
+        "vertex_skin_count": 4,
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll",
+        "resolver_candidate_program_index": 936,
+        "raw_compatible_program_indices": [
+          936,
+          960,
+          984,
+          1008
+        ],
+        "source_constraints": [
+          {
+            "option": "enable_texture_user0",
+            "value": "0",
+            "evidence": "BFRES material has no _user0 shader-sampler assignment"
+          },
+          {
+            "option": "enable_emission_map",
+            "value": "0",
+            "evidence": "BFRES material has no _e0 shader-sampler assignment"
+          }
+        ],
+        "resolved_program_index": 936,
+        "compatible_program_indices": [
+          936
+        ],
+        "selection_status": "exact_unique_after_source_constraints",
+        "stages": {
+          "vertex": {
+            "instructions": {
+              "byte_length": 3456,
+              "sha256": "a5fc2b73fba103325a88cc66bbc2b3b146bcac0f8b14df75ba5ab110eecf803c"
+            }
+          },
+          "fragment": {
+            "instructions": {
+              "byte_length": 9344,
+              "sha256": "6b937426ba67cd87274ba4a9d53846c43ee91ced4246956596727fc1810ee12a"
+            }
+          }
+        },
+        "resolver": "BfshaLibrary raw compatible-set scan plus explicit missing BFRES sampler constraints and exact system options",
+        "compiled_sampler_activity": {
+          "title_shader_execution_key": "body_bottoms_program_936",
+          "active_material_samplers": [
+            "_a0",
+            "_n0",
+            "_r0"
+          ],
+          "inactive_serialized_assignments": [
+            {
+              "shader_sampler": "_alp0",
+              "material_sampler": "_alp0",
+              "material_sampler_index": 2,
+              "texture_ref": "Dummy_Msk"
+            }
+          ]
+        }
+      },
+      "softmesh_program": {
+        "key": "bottoms_softmesh",
+        "resource": "ClothBottomsPantsLong",
+        "model": "ClothBottomsPantsLong",
+        "shape": "Softmesh__mt_Softmesh",
+        "material": "mt_Softmesh",
+        "vertex_skin_count": 3,
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll",
+        "resolver_candidate_program_index": 36,
+        "raw_compatible_program_indices": [
+          36
+        ],
+        "source_constraints": [],
+        "resolved_program_index": 36,
+        "compatible_program_indices": [
+          36
+        ],
+        "selection_status": "exact_unique_after_source_constraints",
+        "stages": {
+          "vertex": {
+            "instructions": {
+              "byte_length": 2944,
+              "sha256": "e483e94280af102f3e681361687b5eebfbebb09ad2957dfbc0966d952c8c01d3"
+            }
+          },
+          "fragment": {
+            "instructions": {
+              "byte_length": 5248,
+              "sha256": "12456b68bfb2097732229256b18cd0cfa78b3892ab4c89541a1df7fdbfc58b2a"
+            }
+          }
+        },
+        "resolver": "BfshaLibrary raw compatible-set scan plus explicit missing BFRES sampler constraints and exact system options"
+      }
+    },
+    {
+      "logical_slot": "socks",
+      "selection_kind": "title price-zero presentation resource",
+      "cloth_row": {
+        "ClothIndex": 339,
+        "OldClothIndex": 161,
+        "KeyHash": 3644932053,
+        "ModelHash": 2007275074,
+        "ParamHash": 3269456192,
+        "PriceKey": "ClothSocksDefault",
+        "__RowId": "ClothSocksDefault"
+      },
+      "price_row": {
+        "IsBuyOnce": false,
+        "IsFreeFirst": false,
+        "Price": 0,
+        "__RowId": "Work/Component/Price/ClothSocksDefault.actor__PriceParam.gyml"
+      },
+      "model_param_row": {
+        "__RowId": 2007275074,
+        "BodyBaseCutline": 2895499086,
+        "IsEnableCharacterColor": true,
+        "ColorVariation": [
+          {
+            "Color": 1981966015,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          }
+        ],
+        "ModelUnit": {
+          "Fmdb": "",
+          "FmdbIn": "",
+          "IgnoreHandScale": false,
+          "ModelName": "",
+          "ModelNameIn": "",
+          "ModelResName": "",
+          "PhivePhcl": "",
+          "Scale": 1,
+          "TextureProjectName": "ClothSocksBodyBaseTexDefault"
+        }
+      },
+      "body_base_cutline": {
+        "key": 2895499086,
+        "key_hex": "0xac95cf4e",
+        "presentation_record": "ClothSocksDefault",
+        "dictionary_offset": 1680,
+        "mesh_array_offset": 1692,
+        "mesh_hashes": [],
+        "mesh_names": [],
+        "body_base_obj_groups_hidden": []
+      },
+      "body_program": {
+        "key": "body_foot_socks",
+        "resource": "BodyBaseDefault",
+        "model": "BodyBaseDefault",
+        "shape": "BodyFoot__mt_Socks",
+        "material": "mt_Socks",
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll",
+        "resolved_program_index": 324,
+        "compatible_program_indices": [
+          324
+        ],
+        "vertex_skin_count": 2,
+        "vertex_instructions": {
+          "byte_length": 2432,
+          "sha256": "52527c1acf08b9849a52483b570e04c669defc6a0e4e54c271192f503d444d96"
+        },
+        "fragment_instructions": {
+          "byte_length": 8832,
+          "sha256": "bf85659d4e63e19a3528cf30368d2b3a729eaf3e8e1c72b69d34b59dc34fb746"
+        },
+        "resolver": "exact row in renderer/gameuber_active_programs.json"
+      },
+      "softmesh_program": null
+    },
+    {
+      "logical_slot": "shoes",
+      "selection_kind": "title price-zero presentation resource",
+      "cloth_row": {
+        "ClothIndex": 382,
+        "OldClothIndex": 241,
+        "KeyHash": 2267040903,
+        "ModelHash": 316856340,
+        "ParamHash": 2224689772,
+        "PriceKey": "ClothShoesStandardDefault",
+        "__RowId": "ClothShoesStandardDefault"
+      },
+      "price_row": {
+        "IsBuyOnce": false,
+        "IsFreeFirst": false,
+        "Price": 0,
+        "__RowId": "Work/Component/Price/ClothShoesStandardDefault.actor__PriceParam.gyml"
+      },
+      "model_param_row": {
+        "__RowId": 316856340,
+        "BodyBaseCutline": 1032020994,
+        "IsEnableCharacterColor": true,
+        "ColorVariation": [
+          {
+            "Color": 1981966015,
+            "SubAccessoryColorIndex0": 0,
+            "SubAccessoryColorIndex1": 0
+          }
+        ],
+        "ModelUnit": {
+          "Fmdb": "Work/Model/Body/ClothShoes/ClothShoesStandard/output/ClothShoesStandard.fmdb",
+          "FmdbIn": "",
+          "IgnoreHandScale": false,
+          "ModelName": "ClothShoesStandard",
+          "ModelNameIn": "",
+          "ModelResName": "ClothShoesStandard",
+          "PhivePhcl": "",
+          "Scale": 1,
+          "TextureProjectName": "ClothShoesStandardTexDefault"
+        }
+      },
+      "body_base_cutline": {
+        "key": 1032020994,
+        "key_hex": "0x3d836402",
+        "presentation_record": "ClothShoesStandardDefault",
+        "dictionary_offset": 1520,
+        "mesh_array_offset": 1532,
+        "mesh_hashes": [
+          "0xd7d2454b"
+        ],
+        "mesh_names": [
+          "BodySole"
+        ],
+        "body_base_obj_groups_hidden": [
+          "BodySole__mt_Socks"
+        ]
+      },
+      "body_program": {
+        "key": "shoes_body",
+        "resource": "ClothShoesStandard",
+        "model": "ClothShoesStandard",
+        "shape": "Shoes__mt_Body",
+        "material": "mt_Body",
+        "vertex_skin_count": 2,
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll",
+        "resolver_candidate_program_index": 912,
+        "raw_compatible_program_indices": [
+          912
+        ],
+        "source_constraints": [],
+        "resolved_program_index": 912,
+        "compatible_program_indices": [
+          912
+        ],
+        "selection_status": "exact_unique_after_source_constraints",
+        "stages": {
+          "vertex": {
+            "instructions": {
+              "byte_length": 2432,
+              "sha256": "52527c1acf08b9849a52483b570e04c669defc6a0e4e54c271192f503d444d96"
+            }
+          },
+          "fragment": {
+            "instructions": {
+              "byte_length": 9344,
+              "sha256": "6b937426ba67cd87274ba4a9d53846c43ee91ced4246956596727fc1810ee12a"
+            }
+          }
+        },
+        "resolver": "BfshaLibrary raw compatible-set scan plus explicit missing BFRES sampler constraints and exact system options",
+        "compiled_sampler_activity": {
+          "title_shader_execution_key": "shoes_program_912",
+          "active_material_samplers": [
+            "_a0",
+            "_n0",
+            "_r0"
+          ],
+          "inactive_serialized_assignments": [
+            {
+              "shader_sampler": "_alp0",
+              "material_sampler": "_alp0",
+              "material_sampler_index": 0,
+              "texture_ref": "Dummy_Msk"
+            }
+          ]
+        }
+      },
+      "softmesh_program": null
+    }
+  ],
+  "softmesh_boundary": {
+    "program_index": 36,
+    "serialized_albedo_binding": "_a0 -> Dummy_Alb",
+    "recovered_live_texture_substitution": null,
+    "canonical_renderer_action": "skip top and bottoms mt_Softmesh groups fail-closed",
+    "forbidden_substitutions": [
+      "outer Body albedo",
+      "hard-coded 0.4 modulation",
+      "reference-image-derived color or opacity"
+    ]
+  }
+}

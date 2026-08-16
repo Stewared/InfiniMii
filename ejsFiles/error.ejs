@@ -3,7 +3,7 @@
     <head>
         <%
         const pageTitle = 'Error - InfiniMii';
-        const pageDesc = 'If you landed here, something went wrong.';
+        const pageDesc = 'InfiniMii could not open the requested page.';
         const canonicalUrl = baseUrl + '/error';
         const keywords = 'search mii, find mii character, mii database, mii search engine';
         const pageRobots = 'noindex, nofollow, noarchive';
@@ -22,10 +22,10 @@
             <%- include('sidebar') %>
             <section class="utility-container error-shell" aria-labelledby="error-heading">
                 <div class="error-panel">
-                    <p class="error-eyebrow">Something went sideways</p>
-                    <h1 id="error-heading"><%= status || 'OOPS!' %></h1>
+                    <p class="error-eyebrow">Page error</p>
+                    <h1 id="error-heading"><%= status || 'Error' %></h1>
                     <p class="error-message"><%= message || 'An unexpected error occurred.' %></p>
-                    <p class="error-help">Try going back to the previous page, or head home and keep browsing from there.</p>
+                    <p class="error-help">Try the previous page or return to the home page.</p>
                     <div class="error-actions">
                         <button type="button" onclick="history.back()" class="error-btn error-btn-primary">Go Back</button>
                         <a href="/" class="error-btn error-btn-secondary">Home</a>

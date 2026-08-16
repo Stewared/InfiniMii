@@ -50,7 +50,10 @@ export function getMiiAssetPaths(miiId, isPrivate) {
 
 export async function deleteMiiAssets(miiId, isPrivate) {
     const paths = Object.values(getMiiAssetPaths(miiId, isPrivate));
-    await Promise.all(paths.map(filePath => fs.promises.rm(filePath, { force: true })));
+    await Promise.all(paths.flatMap(filePath => [
+        fs.promises.rm(filePath, { force: true }),
+        fs.promises.rm(`${filePath}.identity`, { force: true })
+    ]));
 }
 
 async function moveFileIfPresent(sourcePath, destinationPath) {
@@ -66,8 +69,9 @@ async function moveFileIfPresent(sourcePath, destinationPath) {
 export async function moveMiiAssets(miiId, fromPrivate, toPrivate) {
     const sourcePaths = getMiiAssetPaths(miiId, fromPrivate);
     const destinationPaths = getMiiAssetPaths(miiId, toPrivate);
-    await Promise.all(Object.keys(sourcePaths).map(key =>
-        moveFileIfPresent(sourcePaths[key], destinationPaths[key])
-    ));
+    await Promise.all(Object.keys(sourcePaths).flatMap(key => [
+        moveFileIfPresent(sourcePaths[key], destinationPaths[key]),
+        moveFileIfPresent(`${sourcePaths[key]}.identity`, `${destinationPaths[key]}.identity`)
+    ]));
     return destinationPaths;
 }

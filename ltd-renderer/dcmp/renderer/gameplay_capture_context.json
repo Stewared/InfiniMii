@@ -1,0 +1,1240 @@
+{
+  "schema_version": 1,
+  "description": "Source-only gameplay context for the root Kestron reference. The ledger records recoverable Actor/Mii, ASB, outfit-pipeline, and shader-family facts while refusing to invent runtime capture state.",
+  "generator_or_checker": "tools/check_gameplay_capture_context.py --check",
+  "image_derived_values_used": false,
+  "reference_target": {
+    "path": "reference.png",
+    "byte_length": 286709,
+    "sha256": "e86994fbc303a39d880235348c9253a123612b9c511652a0809240850b6b2291",
+    "role": "validation_only",
+    "supplies_renderer_parameters": false
+  },
+  "evidence_sources": [
+    {
+      "id": "kestron_share_mii",
+      "kind": "title_serialized_character",
+      "path": "mii1.ltd",
+      "byte_length": 434,
+      "sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b"
+    },
+    {
+      "id": "main_elf",
+      "kind": "title_executable",
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "byte_length": 65253956,
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a"
+    },
+    {
+      "id": "mii_root_asb",
+      "kind": "actor_state_machine",
+      "path": "../ltdDemo_filesystem/program/1/AS/Mii.root.asb",
+      "byte_length": 2298275,
+      "sha256": "0fd3610b6e27cfa74f1250ba1adcdd38c8b4f1b8cd79d44657ff81e5c5e1f385"
+    },
+    {
+      "id": "animation_product_bfres",
+      "kind": "skeletal_animation_resource",
+      "path": "../ltdDemo_converted_assets/decompressed/1/Model/AnimationProduct.bfres",
+      "byte_length": 43903912,
+      "sha256": "ce39a6d92e3d99ce4e1146e26690d1d562a91b13ba67cd357e9a2c043d5c1b60"
+    },
+    {
+      "id": "body_base_default_bfres",
+      "kind": "body_model_and_material_resource",
+      "path": "../ltdDemo_converted_assets/decompressed/1/Model/BodyBaseDefault.bfres",
+      "byte_length": 189672,
+      "sha256": "5d8837287840888bc7bc635a6f0924f62e4df458cd928d65f7b1181525cfa04c"
+    },
+    {
+      "id": "mii_actor_param",
+      "kind": "actor_resource",
+      "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/Actor/Mii/Actor/Mii.actor__ActorParam.bgyml",
+      "byte_length": 1032,
+      "sha256": "e25ce154ecf6a0c75330a9f3292ce38ad0d8e901de5f92e15c55d381c9675553"
+    },
+    {
+      "id": "mii_actor_as_info",
+      "kind": "actor_animation_settings_resource",
+      "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/Actor/Mii/Component/ASInfo/Mii.actor__ASInfo.bgyml",
+      "byte_length": 160,
+      "sha256": "5f90ddce5f25f86d178d8d4c8ffbbf268813c4128334a1d3832bd504065284be"
+    },
+    {
+      "id": "mii_actor_icon_param",
+      "kind": "actor_icon_override_resource",
+      "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/Actor/Mii/Component/MiiIconParam/Mii.actor__MiiIconParam.bgyml",
+      "byte_length": 20,
+      "sha256": "772db48fa359cb08355688946e8d0eb21fee33b280342360deb3edc6b94e0552"
+    },
+    {
+      "id": "mii_actor_model_info",
+      "kind": "actor_model_resource",
+      "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/Actor/Mii/Component/ModelInfo/Mii.actor__ModelInfo.bgyml",
+      "byte_length": 948,
+      "sha256": "5734aeb1f60902dea8c6b4bd53302ba8638e4206cd7d73a4cefa3fe9008043da"
+    },
+    {
+      "id": "place_by_mii_camera_table",
+      "kind": "unselected_camera_catalog",
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/PlaceByMiiCamera.Trial.100.rstbl.byml",
+      "byte_length": 228,
+      "sha256": "603e219708a92bae42b294cd451ff06eeff1b87c290f8ea79572a3e2469f0245"
+    },
+    {
+      "id": "mii_touch_main_camera_param",
+      "kind": "unselected_camera_catalog",
+      "path": "../ltdDemo_filesystem/program/1/MiiTouchCameraParam/Main.camera__MiiTouchCameraParam.bgyml",
+      "byte_length": 160,
+      "sha256": "46f06e7746a8b7078f3a451713c4c236ddec41d9e99c37573006e9c025c7c1de"
+    },
+    {
+      "id": "cloth_table",
+      "kind": "outfit_catalog",
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/Cloth.Trial.100.rstbl.byml",
+      "byte_length": 21960,
+      "sha256": "9b1e41bb8ab72655735bb6b8c4ab0cb2d5de54e7396f3f92842d51dd871b4efe"
+    },
+    {
+      "id": "cloth_model_param_table",
+      "kind": "outfit_model_catalog",
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/ClothModelParam.Trial.100.rstbl.byml",
+      "byte_length": 54872,
+      "sha256": "56765af69a9ab88abea6b6dfafd5deaa9a4da4f1df04279feeda119968dca862"
+    },
+    {
+      "id": "coordinate_cloth_info_table",
+      "kind": "outfit_coordinate_catalog",
+      "path": "../ltdDemo_converted_assets/decompressed/1/RSDB/CoordinateClothInfo.Trial.100.rstbl.byml",
+      "byte_length": 19392,
+      "sha256": "586eef83080f67e83600f56d6bd6cde562e36f9d9e38d95de6ce8e9934c95e57"
+    },
+    {
+      "id": "decomp_mii_actor_personality",
+      "kind": "decompiled_code",
+      "path": "src/functions/internal/batch_01/7100d00000/2397_functions.inc",
+      "byte_length": 4665000,
+      "sha256": "e70352641bc0a5b1c8ceecbcf0074dba8614a67ef0902ca33bea6d995df3c6ad"
+    },
+    {
+      "id": "decomp_mii_touch_camera",
+      "kind": "decompiled_code",
+      "path": "src/functions/internal/batch_02/7101100000/2417_functions.inc",
+      "byte_length": 270648,
+      "sha256": "e9677dabbce96b5a2cec5d334839c3a7520cec9acbf456577042157be991f0e3"
+    },
+    {
+      "id": "decomp_cloth_parameters",
+      "kind": "decompiled_code",
+      "path": "src/functions/internal/batch_03/7101400000/2446_functions.inc",
+      "byte_length": 2285363,
+      "sha256": "9042fb98a52d58d91d71016c35efdda14e1912e89240ea3eb0d7ea4ce97bb8d4"
+    },
+    {
+      "id": "decomp_cloth_catalog",
+      "kind": "decompiled_code",
+      "path": "src/functions/internal/batch_03/7101500000/2448_functions.inc",
+      "byte_length": 465066,
+      "sha256": "d9269b57a2205a50a2cec8a4f14e9c7882dae65ccaeba3512b8c30b1101f1d46"
+    },
+    {
+      "id": "decomp_cloth_serialization",
+      "kind": "decompiled_code",
+      "path": "src/functions/internal/batch_03/7101800000/2455_functions.inc",
+      "byte_length": 1843511,
+      "sha256": "a5b0d4510d6f1c38e765681557bc368768682454f117ab8dc5d411c6e0c5c08f"
+    },
+    {
+      "id": "decomp_cloth_selection",
+      "kind": "decompiled_code",
+      "path": "src/functions/internal/batch_04/7101900000/2458_functions.inc",
+      "byte_length": 913508,
+      "sha256": "5c2bd6ec12cd6213a31f984df000627c725d46717228063581f3395e3eb31150"
+    },
+    {
+      "id": "decomp_mii_model_outfit",
+      "kind": "decompiled_code",
+      "path": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+      "byte_length": 3717377,
+      "sha256": "4846fda016407541588f168a58479677f4bba190822b1ec4388aac59b8cc79b6"
+    },
+    {
+      "id": "decomp_change_mii_cloth",
+      "kind": "decompiled_code",
+      "path": "src/functions/internal/batch_04/7102200000/2475_functions.inc",
+      "byte_length": 2907512,
+      "sha256": "7902b85f8046ec22d1df5dba33e3c5f5dbde7c3ad1a0f7c0de27e72227fd139c"
+    }
+  ],
+  "target_character": {
+    "source_values": {
+      "display_name": "Kestron",
+      "internal_name": "no name",
+      "char_info_byte_length": 152,
+      "height": 107,
+      "build": 105,
+      "sociability": 1,
+      "audaciousness": 8,
+      "activeness": 1,
+      "commonsense": 8,
+      "cloth_style_hash": 232570486,
+      "cloth_style_hash_hex": "0x0ddcbe76",
+      "cloth_style": "male"
+    },
+    "cloth_style_scope": "style/gender enum only; not a game::ClothSet and not a per-slot model or color selection",
+    "decoded_eight_slot_cloth_set_present": false,
+    "camera_state_present": false,
+    "world_environment_state_present": false,
+    "active_animation_command_or_time_present": false
+  },
+  "world_actor": {
+    "actor_identity": "Mii",
+    "category": "Character",
+    "registered_model_component_name": "MiiModel",
+    "camera_contract": "active_scene_main_camera",
+    "actor_specific_snapshot_override": null,
+    "decoded_resources": {
+      "actor_param": {
+        "Category": "Character",
+        "Components": {
+          "AIComponentRef": "Work/Component/AIComponent/Mii.actor__AIComponentParam.gyml",
+          "ASInfoRef": "Work/Component/ASInfo/Mii.actor__ASInfo.gyml",
+          "ASRef": "Work/AS/Root/Mii.root.as",
+          "DemoHeapParamRef": "Work/Component/DemoHeapParam/Mii.actor__DemoHeapParam.gyml",
+          "ELinkRef": "Work/Component/ELink/Mii.actor__ELinkParam.gyml",
+          "MiiIconRef": "Work/Component/MiiIconParam/Mii.actor__MiiIconParam.gyml",
+          "ModelInfoRef": "Work/Component/ModelInfo/Mii.actor__ModelInfo.gyml",
+          "OcclusionRef": "Work/Component/OcclusionParam/Mii.actor__OcclusionParam.gyml",
+          "PhysicsRef": "Work/Component/Physics/Mii.actor__PhysicsParam.gyml",
+          "SLinkRef": "Work/Component/SLink/Mii.actor__SLinkParam.gyml",
+          "SystemSetting": "Work/ActorSystem/ActorSystemSetting/Mii.actor__ActorSystemSetting.gyml"
+        },
+        "ComponentsKey": {
+          "AIComponentRef": "Work/Component/AIComponent/Mii.actor__AIComponentParam.gyml",
+          "ASInfoRef": "Work/Component/ASInfo/Mii.actor__ASInfo.gyml",
+          "ASRef": "Work/AS/Root/Mii.root.as",
+          "DemoHeapParamRef": "Work/Component/DemoHeapParam/Mii.actor__DemoHeapParam.gyml",
+          "ELinkRef": "Work/Component/ELink/Mii.actor__ELinkParam.gyml",
+          "MiiIconRef": "Work/Component/MiiIconParam/Mii.actor__MiiIconParam.gyml",
+          "ModelInfoRef": "Work/Component/ModelInfo/Mii.actor__ModelInfo.gyml",
+          "OcclusionRef": "Work/Component/OcclusionParam/Mii.actor__OcclusionParam.gyml",
+          "PhysicsRef": "Work/Component/Physics/Mii.actor__PhysicsParam.gyml",
+          "SLinkRef": "Work/Component/SLink/Mii.actor__SLinkParam.gyml",
+          "SystemSetting": "Work/ActorSystem/ActorSystemSetting/Mii.actor__ActorSystemSetting.gyml"
+        },
+        "Key": "Mii"
+      },
+      "as_info": {
+        "BlackBoardType": 1494722572,
+        "EnableInterpolationPerSkeletal": true,
+        "IsEnableInertialBlend": true,
+        "NumParallelNode": 48
+      },
+      "mii_icon_param": {},
+      "model_info": {
+        "AnimResNames": [
+          "AnimationProduct"
+        ],
+        "DemoAnimResNames": [
+          "Animation222",
+          "Animation405",
+          "Animation606",
+          "AnimationTravel",
+          "AnimationDemo"
+        ],
+        "Fmdb": "Work/Model/Body/BodySkeleton/output/BodySkeleton.fmdb",
+        "IsDisplaySilhouette": false,
+        "LodType": 1494722572,
+        "ModelProjectsForAnim": [
+          "Work/Model/Body/Animation/AnimationProduct/workspace.pp__ModelProject.gyml"
+        ],
+        "ModelProjectsForDemoAnim": [
+          "Work/Model/Body/Animation/Animation222/workspace.pp__ModelProject.gyml",
+          "Work/Model/Body/Animation/Animation405/workspace.pp__ModelProject.gyml",
+          "Work/Model/Body/Animation/Animation606/workspace.pp__ModelProject.gyml",
+          "Work/Model/Body/Animation/AnimationTravel/workspace.pp__ModelProject.gyml",
+          "Work/Model/Body/Animation/AnimationDemo/workspace.pp__ModelProject.gyml"
+        ]
+      }
+    },
+    "model_initialization_call_chain": [
+      "initialize_mii_actor_model_component",
+      "initialize_mii_model_render_state",
+      "load_mii_body_skeleton_resources",
+      "bind_mii_body_animation_resource",
+      "collect_mii_model_resource_dependencies"
+    ],
+    "source_boundary": "The generic world actor contains no actor camera component and its MiiIconParam is empty. View/projection and capture state must therefore come from runtime scene state, which is not present in the supplied character or actor resources."
+  },
+  "personality_character_type": {
+    "lookup_tables": {
+      "character_type_by_personality_quadrant": {
+        "raw_symbol": "DAT_71032aaa34",
+        "virtual_address": "0x71032aaa34",
+        "element_type": "uint32_le",
+        "element_count": 16,
+        "values": [
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          3,
+          3
+        ]
+      },
+      "sociability_activeness_score_lut": {
+        "raw_symbol": "DAT_71032aaa74",
+        "virtual_address": "0x71032aaa74",
+        "element_type": "int16_le",
+        "element_count": 9,
+        "values": [
+          50,
+          10,
+          20,
+          30,
+          40,
+          60,
+          70,
+          80,
+          90
+        ]
+      },
+      "audaciousness_commonsense_score_lut": {
+        "raw_symbol": "DAT_71032aaa86",
+        "virtual_address": "0x71032aaa86",
+        "element_type": "int16_le",
+        "element_count": 9,
+        "values": [
+          50,
+          5,
+          15,
+          25,
+          35,
+          65,
+          75,
+          85,
+          95
+        ]
+      }
+    },
+    "band_definition": {
+      "0": "outside 51..200",
+      "1": "51..100",
+      "2": "101..150",
+      "3": "151..200"
+    },
+    "kestron_result": {
+      "score_sociability_audaciousness": 105,
+      "score_activeness_commonsense": 105,
+      "first_band": 2,
+      "second_band": 2,
+      "quadrant_index": 10,
+      "character_type": 3
+    }
+  },
+  "animation_context": {
+    "asb_format": "ASB 0x41b",
+    "asb_header": {
+      "version": 1051,
+      "command_count": 2592,
+      "command_array_offset": 128,
+      "element_count": 18268,
+      "element_array_offset": 124544,
+      "blackboard_offset": 2071436,
+      "string_pool_offset": 2073957,
+      "command_record_size": 48,
+      "element_record_size": 36
+    },
+    "blackboard_names": [
+      "FeelingType",
+      "CharacterType",
+      "HabitGreetingType",
+      "HabitStandType",
+      "HabitWalkType",
+      "HabitEatType",
+      "HabitGetAngryType",
+      "StayType",
+      "ChatASType",
+      "AfActorAttributeSmell",
+      "AfActorAttributeTouch",
+      "AfActorAttributeLook",
+      "CharacterAnimSpeed",
+      "VoiceAnimSpeed",
+      "BodyHeight",
+      "BodyBuild",
+      "MoveSpeed",
+      "UnlockSuccessRate",
+      "SingBpm",
+      "Chicken",
+      "SnoreLoudly",
+      "UntidySleeper",
+      "IsYawnableHour",
+      "IsLooking",
+      "IsRightSittingRotation",
+      "IsRightSittingTranslation",
+      "MiiTouchPresentScrOffset"
+    ],
+    "common_wait_catalog_entry": {
+      "selection_status": "cataloged_not_selected",
+      "command_index": 690,
+      "root_element_index": 706,
+      "command_frame_property": -1.0,
+      "command_frame_property_meaning": "runtime-duration/playback property; it is not a fixed reference frame",
+      "root_element_record": {
+        "type_word_hex": "0x01000008",
+        "payload_offset": 824408,
+        "payload_count_or_index": 42
+      },
+      "runtime_selector_source_flags": [
+        "0x90000000",
+        "0x90000001"
+      ],
+      "runtime_selector_source_scope": "Raw runtime selector sources/slots only. Their semantic field identities and reference-time values are not asserted."
+    },
+    "common_wait_leaf_names": [
+      "AngrySitChair",
+      "AngryWait",
+      "DroopH0W0",
+      "DroopH0W127",
+      "DroopH127W0",
+      "DroopH127W127",
+      "DroopSitChair",
+      "SitChair",
+      "Wait",
+      "WaitCool"
+    ],
+    "common_wait_branch_analysis": {
+      "root_selector": "StayType",
+      "stay_type_1": {
+        "posture": "seated",
+        "runtime_slot_0_5": "runtime slot 1 values 1 or 3 -> AngrySitChair; default -> SitChair",
+        "runtime_slot_0_6_or_7": "runtime slot 1 value 0 -> SitChair; default -> DroopSitChair",
+        "runtime_slot_0_default": "SitChair"
+      },
+      "stay_type_default": {
+        "posture": "standing",
+        "runtime_slot_0_5": "runtime slot 1 values 0 or 2 -> CharacterType selector; default -> AngryWait",
+        "runtime_slot_0_6_or_7": "runtime slot 1 value 0 -> CharacterType selector; default -> four-way BodyBuild/BodyHeight Droop blend",
+        "runtime_slot_0_default": "CharacterType selector",
+        "character_type_selector": "CharacterType 0 -> WaitCool; default -> Wait",
+        "droop_blend": [
+          "DroopH0W0",
+          "DroopH0W127",
+          "DroopH127W0",
+          "DroopH127W127"
+        ]
+      }
+    },
+    "candidate_clip_metadata": [
+      {
+        "name": "AngrySitChair",
+        "frame_count": 48,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 59
+      },
+      {
+        "name": "AngryWait",
+        "frame_count": 48,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 98
+      },
+      {
+        "name": "DroopH0W0",
+        "frame_count": 72,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 78
+      },
+      {
+        "name": "DroopH0W127",
+        "frame_count": 72,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 78
+      },
+      {
+        "name": "DroopH127W0",
+        "frame_count": 72,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 78
+      },
+      {
+        "name": "DroopH127W127",
+        "frame_count": 72,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 78
+      },
+      {
+        "name": "DroopSitChair",
+        "frame_count": 96,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 46
+      },
+      {
+        "name": "SitChair",
+        "frame_count": 48,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 44
+      },
+      {
+        "name": "Wait",
+        "frame_count": 96,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 83
+      },
+      {
+        "name": "WaitCool",
+        "frame_count": 96,
+        "loop": true,
+        "baked": false,
+        "rotation_mode": "EulerXYZ",
+        "scale_mode": "Maya",
+        "curve_count": 78
+      }
+    ],
+    "conditional_character_type_result": {
+      "character_type": 3,
+      "condition": "Only if the active command is Common_Wait, the standing branch is active, and runtime selectors reach the CharacterType selector.",
+      "leaf_if_character_type_selector_is_reached": "Wait",
+      "selected_for_reference": false,
+      "reason_not_selected": "The active command, StayType, raw selector values, transitions/random state, and playback timestamp are absent."
+    },
+    "reference_selection": {
+      "status": "unresolved_non_inferable_from_available_sources",
+      "active_command": null,
+      "active_state": null,
+      "active_clip": null,
+      "active_frame": null,
+      "playback_time": null,
+      "body_height_blackboard_value": null,
+      "body_build_blackboard_value": null,
+      "character_animation_speed": null,
+      "unresolved_reason": "mii1.ltd and the actor resources contain neither runtime AS state nor a capture timestamp; CharacterAnimSpeed also depends on runtime CharacterParam endpoints not recovered here."
+    }
+  },
+  "camera_context": {
+    "status": "unresolved_non_inferable_from_available_sources",
+    "selected_camera_resource": null,
+    "actor_world_transform": null,
+    "view_matrix": null,
+    "projection": {
+      "kind": null,
+      "vertical_fov_degrees": null,
+      "near": null,
+      "far": null
+    },
+    "viewport": null,
+    "aspect_ratio": null,
+    "crop": null,
+    "unselected_catalog_candidates": [
+      {
+        "id": "place_by_mii_common",
+        "source_id": "place_by_mii_camera_table",
+        "scope": "Mii placement mode; not a universal Actor/Mii camera",
+        "decoded_resource": [
+          {
+            "CameraDistance": 12.5,
+            "CameraHeight": 5,
+            "CameraRotation": 135,
+            "__RowId": "Work/PlaceByMiiCameraParameter/Common.actor__PlaceByMiiCameraParameter.gyml"
+          }
+        ],
+        "selected_for_reference": false,
+        "use_as_default": false
+      },
+      {
+        "id": "mii_touch_main",
+        "source_id": "mii_touch_main_camera_param",
+        "scope": "MiiTouch interaction camera; not the generic Actor/Mii world camera",
+        "decoded_resource": {
+          "AtOffsetPerMiiHeight": 0.00315,
+          "AtOffsetY": 0.8,
+          "Distance": 5,
+          "Fovy": 31,
+          "IsFixed": false,
+          "RotX": 8.5
+        },
+        "selected_for_reference": false,
+        "use_as_default": false
+      }
+    ],
+    "unresolved_reason": "No scene identifier, actor transform, camera-mode state, or reference-to-camera resource link is present. Pixel fitting is explicitly outside this ledger."
+  },
+  "environment_and_snapshot": {
+    "status": "unresolved_non_inferable_from_available_sources",
+    "map_or_room": null,
+    "time": null,
+    "weather": null,
+    "lights": null,
+    "light_probes_or_ibl": null,
+    "fog": null,
+    "exposure": null,
+    "tonemap_or_lut": null,
+    "shadow_state": null,
+    "runtime_global_uniforms": null,
+    "snapshot": {
+      "api_or_mode": null,
+      "settings": null
+    },
+    "mii_icon_preview_settings_apply": false,
+    "unresolved_reason": "No source links reference.png to a map/room, clock/weather state, scene environment, MiiIcon/editor preview, GfxSnapshotSetting, or capture API invocation."
+  },
+  "outfit_context": {
+    "status": "runtime_pipeline_recovered_reference_selection_unresolved",
+    "selected_cloth_set": null,
+    "coordinate_set": null,
+    "selection_source": null,
+    "share_mii_cloth_style": {
+      "hash": 232570486,
+      "hash_hex": "0x0ddcbe76",
+      "decoded": "male",
+      "scope": "style/gender enum only"
+    },
+    "slots": [
+      {
+        "index": 0,
+        "name": "All",
+        "selected_key_hash": null,
+        "selected_color_or_variation": null,
+        "empty_sentinel": "ClothAllEmpty",
+        "empty_sentinel_hash": 408221693,
+        "empty_sentinel_hash_hex": "0x1854f7fd"
+      },
+      {
+        "index": 1,
+        "name": "Topslong",
+        "selected_key_hash": null,
+        "selected_color_or_variation": null,
+        "empty_sentinel": "ClothTopslongEmpty",
+        "empty_sentinel_hash": 3650220396,
+        "empty_sentinel_hash_hex": "0xd991f16c"
+      },
+      {
+        "index": 2,
+        "name": "Tops",
+        "selected_key_hash": null,
+        "selected_color_or_variation": null,
+        "empty_sentinel": "ClothTopsEmpty",
+        "empty_sentinel_hash": 3466222506,
+        "empty_sentinel_hash_hex": "0xce9a5baa"
+      },
+      {
+        "index": 3,
+        "name": "BottomsA",
+        "selected_key_hash": null,
+        "selected_color_or_variation": null,
+        "empty_sentinel": "ClothBottomsAEmpty",
+        "empty_sentinel_hash": 1100460512,
+        "empty_sentinel_hash_hex": "0x4197b1e0"
+      },
+      {
+        "index": 4,
+        "name": "BottomsB",
+        "selected_key_hash": null,
+        "selected_color_or_variation": null,
+        "empty_sentinel": "ClothBottomsBEmpty",
+        "empty_sentinel_hash": 3211393114,
+        "empty_sentinel_hash_hex": "0xbf69f85a"
+      },
+      {
+        "index": 5,
+        "name": "Shoes",
+        "selected_key_hash": null,
+        "selected_color_or_variation": null,
+        "empty_sentinel": "ClothShoesEmpty",
+        "empty_sentinel_hash": 2661441231,
+        "empty_sentinel_hash_hex": "0x9ea25ecf"
+      },
+      {
+        "index": 6,
+        "name": "Accessory",
+        "selected_key_hash": null,
+        "selected_color_or_variation": null,
+        "empty_sentinel": "ClothAccessoryEmpty",
+        "empty_sentinel_hash": 3463891885,
+        "empty_sentinel_hash_hex": "0xce76cbad"
+      },
+      {
+        "index": 7,
+        "name": "Headwear",
+        "selected_key_hash": null,
+        "selected_color_or_variation": null,
+        "empty_sentinel": "ClothHeadwearEmpty",
+        "empty_sentinel_hash": 73273798,
+        "empty_sentinel_hash_hex": "0x045e11c6"
+      }
+    ],
+    "runtime_attachment_path": [
+      "game::ClothSet KeyHash/color slot",
+      "lookup_cloth_record_by_key_hash -> Cloth row KeyHash/ModelHash/ParamHash/Type/ClothIndex",
+      "coordinate fallback through CoordinateClothInfo when required",
+      "lookup_cloth_model_param -> ClothModelParam ModelUnit",
+      "acquire_mii_cloth_model_instance",
+      "initialize_cloth_model_instance_from_catalog",
+      "initialize_mii_cloth_model_binding_record",
+      "BodyBaseCutline and multipart/in-model binding application"
+    ],
+    "model_unit_fields": [
+      "Fmdb",
+      "ModelResName",
+      "ModelName",
+      "FmdbIn",
+      "ModelNameIn",
+      "TextureProjectName",
+      "Scale",
+      "PhivePhcl"
+    ],
+    "unresolved_reason": "The supplied ShareMii has no decoded eight-slot game::ClothSet resource hashes/colors. The existing reference outfit ledger is capture-derived and is intentionally not an evidence source here."
+  },
+  "world_shader_context": {
+    "source_verified_material_shader_families": [
+      {
+        "shader_archive": "GameUber",
+        "shading_model": "GameAll"
+      }
+    ],
+    "source_verified_scope": "BodyBaseDefault BFRES materials. Runtime cloth models use the same title material-resolution path, but no reference ClothSet was source-selected here.",
+    "exact_program_permutation": null,
+    "runtime_global_uniform_buffers": null,
+    "draw_state": null,
+    "mii_icon_snapshot_shader_substitution_allowed": false,
+    "unresolved_reason": "The exact GameUber permutation and scene/global inputs are selected from runtime material/draw state absent from mii1.ltd and the actor resource."
+  },
+  "decomp_symbols": {
+    "status": "proposed_semantic_names_for_promotion; raw split decomp remains unedited by this isolated ledger",
+    "functions": [
+      {
+        "address": "0x7100de08d0",
+        "raw_name": "FUN_7100de08d0",
+        "proposed_name": "initialize_mii_actor_model_component",
+        "category": "mii_actor_rendering",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Installs Mii actor vtables, allocates 0x12d0 model state, initializes BodySkeleton/animation resources, collects dependencies, and registers MiiModel."
+      },
+      {
+        "address": "0x7100df7880",
+        "raw_name": "FUN_7100df7880",
+        "proposed_name": "collect_mii_model_resource_dependencies",
+        "category": "mii_model_resource_loading",
+        "confidence": "medium-high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Called from the Mii actor model constructor after BodySkeleton setup to gather resource dependencies."
+      },
+      {
+        "address": "0x7101bcbf1c",
+        "raw_name": "FUN_7101bcbf1c",
+        "proposed_name": "initialize_mii_model_render_state",
+        "category": "mii_model_rendering",
+        "confidence": "high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Initializes the 0x12d0 Mii model/render-state object before resource loading."
+      },
+      {
+        "address": "0x7101bcd860",
+        "raw_name": "FUN_7101bcd860",
+        "proposed_name": "load_mii_body_skeleton_resources",
+        "category": "mii_model_resource_loading",
+        "confidence": "high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Uses the Mii, MiiBody, and BodySkeleton resource identities and binds the body model."
+      },
+      {
+        "address": "0x7101bcdd00",
+        "raw_name": "FUN_7101bcdd00",
+        "proposed_name": "bind_mii_body_animation_resource",
+        "category": "mii_animation_binding",
+        "confidence": "medium-high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Binds the selected body skeletal-animation resource to Mii model state."
+      },
+      {
+        "address": "0x7101bf6864",
+        "raw_name": "FUN_7101bf6864",
+        "proposed_name": "bind_gfx_model_resource",
+        "category": "model_resource_binding",
+        "confidence": "high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Shared gfx::ModelResourceBinder path used by BodySkeleton and Mii model-resource loads."
+      },
+      {
+        "address": "0x7100de5090",
+        "raw_name": "FUN_7100de5090",
+        "proposed_name": "sync_mii_character_data_and_refresh_render_models",
+        "category": "mii_actor_rendering",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Copies a 0x98 character record into render state, syncs personality state, and refreshes part/outfit models."
+      },
+      {
+        "address": "0x7100de4e20",
+        "raw_name": "FUN_7100de4e20",
+        "proposed_name": "sync_mii_personality_variant_to_model_state",
+        "category": "mii_actor_rendering",
+        "confidence": "medium-high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Computes the 0..15 personality quadrant and marks the pending Mii render-state variant when it changes."
+      },
+      {
+        "address": "0x7101bce0c0",
+        "raw_name": "FUN_7101bce0c0",
+        "proposed_name": "resolve_and_attach_mii_cloth_models",
+        "category": "mii_outfit_rendering",
+        "confidence": "high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Resolves all eight cloth slots, applies coordinate fallbacks, acquires model instances, caches hashes/colors, and establishes multipart bindings."
+      },
+      {
+        "address": "0x7101b55c1c",
+        "raw_name": "FUN_7101b55c1c",
+        "proposed_name": "acquire_mii_cloth_model_instance",
+        "category": "mii_outfit_model_loading",
+        "confidence": "high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Acquires/reuses a cloth model instance and initializes a new instance from catalog data on a cache miss."
+      },
+      {
+        "address": "0x7101b55e80",
+        "raw_name": "FUN_7101b55e80",
+        "proposed_name": "initialize_cloth_model_instance_from_catalog",
+        "category": "mii_outfit_model_loading",
+        "confidence": "high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Resolves Cloth/ClothModelParam and consumes ModelResName, TextureProjectName, Scale, and PhivePhcl."
+      },
+      {
+        "address": "0x7101b55d10",
+        "raw_name": "FUN_7101b55d10",
+        "proposed_name": "release_mii_cloth_model_instance",
+        "category": "mii_outfit_model_loading",
+        "confidence": "high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Releases a pooled cloth model instance from a slot/cache record."
+      },
+      {
+        "address": "0x7101bd6100",
+        "raw_name": "FUN_7101bd6100",
+        "proposed_name": "initialize_mii_cloth_model_binding_record",
+        "category": "mii_outfit_rendering",
+        "confidence": "medium-high",
+        "source_id": "decomp_mii_model_outfit",
+        "evidence": "Initializes a binding record from a cloth model instance and fills per-model-unit binding data; direct scene attachment is not asserted."
+      },
+      {
+        "address": "0x71015081f0",
+        "raw_name": "FUN_71015081f0",
+        "proposed_name": "lookup_cloth_record_by_key_hash",
+        "category": "mii_outfit_catalog",
+        "confidence": "high",
+        "source_id": "decomp_cloth_catalog",
+        "evidence": "Looks up a Cloth table row using the slot KeyHash."
+      },
+      {
+        "address": "0x710150bf70",
+        "raw_name": "FUN_710150bf70",
+        "proposed_name": "lookup_coordinate_cloth_info",
+        "category": "mii_outfit_catalog",
+        "confidence": "medium-high",
+        "source_id": "decomp_cloth_catalog",
+        "evidence": "Looks up CoordinateClothInfo used for fallback slot resources and variations."
+      },
+      {
+        "address": "0x710150d040",
+        "raw_name": "FUN_710150d040",
+        "proposed_name": "get_coordinate_cloth_slot",
+        "category": "mii_outfit_catalog",
+        "confidence": "high",
+        "source_id": "decomp_cloth_catalog",
+        "evidence": "Returns a cloth slot hash from a resolved coordinate record."
+      },
+      {
+        "address": "0x710150d8d4",
+        "raw_name": "FUN_710150d8d4",
+        "proposed_name": "get_coordinate_cloth_slot_color",
+        "category": "mii_outfit_catalog",
+        "confidence": "medium-high",
+        "source_id": "decomp_cloth_catalog",
+        "evidence": "Returns a slot color/variation from a resolved coordinate record."
+      },
+      {
+        "address": "0x710150b4e4",
+        "raw_name": "FUN_710150b4e4",
+        "proposed_name": "lookup_cloth_model_param",
+        "category": "mii_outfit_catalog",
+        "confidence": "high",
+        "source_id": "decomp_cloth_catalog",
+        "evidence": "Resolves the ClothModelParam row used to construct a cloth model instance."
+      },
+      {
+        "address": "0x71019eb4b4",
+        "raw_name": "FUN_71019eb4b4",
+        "proposed_name": "validate_and_set_mii_cloth_slot",
+        "category": "mii_outfit_selection",
+        "confidence": "high",
+        "source_id": "decomp_cloth_selection",
+        "evidence": "Validates a requested slot resource/type and writes its KeyHash/color pair into game::ClothSet."
+      },
+      {
+        "address": "0x71019ec4c0",
+        "raw_name": "FUN_71019ec4c0",
+        "proposed_name": "apply_mii_cloth_coordinate_set",
+        "category": "mii_outfit_selection",
+        "confidence": "high",
+        "source_id": "decomp_cloth_selection",
+        "evidence": "Populates the eight-slot cloth set from a coordinate record with validated slot fallbacks."
+      },
+      {
+        "address": "0x7101499e60",
+        "raw_name": "FUN_7101499e60",
+        "proposed_name": "deserialize_cloth_model_param",
+        "category": "mii_outfit_parameters",
+        "confidence": "high",
+        "source_id": "decomp_cloth_parameters",
+        "evidence": "Deserializes ClothModelParam fields including BodyBaseCutline and accessory flags."
+      },
+      {
+        "address": "0x710149c6a0",
+        "raw_name": "FUN_710149c6a0",
+        "proposed_name": "deserialize_cloth_model_unit",
+        "category": "mii_outfit_parameters",
+        "confidence": "high",
+        "source_id": "decomp_cloth_parameters",
+        "evidence": "Deserializes Fmdb, ModelResName/ModelName, in-model variants, TextureProjectName, Scale, and PhivePhcl."
+      },
+      {
+        "address": "0x7101856d68",
+        "raw_name": "FUN_7101856d68",
+        "proposed_name": "serialize_mii_actor_cloth_set_param",
+        "category": "mii_outfit_parameters",
+        "confidence": "high",
+        "source_id": "decomp_cloth_serialization",
+        "evidence": "Serializes the MiiClothSet actor parameter using the game__ClothSetParam type tag."
+      },
+      {
+        "address": "0x71022b70c8",
+        "raw_name": "FUN_71022b70c8",
+        "proposed_name": "execute_change_mii_cloth_action",
+        "category": "mii_outfit_gameplay_action",
+        "confidence": "high",
+        "source_id": "decomp_change_mii_cloth",
+        "evidence": "Implements ChangeMiiCloth and transitions through the MiiChangeCloth_Wait gameplay state."
+      },
+      {
+        "address": "0x71011fe194",
+        "raw_name": "FUN_71011fe194",
+        "proposed_name": "deserialize_mii_touch_camera_state",
+        "category": "mii_touch_camera_state",
+        "confidence": "high",
+        "source_id": "decomp_mii_touch_camera",
+        "evidence": "Deserializes MiiTouchCameraState and Position; it does not calculate the gameplay camera."
+      },
+      {
+        "address": "0x7100d09b20",
+        "raw_name": "FUN_7100d09b20",
+        "proposed_name": "initialize_actor_animation_blackboard_bindings",
+        "category": "actor_animation_blackboard",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Resolves/caches actor AS blackboard entry indices using exact Mii animation blackboard strings."
+      },
+      {
+        "address": "0x7100d2ef38",
+        "raw_name": "FUN_7100d2ef38",
+        "proposed_name": "get_mii_character_type_from_personality",
+        "category": "mii_personality_animation",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Combines four personality slider lookup scores into a quadrant and returns the CharacterType LUT entry."
+      },
+      {
+        "address": "0x7100d2e3d8",
+        "raw_name": "FUN_7100d2e3d8",
+        "proposed_name": "get_mii_personality_quadrant_index",
+        "category": "mii_personality_animation",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Returns the 0..15 quadrant index produced from the two personality score bands."
+      },
+      {
+        "address": "0x7100d2dda4",
+        "raw_name": "FUN_7100d2dda4",
+        "proposed_name": "update_mii_character_type_blackboard",
+        "category": "mii_personality_animation",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Computes CharacterType and CharacterAnimSpeed and writes them to the actor animation blackboard."
+      },
+      {
+        "address": "0x7100d2e6b0",
+        "raw_name": "FUN_7100d2e6b0",
+        "proposed_name": "compute_mii_character_animation_speed",
+        "category": "mii_personality_animation",
+        "confidence": "medium-high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Maps the personality score across runtime CharacterParam speed endpoints; endpoint resource values remain unresolved."
+      }
+    ],
+    "globals": [
+      {
+        "address": "0x7103886448",
+        "raw_name": "DAT_7103886448",
+        "proposed_name": "mii_actor_model_component_vtable",
+        "category": "mii_actor_rendering",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Installed at the primary object start by the Mii actor model component constructor."
+      },
+      {
+        "address": "0x71038866c0",
+        "raw_name": "DAT_71038866c0",
+        "proposed_name": "mii_actor_model_component_subobject_vtable",
+        "category": "mii_actor_rendering",
+        "confidence": "medium-high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Installed in the constructor's secondary subobject at object word index 0x42."
+      },
+      {
+        "address": "0x71032aaa34",
+        "raw_name": "DAT_71032aaa34",
+        "proposed_name": "mii_character_type_by_personality_quadrant",
+        "category": "mii_personality_animation",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Sixteen-entry uint32 result table indexed by the computed personality quadrant."
+      },
+      {
+        "address": "0x71032aaa74",
+        "raw_name": "DAT_71032aaa74",
+        "proposed_name": "mii_sociability_activeness_score_lut",
+        "category": "mii_personality_animation",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Nine-entry signed-short score table used for sociability and activeness."
+      },
+      {
+        "address": "0x71032aaa86",
+        "raw_name": "DAT_71032aaa86",
+        "proposed_name": "mii_audaciousness_commonsense_score_lut",
+        "category": "mii_personality_animation",
+        "confidence": "high",
+        "source_id": "decomp_mii_actor_personality",
+        "evidence": "Nine-entry signed-short score table used for audaciousness and commonsense."
+      }
+    ],
+    "data_types": [
+      {
+        "raw_name": "game::ClothSet",
+        "proposed_name": "game::ClothSet",
+        "category": "mii_outfit_selection",
+        "recovery_status": "exact_named_type",
+        "layout_evidence": "Eight ordered KeyHash/color-or-variation pairs: All, Topslong, Tops, BottomsA, BottomsB, Shoes, Accessory, Headwear."
+      },
+      {
+        "raw_name": "game__ClothSetParam",
+        "proposed_name": "game::ClothSetParam",
+        "category": "mii_outfit_parameters",
+        "recovery_status": "exact_serialization_type_tag",
+        "layout_evidence": "Exact serializer type tag associated with MiiClothSet."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "LtDShareMiiV2",
+        "category": "mii_serialization",
+        "recovery_status": "recovered_serialized_schema",
+        "layout_evidence": "434-byte supplied ShareMii container decoded by renderer/ltd_format.py."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "LtDMiiCharInfoEx",
+        "category": "mii_character_data",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "0x98-byte record copied byte-for-byte by FUN_7100de5090; field schema is structurally recovered but ABI naming is inferred."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiActorModelComponent",
+        "category": "mii_actor_rendering",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "0x610 allocation at constructor call sites; primary and secondary vtables recovered."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiModelRenderState",
+        "category": "mii_model_rendering",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "0x12d0 allocation initialized by FUN_7101bcbf1c; complete ABI layout is not claimed."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "ClothRecord",
+        "category": "mii_outfit_catalog",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Cloth table row includes KeyHash, ModelHash, ParamHash, Type, and ClothIndex."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "CoordinateClothInfoRecord",
+        "category": "mii_outfit_catalog",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "CoordinateClothInfo row supplies slot hashes and per-coordinate colors/variations."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "ClothModelParamRecord",
+        "category": "mii_outfit_parameters",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "ClothModelParam row includes BodyBaseCutline, accessory flags, variations, and ModelUnit."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "ClothModelUnit",
+        "category": "mii_outfit_parameters",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Resource fields include Fmdb/ModelResName/ModelName, in-model variants, TextureProjectName, Scale, and PhivePhcl."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiClothModelInstance",
+        "category": "mii_outfit_model_loading",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "Pooled runtime model instance acquired/released by the recovered cloth model cache functions."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiClothModelBindingRecord",
+        "category": "mii_outfit_rendering",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "Runtime record initialized from a cloth model instance and populated per model unit."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiAnimationBlackboardBindings",
+        "category": "actor_animation_blackboard",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "Caches resolved blackboard indices grouped by int/float/bool/vector entry type."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiPersonalityState",
+        "category": "mii_personality_animation",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "Contains the four source sliders used by the score/quadrant functions; full runtime object layout is not claimed."
+      },
+      {
+        "raw_name": "ASB 0x41b command record",
+        "proposed_name": "ASB41bCommand",
+        "category": "actor_animation_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "48-byte command table record; Common_Wait name offset, -1 frame property, and root element index are checked."
+      },
+      {
+        "raw_name": "ASB 0x41b element record",
+        "proposed_name": "ASB41bElement",
+        "category": "actor_animation_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "36-byte element table record; Common_Wait root type/payload fields are checked."
+      },
+      {
+        "raw_name": "ASB 0x41b blackboard",
+        "proposed_name": "ASB41bBlackboard",
+        "category": "actor_animation_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Typed blackboard names are recovered from the ASB resource."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiActorParam",
+        "category": "mii_actor_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Decoded Actor/Mii ActorParam BYML component-reference schema."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiActorASInfo",
+        "category": "mii_actor_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Decoded interpolation, inertial-blend, blackboard-type, and parallel-node settings."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiActorModelInfo",
+        "category": "mii_actor_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Decoded BodySkeleton and AnimationProduct model/animation resource references."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiActorIconParam",
+        "category": "mii_actor_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Decoded empty MiiIconParam resource; no actor-specific icon/snapshot override."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiTouchCameraParam",
+        "category": "mii_touch_camera_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Decoded interaction-camera resource schema; it is cataloged but not selected for the reference."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "PlaceByMiiCameraRecord",
+        "category": "mii_placement_camera_resource",
+        "recovery_status": "recovered_resource_schema",
+        "layout_evidence": "Decoded placement-camera table record; it is cataloged but not selected for the reference."
+      },
+      {
+        "raw_name": null,
+        "proposed_name": "MiiTouchCameraState",
+        "category": "mii_touch_camera_state",
+        "recovery_status": "inferred_incomplete_layout",
+        "layout_evidence": "Deserializer exposes MiiTouchCameraState and Position fields; no gameplay camera calculation is claimed."
+      }
+    ]
+  },
+  "explicitly_non_inferable": [
+    "reference actor world transform",
+    "reference camera resource/mode, view matrix, projection, near/far, aspect, viewport, and crop",
+    "active AS command, StayType, raw runtime selector values, transition/random state, clip, playback time, and frame",
+    "runtime BodyHeight/BodyBuild ASB blend values and CharacterAnimSpeed endpoint resources",
+    "reference eight-slot game::ClothSet KeyHashes and colors/variations",
+    "reference map/room, time, weather, lights, probes/IBL, fog, exposure, tonemap/LUT, and shadow state",
+    "snapshot API/mode/settings or any assertion that MiiIcon/editor preview settings apply",
+    "reference GameUber program permutation, scene/global uniform buffers, textures, and draw state"
+  ]
+}

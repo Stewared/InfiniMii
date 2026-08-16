@@ -12,7 +12,7 @@
 
 3. **Mii Dashboard** (Primary Tool)
    - Type: SoftwareApplication
-   - Function: Mii rendering, JSON editing, QR generation, recreation instructions, Kidomatic, and format conversion between Nintendo systems
+   - Function: User-supplied Mii inspection, source-backed LTD rendering, LTD export, recreation instructions, and Kidomatic
 
 ## Secondary Entities (What InfiniMii Works With)
 ### Nintendo Systems
@@ -28,10 +28,8 @@
 - Amiibo
 
 ### Mii Formats
-- QR Code (3DS/Wii U)
-- Wii Bin File (.mii)
-- 3DS Bin File (.cfsd)
-- Switch Mii Data
+- Living the Dream ShareMii (.ltd) (current stored-Mii download format)
+- QR Code, Wii RCD/RSD, 3DS/Wii U data, and Switch Mii data (supported input/reference formats where documented)
 
 ### Related Concepts
 - Mii Maker
@@ -43,6 +41,6 @@
 ## Entity Relationships
 InfiniMii → offers → Mii Dashboard
 InfiniMii → supports → Nintendo 3DS
-InfiniMii → generates → QR Code
+InfiniMii → convertsTo → LTD ShareMii
 Mii Character → usedIn → Tomodachi Life
 Nintendo 3DS → uses → QR Code

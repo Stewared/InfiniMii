@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "scope": "Source-backed title-renderer body pose, scale branch, and rigid Mii-part attachment. reference.png is validation evidence only and does not supply transforms.",
+  "decompiled_sources": [
+    {
+      "path": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+      "sha256": "4846fda016407541588f168a58479677f4bba190822b1ec4388aac59b8cc79b6"
+    },
+    {
+      "path": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+    }
+  ],
+  "symbols": {
+    "functions": [
+      {
+        "address": "7101bcbf1c",
+        "raw_name": "FUN_7101bcbf1c",
+        "canonical_name": "initialize_mii_model_render_state",
+        "category": "mii_body_model",
+        "evidence": "MiiModelRenderState constructor writes signed field +0xac to -1."
+      },
+      {
+        "address": "7101bc6e80",
+        "raw_name": "FUN_7101bc6e80",
+        "canonical_name": "normalize_mii_part_skeleton_parent_basis",
+        "category": "mii_body_model",
+        "evidence": "Divides 3x3 parent-basis columns by inherited XYZ scale and leaves translation elements unchanged."
+      },
+      {
+        "address": "7101bcde34",
+        "raw_name": "FUN_7101bcde34",
+        "canonical_name": "load_mii_skeletal_animation_resource",
+        "category": "mii_body_model",
+        "evidence": "RendererBase caller passes AnimationIcon before selecting a skeletal animation."
+      },
+      {
+        "address": "7101bd04a8",
+        "raw_name": "FUN_7101bd04a8",
+        "canonical_name": "update_mii_body_proportions_and_head_transform",
+        "category": "mii_body_model",
+        "evidence": "Selects raw or provider-capped build/height, writes BodyBase XYZ scale, copies the 3x4 head transform, and applies -scale_x*0.09074663 to its first translation component."
+      },
+      {
+        "address": "7101bd05f0",
+        "raw_name": "FUN_7101bd05f0",
+        "canonical_name": "update_mii_part_model_culling_radii",
+        "category": "mii_body_model",
+        "evidence": "Scales BFRES Shape.RadiusArray values used for culling; it is not a geometry-scale setter."
+      },
+      {
+        "address": "7101dd9020",
+        "raw_name": "FUN_7101dd9020",
+        "canonical_name": "create_renderer_base_temporary_mannequin",
+        "category": "external_render_root",
+        "evidence": "Allocates a 0x12d0 MiiModelRenderState, loads AnimationIcon, selects IconPose, and reasserts provider field +0x154=-1."
+      }
+    ],
+    "globals": [
+      {
+        "address": "710399cd58",
+        "raw_name": "DAT_710399cd58",
+        "canonical_name": "mii_model_render_state_vtable",
+        "category": "mii_render_global"
+      },
+      {
+        "address": "71041fd968",
+        "raw_name": "DAT_71041fd968",
+        "canonical_name": "g_mii_resource_manager",
+        "category": "mii_render_global"
+      }
+    ],
+    "data_types": [
+      {
+        "canonical_name": "MiiModelRenderState",
+        "storage": "anonymous object, 0x12d0 bytes"
+      },
+      {
+        "canonical_name": "MiiBodyScale3",
+        "storage": "float[3] at MiiModelRenderState +0xdb4"
+      },
+      {
+        "canonical_name": "MiiAffineTransform3x4",
+        "storage": "float[12] at +0xee8 and adjusted copy at +0xf18"
+      },
+      {
+        "canonical_name": "MiiPartSkeletonBridgeCursor",
+        "storage": "bone index plus 3x4-matrix and XYZ-scale pointers"
+      }
+    ]
+  },
+  "body_scale": {
+    "branch_selector": "MiiModelRenderState +0xac",
+    "renderer_default": -1,
+    "renderer_default_branch": "raw_char_info",
+    "alternate_branch": {
+      "condition": "+0xac != -1",
+      "build_cap": 85,
+      "height_cap": 103
+    },
+    "float_precision": "IEEE-754 float32 at each arithmetic operation",
+    "formula": {
+      "x": "((build * 0.006015625) + 0.5) * 0.79114896",
+      "y_and_z": "((((build * 0.003671875) + 0.4) * height * 0.0078125) + (build * 0.0017968749) + 0.4) * 0.7908809"
+    },
+    "kestron": {
+      "build": 105,
+      "height": 107,
+      "provider_index": -1,
+      "xyz": [
+        0.8952963352203369,
+        0.9849156141281128,
+        0.9849156141281128
+      ]
+    }
+  },
+  "animation": {
+    "resource": "AnimationIcon",
+    "animation": "IconPose",
+    "frame": 0,
+    "loop": false,
+    "selection_function": "FUN_7101dd9020",
+    "catalog": "renderer/assets/animations/IconPose.json",
+    "catalog_sha256": "09bc64e75286d46dcf76058a8e2bfc767c6b74cd47ab83107af6a1dc4e2c4bef",
+    "body_catalog": "renderer/assets/models/BodyBaseDefault/bfres.json",
+    "body_catalog_sha256": "f077a1e10117fcaeb567555fe89e59d66ae70dc767051fdf70585ae93d7b9696",
+    "scope_boundary": "This is the exact RendererBase title-preview pose. It is not asserted to be the gameplay idle frame in reference.png."
+  },
+  "attachment": {
+    "inherited_basis_operation": "result[:,0]/=scale.x; result[:,1]/=scale.y; result[:,2]/=scale.z",
+    "translation_operation": "unchanged by FUN_7101bc6e80",
+    "part_geometry_scale": [1.0, 1.0, 1.0],
+    "head_translation_correction": "-body_scale.x * 0.09074663 along the body-to-part attachment axis",
+    "reference_image_override": null
+  },
+  "unsupported_reference_fit_audit": [
+    "reference-only head geometry scaling",
+    "reference-derived camera distance, target, FOV, or horizontal projection scaling",
+    "reference-derived light colors, normalization, edge colors, or per-material radiance scales",
+    "presentation gradients and ground-shadow ellipses presented as title state"
+  ]
+}

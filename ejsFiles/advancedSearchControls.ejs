@@ -19,6 +19,12 @@
     const resolvedSearchAriaLabel = (typeof searchAriaLabel === 'string' && searchAriaLabel.trim())
         ? searchAriaLabel.trim()
         : 'Search Mii characters';
+    const resolvedResultSort = (typeof selectedResultSort === 'string' && selectedResultSort.trim())
+        ? selectedResultSort.trim()
+        : '';
+    const resolvedResultDirection = (typeof selectedResultDirection === 'string' && selectedResultDirection.trim())
+        ? selectedResultDirection.trim()
+        : '';
     const showSearchFields = typeof renderSearchFields === 'undefined' || renderSearchFields !== false;
     const showMiiAdvancedFilters = typeof renderMiiAdvancedFilters !== 'undefined' && renderMiiAdvancedFilters === true;
     const showTagFilters = typeof renderTagFilters !== 'undefined' && renderTagFilters === true;
@@ -29,6 +35,14 @@
     const safeFavoriteColorOptions = (typeof favoriteColorOptions !== 'undefined' && Array.isArray(favoriteColorOptions)) ? favoriteColorOptions : [];
     const safeBirthdayMonthOptions = (typeof birthdayMonthOptions !== 'undefined' && Array.isArray(birthdayMonthOptions)) ? birthdayMonthOptions : [];
     const safeBirthdayDayOptions = (typeof birthdayDayOptions !== 'undefined' && Array.isArray(birthdayDayOptions)) ? birthdayDayOptions : [];
+    const safeMiiEraFilterOptions = (typeof miiEraFilterOptions !== 'undefined' && Array.isArray(miiEraFilterOptions)) ? miiEraFilterOptions : [];
+    const selectedMiiEraList = Array.isArray(filters.eras)
+        ? filters.eras
+        : safeMiiEraFilterOptions.map(option => option.value);
+    const safeMiiFacepaintFilterOptions = (typeof miiFacepaintFilterOptions !== 'undefined' && Array.isArray(miiFacepaintFilterOptions)) ? miiFacepaintFilterOptions : [];
+    const selectedMiiFacepaintUsageList = Array.isArray(filters.facepaintUsages)
+        ? filters.facepaintUsages
+        : [];
     const heightMinValue = filters.heightMin || '0';
     const heightMaxValue = filters.heightMax || '127';
     const weightMinValue = filters.weightMin || '0';
@@ -46,11 +60,42 @@
     const selectedCategoryCount = selectedCategoryList.length;
     const excludedCategoryCount = excludedCategoryList.length;
     const selectedFieldSource = (typeof selectedSearchFields !== 'undefined' && Array.isArray(selectedSearchFields)) ? selectedSearchFields : [];
-    const advancedCount = selectedTagCount + excludedTagCount + selectedCategoryCount + excludedCategoryCount + (filters.isActive ? 1 : 0);
+    const hasConfiguredSearchFields = Boolean(
+        typeof searchFieldsExplicitlyConfigured !== 'undefined' && searchFieldsExplicitlyConfigured
+    );
+    const hasNarrowedSearchFields = hasConfiguredSearchFields && selectedFieldSource.length !== 4;
+    const inactiveEraCount = safeMiiEraFilterOptions.length > 0
+        ? Math.max(0, safeMiiEraFilterOptions.length - selectedMiiEraList.length)
+        : 0;
+    const activeMiiDetailCount = [
+        filters.favoriteColor,
+        filters.birthMonth,
+        filters.birthday,
+        filters.mustHaveTomodachiLifeData,
+        String(heightMinValue) !== '0' || String(heightMaxValue) !== '127',
+        String(weightMinValue) !== '0' || String(weightMaxValue) !== '127'
+    ].filter(Boolean).length + inactiveEraCount + selectedMiiFacepaintUsageList.length;
+    const advancedCount = selectedTagCount
+        + excludedTagCount
+        + selectedCategoryCount
+        + excludedCategoryCount
+        + activeMiiDetailCount
+        + (hasNarrowedSearchFields ? 1 : 0);
+    const shouldOpenAdvanced = Boolean(
+        (typeof advancedOpen !== 'undefined' && advancedOpen)
+        || advancedCount > 0
+    );
+    const advancedBodyId = `${searchControlIdPrefix}-advanced-body`;
 %>
 
 <section class="search-control-panel" aria-label="<%= resolvedSearchAriaLabel %>">
     <form class="search-control-form" method="GET" action="<%= resolvedFormAction %>" role="search">
+        <% if (resolvedResultSort) { %>
+            <input type="hidden" name="sort" value="<%= resolvedResultSort %>">
+        <% } %>
+        <% if (resolvedResultDirection) { %>
+            <input type="hidden" name="direction" value="<%= resolvedResultDirection %>">
+        <% } %>
         <div class="search-control-main">
             <label for="<%= searchInputId %>" class="sr-only"><%= resolvedSearchAriaLabel %></label>
             <input
@@ -65,14 +110,17 @@
         </div>
 
         <% if (showSearchFields || showMiiAdvancedFilters || showTagFilters || showCategoryFilters) { %>
-            <details class="advanced-search-dropdown">
-                <summary>
-                    <span>Advanced Search</span>
+            <details class="advanced-search-dropdown" <%= shouldOpenAdvanced ? 'open' : '' %>>
+                <summary aria-controls="<%= advancedBodyId %>">
+                    <span class="advanced-search-summary-copy">
+                        <strong>Advanced search</strong>
+                        <small>Choose where to look and narrow the results</small>
+                    </span>
                     <% if (advancedCount > 0) { %>
-                        <span class="advanced-search-count"><%= advancedCount %></span>
+                        <span class="advanced-search-count" aria-label="<%= advancedCount %> active filter<%= advancedCount === 1 ? '' : 's' %>"><%= advancedCount %></span>
                     <% } %>
                 </summary>
-                <div class="advanced-search-body">
+                <div class="advanced-search-body" id="<%= advancedBodyId %>">
                     <% if (showSearchFields) { %>
                         <%- include('searchFieldFilters', {
                             selectedSearchFields: selectedFieldSource,
@@ -82,70 +130,136 @@
                     <% } %>
 
                     <% if (showMiiAdvancedFilters) { %>
-                        <section class="advanced-search-options" aria-label="Advanced filters">
-                            <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-gender">
-                                <span>Gender</span>
-                                <select id="<%= searchControlIdPrefix %>-gender" name="gender">
-                                    <option value="">Any</option>
-                                    <option value="0" <%= filters.gender === '0' ? 'selected' : '' %>>Male</option>
-                                    <option value="1" <%= filters.gender === '1' ? 'selected' : '' %>>Female</option>
-                                </select>
-                            </label>
-
-                            <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-favorite-color">
-                                <span>Favorite Color</span>
-                                <select id="<%= searchControlIdPrefix %>-favorite-color" name="favoriteColor">
-                                    <option value="">Any</option>
-                                    <% safeFavoriteColorOptions.forEach((color) => { %>
-                                        <option value="<%= color.value %>" <%= filters.favoriteColor === String(color.value) ? 'selected' : '' %>><%= color.label %></option>
-                                    <% }) %>
-                                </select>
-                            </label>
-
-                            <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-birth-month">
-                                <span>Birthday Month</span>
-                                <select id="<%= searchControlIdPrefix %>-birth-month" name="birthMonth">
-                                    <option value="">Any</option>
-                                    <% safeBirthdayMonthOptions.forEach((month) => { %>
-                                        <option value="<%= month.value %>" <%= filters.birthMonth === String(month.value) ? 'selected' : '' %>><%= month.label %></option>
-                                    <% }) %>
-                                </select>
-                            </label>
-
-                            <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-birthday">
-                                <span>Birthday Day</span>
-                                <select id="<%= searchControlIdPrefix %>-birthday" name="birthday">
-                                    <option value="">Any</option>
-                                    <% safeBirthdayDayOptions.forEach((day) => { %>
-                                        <option value="<%= day.value %>" <%= filters.birthday === String(day.value) ? 'selected' : '' %>><%= day.label %></option>
-                                    <% }) %>
-                                </select>
-                            </label>
-
-                            <label class="advanced-search-check">
-                                <input type="checkbox" name="hasTlData" value="1" <%= filters.mustHaveTomodachiLifeData ? 'checked' : '' %>>
-                                <span>Must Have Tomodachi Life Data</span>
-                            </label>
-
-                            <div class="advanced-range-control" data-advanced-range>
-                                <div class="advanced-range-heading">
-                                    <span>Height</span>
-                                    <output data-range-output for="<%= searchControlIdPrefix %>-height-min <%= searchControlIdPrefix %>-height-max"><%= heightMinValue %>-<%= heightMaxValue %></output>
+                        <section class="advanced-search-options advanced-filter-section" aria-labelledby="<%= searchControlIdPrefix %>-details-title">
+                            <header class="advanced-filter-heading">
+                                <div>
+                                    <h3 id="<%= searchControlIdPrefix %>-details-title">Mii details</h3>
+                                    <p>Filter by appearance data, era, or proportions.</p>
                                 </div>
-                                <div class="advanced-range-sliders">
-                                    <input id="<%= searchControlIdPrefix %>-height-min" type="range" name="heightMin" min="0" max="127" value="<%= heightMinValue %>" data-range-min aria-label="Minimum height">
-                                    <input id="<%= searchControlIdPrefix %>-height-max" type="range" name="heightMax" min="0" max="127" value="<%= heightMaxValue %>" data-range-max aria-label="Maximum height">
-                                </div>
+                            </header>
+
+                            <div class="advanced-select-grid">
+                                <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-favorite-color">
+                                    <span>Favorite color</span>
+                                    <span class="advanced-select-wrap">
+                                        <select id="<%= searchControlIdPrefix %>-favorite-color" name="favoriteColor">
+                                            <option value="">Any color</option>
+                                            <% safeFavoriteColorOptions.forEach((color) => { %>
+                                                <option value="<%= color.value %>" <%= filters.favoriteColor === String(color.value) ? 'selected' : '' %>><%= color.label %></option>
+                                            <% }) %>
+                                        </select>
+                                    </span>
+                                </label>
+
+                                <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-birth-month">
+                                    <span>Birthday month</span>
+                                    <span class="advanced-select-wrap">
+                                        <select id="<%= searchControlIdPrefix %>-birth-month" name="birthMonth">
+                                            <option value="">Any month</option>
+                                            <% safeBirthdayMonthOptions.forEach((month) => { %>
+                                                <option value="<%= month.value %>" <%= filters.birthMonth === String(month.value) ? 'selected' : '' %>><%= month.label %></option>
+                                            <% }) %>
+                                        </select>
+                                    </span>
+                                </label>
+
+                                <label class="advanced-search-control" for="<%= searchControlIdPrefix %>-birthday">
+                                    <span>Birthday day</span>
+                                    <span class="advanced-select-wrap">
+                                        <select id="<%= searchControlIdPrefix %>-birthday" name="birthday">
+                                            <option value="">Any day</option>
+                                            <% safeBirthdayDayOptions.forEach((day) => { %>
+                                                <option value="<%= day.value %>" <%= filters.birthday === String(day.value) ? 'selected' : '' %>><%= day.label %></option>
+                                            <% }) %>
+                                        </select>
+                                    </span>
+                                </label>
                             </div>
 
-                            <div class="advanced-range-control" data-advanced-range>
-                                <div class="advanced-range-heading">
-                                    <span>Weight</span>
-                                    <output data-range-output for="<%= searchControlIdPrefix %>-weight-min <%= searchControlIdPrefix %>-weight-max"><%= weightMinValue %>-<%= weightMaxValue %></output>
+                            <fieldset class="advanced-era-filters advanced-data-filters">
+                                <legend>Game data</legend>
+                                <p id="<%= searchControlIdPrefix %>-game-data-help">Limit results to Miis with data from a supported game.</p>
+                                <label class="advanced-search-check advanced-data-check">
+                                    <input type="checkbox" name="hasTlData" value="1" aria-describedby="<%= searchControlIdPrefix %>-game-data-help" <%= filters.mustHaveTomodachiLifeData ? 'checked' : '' %>>
+                                    <span>Must have Tomodachi Life data</span>
+                                </label>
+                            </fieldset>
+
+                            <% if (safeMiiEraFilterOptions.length > 0) { %>
+                                <fieldset class="advanced-era-filters">
+                                    <legend>Mii eras</legend>
+                                    <input type="hidden" name="eraFiltersConfigured" value="1">
+                                    <p id="<%= searchControlIdPrefix %>-era-help">Turn off an era to exclude it from search results.</p>
+                                    <div class="advanced-era-filter-options" aria-describedby="<%= searchControlIdPrefix %>-era-help">
+                                        <% safeMiiEraFilterOptions.forEach((option) => { %>
+                                            <label class="advanced-search-check">
+                                                <input
+                                                    type="checkbox"
+                                                    name="eras"
+                                                    value="<%= option.value %>"
+                                                    <%= selectedMiiEraList.includes(option.value) ? 'checked' : '' %>
+                                                >
+                                                <span><%= option.label %></span>
+                                            </label>
+                                        <% }) %>
+                                    </div>
+                                </fieldset>
+                            <% } %>
+
+                            <% if (safeMiiFacepaintFilterOptions.length > 0) { %>
+                                <fieldset class="advanced-era-filters advanced-facepaint-filters">
+                                    <legend>Facepaint usage</legend>
+                                    <input type="hidden" name="facepaintFiltersConfigured" value="1">
+                                    <p id="<%= searchControlIdPrefix %>-facepaint-help">Choose Partial or Full to show only Miis using that amount of facepaint.</p>
+                                    <div class="advanced-era-filter-options" aria-describedby="<%= searchControlIdPrefix %>-facepaint-help">
+                                        <% safeMiiFacepaintFilterOptions.forEach((option) => { %>
+                                            <label class="advanced-search-check">
+                                                <input
+                                                    type="checkbox"
+                                                    name="facepaintUsages"
+                                                    value="<%= option.value %>"
+                                                    <%= selectedMiiFacepaintUsageList.includes(option.value) ? 'checked' : '' %>
+                                                >
+                                                <span><%= option.label %></span>
+                                            </label>
+                                        <% }) %>
+                                    </div>
+                                </fieldset>
+                            <% } %>
+
+                            <div class="advanced-range-grid">
+                                <div class="advanced-range-control" data-advanced-range>
+                                    <div class="advanced-range-heading">
+                                        <span>Height</span>
+                                        <output data-range-output for="<%= searchControlIdPrefix %>-height-min <%= searchControlIdPrefix %>-height-max"><%= heightMinValue %>–<%= heightMaxValue %></output>
+                                    </div>
+                                    <div class="advanced-range-sliders">
+                                        <label class="advanced-range-slider" for="<%= searchControlIdPrefix %>-height-min">
+                                            <span>Min</span>
+                                            <input id="<%= searchControlIdPrefix %>-height-min" type="range" name="heightMin" min="0" max="127" value="<%= heightMinValue %>" data-range-min aria-label="Minimum height">
+                                        </label>
+                                        <label class="advanced-range-slider" for="<%= searchControlIdPrefix %>-height-max">
+                                            <span>Max</span>
+                                            <input id="<%= searchControlIdPrefix %>-height-max" type="range" name="heightMax" min="0" max="127" value="<%= heightMaxValue %>" data-range-max aria-label="Maximum height">
+                                        </label>
+                                    </div>
                                 </div>
-                                <div class="advanced-range-sliders">
-                                    <input id="<%= searchControlIdPrefix %>-weight-min" type="range" name="weightMin" min="0" max="127" value="<%= weightMinValue %>" data-range-min aria-label="Minimum weight">
-                                    <input id="<%= searchControlIdPrefix %>-weight-max" type="range" name="weightMax" min="0" max="127" value="<%= weightMaxValue %>" data-range-max aria-label="Maximum weight">
+
+                                <div class="advanced-range-control" data-advanced-range>
+                                    <div class="advanced-range-heading">
+                                        <span>Weight</span>
+                                        <output data-range-output for="<%= searchControlIdPrefix %>-weight-min <%= searchControlIdPrefix %>-weight-max"><%= weightMinValue %>–<%= weightMaxValue %></output>
+                                    </div>
+                                    <div class="advanced-range-sliders">
+                                        <label class="advanced-range-slider" for="<%= searchControlIdPrefix %>-weight-min">
+                                            <span>Min</span>
+                                            <input id="<%= searchControlIdPrefix %>-weight-min" type="range" name="weightMin" min="0" max="127" value="<%= weightMinValue %>" data-range-min aria-label="Minimum weight">
+                                        </label>
+                                        <label class="advanced-range-slider" for="<%= searchControlIdPrefix %>-weight-max">
+                                            <span>Max</span>
+                                            <input id="<%= searchControlIdPrefix %>-weight-max" type="range" name="weightMax" min="0" max="127" value="<%= weightMaxValue %>" data-range-max aria-label="Maximum weight">
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -169,9 +283,14 @@
                             selectedCategories: selectedCategoryList,
                             excludedCategories: excludedCategoryList,
                             categoryName: typeof categoryName === 'string' ? categoryName : 'category',
-                            excludeCategoryName: typeof excludeCategoryName === 'string' ? excludeCategoryName : 'excludeCategory'
+                            excludeCategoryName: typeof excludeCategoryName === 'string' ? excludeCategoryName : 'excludeCategory',
+                            categoryUiIdPrefix: `${searchControlIdPrefix}-categories`
                         }) %>
                     <% } %>
+
+                    <div class="advanced-search-actions">
+                        <button type="submit" class="advanced-search-apply">Apply filters</button>
+                    </div>
                 </div>
             </details>
         <% } %>
@@ -181,6 +300,8 @@
         <script>
             (() => {
                 document.querySelectorAll('[data-advanced-range]').forEach((rangeControl) => {
+                    if (rangeControl.dataset.advancedRangeReady === 'true') return;
+                    rangeControl.dataset.advancedRangeReady = 'true';
                     const minInput = rangeControl.querySelector('[data-range-min]');
                     const maxInput = rangeControl.querySelector('[data-range-max]');
                     const output = rangeControl.querySelector('[data-range-output]');
@@ -203,7 +324,7 @@
                             }
                         }
 
-                        output.value = `${minValue}-${maxValue}`;
+                        output.value = `${minValue}–${maxValue}`;
                         output.textContent = output.value;
                     };
 
@@ -215,7 +336,7 @@
         </script>
     <% } %>
 
-    <% if (showTagFilters || showCategoryFilters) { %>
+    <% if (showCategoryFilters) { %>
         <script>
             (() => {
                 const STATES = ['neutral', 'include', 'exclude'];

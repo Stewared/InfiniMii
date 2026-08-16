@@ -1,0 +1,2005 @@
+{
+  "schema_version": 1,
+  "description": "Exact native MiiParts mip chains and source-backed live 256x256 MiiMask point-mip selections for Spider-Man Noir, Kestron, Johnny Thunder, Emma, and Spider-Man; selected faceline-only textures remain explicitly fail-closed when their compositor contract is unresolved.",
+  "generator": "tools/build_face_sprite_mip_cache.py --write",
+  "source": {
+    "path": "ltdDemo_converted_assets/decompressed/1/Tex/Pack/MiiParts.bntx",
+    "byte_length": 11194648,
+    "sha256": "531848fc8485f86fa703a652b5fc0c51d0d70c1f13aec13e244a22ee6c5e3f97"
+  },
+  "target": {
+    "path": "dcmp/mii1.ltd",
+    "byte_length": 434,
+    "sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b"
+  },
+  "target_selections": {
+    "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": {
+      "target": {
+        "path": "dcmp/mii0.ltd",
+        "byte_length": 10307,
+        "sha256": "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef",
+        "display_name": "Spider-Man Noir"
+      },
+      "active_parts": {
+        "path": "dcmp/renderer/mii0_active_parts.json",
+        "byte_length": 27498,
+        "sha256": "26f190a935e3275e026ab47dda52dfc2fd7438e116bd74855e3aa57bebe420cd"
+      },
+      "selected_textures": {},
+      "selected_mii_mask_semantics": {},
+      "separate_faceline_target_textures": {
+        "wrinkle_upper": {
+          "texture": "WrinkleUpper00",
+          "reason": "selected WrinkleUpper texture belongs to the separate faceline-target build; its native packed-BNTX mip chain is checked here, while composition is owned by the separate faceline-target contract"
+        }
+      }
+    },
+    "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": {
+      "target": {
+        "path": "dcmp/mii1.ltd",
+        "byte_length": 434,
+        "sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b",
+        "display_name": "Kestron"
+      },
+      "active_parts": {
+        "path": "dcmp/renderer/mii_active_parts.json",
+        "byte_length": 28405,
+        "sha256": "0c2bcba3da747fd7183e81ad9c5f48e31fe51109a10fa5db9a74a96af63db216"
+      },
+      "selected_textures": {
+        "Eye002": {
+          "rho_x": 3.633397076652462,
+          "rho_y": 3.9594947351130574,
+          "rho": 3.9594947351130574,
+          "unbiased_lod": 1.985316342008321,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.2853163420083211,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            11.756250000000001,
+            8.712
+          ],
+          "rotation_degrees": 0.0
+        },
+        "Eyebrow19": {
+          "rho_x": 3.0744129110136216,
+          "rho_y": 2.948300695068799,
+          "rho": 3.0744129110136216,
+          "unbiased_lod": 1.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.1625,
+            11.700000000000001
+          ],
+          "rotation_degrees": 337.5
+        },
+        "Mouth015": {
+          "rho_x": 3.6333970766524617,
+          "rho_y": 3.4843553668994893,
+          "rho": 3.6333970766524617,
+          "unbiased_lod": 1.8613190396354846,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.1613190396354847,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.6125,
+            9.9
+          ],
+          "rotation_degrees": 0.0
+        },
+        "Mustache03": {
+          "rho_x": 6.148825822027243,
+          "rho_y": 5.896601390137597,
+          "rho": 6.148825822027243,
+          "unbiased_lod": 2.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 2,
+          "raw_size": [
+            11.700000000000001,
+            23.400000000000002
+          ],
+          "rotation_degrees": 0.0
+        }
+      },
+      "selected_mii_mask_semantics": {
+        "eye": {
+          "selector": 2,
+          "parts_record": "Eye002",
+          "texture": "Eye002",
+          "mii_mask_mode": 7,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eye002.mii__Parts.bgyml",
+            "byte_length": 524,
+            "sha256": "37da75a8b23944721e5becea54a2af01225c28efc8be4c754413e24187410526"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Eye002.mii__Parts.gyml"
+        },
+        "eyebrow": {
+          "selector": 19,
+          "parts_record": "Eyebrow19",
+          "texture": "Eyebrow19",
+          "mii_mask_mode": 3,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eyebrow19.mii__Parts.bgyml",
+            "byte_length": 304,
+            "sha256": "fbb284232dcf45e4020d5f27d00991e21599202b0e24a3fc9cce5f818a46307e"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Eyebrow19.mii__Parts.gyml"
+        },
+        "mouth": {
+          "selector": 15,
+          "parts_record": "Mouth015",
+          "texture": "Mouth015",
+          "mii_mask_mode": 8,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mouth015.mii__Parts.bgyml",
+            "byte_length": 240,
+            "sha256": "e4837e47df45dfb46779af787daa229447e625ea8df7660088b2293f03c884d6"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Mouth015.mii__Parts.gyml"
+        },
+        "mustache": {
+          "selector": 4,
+          "parts_record": "Mustache03",
+          "texture": "Mustache03",
+          "mii_mask_mode": 3,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mustache03.mii__Parts.bgyml",
+            "byte_length": 304,
+            "sha256": "c4af28882a97be4e2d7720318ff7d7fbd0bf6fa0476da289c6af0ffb444b4b0f"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Mustache03.mii__Parts.gyml"
+        }
+      },
+      "separate_faceline_target_textures": {}
+    },
+    "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": {
+      "target": {
+        "path": "dcmp/mii2.ltd",
+        "byte_length": 964,
+        "sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+        "display_name": "Johnny Thunder"
+      },
+      "active_parts": {
+        "path": "dcmp/renderer/mii2_active_parts.json",
+        "byte_length": 33632,
+        "sha256": "644182dfec5bad6b16325f984a4fca03c4e42e4f6560edd80f631e02b343dab0"
+      },
+      "selected_textures": {
+        "Eye018": {
+          "rho_x": 3.0744129110136216,
+          "rho_y": 2.9483006950687987,
+          "rho": 3.0744129110136216,
+          "unbiased_lod": 1.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.89375,
+            11.700000000000001
+          ],
+          "rotation_degrees": 0.0
+        },
+        "Eyebrow15": {
+          "rho_x": 3.6333970766524617,
+          "rho_y": 3.4843553668994893,
+          "rho": 3.6333970766524617,
+          "unbiased_lod": 1.8613190396354846,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.1613190396354847,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            11.137500000000001,
+            9.9
+          ],
+          "rotation_degrees": 0.0
+        },
+        "Mouth015": {
+          "rho_x": 5.65949413106046,
+          "rho_y": 4.0906159710867875,
+          "rho": 5.65949413106046,
+          "unbiased_lod": 2.5006731047839486,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.8006731047839486,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 2,
+          "raw_size": [
+            8.6625,
+            8.568
+          ],
+          "rotation_degrees": 348.75
+        }
+      },
+      "selected_mii_mask_semantics": {
+        "eye": {
+          "selector": 18,
+          "parts_record": "Eye018",
+          "texture": "Eye018",
+          "mii_mask_mode": 7,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eye018.mii__Parts.bgyml",
+            "byte_length": 576,
+            "sha256": "c88a5039227848b169a3ea9f5c9c5345e0f7410262177361c39b915d25332fd9"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Eye018.mii__Parts.gyml"
+        },
+        "eyebrow": {
+          "selector": 15,
+          "parts_record": "Eyebrow15",
+          "texture": "Eyebrow15",
+          "mii_mask_mode": 3,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eyebrow15.mii__Parts.bgyml",
+            "byte_length": 304,
+            "sha256": "ab80695eebd1174a5a583032ed1641278b2bc697510e01ef007b06a545da9c45"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Eyebrow15.mii__Parts.gyml"
+        },
+        "mouth": {
+          "selector": 15,
+          "parts_record": "Mouth015",
+          "texture": "Mouth015",
+          "mii_mask_mode": 8,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mouth015.mii__Parts.bgyml",
+            "byte_length": 240,
+            "sha256": "e4837e47df45dfb46779af787daa229447e625ea8df7660088b2293f03c884d6"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Mouth015.mii__Parts.gyml"
+        }
+      },
+      "separate_faceline_target_textures": {
+        "beard_short": {
+          "texture": "BeardShort07",
+          "reason": "selected BeardShort texture belongs to the separate faceline-target build; its exact local composition contract is renderer/mii_faceline_stubble.json"
+        }
+      }
+    },
+    "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": {
+      "target": {
+        "path": "dcmp/mii3.ltd",
+        "byte_length": 434,
+        "sha256": "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776",
+        "display_name": "Emma"
+      },
+      "active_parts": {
+        "path": "dcmp/renderer/mii3_active_parts.json",
+        "byte_length": 28171,
+        "sha256": "89958275a105cc3cbd709b6937a8b3abae324630bf81788bb22298184f21e4c5"
+      },
+      "selected_textures": {
+        "Eye002": {
+          "rho_x": 3.0744129110136216,
+          "rho_y": 2.9483006950687987,
+          "rho": 3.0744129110136216,
+          "unbiased_lod": 1.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.89375,
+            11.700000000000001
+          ],
+          "rotation_degrees": 0.0
+        },
+        "EyelashUpper01": {
+          "rho_x": 4.168799172388581,
+          "rho_y": 3.981807906568617,
+          "rho": 4.168799172388581,
+          "unbiased_lod": 2.0596318734709,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.3596318734709,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            6.45066987508125,
+            5.432143096836162
+          ],
+          "rotation_degrees": 326.25
+        },
+        "Eyebrow00": {
+          "rho_x": 3.074412911013622,
+          "rho_y": 2.948300695068799,
+          "rho": 3.074412911013622,
+          "unbiased_lod": 1.62031094013169,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.92031094013169,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.1625,
+            11.700000000000001
+          ],
+          "rotation_degrees": 0.0
+        },
+        "Mouth045": {
+          "rho_x": 3.0744129110136216,
+          "rho_y": 2.9483006950687987,
+          "rho": 3.0744129110136216,
+          "unbiased_lod": 1.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            16.087500000000002,
+            11.700000000000001
+          ],
+          "rotation_degrees": 0.0
+        }
+      },
+      "selected_mii_mask_semantics": {
+        "eye": {
+          "selector": 2,
+          "parts_record": "Eye002",
+          "texture": "Eye002",
+          "mii_mask_mode": 7,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eye002.mii__Parts.bgyml",
+            "byte_length": 524,
+            "sha256": "37da75a8b23944721e5becea54a2af01225c28efc8be4c754413e24187410526"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Eye002.mii__Parts.gyml"
+        },
+        "eyelash_upper": {
+          "selector": 2,
+          "parts_record": "EyelashUpper01",
+          "texture": "EyelashUpper01",
+          "mii_mask_mode": 3,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/EyelashUpper01.mii__Parts.bgyml",
+            "byte_length": 256,
+            "sha256": "f95e00166a6a9d9d3f40ea98ca2e49d0be3350282fc8eb43da125c5c516665ed"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/EyelashUpper01.mii__Parts.gyml"
+        },
+        "eyebrow": {
+          "selector": 0,
+          "parts_record": "Eyebrow00",
+          "texture": "Eyebrow00",
+          "mii_mask_mode": 3,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eyebrow00.mii__Parts.bgyml",
+            "byte_length": 304,
+            "sha256": "c3d509df9a87fb60782d142d5829591c573a31272ad52272533c72feef65aea1"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Eyebrow00.mii__Parts.gyml"
+        },
+        "mouth": {
+          "selector": 46,
+          "parts_record": "Mouth045",
+          "texture": "Mouth045",
+          "mii_mask_mode": 8,
+          "use_texture_color": false,
+          "parts_config": {
+            "path": "ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mouth045.mii__Parts.bgyml",
+            "byte_length": 300,
+            "sha256": "6784dfcef29d863c3935fe3cb31a0c22ee386fa504988dfab905f712b76c24be"
+          },
+          "rsdb_row_id": "Work/Mii/Parts/Mouth045.mii__Parts.gyml"
+        }
+      },
+      "separate_faceline_target_textures": {}
+    },
+    "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": {
+      "target": {
+        "path": "dcmp/mii4.ltd",
+        "byte_length": 10656,
+        "sha256": "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391",
+        "display_name": "Spider-Man"
+      },
+      "active_parts": {
+        "path": "dcmp/renderer/mii4_active_parts.json",
+        "byte_length": 27382,
+        "sha256": "3ad5c9ac114398fd760ef37796adaf5635acfbeb8f231e6af85e4fc45d660f69"
+      },
+      "selected_textures": {},
+      "selected_mii_mask_semantics": {},
+      "separate_faceline_target_textures": {}
+    }
+  },
+  "evidence_sources": {
+    "active_parts": {
+      "path": "dcmp/renderer/mii_active_parts.json",
+      "byte_length": 28405,
+      "sha256": "0c2bcba3da747fd7183e81ad9c5f48e31fe51109a10fa5db9a74a96af63db216"
+    },
+    "mii_parts_rsdb": {
+      "path": "ltdDemo_converted_assets/decompressed/1/RSDB/MiiParts.Trial.100.rstbl.byml",
+      "byte_length": 511616,
+      "sha256": "2b73cd38ead127f3e50a00639ec29aa40273a11982e8ad5c724331404fcf2c3a"
+    },
+    "mii_expression_rsdb": {
+      "path": "ltdDemo_converted_assets/decompressed/1/RSDB/MiiExpression.Trial.100.rstbl.byml",
+      "byte_length": 18040,
+      "sha256": "abee13101f457ce42afcf09d622885cba7301ac3b8c4a9506314e6a9ce94994f"
+    },
+    "color_table": {
+      "path": "dcmp/renderer/assets/color_tables.json",
+      "byte_length": 16702,
+      "sha256": "bfd3e98b88443275c30d7ceb0f526a9cfe62e345c496a36dc4795aefb295ec29"
+    },
+    "mii_pipeline_decomp": {
+      "path": "dcmp/src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "byte_length": 4030968,
+      "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+    },
+    "sampler_default_decomp": {
+      "path": "dcmp/src/functions/internal/batch_01/7100b00000/2377_functions.inc",
+      "byte_length": 2740,
+      "sha256": "a2ef201298d7293859ed0cc763ea47ba5a7958ec27ad4acf9de50acbef50c825"
+    },
+    "classic_face_presentation": {
+      "path": "dcmp/renderer/classic_face_presentation.json",
+      "byte_length": 226212,
+      "sha256": "c42bc7f191df2090bd349d731a9e485eadec9d63cc37bd0f7656cbd9cdb714b6"
+    }
+  },
+  "faceline_color_namespace": {
+    "validator": "FUN_7101d68ae8 accepts CharInfoEx +0x2d values below 0x72",
+    "resolver": "FUN_7101d7025c",
+    "direct_extended_range": "0..99 -> nn::mii::GetCommonColor",
+    "legacy_range": "100..109 -> nn::mii::GetSkinColor(selector-100)",
+    "unresolved_title_range": "110..113",
+    "checked_values": {
+      "Spider-Man Noir:95": [
+        65,
+        65,
+        65,
+        255
+      ],
+      "Johnny Thunder:85": [
+        254,
+        226,
+        74,
+        255
+      ],
+      "Kestron:100": [
+        255,
+        211,
+        173,
+        255
+      ]
+    }
+  },
+  "sampler": {
+    "source": "FUN_7101d88f98 -> FUN_7100ba6e00",
+    "descriptor_bytes": "01 01 01 00 00 01 29 00",
+    "minification": "linear",
+    "magnification": "linear",
+    "mipmap_filter": "point",
+    "lod_bias": -0.7,
+    "min_lod": 0.0,
+    "max_lod": 13.0,
+    "max_anisotropy": 1,
+    "address_mode_uvw": "mirror"
+  },
+  "live_target": {
+    "dimensions": [
+      256,
+      256
+    ],
+    "format": "RGBA8_SRGB (0x0b06)",
+    "face_units": 64.0,
+    "pixels_per_unit": 4.0
+  },
+  "textures": {
+    "Eye002": {
+      "native_dimensions": [
+        152,
+        128
+      ],
+      "mip_count": 8,
+      "format": "ASTC_4x4_UNORM",
+      "channels": "R,G,B,A",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eye002.png",
+        "sha256": "09ef2f144b86bed745138b8971e73901e9f52e4b31bd27be6018249f7981b873",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 11
+      },
+      "live_256_selection": {
+        "rho_x": 3.633397076652462,
+        "rho_y": 3.9594947351130574,
+        "rho": 3.9594947351130574,
+        "unbiased_lod": 1.985316342008321,
+        "lod_bias": -0.7,
+        "clamped_lod": 1.2853163420083211,
+        "point_mip_rule": "floor(clamped_lod+0.5)",
+        "selected_level": 1,
+        "raw_size": [
+          11.756250000000001,
+          8.712
+        ],
+        "rotation_degrees": 0.0
+      },
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": {
+          "rho_x": 3.633397076652462,
+          "rho_y": 3.9594947351130574,
+          "rho": 3.9594947351130574,
+          "unbiased_lod": 1.985316342008321,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.2853163420083211,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            11.756250000000001,
+            8.712
+          ],
+          "rotation_degrees": 0.0
+        },
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": null,
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": {
+          "rho_x": 3.0744129110136216,
+          "rho_y": 2.9483006950687987,
+          "rho": 3.0744129110136216,
+          "unbiased_lod": 1.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.89375,
+            11.700000000000001
+          ],
+          "rotation_degrees": 0.0
+        },
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            152,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye002/mip_00.png",
+          "byte_length": 3751,
+          "sha256": "8f3f815cff8b7e546219c32af1bfa3c0e10952128a8828dc902f413ed3dd7509"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            76,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye002/mip_01.png",
+          "byte_length": 1663,
+          "sha256": "9670c2beedc02428832f7a3ca332068535b4288d4a0b5c01e0cca2b5df3f6d55"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            38,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye002/mip_02.png",
+          "byte_length": 722,
+          "sha256": "98ba6b4f43446338ceb7f8b5435994ab209f5ad478bad51ef63cb5a3694768db"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            19,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye002/mip_03.png",
+          "byte_length": 366,
+          "sha256": "2336fdb9564cbb3801a47d66b0021bb6aa51db899086a40341fe761238af351a"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            9,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye002/mip_04.png",
+          "byte_length": 231,
+          "sha256": "afa1d3fa80b7eac08395fb5aab6645e87c98228814882141d4ed635fcf79f4ec"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            4,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye002/mip_05.png",
+          "byte_length": 150,
+          "sha256": "4879ce38cad50d036cb722f9471d1e018cd0b91c20d0685a98185961d5b5d44f"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            2,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye002/mip_06.png",
+          "byte_length": 133,
+          "sha256": "57095e392a74b52602a2445c01321eb00418b556746574b58bee1342af16b88c"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye002/mip_07.png",
+          "byte_length": 120,
+          "sha256": "f5e3511a37d8e831ff3db2b11450677d4dd50e141c39719584db9e528a07ed5b"
+        }
+      ]
+    },
+    "Eye018": {
+      "native_dimensions": [
+        152,
+        128
+      ],
+      "mip_count": 8,
+      "format": "ASTC_4x4_UNORM",
+      "channels": "R,G,B,A",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eye018.png",
+        "sha256": "727f557d6f5679f29cc1e36fd37945e76d09f8a739e868713ad7ce44e3f6173e",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 7
+      },
+      "live_256_selection": null,
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": null,
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": {
+          "rho_x": 3.0744129110136216,
+          "rho_y": 2.9483006950687987,
+          "rho": 3.0744129110136216,
+          "unbiased_lod": 1.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.89375,
+            11.700000000000001
+          ],
+          "rotation_degrees": 0.0
+        },
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": null,
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            152,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye018/mip_00.png",
+          "byte_length": 2475,
+          "sha256": "1ce0262e6afa8585479ed455087d85f0600674cfa994088b6de20f273f1347ce"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            76,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye018/mip_01.png",
+          "byte_length": 1094,
+          "sha256": "ef0642cd765a43f127f5239095884ac3cc3b0d59ceaa3a4f2abf24389840aaf3"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            38,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye018/mip_02.png",
+          "byte_length": 506,
+          "sha256": "5afab140a5ee3f09b7f483ee0f46b7bac7f149859e75cd8ae23b0b3f59924972"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            19,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye018/mip_03.png",
+          "byte_length": 274,
+          "sha256": "90f717aa3c6e0260dbd06042ea37a23ef6bd10eeddd349afd0946f4adf894328"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            9,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye018/mip_04.png",
+          "byte_length": 192,
+          "sha256": "f23a92188f3f50c36951ca65c5d366c10a3f795a70ac2a69b8e66daf56c472fc"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            4,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye018/mip_05.png",
+          "byte_length": 139,
+          "sha256": "2cb7063aa9877b3f2fec48721b7297799094643f355347b8539860a1253bc0ad"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            2,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye018/mip_06.png",
+          "byte_length": 130,
+          "sha256": "f235c6977ceb7c9833aadd02d99c95b4c56c9dd75974af8766638ee5ab7c3c20"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eye018/mip_07.png",
+          "byte_length": 120,
+          "sha256": "b825dc4a987387d6613f55316be696e8cbf7e4495e0360e7c4424842311d8065"
+        }
+      ]
+    },
+    "EyelashUpper01": {
+      "native_dimensions": [
+        96,
+        80
+      ],
+      "mip_count": 7,
+      "format": "BC4_UNORM",
+      "channels": "R,R,R,1",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/EyelashUpper01.png",
+        "sha256": "df40720cf9ef27f19198a97611a510f36fcbdcb6fcb94a7dbe735052c5d1d3e6",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 65
+      },
+      "live_256_selection": null,
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": null,
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": null,
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": {
+          "rho_x": 4.168799172388581,
+          "rho_y": 3.981807906568617,
+          "rho": 4.168799172388581,
+          "unbiased_lod": 2.0596318734709,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.3596318734709,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            6.45066987508125,
+            5.432143096836162
+          ],
+          "rotation_degrees": 326.25
+        },
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            96,
+            80
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/EyelashUpper01/mip_00.png",
+          "byte_length": 1336,
+          "sha256": "be0cdb196a47bd13f14a0a641b10ef530bd80eef595ade1bdda7e78aff657fa4"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            48,
+            40
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/EyelashUpper01/mip_01.png",
+          "byte_length": 541,
+          "sha256": "c19894e0c01dcfcf7a5997a044812d668a815f2eb95c0f4372377e9c94578ee7"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            24,
+            20
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/EyelashUpper01/mip_02.png",
+          "byte_length": 326,
+          "sha256": "88ebd4a321e9d772447ceb0e5e6085c0bb9c2ba6feec14963541cb1b0fe557c4"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            12,
+            10
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/EyelashUpper01/mip_03.png",
+          "byte_length": 208,
+          "sha256": "d3561eb4629f839e9efa677e7a99860c3ef70e2059f760a1bd9909d31353cded"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            6,
+            5
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/EyelashUpper01/mip_04.png",
+          "byte_length": 150,
+          "sha256": "d18874c8e74676c06d291662b0e5f50ab40c63d84d5fb0248a1d4b0ea525eedc"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            3,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/EyelashUpper01/mip_05.png",
+          "byte_length": 130,
+          "sha256": "f10ca09e6ab272ee852385c860f1e407fc12b2f69969ee9b310a0fc0a7299306"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/EyelashUpper01/mip_06.png",
+          "byte_length": 120,
+          "sha256": "e183571c37909703f463534649cc4a7b882c8d23ab66d5c1b094914a0b1ff5d0"
+        }
+      ]
+    },
+    "Eyebrow00": {
+      "native_dimensions": [
+        144,
+        128
+      ],
+      "mip_count": 8,
+      "format": "BC4_UNORM",
+      "channels": "R,R,R,1",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eyebrow00.png",
+        "sha256": "0a14bb4982f0d41eab4fa7b963142497f3903e1674493cc2c16ed57ef0006081",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 114
+      },
+      "live_256_selection": null,
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": null,
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": null,
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": {
+          "rho_x": 3.074412911013622,
+          "rho_y": 2.948300695068799,
+          "rho": 3.074412911013622,
+          "unbiased_lod": 1.62031094013169,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.92031094013169,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.1625,
+            11.700000000000001
+          ],
+          "rotation_degrees": 0.0
+        },
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            144,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow00/mip_00.png",
+          "byte_length": 2502,
+          "sha256": "a9e247dc2a07bdd3b985aa2815521d894fb7b5fffe6bc6f397368d3dc51385be"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            72,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow00/mip_01.png",
+          "byte_length": 1014,
+          "sha256": "fcba89bbf256f8d9af5647eb33a068622e70dfae79ac080e79108fda2ee9a591"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            36,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow00/mip_02.png",
+          "byte_length": 518,
+          "sha256": "47c6370613b94da02722a26e3f7fbdd936666284ffd229c396bc77c54cdc6ece"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            18,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow00/mip_03.png",
+          "byte_length": 311,
+          "sha256": "a512f02c4042c8e19ca34dbd2438e55d8cbee44082b3150ececef1b52c5dd49f"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            9,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow00/mip_04.png",
+          "byte_length": 198,
+          "sha256": "f32b5c5caf42947d930b413b6b4eaceebe169060cbb956ff7a3961bff0297a4e"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            4,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow00/mip_05.png",
+          "byte_length": 152,
+          "sha256": "f4c98fc9996f3b72db4112828c24425ff3862d73a7fd2230096b2ef2e9383337"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            2,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow00/mip_06.png",
+          "byte_length": 131,
+          "sha256": "2a64f15abb28d7a1db496c378c5a5af720e590da76c5b5649929cdc8223a6b3a"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow00/mip_07.png",
+          "byte_length": 120,
+          "sha256": "c703383e3afa750e95ce5e3e22c5dff9ff81f1653ec3d339e2c74d31483d752b"
+        }
+      ]
+    },
+    "Eyebrow15": {
+      "native_dimensions": [
+        144,
+        128
+      ],
+      "mip_count": 8,
+      "format": "BC4_UNORM",
+      "channels": "R,R,R,1",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eyebrow15.png",
+        "sha256": "4fb8b6771562f46e5ca71c524ca0face59ad0c4c4fa3eceda05ef119acaa62cd",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 137
+      },
+      "live_256_selection": null,
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": null,
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": {
+          "rho_x": 3.6333970766524617,
+          "rho_y": 3.4843553668994893,
+          "rho": 3.6333970766524617,
+          "unbiased_lod": 1.8613190396354846,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.1613190396354847,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            11.137500000000001,
+            9.9
+          ],
+          "rotation_degrees": 0.0
+        },
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": null,
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            144,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow15/mip_00.png",
+          "byte_length": 2469,
+          "sha256": "e25861da89809461b3ceacfd4ddfcf56c5b6a147c312e64717b0753cabd43ddc"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            72,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow15/mip_01.png",
+          "byte_length": 1010,
+          "sha256": "37b931a292f9c77b17b3aa388848947f5341a3ed59f443d320f4aeccaf8f7ab8"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            36,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow15/mip_02.png",
+          "byte_length": 508,
+          "sha256": "3d6fa4f66d8f10f7bdc713f59cb57a345bca174b0d2ab99cd95ddd86a764885d"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            18,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow15/mip_03.png",
+          "byte_length": 298,
+          "sha256": "6ceebc84ecb76f67cd76645d240b1cb415babebd6ac61a2d778dce700db03bf1"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            9,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow15/mip_04.png",
+          "byte_length": 191,
+          "sha256": "a921d550eac5630475d568f15c7d7315cd10038badea8b16d52bfb517201aee5"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            4,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow15/mip_05.png",
+          "byte_length": 149,
+          "sha256": "d5d872694c45649ed0e43205c9cb0520dd16a6636102389fe6b73816917353b4"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            2,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow15/mip_06.png",
+          "byte_length": 133,
+          "sha256": "2a7069c07fd7662e0753d711240b0902c11259ff68db6524628ec3c326689567"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow15/mip_07.png",
+          "byte_length": 120,
+          "sha256": "3e5904bae5bd1e8107c5ec300a5b60f6fdffecd8378fd87e02819cd905e18de8"
+        }
+      ]
+    },
+    "Eyebrow19": {
+      "native_dimensions": [
+        144,
+        128
+      ],
+      "mip_count": 8,
+      "format": "BC4_UNORM",
+      "channels": "R,R,R,1",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/Eyebrow19.png",
+        "sha256": "59405c34d99fe64840d9985ac6c9fc297354ed3ddb78bb3dd0f44d4a1e2c8a37",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 125
+      },
+      "live_256_selection": {
+        "rho_x": 3.0744129110136216,
+        "rho_y": 2.948300695068799,
+        "rho": 3.0744129110136216,
+        "unbiased_lod": 1.6203109401316897,
+        "lod_bias": -0.7,
+        "clamped_lod": 0.9203109401316898,
+        "point_mip_rule": "floor(clamped_lod+0.5)",
+        "selected_level": 1,
+        "raw_size": [
+          13.1625,
+          11.700000000000001
+        ],
+        "rotation_degrees": 337.5
+      },
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": {
+          "rho_x": 3.0744129110136216,
+          "rho_y": 2.948300695068799,
+          "rho": 3.0744129110136216,
+          "unbiased_lod": 1.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.1625,
+            11.700000000000001
+          ],
+          "rotation_degrees": 337.5
+        },
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": null,
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": null,
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            144,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_00.png",
+          "byte_length": 2466,
+          "sha256": "e9ca187dd75f004571950051c36068e61b614eb8e1b351082af49b97fe885724"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            72,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_01.png",
+          "byte_length": 1057,
+          "sha256": "04f254bc0d39e54d4e9449e01c0f1334ca07875f51e3021e1e1c969ddeeab940"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            36,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_02.png",
+          "byte_length": 527,
+          "sha256": "32acca51dec15d188215383d85ec7e1da9e5404ce21fd69ea666bee9f7c7ba93"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            18,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_03.png",
+          "byte_length": 308,
+          "sha256": "f59f245e7fbebc2d82a796bd470f0449f8de7ca9130281ce670737358a61e81e"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            9,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_04.png",
+          "byte_length": 202,
+          "sha256": "8ae3e1b31e5a961d2b82e19052c92ae444dbeb2380c8f247b568c884facac8a0"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            4,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_05.png",
+          "byte_length": 148,
+          "sha256": "0266a28d670170ec865d408b1f47e56a39361c801024bbf68f78f8bc6a8c17fb"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            2,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_06.png",
+          "byte_length": 133,
+          "sha256": "97963d4d4bf6694d60c22b7f294f520d9fae64417a7d962c47ade95cf2a33f32"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_07.png",
+          "byte_length": 120,
+          "sha256": "d7806699d51543110d367a4f8d592e6f50e1f0989eb1ad9bf82feea8798235fe"
+        }
+      ]
+    },
+    "Mouth015": {
+      "native_dimensions": [
+        176,
+        128
+      ],
+      "mip_count": 8,
+      "format": "ASTC_4x4_UNORM",
+      "channels": "R,G,B,A",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/Mouth015.png",
+        "sha256": "d74b21588699ff9bab60d3f3b957197067bf2f90998ea478f137908422d53d08",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 6
+      },
+      "live_256_selection": {
+        "rho_x": 3.6333970766524617,
+        "rho_y": 3.4843553668994893,
+        "rho": 3.6333970766524617,
+        "unbiased_lod": 1.8613190396354846,
+        "lod_bias": -0.7,
+        "clamped_lod": 1.1613190396354847,
+        "point_mip_rule": "floor(clamped_lod+0.5)",
+        "selected_level": 1,
+        "raw_size": [
+          13.6125,
+          9.9
+        ],
+        "rotation_degrees": 0.0
+      },
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": {
+          "rho_x": 3.6333970766524617,
+          "rho_y": 3.4843553668994893,
+          "rho": 3.6333970766524617,
+          "unbiased_lod": 1.8613190396354846,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.1613190396354847,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            13.6125,
+            9.9
+          ],
+          "rotation_degrees": 0.0
+        },
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": {
+          "rho_x": 5.65949413106046,
+          "rho_y": 4.0906159710867875,
+          "rho": 5.65949413106046,
+          "unbiased_lod": 2.5006731047839486,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.8006731047839486,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 2,
+          "raw_size": [
+            8.6625,
+            8.568
+          ],
+          "rotation_degrees": 348.75
+        },
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": null,
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            176,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth015/mip_00.png",
+          "byte_length": 1998,
+          "sha256": "0e4ea83aa778c9aa251a96da3a5b1be9b0010d2727693e06342cc1e28755306f"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            88,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth015/mip_01.png",
+          "byte_length": 961,
+          "sha256": "f17d8a4cc88e2059073c117f4fe8505c2b620959db9b9cefa1935fb5b504bab8"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            44,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth015/mip_02.png",
+          "byte_length": 487,
+          "sha256": "d43ef915df89e0ee58e7e5d1b4d542fb8e4e42e7918dde12a0afec3e1a394b54"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            22,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth015/mip_03.png",
+          "byte_length": 290,
+          "sha256": "89e02d6169a24ed9cda67d93f0378ed326b32d1f79bed0ad9eac247930b34fac"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            11,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth015/mip_04.png",
+          "byte_length": 201,
+          "sha256": "962d9472089e9b787965968f27ee1eed568d97f5572410403ab885f822b7310e"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            5,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth015/mip_05.png",
+          "byte_length": 155,
+          "sha256": "e16ab86eda7c31181352906ec9ef74a60aef3ed671c15b4145fc5e37c77289ef"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            2,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth015/mip_06.png",
+          "byte_length": 133,
+          "sha256": "4f59c8892e72980687350a97e2723ed077225e07705669973be8e4dac5edcf4e"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth015/mip_07.png",
+          "byte_length": 120,
+          "sha256": "754087439cc010544b5a7993768997790c1d6945fb349b280c6bf0a61bfacea9"
+        }
+      ]
+    },
+    "Mouth045": {
+      "native_dimensions": [
+        176,
+        128
+      ],
+      "mip_count": 8,
+      "format": "ASTC_4x4_UNORM",
+      "channels": "R,G,B,A",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/Mouth045.png",
+        "sha256": "fc9bdc29fb5d9ef56b22bd4d546f9d9d22c199f8bb042a187fc2bb5575fdb8ac",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 18
+      },
+      "live_256_selection": null,
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": null,
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": null,
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": {
+          "rho_x": 3.0744129110136216,
+          "rho_y": 2.9483006950687987,
+          "rho": 3.0744129110136216,
+          "unbiased_lod": 1.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 0.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 1,
+          "raw_size": [
+            16.087500000000002,
+            11.700000000000001
+          ],
+          "rotation_degrees": 0.0
+        },
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            176,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth045/mip_00.png",
+          "byte_length": 3101,
+          "sha256": "11d4545b7a7d46ad291fcbdd49482815d0ed91233f0c3b0a4f1d374c16c9bbe2"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            88,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth045/mip_01.png",
+          "byte_length": 1397,
+          "sha256": "e1036e19439f24d9be62d42dcef74dfee4880b907b7d55a0c0b6f3253e4a4222"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            44,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth045/mip_02.png",
+          "byte_length": 634,
+          "sha256": "95aeec8e4285960454d51e7fb1ddc31c446faa04714d0eca80a220cc2af0af2c"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            22,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth045/mip_03.png",
+          "byte_length": 335,
+          "sha256": "af2d4c2ed49c15d2d8594413fe9c3349c4242894011b8b9f42f8e38de89c2f1d"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            11,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth045/mip_04.png",
+          "byte_length": 207,
+          "sha256": "2357978209940b90854292560e11dee0708f31f2c99b9c754cadf8c498192e42"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            5,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth045/mip_05.png",
+          "byte_length": 152,
+          "sha256": "cb00937335fb04b9ad53c22dccd230a2169f7f534a424d615f4b9562f0f73184"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            2,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth045/mip_06.png",
+          "byte_length": 133,
+          "sha256": "f28a853a54492ae1f9c677d9350730d08ff5e41c67ab4082542ed13e3d87ee1d"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mouth045/mip_07.png",
+          "byte_length": 120,
+          "sha256": "30cc3d4a6cf97ad1e805115ae8366d00f0b67e466042a5aadb526800f540211e"
+        }
+      ]
+    },
+    "Mustache03": {
+      "native_dimensions": [
+        256,
+        512
+      ],
+      "mip_count": 10,
+      "format": "BC4_UNORM",
+      "channels": "R,R,R,1",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/Mustache03.png",
+        "sha256": "a62a82ca0eb3dfa2f8648ce1f6d2e5eaf72bdd2fc9d3b2b8fb298c42d9091e39",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 125
+      },
+      "live_256_selection": {
+        "rho_x": 6.148825822027243,
+        "rho_y": 5.896601390137597,
+        "rho": 6.148825822027243,
+        "unbiased_lod": 2.6203109401316897,
+        "lod_bias": -0.7,
+        "clamped_lod": 1.9203109401316898,
+        "point_mip_rule": "floor(clamped_lod+0.5)",
+        "selected_level": 2,
+        "raw_size": [
+          11.700000000000001,
+          23.400000000000002
+        ],
+        "rotation_degrees": 0.0
+      },
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": {
+          "rho_x": 6.148825822027243,
+          "rho_y": 5.896601390137597,
+          "rho": 6.148825822027243,
+          "unbiased_lod": 2.6203109401316897,
+          "lod_bias": -0.7,
+          "clamped_lod": 1.9203109401316898,
+          "point_mip_rule": "floor(clamped_lod+0.5)",
+          "selected_level": 2,
+          "raw_size": [
+            11.700000000000001,
+            23.400000000000002
+          ],
+          "rotation_degrees": 0.0
+        },
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": null,
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": null,
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            256,
+            512
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_00.png",
+          "byte_length": 4275,
+          "sha256": "84819b2c490075c4dcb85b78618d1ab5016b2aebbfcfcd38306adf530dc3692c"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            128,
+            256
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_01.png",
+          "byte_length": 1759,
+          "sha256": "49381835e7adda2694d74c909b6ed23e0684cd7cfac1f70d2137320054362205"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            64,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_02.png",
+          "byte_length": 834,
+          "sha256": "c480400e3351d4bee57d61a2ae0bb34bc4a8857279970703699bbbb5728e12d2"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            32,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_03.png",
+          "byte_length": 457,
+          "sha256": "b87c7c9f405b7b275466c02eab026c7c1de98daf37200a9c1ccc94a0e65a8dec"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            16,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_04.png",
+          "byte_length": 282,
+          "sha256": "8c86759b0be84c8f674f9ae854bdd2bf511d2d9fc58dc747adb28fd572513b0e"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            8,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_05.png",
+          "byte_length": 198,
+          "sha256": "2a319a044292a8707574a891e9c057adc84ba00071542c116b39261b4b1d9257"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            4,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_06.png",
+          "byte_length": 153,
+          "sha256": "a2d573dc9c53979aab0ea352b4603e53bb75aa0b9aa087594cd30ccbfa3e54a9"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            2,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_07.png",
+          "byte_length": 137,
+          "sha256": "c8be72ef4f02dab98c9bc58f4c5d39362e7e0ea4dbd195bd3d4c505a87a1c97a"
+        },
+        {
+          "level": 8,
+          "dimensions": [
+            1,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_08.png",
+          "byte_length": 125,
+          "sha256": "63d79bcfc6e9dbae2546676e6cbb2a817acb30be9ebcc57bc15f3c7f1846f766"
+        },
+        {
+          "level": 9,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/Mustache03/mip_09.png",
+          "byte_length": 120,
+          "sha256": "bafcfa151b023e09d9037c94d16edc9eb16f95d6de11f554c1c970b5fba44508"
+        }
+      ]
+    },
+    "BeardShort07": {
+      "native_dimensions": [
+        256,
+        512
+      ],
+      "mip_count": 10,
+      "format": "ASTC_4x4_UNORM",
+      "channels": "R,G,B,A",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/BeardShort07.png",
+        "sha256": "dbf8b060e699bca3db892d9f9d176902cdf5e4e1650a9ca65de1f842373b03ab",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 19
+      },
+      "live_256_selection": null,
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": null,
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": null,
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": null,
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            256,
+            512
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_00.png",
+          "byte_length": 6815,
+          "sha256": "8463bfd5693972e0e34eee604b7e71dc56806c77b77f7a1f7ee15c58881bd7b8"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            128,
+            256
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_01.png",
+          "byte_length": 2729,
+          "sha256": "749249e46a122b182a0c4d698d9ee48f852db0c93c499136f3f2d4b7829e9e60"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            64,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_02.png",
+          "byte_length": 1160,
+          "sha256": "1a9c8713e4e0833e4b583f9b0fa595e2e0f53ecf741139263e8f169dc347ed8b"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            32,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_03.png",
+          "byte_length": 601,
+          "sha256": "5373988c15d981a3686022c5284ac945b2e3fd7ef887a926ae42ea58f78cc61f"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            16,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_04.png",
+          "byte_length": 331,
+          "sha256": "21e4a3e92be84335c015621f7d41481677aa6c624a77e8b0be6837c85c5e1d6e"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            8,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_05.png",
+          "byte_length": 211,
+          "sha256": "44a4278b8608513734873f15d34dcabb00bb92bd884694ff5aa9c99aedf4c65b"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            4,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_06.png",
+          "byte_length": 156,
+          "sha256": "07d99a121c1662d0c82a5783a0e6e35940b7f3778b8b47e321aa059e3d9b209a"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            2,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_07.png",
+          "byte_length": 133,
+          "sha256": "77115c128543a0b443239d13cbd2adffdc0b56f92e08ec0554e2c87b7f25a938"
+        },
+        {
+          "level": 8,
+          "dimensions": [
+            1,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_08.png",
+          "byte_length": 125,
+          "sha256": "240c708f9268da25a15589f10b72ec24897f6d9d808d39101f3e54ec24b7733a"
+        },
+        {
+          "level": 9,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_09.png",
+          "byte_length": 120,
+          "sha256": "58c18be0b00b22c94863c54b892e7c52dff8139d359cf52a0603f926cac26af2"
+        }
+      ]
+    },
+    "WrinkleUpper00": {
+      "native_dimensions": [
+        256,
+        256
+      ],
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "channels": "R,R,R,1",
+      "existing_mip0": {
+        "path": "ltdDemo_converted_assets/textures_png/1/Tex/Pack/WrinkleUpper00.png",
+        "sha256": "fa1f050f0975f8e28126c1ed0f4a52a390ee34e946964752032d86b614880ecd",
+        "pixel_max_abs_delta_from_cached_mip0": 1,
+        "pixel_differing_count": 322
+      },
+      "live_256_selection": null,
+      "target_256_selections": {
+        "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": null,
+        "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b": null,
+        "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": null,
+        "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776": null,
+        "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391": null
+      },
+      "levels": [
+        {
+          "level": 0,
+          "dimensions": [
+            256,
+            256
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_00.png",
+          "byte_length": 2836,
+          "sha256": "79222cc130ba4c6474cad151b7427517be9eb563ff06da0f1c42e0e879cf8d20"
+        },
+        {
+          "level": 1,
+          "dimensions": [
+            128,
+            128
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_01.png",
+          "byte_length": 1193,
+          "sha256": "7fe2f3d66ac7743ae35b761f5a56fcabf270e7f59362bf871554af971d2aaf47"
+        },
+        {
+          "level": 2,
+          "dimensions": [
+            64,
+            64
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_02.png",
+          "byte_length": 596,
+          "sha256": "752e2b7bff47094d92f962f0d7f1f3f329e0333195236e2d5e547ef0ee13ba69"
+        },
+        {
+          "level": 3,
+          "dimensions": [
+            32,
+            32
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_03.png",
+          "byte_length": 354,
+          "sha256": "f132d6664a51033729308b503a1a055989755a6574aac6d24ba9e3aaab63e6f6"
+        },
+        {
+          "level": 4,
+          "dimensions": [
+            16,
+            16
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_04.png",
+          "byte_length": 221,
+          "sha256": "48b5a67818ed1609041ad147b025fba6b75ad2b3140953f636251964f01eb094"
+        },
+        {
+          "level": 5,
+          "dimensions": [
+            8,
+            8
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_05.png",
+          "byte_length": 169,
+          "sha256": "f825c7d6803916d2df40929d74c33c51edbfe34edd3222c0965a19e41b59def2"
+        },
+        {
+          "level": 6,
+          "dimensions": [
+            4,
+            4
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_06.png",
+          "byte_length": 139,
+          "sha256": "f6ea703e94a552f45e4d1b7a3d37b24533906d21b9869622c4be7eb09a95ba16"
+        },
+        {
+          "level": 7,
+          "dimensions": [
+            2,
+            2
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_07.png",
+          "byte_length": 131,
+          "sha256": "107680d627d8651bf4e2f7418bc9358a54a1d2e5a4e9b25e4aabd2e3488cb87b"
+        },
+        {
+          "level": 8,
+          "dimensions": [
+            1,
+            1
+          ],
+          "mode": "RGBA",
+          "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_08.png",
+          "byte_length": 120,
+          "sha256": "fd221441b038ab9e8be71660cd422b612ff4e4654d5c114a37f07259c22fa9e0"
+        }
+      ]
+    }
+  }
+}

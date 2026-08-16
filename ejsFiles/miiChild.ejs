@@ -3,6 +3,13 @@
     <head>
         <%
         const pageTitle = 'Mii Child Generator - InfiniMii';
+        const childExportFormats = Array.isArray(exportFormats) ? exportFormats : [];
+        const childExportValues = childExportFormats
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const childLegacyExportsEnabled = childExportValues.some((value) => value !== 'ltd');
+        const childQrExportsEnabled = childExportValues.includes('qr');
+        const defaultChildExportFormat = childExportValues[0] || '';
         const pageDesc = 'Upload two Miis and generate a Tomodachi-style child progression with optional name, gender, and favorite color overrides.';
         const canonicalUrl = `${baseUrl}/miiChild`;
         const keywords = 'mii child generator, make mii child, tomodachi life child, mii baby, mii tool';
@@ -50,7 +57,7 @@
                         <legend>Generate Mii Child</legend>
 
                         <p class="note">
-                            Upload two parent Miis. The server will generate all six life stages using MiiJS <code>makeMiiChild</code>.
+                            Upload two parent Miis to create all six life stages.
                         </p>
 
                         <div class="child-maker-file-grid">
@@ -98,7 +105,7 @@
 
                 <section id="childResults" class="child-results" hidden>
                     <h3>Generated Child Stages</h3>
-                    <p class="note">Each result includes raw Mii values and real-world measurement conversions.</p>
+                    <p class="note">Each stage includes its Mii data and converted height and weight measurements.</p>
                     <div id="childResultsGrid" class="child-results-grid"></div>
                 </section>
 
@@ -113,23 +120,29 @@
                             <p id="childDownloadStageLabel" class="note child-download-stage-label"></p>
 
                             <label for="childDownloadFormat">Export format</label>
-                            <input type="text" id="childDownloadFormat" name="format" list="childExportFormatOptions" placeholder="Search formats..." required>
+                            <input type="text" id="childDownloadFormat" name="format" list="childExportFormatOptions" value="<%= defaultChildExportFormat %>" placeholder="Choose an export format..." required<%- childLegacyExportsEnabled ? '' : ' readonly aria-readonly="true"' %>>
 
-                            <div class="child-download-options-row">
-                                <label class="child-download-inline-label">
-                                    <input type="checkbox" id="childDownloadSpecial" name="special">
-                                    Download as Special Mii
-                                </label>
-                                <label for="childDownloadQrConsole" class="child-download-inline-label">
-                                    QR Console:
-                                    <select id="childDownloadQrConsole" name="qrConsole">
-                                        <option value="3DS">3DS</option>
-                                        <option value="WIIU">Wii U</option>
-                                    </select>
-                                </label>
-                            </div>
+                            <% if (childLegacyExportsEnabled || childQrExportsEnabled) { %>
+                                <div class="child-download-options-row">
+                                    <% if (childLegacyExportsEnabled) { %>
+                                        <label class="child-download-inline-label">
+                                            <input type="checkbox" id="childDownloadSpecial" name="special">
+                                            Download as Special Mii
+                                        </label>
+                                    <% } %>
+                                    <% if (childQrExportsEnabled) { %>
+                                        <label for="childDownloadQrConsole" class="child-download-inline-label">
+                                            QR Console:
+                                            <select id="childDownloadQrConsole" name="qrConsole">
+                                                <option value="3DS">3DS</option>
+                                                <option value="WIIU">Wii U</option>
+                                            </select>
+                                        </label>
+                                    <% } %>
+                                </div>
+                            <% } %>
 
-                            <p class="note child-download-note">Use the same export format list as other download pages. Try <code>qr</code>, <code>charinfo</code>, or <code>ffsd</code>.</p>
+                            <p class="note child-download-note"><%= childLegacyExportsEnabled ? 'Available formats match the other Mii download pages.' : 'This Living the Dream Mii keeps its original LTD download.' %></p>
                             <div id="childDownloadMessage" class="form-message" style="display: none;"></div>
                         </div>
 
@@ -142,7 +155,7 @@
                 </div>
 
                 <datalist id="childExportFormatOptions">
-                    <% exportFormats.forEach(fmt => { %>
+                    <% childExportFormats.forEach(fmt => { %>
                         <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
                     <% }) %>
                 </datalist>
@@ -169,6 +182,8 @@
             const childStageCopyBase64Btn = document.getElementById('childStageCopyBase64Btn');
             const childStageDownloadIconSvg = `<%- include('icon', { name: 'download', size: 18, class: 'child-stage-download-icon' }) %>`;
             const CHILD_STAGE_EXPORT_META_FIELDS = new Set(['stageIndex', 'stageLabel', 'renderDataUri', 'heightMeasurements', 'weightMeasurements']);
+            const CHILD_ALLOWED_EXPORT_FORMATS = new Set(<%- toScriptJson(childExportValues) %>);
+            const CHILD_DEFAULT_EXPORT_FORMAT = <%- toScriptJson(defaultChildExportFormat) %>;
             let activeChildStage = null;
             let activeChildStageLabel = '';
 
@@ -231,7 +246,7 @@
                 const stageName = stage?.meta?.name ? `\u2022 ${stage.meta.name}` : '';
                 childDownloadStageLabel.textContent = `${activeChildStageLabel} ${stageName}`;
                 if (!childDownloadFormat.value) {
-                    childDownloadFormat.value = 'qr';
+                    childDownloadFormat.value = CHILD_DEFAULT_EXPORT_FORMAT;
                 }
                 setChildDownloadMessage('');
                 childDownloadModal.hidden = false;
@@ -312,9 +327,9 @@
             }
 
             async function requestChildStageExport() {
-                const format = String(childDownloadFormat?.value || '').trim();
-                if (!format) {
-                    throw new Error('Choose an export format first.');
+                const format = String(childDownloadFormat?.value || '').trim().toLowerCase();
+                if (!format || !CHILD_ALLOWED_EXPORT_FORMATS.has(format)) {
+                    throw new Error('Choose an export format from the list.');
                 }
                 if (!activeChildStage) {
                     throw new Error('No child stage selected.');

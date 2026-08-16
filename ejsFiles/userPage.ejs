@@ -35,7 +35,25 @@
             const creatorNames = Array.isArray(profileHighlights?.creatorNames) ? profileHighlights.creatorNames : [];
             const profileFeaturedMiis = Array.isArray(profileHighlights?.featuredMiis) ? profileHighlights.featuredMiis : [];
             const featuredNames = Array.isArray(profileHighlights?.featuredNames) ? profileHighlights.featuredNames : [];
-            const selectedProfileSort = profileSort === 'latest' ? 'latest' : 'popular';
+            const profileSortValues = ['alphabetical', 'trending', 'top', 'latest'];
+            const selectedProfileSort = profileSortValues.includes(profileSort) ? profileSort : 'top';
+            const profileSortLabels = {
+                alphabetical: 'Alphabetical',
+                trending: 'Trending',
+                top: 'Top',
+                latest: 'Latest'
+            };
+            const profileDefaultDirection = selectedProfileSort === 'alphabetical' ? 'asc' : 'desc';
+            const selectedProfileSortDirection = typeof profileSortDirection !== 'undefined'
+                && ['asc', 'desc'].includes(profileSortDirection)
+                ? profileSortDirection
+                : profileDefaultDirection;
+            const profileDirectionLabels = {
+                alphabetical: { asc: 'A to Z', desc: 'Z to A' },
+                trending: { asc: 'Least trending first', desc: 'Most trending first' },
+                top: { asc: 'Least liked first', desc: 'Most liked first' },
+                latest: { asc: 'Oldest first', desc: 'Newest first' }
+            }[selectedProfileSort];
             const isOfficialSourceProfile = Boolean(isOfficialCompanySourceProfile);
             const usesOffsetPagination = pagination?.mode === 'offset';
             const currentPageNumber = usesOffsetPagination ? null : (pagination?.currentPage || 1);
@@ -50,8 +68,11 @@
                 ? new Date(firstUploadOn).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
                 : '';
             const canonicalParams = new URLSearchParams();
-            if (selectedProfileSort === 'latest') {
-                canonicalParams.set('sort', 'latest');
+            if (selectedProfileSort !== 'top') {
+                canonicalParams.set('sort', selectedProfileSort);
+            }
+            if (selectedProfileSortDirection !== profileDefaultDirection) {
+                canonicalParams.set('direction', selectedProfileSortDirection);
             }
             if (usesOffsetPagination && pagination?.start > 0) {
                 canonicalParams.set('start', String(pagination.start));
@@ -59,12 +80,15 @@
                 canonicalParams.set('page', String(currentPageNumber));
             }
             const canonicalQuery = canonicalParams.toString();
-            const pageTitle = `${targetUser.username} Mii Profile${selectedProfileSort === 'latest' ? ' - Latest' : ''}${pageSuffix} - InfiniMii`;
+            const sortTitleSuffix = selectedProfileSort === 'top'
+                ? ''
+                : ` - ${profileSortLabels[selectedProfileSort]}`;
+            const pageTitle = `${targetUser.username} Mii Profile${sortTitleSuffix}${pageSuffix} - InfiniMii`;
             const profileLead = totalUploaded > 0
-                ? `${targetUser.username} has published ${totalUploaded} public Mii character${totalUploaded === 1 ? '' : 's'} on InfiniMii with ${totalLikes} total likes.`
-                : `${targetUser.username} has a public InfiniMii creator profile.`;
+                ? `${targetUser.username} has shared ${totalUploaded} public Mii${totalUploaded === 1 ? '' : 's'} on InfiniMii.`
+                : `Public InfiniMii profile for ${targetUser.username}.`;
             const profileArchiveSummary = totalUploaded > 0
-                ? `${officialCount > 0 ? `${officialCount} official` : '0 official'} and ${communityCount} community uploads${firstUploadLabel ? ` dating back to ${firstUploadLabel}` : ''}${latestUploadLabel ? `, with recent activity on ${latestUploadLabel}` : ''}.`
+                ? `This profile includes ${officialCount} official and ${communityCount} community upload${communityCount === 1 ? '' : 's'}${firstUploadLabel ? `. The first upload was added on ${firstUploadLabel}` : ''}${latestUploadLabel ? `. The latest was added on ${latestUploadLabel}` : ''}.`
                 : '';
             const themeSummary = topTags.length > 0
                 ? `Common tags include ${topTags.slice(0, 5).join(', ')}.`
@@ -75,21 +99,14 @@
             const featuredSummary = featuredNames.length > 0
                 ? `Popular uploads include ${featuredNames.slice(0, 4).join(', ')}.`
                 : '';
-            const pageDesc = totalUploaded > 0
-                ? `${profileLead} ${profileArchiveSummary} ${themeSummary} ${categorySummary} ${featuredSummary}`.replace(/\s+/g, ' ').trim()
-                : `Public profile for ${targetUser.username} on InfiniMii.`;
+            const pageDesc = profileLead;
             const canonicalUrl = `${baseUrl}/user/${encodeURIComponent(targetUser.username)}${canonicalQuery ? `?${canonicalQuery}` : ''}`;
             const ogImage = `${baseUrl}/miiImgs/${targetUser.miiPfp || '00000'}.png`;
             const keywords = normalizeKeywordList([
                 targetUser.username,
-                `${targetUser.username} Mii`,
-                `${targetUser.username} Miis`,
                 `${targetUser.username} Mii profile`,
-                'InfiniMii creator',
-                topTags,
-                topCategories.map((category) => category.name),
-                creatorNames.map((name) => `${name} Mii`),
-                featuredNames.map((name) => `${name} Mii`)
+                topTags.slice(0, 5),
+                topCategories.slice(0, 4).map((category) => category.name)
             ]).join(', ');
             const pageRobots = totalUploaded > 0 ? undefined : 'noindex, follow, noarchive';
             const breadcrumbs = [
@@ -105,16 +122,8 @@
             const faqEntries = totalUploaded > 0
                 ? [
                     {
-                        question: `What kind of Miis does ${targetUser.username} upload?`,
-                        answer: `${targetUser.username} has published ${totalUploaded} public Miis on InfiniMii.${topTags.length > 0 ? ` Frequent tags include ${topTags.slice(0, 5).join(', ')}.` : ''}${topCategories.length > 0 ? ` Official archive categories include ${topCategories.slice(0, 4).map((category) => category.name).join(', ')}.` : ''}${creatorNames.length > 0 ? ` Creator names found in this archive include ${creatorNames.slice(0, 5).join(', ')}.` : ''}`
-                    },
-                    {
                         question: `How many Miis has ${targetUser.username} published?`,
-                        answer: `${targetUser.username} has ${totalUploaded} public Mii character${totalUploaded === 1 ? '' : 's'} on InfiniMii with ${totalLikes} total likes.${officialCount > 0 ? ` ${officialCount} of those are official archive entries.` : ''}${communityCount > 0 ? ` ${communityCount} are community uploads.` : ''}`
-                    },
-                    {
-                        question: `How do I browse all Miis from ${targetUser.username}?`,
-                        answer: `Use this profile page to browse the archive grid, or run an uploader search for ${targetUser.username} to jump directly into search results filtered to this creator.`
+                        answer: profileLead
                     }
                 ]
                 : [];
@@ -129,8 +138,7 @@
                     "description": pageDesc,
                     "knowsAbout": normalizeKeywordList([
                         topTags,
-                        topCategories.map((category) => category.name),
-                        creatorNames
+                        topCategories.map((category) => category.name)
                     ]).slice(0, 20),
                     "interactionStatistic": {
                         "@type": "InteractionCounter",
@@ -197,10 +205,18 @@
             <div class="profile-container">
                 <%
                     const profileBasePath = '/user/' + encodeURIComponent(targetUser.username);
-                    const buildProfilePageUrl = (startOffset = 0, sortName = selectedProfileSort) => {
+                    const buildProfilePageUrl = (
+                        startOffset = 0,
+                        sortName = selectedProfileSort,
+                        sortDirection = selectedProfileSortDirection
+                    ) => {
                         const params = new URLSearchParams();
-                        if (sortName === 'latest') {
-                            params.set('sort', 'latest');
+                        if (sortName !== 'top' && profileSortValues.includes(sortName)) {
+                            params.set('sort', sortName);
+                        }
+                        const defaultDirection = sortName === 'alphabetical' ? 'asc' : 'desc';
+                        if (['asc', 'desc'].includes(sortDirection) && sortDirection !== defaultDirection) {
+                            params.set('direction', sortDirection);
                         }
                         const normalizedStart = Number.isFinite(Number(startOffset)) && Number(startOffset) > 0
                             ? Math.floor(Number(startOffset))
@@ -309,10 +325,10 @@
                     </section>
 
                     <section class="profile-panel" aria-labelledby="profile-topics-heading" hidden>
-                        <h2 id="profile-topics-heading">Search Topics And Archive Themes</h2>
-                        <p>Browse this creator by uploader name, recurring tags, official categories, creator names, and standout character uploads.</p>
+                        <h2 id="profile-topics-heading">Browse this profile</h2>
+                        <p>Browse uploads by tag, category, or creator name.</p>
                         <div class="profile-chip-list">
-                            <a class="profile-chip" href="<%= uploaderSearchUrl %>"><%= targetUser.username %> uploader search</a>
+                            <a class="profile-chip" href="<%= uploaderSearchUrl %>"><%= targetUser.username %> uploads</a>
                             <% topTags.forEach((tag) => { %>
                                 <a class="profile-chip" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><%= tag %></a>
                             <% }) %>
@@ -331,7 +347,7 @@
                     <% if(profileFeaturedMiis.length > 0) { %>
                         <section class="profile-panel" aria-labelledby="profile-featured-heading" hidden>
                             <h2 id="profile-featured-heading">Popular Uploads From <%= targetUser.username %></h2>
-                            <p>These uploads are currently the strongest search and discovery signals on this profile.</p>
+                            <p>The most-liked uploads on this profile.</p>
                             <div class="profile-featured-grid">
                                 <% profileFeaturedMiis.forEach((featuredMii, featuredIndex) => { %>
                                     <article class="profile-featured-card" style="--favorite-color: <%= decodeColor(featuredMii.general?.favoriteColor) || decodeColor(0) %>;">
@@ -358,7 +374,7 @@
 
                     <% if(faqEntries.length > 0) { %>
                         <section class="profile-panel" aria-labelledby="profile-faq-heading" hidden>
-                            <h2 id="profile-faq-heading">Questions About This Creator</h2>
+                            <h2 id="profile-faq-heading">About these uploads</h2>
                             <div class="profile-faq-list">
                                 <% faqEntries.forEach((entry) => { %>
                                     <article class="profile-faq-item">
@@ -373,18 +389,21 @@
 
                 <!-- Moderator Tools for Profiles -->
                 <% if(isModerator && thisUser !== targetUser.username) { %>
-                    <div class="moderator-tools">
-                        <div class="mod-tools-header" onclick="toggleModTools()">
-                            <h3><%- include('icon', { name: 'settings', size: 18, class: 'icon-inline' }) %> Moderator Tools</h3>
-                            <span class="dropdown-arrow" id="modToolsArrow">▼</span>
-                        </div>
+                    <details class="moderator-tools">
+                        <summary class="mod-tools-header">
+                            <span class="mod-tools-heading">
+                                <span class="mod-tools-title"><%- include('icon', { name: 'settings', size: 18, class: 'icon-inline' }) %> Moderator tools</span>
+                                <span class="mod-tools-summary-copy">Roles, account access, and profile details</span>
+                            </span>
+                        </summary>
 
                         <div class="mod-tools-content" id="modToolsContent">
                             <div class="mod-tool-grid">
                                 <!-- Change Role (Admin Only) -->
                                 <% if(isAdmin) { %>
                                     <div class="mod-tool-item mod-tool-roles">
-                                        <label>User Roles (check multiple):</label>
+                                        <span class="mod-tool-label">User roles</span>
+                                        <p class="mod-tool-help">Select every role this account should have.</p>
                                         <div class="role-checkboxes">
                                             <% const userRoles = targetUser.roles || ['basic']; %>
                                                 <label class="role-checkbox">
@@ -404,65 +423,70 @@
                                                     <%- include('icon', { name: 'crown', size: 14, class: 'icon-inline' }) %> Administrator
                                                 </label>
                                         </div>
-                                        <button onclick="updateUserRoles()">Update Roles</button>
+                                        <button type="button" onclick="updateUserRoles()">Update roles</button>
                                     </div>
                                 <% } %>
 
                                 <!-- Temporary Ban -->
                                 <div class="mod-tool-item">
-                                    <label>Temporary Ban:</label>
-                                    <input type="number" id="banHours" placeholder="Hours" min="24">
-                                    <input type="text" id="tempBanReason" placeholder="Reason">
-                                    <button onclick="tempBanUser()"><%- include('icon', { name: 'timer', size: 14 }) %> Temp Ban</button>
+                                    <span class="mod-tool-label">Temporary ban</span>
+                                    <label for="banHours">Duration in hours</label>
+                                    <input type="number" id="banHours" placeholder="1 to 8760" min="1" max="8760" step="1">
+                                    <label for="tempBanReason">Reason</label>
+                                    <input type="text" id="tempBanReason" placeholder="Reason shown in the moderation record">
+                                    <button type="button" onclick="tempBanUser()"><%- include('icon', { name: 'timer', size: 14 }) %> Apply temporary ban</button>
                                 </div>
 
                                 <!-- Permanent Ban (Admin Only) -->
                                 <% if(isAdmin ) { %>
                                     <div class="mod-tool-item mod-tool-danger">
-                                        <label>Permanent Ban (deletes account & all Miis):</label>
+                                        <span class="mod-tool-label">Permanently ban account</span>
+                                        <p class="mod-tool-help">Deletes the account and all of its Miis.</p>
+                                        <label for="permBanReason">Reason</label>
                                         <input type="text" id="permBanReason" placeholder="Reason">
-                                        <button class="danger-btn" onclick="permBanUser()"><%- include('icon', { name: 'ban', size: 14 }) %>
-                                            Permanent Ban</button>
+                                        <button type="button" class="danger-btn" onclick="permBanUser()"><%- include('icon', { name: 'ban', size: 14 }) %>
+                                            Permanently ban</button>
                                     </div>
                                 <% } %>
 
                                 <!-- Delete All Miis -->
                                 <div class="mod-tool-item mod-tool-danger">
-                                    <label>Delete All User's Miis:</label>
-                                    <button class="danger-btn"
-                                        onclick="deleteAllUserMiis()"><%- include('icon', { name: 'trash', size: 14 }) %> Delete All Miis (
-                                        <%= totalUploaded %>)
+                                    <span class="mod-tool-label">Delete all Miis</span>
+                                    <p class="mod-tool-help">Removes all <%= totalUploaded %> Miis uploaded by this account.</p>
+                                    <button type="button" class="danger-btn"
+                                        onclick="deleteAllUserMiis()"><%- include('icon', { name: 'trash', size: 14 }) %> Delete all <%= totalUploaded %> Miis
                                     </button>
                                 </div>
 
                                 <!-- Change Username -->
                                 <div class="mod-tool-item">
-                                    <label>Change Username:</label>
+                                    <label for="newUsername">Username</label>
                                     <input type="text" id="newUsername"
                                         value="<%= targetUser.username %>" placeholder="New Username">
-                                    <button onclick="changeUsername()"><%- include('icon', { name: 'edit', size: 14 }) %> Change
+                                    <button type="button" onclick="changeUsername()"><%- include('icon', { name: 'edit', size: 14 }) %> Change
                                         Username</button>
                                 </div>
 
                                 <!-- Change Profile Picture -->
                                 <div class="mod-tool-item">
-                                    <label>Change Profile Picture (Mii ID):</label>
+                                    <label for="newPfp">Profile picture Mii ID</label>
                                     <input type="text" id="newPfp"
                                         value="<%= targetUser.miiPfp %>" placeholder="Mii ID">
-                                    <button onclick="changeUserPfp()"><%- include('icon', { name: 'image', size: 14 }) %> Change
-                                        PFP</button>
+                                    <button type="button" onclick="changeUserPfp()"><%- include('icon', { name: 'image', size: 14 }) %> Change
+                                        profile picture</button>
                                 </div>
 
                             </div>
                         </div>
-                    </div>
+                    </details>
                 <% } %>
 
                 <!-- Profile Content -->
                 <div class="profile-content">
-                    <h2 class="profile-section-title">
+                    <div class="profile-section-header">
+                        <h2 class="profile-section-title">Uploads From <%= targetUser.username %></h2>
                         <form class="profile-sort-form" method="GET" action="<%= profileBasePath %>">
-                            <label class="sr-only" for="profile-sort-select">Sort uploads</label>
+                            <label for="profile-sort-select">Sort by</label>
                             <select
                                 id="profile-sort-select"
                                 class="profile-sort-select"
@@ -470,18 +494,34 @@
                                 aria-label="Sort uploads"
                                 onchange="if (this.form) { if (this.form.requestSubmit) { this.form.requestSubmit(); } else { this.form.submit(); } }"
                             >
+                                <option value="alphabetical" <%= selectedProfileSort === 'alphabetical' ? 'selected' : '' %>>Alphabetical</option>
+                                <option value="trending" <%= selectedProfileSort === 'trending' ? 'selected' : '' %>>Trending</option>
+                                <option value="top" <%= selectedProfileSort === 'top' ? 'selected' : '' %>>Top</option>
                                 <option value="latest" <%= selectedProfileSort === 'latest' ? 'selected' : '' %>>Latest</option>
-                                <option value="popular" <%= selectedProfileSort === 'popular' ? 'selected' : '' %>>Popular</option>
+                            </select>
+                            <label for="profile-sort-direction">Direction</label>
+                            <select
+                                id="profile-sort-direction"
+                                class="profile-sort-select profile-sort-direction-select"
+                                name="direction"
+                                aria-label="Sort uploads direction"
+                                onchange="if (this.form) { if (this.form.requestSubmit) { this.form.requestSubmit(); } else { this.form.submit(); } }"
+                            >
+                                <option value="asc" <%= selectedProfileSortDirection === 'asc' ? 'selected' : '' %>><%= profileDirectionLabels.asc %></option>
+                                <option value="desc" <%= selectedProfileSortDirection === 'desc' ? 'selected' : '' %>><%= profileDirectionLabels.desc %></option>
                             </select>
                         </form>
-                        Uploads From <%= targetUser.username %>
-                    </h2>
+                    </div>
                     <% if(totalUploaded > 0) { %>
                         <p class="profile-section-copy" hidden>
-                            <% if (selectedProfileSort === 'popular') { %>
-                                This grid lists the public Miis on <%= targetUser.username %>'s profile by like count, with newer uploads breaking ties.
+                            <% if (selectedProfileSort === 'alphabetical') { %>
+                                This grid lists the public Miis on <%= targetUser.username %>'s profile by name, <%= selectedProfileSortDirection === 'asc' ? 'A to Z' : 'Z to A' %>.
+                            <% } else if (selectedProfileSort === 'trending') { %>
+                                This grid lists the public Miis on <%= targetUser.username %>'s profile by recent attention, <%= selectedProfileSortDirection === 'asc' ? 'least to most' : 'most to least' %>.
+                            <% } else if (selectedProfileSort === 'top') { %>
+                                This grid lists the public Miis on <%= targetUser.username %>'s profile by like count, <%= selectedProfileSortDirection === 'asc' ? 'lowest to highest' : 'highest to lowest' %>, with newer uploads breaking ties.
                             <% } else { %>
-                                This grid lists the public Miis on <%= targetUser.username %>'s profile in reverse chronological order, with older uploads available through pagination.
+                                This grid lists the public Miis on <%= targetUser.username %>'s profile <%= selectedProfileSortDirection === 'asc' ? 'oldest first' : 'newest first' %>.
                             <% } %>
                         </p>
                     <% } %>
@@ -611,14 +651,6 @@
             <script>
                 const targetUsername = <%- toScriptJson(targetUser.username) %>;
 
-                function toggleModTools() {
-                    const content = document.getElementById('modToolsContent');
-                    const arrow = document.getElementById('modToolsArrow');
-
-                    content.classList.toggle('expanded');
-                    arrow.classList.toggle('rotated');
-                }
-
                 async function updateUserRoles() {
                     const checkboxes = document.querySelectorAll('.role-checkboxes input[type="checkbox"]');
                     const selectedRoles = Array.from(checkboxes)
@@ -686,8 +718,8 @@
                     const hours = parseInt(document.getElementById('banHours').value);
                     const reason = document.getElementById('tempBanReason').value;
 
-                    if (!hours || hours < 1) {
-                        showAlert('Please enter a valid number of hours', 5000, { title: 'Error', type: 'error' });
+                    if (!Number.isInteger(hours) || hours < 1 || hours > 8760) {
+                        showAlert('Enter a whole number of hours from 1 to 8760.', 5000, { title: 'Error', type: 'error' });
                         return;
                     }
 

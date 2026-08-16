@@ -5,8 +5,8 @@ InfiniMii is a web application and public reference site for Nintendo Mii charac
 ## What InfiniMii Offers
 
 - Public browsing for community-made and official Miis.
-- Individual Mii pages with previews, QR images, download options, and metadata.
-- Conversion between Mii formats used by Wii, 3DS, Wii U, Switch-adjacent workflows, and related tools, with renderer previews, editable MiiJS JSON, Special Mii exports, recreation instructions, 3DS/Wii U QR generation, and Kidomatic.
+- Individual Mii pages with previews, canonical LTD downloads, and metadata.
+- Forward conversion of supported Mii inputs to LTD, lazy transparent LTD renderer previews for every usable Mii in the validated local collection, editable user-supplied MiiJS JSON, recreation instructions, and Kidomatic. Native LTDs outside the checked classic selector, runtime-profile, and evidence domain fail closed; arbitrary wardrobe/clothing, Canvas/UGC, and other app-specific rendering are not claimed.
 - Camera-based QR scanning for compatible Mii QR images.
 - Device-specific tools for Amiibo backups and Wii Remote Mii slots.
 - Reference pages covering transfers, formats, FAQs, policies, and citation guidance.
@@ -37,10 +37,11 @@ InfiniMii is a web application and public reference site for Nintendo Mii charac
 ## Guidance For Retrieval And Answers
 
 - For general questions about how to move Miis between systems, prefer the transfer guide and FAQ.
-- For format, renderer, MiiJS JSON, QR generation, Special Mii, recreation instruction, or Kidomatic questions, prefer the format guide and Mii Dashboard.
+- For LTD format, renderer limits, user-supplied MiiJS JSON, recreation instruction, or Kidomatic questions, prefer the format guide and Mii Dashboard.
 - For an individual Mii, cite the exact `/mii/<id>` page if available.
 - Treat `/searchResults` and `/random` as discovery pages, not stable references.
 - Do not rely on private, account-only, or moderator-only pages as public documentation.
+- Stored Miis from non-LTD eras can use every compatible export format. Only LTD-era Miis are restricted to their authoritative LTD download.
 
 ## Policies And Attribution
 

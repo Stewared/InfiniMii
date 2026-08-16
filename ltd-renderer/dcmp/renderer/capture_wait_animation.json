@@ -1,0 +1,7440 @@
+{
+  "Source": "C:\\Users\\kestr\\Coding\\LtDRender\\ltdDemo_converted_assets\\decompressed\\1\\Model\\AnimationProduct.bfres",
+  "SourceByteLength": 43903912,
+  "SourceSha256": "ce39a6d92e3d99ce4e1146e26690d1d562a91b13ba67cd357e9a2c043d5c1b60",
+  "ResourceName": "AnimationProduct",
+  "Name": "Wait",
+  "Path": "",
+  "FrameCount": 96,
+  "Loop": true,
+  "Baked": false,
+  "RotationMode": "EulerXYZ",
+  "ScaleMode": "Maya",
+  "Bones": [
+    {
+      "Index": 0,
+      "Name": "Root",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 1,
+      "Name": "Mdl_Root",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 2,
+      "Name": "Body",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 3,
+      "Name": "BodyChest",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 4,
+      "Name": "BodyElbow",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0.9726039,
+        -0.005518794
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 5,
+      "Name": "BodyFoot",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0.1655699,
+        0.027040422
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 6,
+      "Name": "BodyHand",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0.9726039,
+        -0.005518794
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 7,
+      "Name": "BodyHip",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 8,
+      "Name": "BodyKnee",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0.35500476,
+        -0.0050276965
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 9,
+      "Name": "BodyShoulder",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 10,
+      "Name": "BodySole",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0.006118861,
+        0.027835017
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 11,
+      "Name": "BodyThigh",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0.4428658,
+        -0.0050277114
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 12,
+      "Name": "BodyWaist",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 13,
+      "Name": "HeadRoot",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        1.0649999,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 14,
+      "Name": "HeadRoot0",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 15,
+      "Name": "Mask01",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 16,
+      "Name": "HeadRoot1",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 17,
+      "Name": "Mask03",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 18,
+      "Name": "HeadRoot2",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 19,
+      "Name": "Mask11",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 20,
+      "Name": "HeadRoot3",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 21,
+      "Name": "Mask00",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 22,
+      "Name": "Head_MotionRange",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 23,
+      "Name": "MaxSize_Back",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, TranslateY, TranslateZ",
+      "TransformFlags": "ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -0.031415924,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0.77911377,
+        -0.101408094
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00013271674,
+          "Delta": -0.031415924,
+          "Frames": [
+            0,
+            28,
+            52,
+            76,
+            96
+          ],
+          "Keys": [
+            [
+              -18,
+              76,
+              38,
+              55
+            ],
+            [
+              -94,
+              -90,
+              -91,
+              -70
+            ],
+            [
+              0,
+              -110,
+              -1,
+              0
+            ],
+            [
+              20,
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              109,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 20,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 6.382749E-08,
+          "Delta": 0.77911377,
+          "Frames": [
+            0,
+            32,
+            59,
+            85,
+            96
+          ],
+          "Keys": [
+            [
+              27831,
+              12855,
+              27648,
+              -17993
+            ],
+            [
+              0,
+              -30094,
+              -1,
+              3380
+            ],
+            [
+              -26860,
+              -1,
+              -26860,
+              0
+            ],
+            [
+              0,
+              30093,
+              0,
+              0
+            ],
+            [
+              7680,
+              20022,
+              96,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 24,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.5211428E-07,
+          "Delta": -0.111376904,
+          "Frames": [
+            0,
+            30,
+            54,
+            78,
+            96
+          ],
+          "Keys": [
+            [
+              -28367,
+              12944,
+              19456,
+              -17903
+            ],
+            [
+              -1,
+              29356,
+              0,
+              -1
+            ],
+            [
+              -12199,
+              0,
+              0,
+              -1
+            ],
+            [
+              -1,
+              -29026,
+              0,
+              0
+            ],
+            [
+              0,
+              16256,
+              0,
+              16256
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 24,
+      "Name": "MaxSize_Head",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, TranslateZ",
+      "TransformFlags": "ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -0.017450845,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        1.1538213,
+        0.022048365
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 6.432415E-05,
+          "Delta": -0.017450845,
+          "Frames": [
+            0,
+            34,
+            58,
+            82,
+            96
+          ],
+          "Keys": [
+            [
+              25,
+              11,
+              3,
+              55
+            ],
+            [
+              12,
+              -120,
+              -126,
+              -70
+            ],
+            [
+              0,
+              43,
+              -1,
+              0
+            ],
+            [
+              27,
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              24,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 24,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 4.687553E-08,
+          "Delta": 0.022048365,
+          "Frames": [
+            0,
+            36,
+            69,
+            96
+          ],
+          "Keys": [
+            [
+              16487,
+              12711,
+              30976,
+              -18088
+            ],
+            [
+              0,
+              -25885,
+              -26326,
+              0
+            ],
+            [
+              -1,
+              -1,
+              0,
+              -32402
+            ],
+            [
+              0,
+              16256,
+              0,
+              16256
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 25,
+      "Name": "Skl_Root",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "TranslateZ",
+      "TransformFlags": "ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0.638234,
+        0.03
+      ],
+      "Curves": [
+        {
+          "DataOffset": 24,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.6935152E-07,
+          "Delta": 0.018901547,
+          "Frames": [
+            0,
+            29,
+            54,
+            78,
+            96
+          ],
+          "Keys": [
+            [
+              8409,
+              12953,
+              8256,
+              -17895
+            ],
+            [
+              -1,
+              29217,
+              0,
+              -3957
+            ],
+            [
+              -11534,
+              0,
+              3257,
+              -1
+            ],
+            [
+              -1,
+              -29218,
+              0,
+              0
+            ],
+            [
+              0,
+              16256,
+              0,
+              16256
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 26,
+      "Name": "Spine_1",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne, TranslateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        1.5707964,
+        0.006981317,
+        1.5707964,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 4.5900324E-05,
+          "Delta": -0.004723265,
+          "Frames": [
+            0,
+            31,
+            56,
+            80,
+            96
+          ],
+          "Keys": [
+            [
+              -113,
+              -38,
+              -42,
+              54
+            ],
+            [
+              -75,
+              3,
+              86,
+              -70
+            ],
+            [
+              -1,
+              116,
+              0,
+              -10
+            ],
+            [
+              -84,
+              0,
+              17,
+              -1
+            ],
+            [
+              -1,
+              -117,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 27,
+      "Name": "Spine_2",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.02443461,
+        1
+      ],
+      "BaseTranslation": [
+        0.208,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 7.596256E-05,
+          "Delta": -0.02443461,
+          "Frames": [
+            0,
+            29,
+            54,
+            78,
+            96
+          ],
+          "Keys": [
+            [
+              -53,
+              38,
+              6,
+              55
+            ],
+            [
+              -89,
+              -96,
+              -123,
+              -70
+            ],
+            [
+              0,
+              -115,
+              -1,
+              15
+            ],
+            [
+              45,
+              -1,
+              -14,
+              0
+            ],
+            [
+              0,
+              114,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 28,
+      "Name": "Clavicle_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0.06981317,
+        -1.5655602,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0.1791,
+        0.0385,
+        0.0329
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.0582034E-05,
+          "Delta": -0.53061414,
+          "Frames": [
+            0,
+            1,
+            2,
+            3,
+            3,
+            4,
+            4,
+            5,
+            5,
+            6,
+            7,
+            11,
+            32,
+            39,
+            41,
+            42,
+            43,
+            43,
+            44,
+            44,
+            45,
+            45,
+            46,
+            47,
+            49,
+            50,
+            51,
+            51,
+            52,
+            52,
+            53,
+            53,
+            54,
+            55,
+            59,
+            80,
+            87,
+            89,
+            90,
+            91,
+            91,
+            92,
+            92,
+            93,
+            93,
+            94,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              0,
+              14208,
+              27136,
+              -16737
+            ],
+            [
+              -8796,
+              20695,
+              -8378,
+              21136
+            ],
+            [
+              -6689,
+              23310,
+              -1,
+              20405
+            ],
+            [
+              -1,
+              0,
+              0,
+              12856
+            ],
+            [
+              0,
+              20405,
+              -21772,
+              -28573
+            ],
+            [
+              -21772,
+              28703,
+              -17784,
+              22295
+            ],
+            [
+              -16321,
+              21175,
+              -14530,
+              20554
+            ],
+            [
+              -13850,
+              20343,
+              -15094,
+              20130
+            ],
+            [
+              -16321,
+              19635,
+              -17784,
+              18515
+            ],
+            [
+              -21772,
+              12107,
+              -21772,
+              3847
+            ],
+            [
+              0,
+              20405,
+              0,
+              27954
+            ],
+            [
+              -1,
+              -24726,
+              -1,
+              20405
+            ],
+            [
+              -6689,
+              17500,
+              -8378,
+              19674
+            ],
+            [
+              -8378,
+              21136,
+              -6689,
+              23310
+            ],
+            [
+              -1,
+              20405,
+              -1,
+              0
+            ],
+            [
+              0,
+              12856,
+              0,
+              20405
+            ],
+            [
+              -21772,
+              -28573,
+              -21772,
+              28703
+            ],
+            [
+              -17784,
+              22295,
+              -16321,
+              21175
+            ],
+            [
+              -14530,
+              20554,
+              -13850,
+              20343
+            ],
+            [
+              -15094,
+              20130,
+              -16321,
+              19635
+            ],
+            [
+              -17784,
+              18515,
+              -21772,
+              12107
+            ],
+            [
+              -21772,
+              3847,
+              0,
+              20405
+            ],
+            [
+              0,
+              27954,
+              -1,
+              -24726
+            ],
+            [
+              -1,
+              20405,
+              -6689,
+              17500
+            ],
+            [
+              -8378,
+              19674,
+              -8796,
+              20115
+            ],
+            [
+              6912,
+              19251,
+              96,
+              0
+            ],
+            [
+              7891,
+              14219,
+              4393,
+              -17652
+            ],
+            [
+              27135,
+              -256,
+              244,
+              -256
+            ],
+            [
+              -26369,
+              0,
+              0,
+              0
+            ],
+            [
+              256,
+              770,
+              1027,
+              1284
+            ],
+            [
+              1541,
+              2823,
+              10014,
+              10793
+            ],
+            [
+              11051,
+              11308,
+              11565,
+              12078
+            ],
+            [
+              12849,
+              13107,
+              13364,
+              13621
+            ],
+            [
+              14134,
+              20027,
+              22871,
+              23386
+            ],
+            [
+              23643,
+              23900,
+              24157,
+              24671
+            ],
+            [
+              0,
+              14208,
+              -30208,
+              -16737
+            ],
+            [
+              8756,
+              20134,
+              8343,
+              19696
+            ],
+            [
+              6666,
+              17527,
+              0,
+              20421
+            ],
+            [
+              0,
+              -24694,
+              -1,
+              27990
+            ],
+            [
+              -1,
+              20421,
+              21819,
+              3886
+            ],
+            [
+              21819,
+              12199,
+              17869,
+              18558
+            ],
+            [
+              16448,
+              19681,
+              14852,
+              20308
+            ],
+            [
+              14358,
+              20440,
+              15314,
+              20662
+            ],
+            [
+              16448,
+              21161,
+              17869,
+              22284
+            ],
+            [
+              21819,
+              28643,
+              21819,
+              -28580
+            ],
+            [
+              -1,
+              20421,
+              -1,
+              12852
+            ],
+            [
+              0,
+              0,
+              0,
+              20421
+            ],
+            [
+              6666,
+              23315,
+              8343,
+              21146
+            ]
+          ]
+        },
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00028867536,
+          "Delta": -1.6391724,
+          "Frames": [
+            0,
+            27,
+            51,
+            75,
+            96
+          ],
+          "Keys": [
+            [
+              -45,
+              30,
+              -117,
+              55
+            ],
+            [
+              41,
+              17,
+              12,
+              -69
+            ],
+            [
+              -1,
+              105,
+              0,
+              -1
+            ],
+            [
+              -12,
+              0,
+              0,
+              -1
+            ],
+            [
+              -1,
+              -104,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.0586179E-05,
+          "Delta": -0.09269143,
+          "Frames": [
+            0,
+            1,
+            2,
+            3,
+            3,
+            4,
+            4,
+            5,
+            5,
+            6,
+            7,
+            11,
+            30,
+            39,
+            41,
+            42,
+            43,
+            43,
+            44,
+            44,
+            45,
+            45,
+            46,
+            47,
+            49,
+            50,
+            51,
+            51,
+            52,
+            52,
+            53,
+            53,
+            54,
+            55,
+            59,
+            78,
+            87,
+            89,
+            90,
+            91,
+            91,
+            92,
+            92,
+            93,
+            93,
+            94,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              0,
+              14208,
+              -30208,
+              -16737
+            ],
+            [
+              8756,
+              20134,
+              8343,
+              19696
+            ],
+            [
+              6666,
+              17527,
+              0,
+              20421
+            ],
+            [
+              0,
+              -24694,
+              -1,
+              27990
+            ],
+            [
+              -1,
+              20421,
+              21819,
+              3886
+            ],
+            [
+              21819,
+              12199,
+              17869,
+              18558
+            ],
+            [
+              16448,
+              19681,
+              14852,
+              20308
+            ],
+            [
+              14358,
+              20440,
+              15314,
+              20662
+            ],
+            [
+              16448,
+              21161,
+              17869,
+              22284
+            ],
+            [
+              21819,
+              28643,
+              21819,
+              -28580
+            ],
+            [
+              -1,
+              20421,
+              -1,
+              12852
+            ],
+            [
+              0,
+              0,
+              0,
+              20421
+            ],
+            [
+              6666,
+              23315,
+              8343,
+              21146
+            ],
+            [
+              8343,
+              19696,
+              6666,
+              17527
+            ],
+            [
+              0,
+              20421,
+              0,
+              -24694
+            ],
+            [
+              -1,
+              27990,
+              -1,
+              20421
+            ],
+            [
+              21819,
+              3886,
+              21819,
+              12199
+            ],
+            [
+              17869,
+              18558,
+              16448,
+              19681
+            ],
+            [
+              14852,
+              20308,
+              14358,
+              20440
+            ],
+            [
+              15314,
+              20662,
+              16448,
+              21161
+            ],
+            [
+              17869,
+              22284,
+              21819,
+              28643
+            ],
+            [
+              21819,
+              -28580,
+              -1,
+              20421
+            ],
+            [
+              -1,
+              12852,
+              0,
+              0
+            ],
+            [
+              0,
+              20421,
+              6666,
+              23315
+            ],
+            [
+              8343,
+              21146,
+              8756,
+              20708
+            ],
+            [
+              0,
+              16256,
+              0,
+              16256
+            ],
+            [
+              0,
+              16256,
+              -31701,
+              16146
+            ],
+            [
+              -6910,
+              -16488,
+              12706,
+              -16779
+            ],
+            [
+              0,
+              16256,
+              -11744,
+              15855
+            ],
+            [
+              -19923,
+              -17123,
+              26319,
+              15701
+            ],
+            [
+              24760,
+              604,
+              0,
+              0
+            ],
+            [
+              24768,
+              604,
+              0,
+              0
+            ],
+            [
+              18442,
+              6,
+              32,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              17088
+            ],
+            [
+              0,
+              0,
+              21075,
+              14582
+            ],
+            [
+              -15717,
+              16144,
+              0,
+              0
+            ],
+            [
+              24792,
+              604,
+              0,
+              0
+            ],
+            [
+              24800,
+              604,
+              0,
+              0
+            ],
+            [
+              18442,
+              5,
+              36,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              17088
+            ],
+            [
+              0,
+              0,
+              19565,
+              14725
+            ],
+            [
+              -6910,
+              -16488,
+              0,
+              0
+            ],
+            [
+              24824,
+              604,
+              0,
+              0
+            ],
+            [
+              24832,
+              604,
+              0,
+              0
+            ],
+            [
+              18442,
+              6,
+              40,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              17088
+            ],
+            [
+              0,
+              0,
+              -17841,
+              14595
+            ],
+            [
+              22507,
+              -16777,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 29,
+      "Name": "Arm_1_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0.5723292,
+        -1.1944888,
+        -0.23944715,
+        1
+      ],
+      "BaseTranslation": [
+        0.1171,
+        -0.0385,
+        0.0521
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00011745528,
+          "Delta": 0.56546944,
+          "Frames": [
+            0,
+            17,
+            37,
+            60,
+            82,
+            96
+          ],
+          "Keys": [
+            [
+              127,
+              125,
+              -115,
+              55
+            ],
+            [
+              -100,
+              73,
+              20,
+              -69
+            ],
+            [
+              58,
+              9,
+              74,
+              -1
+            ],
+            [
+              -22,
+              69,
+              0,
+              -47
+            ],
+            [
+              -1,
+              105,
+              58,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00025424678,
+          "Delta": -1.1944888,
+          "Frames": [
+            0,
+            25,
+            49,
+            73,
+            96
+          ],
+          "Keys": [
+            [
+              45,
+              -89,
+              101,
+              55
+            ],
+            [
+              -110,
+              6,
+              -26,
+              -70
+            ],
+            [
+              0,
+              -21,
+              -1,
+              0
+            ],
+            [
+              6,
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              -64,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00012562539,
+          "Delta": -0.24154632,
+          "Frames": [
+            0,
+            18,
+            47,
+            64,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              -42,
+              -37,
+              46,
+              55
+            ],
+            [
+              -62,
+              -120,
+              -100,
+              -71
+            ],
+            [
+              17,
+              -1,
+              -2,
+              0
+            ],
+            [
+              0,
+              -42,
+              -1,
+              48
+            ],
+            [
+              0,
+              -42,
+              17,
+              -26
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 30,
+      "Name": "Arm_1_Sub_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne, TranslateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -0.20453124,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 7.4958574E-05,
+          "Delta": -0.22364567,
+          "Frames": [
+            0,
+            30,
+            55,
+            79,
+            96
+          ],
+          "Keys": [
+            [
+              -56,
+              -76,
+              -4,
+              54
+            ],
+            [
+              103,
+              40,
+              125,
+              -70
+            ],
+            [
+              -1,
+              -112,
+              0,
+              -18
+            ],
+            [
+              -41,
+              0,
+              12,
+              -1
+            ],
+            [
+              -1,
+              -83,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 31,
+      "Name": "Arm_2_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0.29670605,
+        1
+      ],
+      "BaseTranslation": [
+        0.23,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.29484E-05,
+          "Delta": 0.2903827,
+          "Frames": [
+            0,
+            25,
+            51,
+            81,
+            96
+          ],
+          "Keys": [
+            [
+              -103,
+              -116,
+              -68,
+              54
+            ],
+            [
+              89,
+              40,
+              57,
+              -70
+            ],
+            [
+              -64,
+              -3,
+              126,
+              0
+            ],
+            [
+              -1,
+              -15,
+              0,
+              86
+            ],
+            [
+              -64,
+              -1,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 32,
+      "Name": "Wrist_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0.13688353,
+        -0.052288055,
+        0.052431602,
+        1
+      ],
+      "BaseTranslation": [
+        0.205,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 9.08234E-05,
+          "Delta": 0.12906368,
+          "Frames": [
+            0,
+            18,
+            39,
+            63,
+            87,
+            96
+          ],
+          "Keys": [
+            [
+              -117,
+              116,
+              100,
+              55
+            ],
+            [
+              -31,
+              -24,
+              -17,
+              -70
+            ],
+            [
+              86,
+              4,
+              48,
+              -1
+            ],
+            [
+              -1,
+              43,
+              0,
+              -33
+            ],
+            [
+              -1,
+              43,
+              86,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 9.29291E-05,
+          "Delta": -0.06792189,
+          "Frames": [
+            0,
+            18,
+            39,
+            63,
+            87,
+            96
+          ],
+          "Keys": [
+            [
+              2,
+              -26,
+              106,
+              55
+            ],
+            [
+              61,
+              -52,
+              -35,
+              -70
+            ],
+            [
+              -88,
+              -5,
+              -49,
+              0
+            ],
+            [
+              0,
+              -45,
+              -1,
+              31
+            ],
+            [
+              0,
+              -45,
+              -88,
+              -1
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.4772822E-05,
+          "Delta": 0.048664533,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              -99,
+              -73,
+              -8,
+              54
+            ],
+            [
+              36,
+              -30,
+              118,
+              -70
+            ],
+            [
+              -1,
+              -6,
+              63,
+              0
+            ],
+            [
+              -128,
+              -1,
+              -64,
+              0
+            ],
+            [
+              0,
+              -5,
+              -1,
+              -3
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 33,
+      "Name": "Item_Wrist_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0.0568,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 34,
+      "Name": "Loc_Item_Wrist_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 35,
+      "Name": "Wrist_Sub_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0.06912746,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0.115,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.4667272E-05,
+          "Delta": 0.06912746,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              83,
+              14,
+              -9,
+              54
+            ],
+            [
+              76,
+              -43,
+              118,
+              -70
+            ],
+            [
+              0,
+              6,
+              -64,
+              -1
+            ],
+            [
+              127,
+              0,
+              63,
+              -1
+            ],
+            [
+              -1,
+              3,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 36,
+      "Name": "Sleeve_Sub_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, RotateY, RotateZ, TranslateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -0.74579215,
+        1.1822665,
+        2.4269516,
+        1
+      ],
+      "BaseTranslation": [
+        0.22749256,
+        0,
+        -0.081748344
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00017536248,
+          "Delta": -0.7875294,
+          "Frames": [
+            0,
+            19,
+            40,
+            64,
+            77,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              -94,
+              70,
+              -84,
+              55
+            ],
+            [
+              39,
+              -91,
+              -4,
+              -70
+            ],
+            [
+              -18,
+              15,
+              0,
+              57
+            ],
+            [
+              -1,
+              -118,
+              24,
+              0
+            ],
+            [
+              100,
+              -1,
+              -10,
+              31
+            ],
+            [
+              -18,
+              25,
+              0,
+              0
+            ],
+            [
+              0,
+              35,
+              56,
+              83
+            ]
+          ]
+        },
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.0839677E-05,
+          "Delta": 1.1822665,
+          "Frames": [
+            0,
+            35,
+            56,
+            83,
+            96
+          ],
+          "Keys": [
+            [
+              -92,
+              121,
+              51,
+              54
+            ],
+            [
+              32,
+              -91,
+              -53,
+              -71
+            ],
+            [
+              0,
+              80,
+              -1,
+              0
+            ],
+            [
+              30,
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              32,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 6.975661E-05,
+          "Delta": 2.4111125,
+          "Frames": [
+            0,
+            18,
+            41,
+            41,
+            65,
+            89,
+            89,
+            96
+          ],
+          "Keys": [
+            [
+              0,
+              0,
+              0,
+              55
+            ],
+            [
+              0,
+              0,
+              -120,
+              -70
+            ],
+            [
+              -29,
+              80,
+              0,
+              24
+            ],
+            [
+              -1,
+              -118,
+              -1,
+              -120
+            ],
+            [
+              14,
+              0,
+              -1,
+              -118
+            ],
+            [
+              -1,
+              -120,
+              -29,
+              79
+            ],
+            [
+              0,
+              29,
+              54,
+              79
+            ],
+            [
+              96,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 24,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.381495E-05,
+          "Delta": -0.081748344,
+          "Frames": [
+            0,
+            29,
+            54,
+            79,
+            96
+          ],
+          "Keys": [
+            [
+              -68,
+              58,
+              104,
+              54
+            ],
+            [
+              -128,
+              97,
+              -20,
+              -71
+            ],
+            [
+              0,
+              -74,
+              -1,
+              16
+            ],
+            [
+              78,
+              -1,
+              -37,
+              0
+            ],
+            [
+              0,
+              -94,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 37,
+      "Name": "Clavicle_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        3.2114058,
+        -1.5760324,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0.1791,
+        0.0385,
+        -0.0329
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.05820345E-05,
+          "Delta": 2.6109786,
+          "Frames": [
+            0,
+            1,
+            2,
+            3,
+            3,
+            4,
+            4,
+            5,
+            5,
+            6,
+            7,
+            11,
+            32,
+            39,
+            41,
+            42,
+            43,
+            43,
+            44,
+            44,
+            45,
+            45,
+            46,
+            47,
+            49,
+            50,
+            51,
+            51,
+            52,
+            52,
+            53,
+            53,
+            54,
+            55,
+            59,
+            80,
+            87,
+            89,
+            90,
+            91,
+            91,
+            92,
+            92,
+            93,
+            93,
+            94,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              0,
+              14208,
+              27136,
+              -16737
+            ],
+            [
+              -8796,
+              20695,
+              -8378,
+              21136
+            ],
+            [
+              -6689,
+              23310,
+              -1,
+              20405
+            ],
+            [
+              -1,
+              0,
+              0,
+              12856
+            ],
+            [
+              0,
+              20405,
+              -21772,
+              -28573
+            ],
+            [
+              -21772,
+              28703,
+              -17783,
+              22295
+            ],
+            [
+              -16321,
+              21175,
+              -14530,
+              20554
+            ],
+            [
+              -13850,
+              20343,
+              -15094,
+              20130
+            ],
+            [
+              -16321,
+              19635,
+              -17783,
+              18515
+            ],
+            [
+              -21772,
+              12107,
+              -21772,
+              3847
+            ],
+            [
+              0,
+              20405,
+              0,
+              27954
+            ],
+            [
+              -1,
+              -24726,
+              -1,
+              20405
+            ],
+            [
+              -6689,
+              17500,
+              -8378,
+              19674
+            ],
+            [
+              -8378,
+              21136,
+              -6689,
+              23310
+            ],
+            [
+              -1,
+              20405,
+              -1,
+              0
+            ],
+            [
+              0,
+              12856,
+              0,
+              20405
+            ],
+            [
+              -21772,
+              -28573,
+              -21772,
+              28703
+            ],
+            [
+              -17783,
+              22295,
+              -16321,
+              21175
+            ],
+            [
+              -14530,
+              20554,
+              -13850,
+              20343
+            ],
+            [
+              -15094,
+              20130,
+              -16321,
+              19635
+            ],
+            [
+              -17783,
+              18515,
+              -21772,
+              12107
+            ],
+            [
+              -21772,
+              3847,
+              0,
+              20405
+            ],
+            [
+              0,
+              27954,
+              -1,
+              -24726
+            ],
+            [
+              -1,
+              20405,
+              -6689,
+              17500
+            ],
+            [
+              -8378,
+              19674,
+              -8796,
+              20115
+            ],
+            [
+              6912,
+              19251,
+              96,
+              0
+            ],
+            [
+              7891,
+              14219,
+              5694,
+              -17655
+            ],
+            [
+              -27136,
+              255,
+              -245,
+              255
+            ],
+            [
+              26368,
+              0,
+              0,
+              0
+            ],
+            [
+              256,
+              770,
+              1027,
+              1284
+            ],
+            [
+              1541,
+              2823,
+              10014,
+              10793
+            ],
+            [
+              11051,
+              11308,
+              11565,
+              12078
+            ],
+            [
+              12849,
+              13107,
+              13364,
+              13621
+            ],
+            [
+              14134,
+              20027,
+              22871,
+              23386
+            ],
+            [
+              23643,
+              23900,
+              24157,
+              24671
+            ],
+            [
+              0,
+              14208,
+              -30208,
+              -16737
+            ],
+            [
+              8756,
+              20134,
+              8343,
+              19696
+            ],
+            [
+              6666,
+              17527,
+              0,
+              20421
+            ],
+            [
+              0,
+              -24694,
+              -1,
+              27990
+            ],
+            [
+              -1,
+              20421,
+              21819,
+              3886
+            ],
+            [
+              21819,
+              12199,
+              17869,
+              18558
+            ],
+            [
+              16448,
+              19681,
+              14852,
+              20308
+            ],
+            [
+              14358,
+              20440,
+              15314,
+              20662
+            ],
+            [
+              16448,
+              21161,
+              17869,
+              22284
+            ],
+            [
+              21819,
+              28643,
+              21819,
+              -28580
+            ],
+            [
+              -1,
+              20421,
+              -1,
+              12852
+            ],
+            [
+              0,
+              0,
+              0,
+              20421
+            ],
+            [
+              6666,
+              23315,
+              8343,
+              21146
+            ]
+          ]
+        },
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00028867536,
+          "Delta": -1.5760324,
+          "Frames": [
+            0,
+            27,
+            51,
+            75,
+            96
+          ],
+          "Keys": [
+            [
+              -45,
+              30,
+              -117,
+              55
+            ],
+            [
+              62,
+              22,
+              9,
+              -69
+            ],
+            [
+              0,
+              -106,
+              -1,
+              0
+            ],
+            [
+              11,
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              103,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.0586179E-05,
+          "Delta": -0.09269143,
+          "Frames": [
+            0,
+            1,
+            2,
+            3,
+            3,
+            4,
+            4,
+            5,
+            5,
+            6,
+            7,
+            11,
+            30,
+            39,
+            41,
+            42,
+            43,
+            43,
+            44,
+            44,
+            45,
+            45,
+            46,
+            47,
+            49,
+            50,
+            51,
+            51,
+            52,
+            52,
+            53,
+            53,
+            54,
+            55,
+            59,
+            78,
+            87,
+            89,
+            90,
+            91,
+            91,
+            92,
+            92,
+            93,
+            93,
+            94,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              0,
+              14208,
+              -30208,
+              -16737
+            ],
+            [
+              8756,
+              20134,
+              8343,
+              19696
+            ],
+            [
+              6666,
+              17527,
+              0,
+              20421
+            ],
+            [
+              0,
+              -24694,
+              -1,
+              27990
+            ],
+            [
+              -1,
+              20421,
+              21819,
+              3886
+            ],
+            [
+              21819,
+              12199,
+              17869,
+              18558
+            ],
+            [
+              16448,
+              19681,
+              14852,
+              20308
+            ],
+            [
+              14358,
+              20440,
+              15314,
+              20662
+            ],
+            [
+              16448,
+              21161,
+              17869,
+              22284
+            ],
+            [
+              21819,
+              28643,
+              21819,
+              -28580
+            ],
+            [
+              -1,
+              20421,
+              -1,
+              12852
+            ],
+            [
+              0,
+              0,
+              0,
+              20421
+            ],
+            [
+              6666,
+              23315,
+              8343,
+              21146
+            ],
+            [
+              8343,
+              19696,
+              6666,
+              17527
+            ],
+            [
+              0,
+              20421,
+              0,
+              -24694
+            ],
+            [
+              -1,
+              27990,
+              -1,
+              20421
+            ],
+            [
+              21819,
+              3886,
+              21819,
+              12199
+            ],
+            [
+              17869,
+              18558,
+              16448,
+              19681
+            ],
+            [
+              14852,
+              20308,
+              14358,
+              20440
+            ],
+            [
+              15314,
+              20662,
+              16448,
+              21161
+            ],
+            [
+              17869,
+              22284,
+              21819,
+              28643
+            ],
+            [
+              21819,
+              -28580,
+              -1,
+              20421
+            ],
+            [
+              -1,
+              12852,
+              0,
+              0
+            ],
+            [
+              0,
+              20421,
+              6666,
+              23315
+            ],
+            [
+              8343,
+              21146,
+              8756,
+              20708
+            ],
+            [
+              0,
+              16256,
+              0,
+              16256
+            ],
+            [
+              0,
+              16256,
+              -31701,
+              16146
+            ],
+            [
+              -6910,
+              -16488,
+              12706,
+              -16779
+            ],
+            [
+              0,
+              16256,
+              -11744,
+              -16913
+            ],
+            [
+              -19923,
+              15645,
+              26319,
+              -17067
+            ],
+            [
+              26832,
+              604,
+              0,
+              0
+            ],
+            [
+              26840,
+              604,
+              0,
+              0
+            ],
+            [
+              18442,
+              6,
+              32,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              17088
+            ],
+            [
+              0,
+              0,
+              21075,
+              14582
+            ],
+            [
+              -15717,
+              16144,
+              0,
+              0
+            ],
+            [
+              26864,
+              604,
+              0,
+              0
+            ],
+            [
+              26872,
+              604,
+              0,
+              0
+            ],
+            [
+              18442,
+              5,
+              36,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              17088
+            ],
+            [
+              0,
+              0,
+              19565,
+              14725
+            ],
+            [
+              -6910,
+              -16488,
+              0,
+              0
+            ],
+            [
+              26896,
+              604,
+              0,
+              0
+            ],
+            [
+              26904,
+              604,
+              0,
+              0
+            ],
+            [
+              18442,
+              6,
+              40,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              17088
+            ],
+            [
+              0,
+              0,
+              -17841,
+              14595
+            ],
+            [
+              22507,
+              -16777,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 38,
+      "Name": "Arm_1_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0.5723292,
+        -1.1944888,
+        -0.23944715,
+        1
+      ],
+      "BaseTranslation": [
+        -0.1171,
+        0.0385,
+        -0.0521
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00011745528,
+          "Delta": 0.56546944,
+          "Frames": [
+            0,
+            17,
+            37,
+            60,
+            82,
+            96
+          ],
+          "Keys": [
+            [
+              127,
+              125,
+              -115,
+              55
+            ],
+            [
+              -100,
+              73,
+              20,
+              -69
+            ],
+            [
+              58,
+              9,
+              74,
+              -1
+            ],
+            [
+              -22,
+              69,
+              0,
+              -47
+            ],
+            [
+              -1,
+              105,
+              58,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00025424678,
+          "Delta": -1.1944888,
+          "Frames": [
+            0,
+            25,
+            49,
+            73,
+            96
+          ],
+          "Keys": [
+            [
+              45,
+              -89,
+              101,
+              55
+            ],
+            [
+              -110,
+              6,
+              -26,
+              -70
+            ],
+            [
+              0,
+              -21,
+              -1,
+              0
+            ],
+            [
+              6,
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              -64,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00012562539,
+          "Delta": -0.24154632,
+          "Frames": [
+            0,
+            18,
+            47,
+            64,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              -42,
+              -37,
+              46,
+              55
+            ],
+            [
+              -62,
+              -120,
+              -100,
+              -71
+            ],
+            [
+              17,
+              -1,
+              -2,
+              0
+            ],
+            [
+              0,
+              -42,
+              -1,
+              48
+            ],
+            [
+              0,
+              -42,
+              17,
+              -26
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 39,
+      "Name": "Arm_1_Sub_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne, TranslateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -0.20453124,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 7.4958574E-05,
+          "Delta": -0.22364567,
+          "Frames": [
+            0,
+            30,
+            55,
+            79,
+            96
+          ],
+          "Keys": [
+            [
+              -56,
+              -76,
+              -4,
+              54
+            ],
+            [
+              103,
+              40,
+              125,
+              -70
+            ],
+            [
+              -1,
+              -112,
+              0,
+              -18
+            ],
+            [
+              -41,
+              0,
+              12,
+              -1
+            ],
+            [
+              -1,
+              -83,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 40,
+      "Name": "Arm_2_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0.29670605,
+        1
+      ],
+      "BaseTranslation": [
+        -0.23,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.29484E-05,
+          "Delta": 0.2903827,
+          "Frames": [
+            0,
+            25,
+            51,
+            81,
+            96
+          ],
+          "Keys": [
+            [
+              -103,
+              -116,
+              -68,
+              54
+            ],
+            [
+              89,
+              40,
+              57,
+              -70
+            ],
+            [
+              -64,
+              -3,
+              126,
+              0
+            ],
+            [
+              -1,
+              -15,
+              0,
+              86
+            ],
+            [
+              -64,
+              -1,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 41,
+      "Name": "Wrist_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0.13688353,
+        -0.052288055,
+        0.052431602,
+        1
+      ],
+      "BaseTranslation": [
+        -0.205,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 9.08234E-05,
+          "Delta": 0.12906368,
+          "Frames": [
+            0,
+            18,
+            39,
+            63,
+            87,
+            96
+          ],
+          "Keys": [
+            [
+              -117,
+              116,
+              100,
+              55
+            ],
+            [
+              -31,
+              -24,
+              -17,
+              -70
+            ],
+            [
+              86,
+              4,
+              48,
+              -1
+            ],
+            [
+              -1,
+              43,
+              0,
+              -33
+            ],
+            [
+              -1,
+              43,
+              86,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 9.29291E-05,
+          "Delta": -0.06792189,
+          "Frames": [
+            0,
+            18,
+            39,
+            63,
+            87,
+            96
+          ],
+          "Keys": [
+            [
+              2,
+              -26,
+              106,
+              55
+            ],
+            [
+              61,
+              -52,
+              -35,
+              -70
+            ],
+            [
+              -88,
+              -5,
+              -49,
+              0
+            ],
+            [
+              0,
+              -45,
+              -1,
+              31
+            ],
+            [
+              0,
+              -45,
+              -88,
+              -1
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.4772822E-05,
+          "Delta": 0.048664533,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              -99,
+              -73,
+              -8,
+              54
+            ],
+            [
+              36,
+              -30,
+              118,
+              -70
+            ],
+            [
+              -1,
+              -6,
+              63,
+              0
+            ],
+            [
+              -128,
+              -1,
+              -64,
+              0
+            ],
+            [
+              0,
+              -5,
+              -1,
+              -3
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 42,
+      "Name": "Item_Wrist_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne, RotateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        -0.0568,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 43,
+      "Name": "Loc_Item_Wrist_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "ScaleOne, TranslateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        3.1415927,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 44,
+      "Name": "Wrist_Sub_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0.06912746,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        -0.115,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.4667272E-05,
+          "Delta": 0.06912746,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              83,
+              14,
+              -9,
+              54
+            ],
+            [
+              76,
+              -43,
+              118,
+              -70
+            ],
+            [
+              0,
+              6,
+              -64,
+              -1
+            ],
+            [
+              127,
+              0,
+              63,
+              -1
+            ],
+            [
+              -1,
+              3,
+              0,
+              2
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 45,
+      "Name": "Sleeve_Sub_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateX, RotateY, RotateZ, TranslateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -0.74579215,
+        1.1822665,
+        2.4269516,
+        1
+      ],
+      "BaseTranslation": [
+        -0.22749256,
+        0,
+        0.081748344
+      ],
+      "Curves": [
+        {
+          "DataOffset": 32,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00017536248,
+          "Delta": -0.7875294,
+          "Frames": [
+            0,
+            19,
+            40,
+            64,
+            77,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              -94,
+              70,
+              -84,
+              55
+            ],
+            [
+              39,
+              -91,
+              -4,
+              -70
+            ],
+            [
+              -18,
+              15,
+              0,
+              57
+            ],
+            [
+              -1,
+              -118,
+              24,
+              0
+            ],
+            [
+              100,
+              -1,
+              -10,
+              31
+            ],
+            [
+              -18,
+              25,
+              0,
+              0
+            ],
+            [
+              0,
+              35,
+              56,
+              83
+            ]
+          ]
+        },
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.0839677E-05,
+          "Delta": 1.1822665,
+          "Frames": [
+            0,
+            35,
+            56,
+            83,
+            96
+          ],
+          "Keys": [
+            [
+              -92,
+              121,
+              51,
+              54
+            ],
+            [
+              32,
+              -91,
+              -53,
+              -71
+            ],
+            [
+              0,
+              80,
+              -1,
+              0
+            ],
+            [
+              30,
+              -1,
+              -1,
+              0
+            ],
+            [
+              0,
+              32,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 6.975661E-05,
+          "Delta": 2.4111125,
+          "Frames": [
+            0,
+            18,
+            41,
+            41,
+            65,
+            89,
+            89,
+            96
+          ],
+          "Keys": [
+            [
+              0,
+              0,
+              0,
+              55
+            ],
+            [
+              0,
+              0,
+              -120,
+              -70
+            ],
+            [
+              -29,
+              80,
+              0,
+              24
+            ],
+            [
+              -1,
+              -118,
+              -1,
+              -120
+            ],
+            [
+              14,
+              0,
+              -1,
+              -118
+            ],
+            [
+              -1,
+              -120,
+              -29,
+              79
+            ],
+            [
+              0,
+              29,
+              54,
+              79
+            ],
+            [
+              96,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 24,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.381495E-05,
+          "Delta": 0.07567553,
+          "Frames": [
+            0,
+            29,
+            54,
+            79,
+            96
+          ],
+          "Keys": [
+            [
+              -68,
+              58,
+              104,
+              54
+            ],
+            [
+              -128,
+              67,
+              -30,
+              -71
+            ],
+            [
+              -1,
+              73,
+              0,
+              -17
+            ],
+            [
+              -79,
+              0,
+              36,
+              -1
+            ],
+            [
+              -1,
+              93,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 46,
+      "Name": "Item_Spine_2",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 47,
+      "Name": "Neck",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0.034906585,
+        1
+      ],
+      "BaseTranslation": [
+        0.217,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 5.508121E-05,
+          "Delta": 0.034906585,
+          "Frames": [
+            0,
+            32,
+            57,
+            81,
+            96
+          ],
+          "Keys": [
+            [
+              -14,
+              6,
+              -25,
+              54
+            ],
+            [
+              -40,
+              31,
+              102,
+              -70
+            ],
+            [
+              0,
+              91,
+              -1,
+              12
+            ],
+            [
+              58,
+              -1,
+              -16,
+              0
+            ],
+            [
+              0,
+              70,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 48,
+      "Name": "Head",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.020941505,
+        1
+      ],
+      "BaseTranslation": [
+        0.0907,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00012540248,
+          "Delta": -0.05291914,
+          "Frames": [
+            0,
+            27,
+            52,
+            76,
+            96
+          ],
+          "Keys": [
+            [
+              -103,
+              -50,
+              80,
+              55
+            ],
+            [
+              -59,
+              -3,
+              -49,
+              -70
+            ],
+            [
+              -1,
+              79,
+              0,
+              -18
+            ],
+            [
+              -35,
+              0,
+              12,
+              -1
+            ],
+            [
+              -1,
+              109,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 49,
+      "Name": "LookIK",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0.017450845,
+        1
+      ],
+      "BaseTranslation": [
+        0.22,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 6.432415E-05,
+          "Delta": 0.001048187,
+          "Frames": [
+            0,
+            34,
+            58,
+            82,
+            96
+          ],
+          "Keys": [
+            [
+              25,
+              11,
+              3,
+              55
+            ],
+            [
+              14,
+              -120,
+              -126,
+              -70
+            ],
+            [
+              -1,
+              -44,
+              0,
+              -1
+            ],
+            [
+              -28,
+              0,
+              0,
+              -1
+            ],
+            [
+              -1,
+              -25,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 50,
+      "Name": "Waist",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne, TranslateZero",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        1.5707964,
+        0.017453292,
+        -1.5707964,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.3394043E-05,
+          "Delta": 0.011487812,
+          "Frames": [
+            0,
+            33,
+            61,
+            90,
+            96
+          ],
+          "Keys": [
+            [
+              -51,
+              56,
+              -118,
+              54
+            ],
+            [
+              77,
+              -89,
+              13,
+              -70
+            ],
+            [
+              -1,
+              120,
+              0,
+              -1
+            ],
+            [
+              45,
+              0,
+              -59,
+              -26
+            ],
+            [
+              -1,
+              -114,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 51,
+      "Name": "Leg_1_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0.011799987,
+        1
+      ],
+      "BaseTranslation": [
+        0.0588,
+        0,
+        -0.1
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.377411E-05,
+          "Delta": 0.011799987,
+          "Frames": [
+            0,
+            27,
+            57,
+            93,
+            96
+          ],
+          "Keys": [
+            [
+              -96,
+              -15,
+              75,
+              54
+            ],
+            [
+              65,
+              16,
+              -102,
+              -71
+            ],
+            [
+              0,
+              115,
+              -1,
+              92
+            ],
+            [
+              -126,
+              -1,
+              20,
+              0
+            ],
+            [
+              0,
+              78,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 52,
+      "Name": "Leg_1_Sub_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 53,
+      "Name": "Leg_2_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.12217576,
+        1
+      ],
+      "BaseTranslation": [
+        0.2814,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 7.552759E-05,
+          "Delta": -0.12217576,
+          "Frames": [
+            0,
+            20,
+            44,
+            67,
+            93,
+            96
+          ],
+          "Keys": [
+            [
+              -98,
+              51,
+              -29,
+              54
+            ],
+            [
+              -51,
+              -27,
+              -47,
+              -71
+            ],
+            [
+              0,
+              67,
+              -1,
+              -26
+            ],
+            [
+              11,
+              0,
+              -18,
+              -1
+            ],
+            [
+              6,
+              15,
+              0,
+              52
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 54,
+      "Name": "Ankle_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        2.6284335E-08,
+        1.6986253,
+        1
+      ],
+      "BaseTranslation": [
+        0.2148,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00014026166,
+          "Delta": 1.6628586,
+          "Frames": [
+            0,
+            22,
+            47,
+            70,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              36,
+              111,
+              -107,
+              54
+            ],
+            [
+              -77,
+              66,
+              92,
+              -70
+            ],
+            [
+              -1,
+              -101,
+              0,
+              0
+            ],
+            [
+              -2,
+              -1,
+              0,
+              0
+            ],
+            [
+              -2,
+              -1,
+              -1,
+              -33
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 55,
+      "Name": "Toe_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        -1.6813129E-06,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0.098,
+        -0.056600004,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 56,
+      "Name": "Skirt_Sub_2_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, TranslateZero",
+      "BaseScale": [
+        1,
+        1.0127937,
+        1.0144839
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.0003277775,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 57,
+      "Name": "Skirt_Sub_1_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, TranslateZero",
+      "BaseScale": [
+        1,
+        1,
+        1.0007513
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        6.555549E-05,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 58,
+      "Name": "Leg_1_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        3.1533926,
+        1
+      ],
+      "BaseTranslation": [
+        0.0588,
+        0,
+        0.1
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.377454E-05,
+          "Delta": 3.1533926,
+          "Frames": [
+            0,
+            27,
+            57,
+            93,
+            96
+          ],
+          "Keys": [
+            [
+              -6,
+              -13,
+              75,
+              54
+            ],
+            [
+              -30,
+              19,
+              -102,
+              -71
+            ],
+            [
+              0,
+              115,
+              -1,
+              92
+            ],
+            [
+              -126,
+              -1,
+              20,
+              0
+            ],
+            [
+              0,
+              78,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 59,
+      "Name": "Leg_1_Sub_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, Identity",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 60,
+      "Name": "Leg_2_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.12217576,
+        1
+      ],
+      "BaseTranslation": [
+        -0.2814,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 7.552759E-05,
+          "Delta": -0.12217576,
+          "Frames": [
+            0,
+            20,
+            44,
+            67,
+            93,
+            96
+          ],
+          "Keys": [
+            [
+              -98,
+              51,
+              -29,
+              54
+            ],
+            [
+              -51,
+              -27,
+              -47,
+              -71
+            ],
+            [
+              0,
+              67,
+              -1,
+              -26
+            ],
+            [
+              11,
+              0,
+              -18,
+              -1
+            ],
+            [
+              6,
+              15,
+              0,
+              52
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 61,
+      "Name": "Ankle_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        -2.6284177E-08,
+        1.6986253,
+        1
+      ],
+      "BaseTranslation": [
+        -0.2148,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 0.00014026166,
+          "Delta": 1.6628586,
+          "Frames": [
+            0,
+            22,
+            47,
+            70,
+            95,
+            96
+          ],
+          "Keys": [
+            [
+              36,
+              111,
+              -107,
+              54
+            ],
+            [
+              -77,
+              66,
+              92,
+              -70
+            ],
+            [
+              -1,
+              -101,
+              0,
+              0
+            ],
+            [
+              -2,
+              -1,
+              0,
+              0
+            ],
+            [
+              -2,
+              -1,
+              -1,
+              -33
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 62,
+      "Name": "Toe_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        -1.6813132E-06,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        -0.098,
+        0.056600004,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 63,
+      "Name": "Skirt_Sub_2_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, TranslateZero",
+      "BaseScale": [
+        1,
+        1.0127937,
+        1.0144839
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.0003277775,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 64,
+      "Name": "Skirt_Sub_1_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "0",
+      "TransformFlags": "SegmentScaleCompensate, TranslateZero",
+      "BaseScale": [
+        1,
+        1,
+        1.0007513
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        6.555549E-05,
+        1
+      ],
+      "BaseTranslation": [
+        0,
+        0,
+        0
+      ],
+      "Curves": []
+    },
+    {
+      "Index": 65,
+      "Name": "Skirt_1_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -1.5707964,
+        0.45557696,
+        0.017453292,
+        1
+      ],
+      "BaseTranslation": [
+        -0.03499467,
+        -0.0006108342,
+        -0.155
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.8729224E-05,
+          "Delta": 0.007577341,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              125,
+              -108,
+              31,
+              55
+            ],
+            [
+              -26,
+              10,
+              -99,
+              -70
+            ],
+            [
+              -1,
+              -33,
+              0,
+              13
+            ],
+            [
+              -56,
+              -9,
+              59,
+              0
+            ],
+            [
+              -118,
+              -1,
+              -1,
+              -22
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 66,
+      "Name": "Skirt_2_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.35823178,
+        1
+      ],
+      "BaseTranslation": [
+        0.2504,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.9460638E-05,
+          "Delta": -0.0049624625,
+          "Frames": [
+            0,
+            31,
+            59,
+            96
+          ],
+          "Keys": [
+            [
+              -120,
+              -12,
+              -128,
+              54
+            ],
+            [
+              2,
+              126,
+              -7,
+              -71
+            ],
+            [
+              -1,
+              43,
+              51,
+              -1
+            ],
+            [
+              0,
+              0,
+              -1,
+              58
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 67,
+      "Name": "Skirt_3_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0.2298,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.1197455E-05,
+          "Delta": -0.0054053506,
+          "Frames": [
+            0,
+            35,
+            63,
+            93,
+            96
+          ],
+          "Keys": [
+            [
+              -119,
+              -12,
+              -128,
+              54
+            ],
+            [
+              34,
+              40,
+              4,
+              -70
+            ],
+            [
+              -1,
+              -94,
+              0,
+              -1
+            ],
+            [
+              47,
+              0,
+              -37,
+              -38
+            ],
+            [
+              -1,
+              -75,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 68,
+      "Name": "Skirt_1_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        1.5707964,
+        2.6860158,
+        6.3006387,
+        1
+      ],
+      "BaseTranslation": [
+        -0.03499467,
+        -0.0006108342,
+        0.155
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.8729675E-05,
+          "Delta": 0.007577226,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              11,
+              -110,
+              31,
+              55
+            ],
+            [
+              115,
+              11,
+              -99,
+              -70
+            ],
+            [
+              -1,
+              -33,
+              0,
+              13
+            ],
+            [
+              -56,
+              -9,
+              59,
+              0
+            ],
+            [
+              -118,
+              -1,
+              -1,
+              -22
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 69,
+      "Name": "Skirt_2_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.35823178,
+        1
+      ],
+      "BaseTranslation": [
+        -0.2504,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.9460638E-05,
+          "Delta": -0.0049624625,
+          "Frames": [
+            0,
+            31,
+            59,
+            96
+          ],
+          "Keys": [
+            [
+              -120,
+              -12,
+              -128,
+              54
+            ],
+            [
+              2,
+              126,
+              -7,
+              -71
+            ],
+            [
+              -1,
+              43,
+              51,
+              -1
+            ],
+            [
+              0,
+              0,
+              -1,
+              58
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 70,
+      "Name": "Skirt_3_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        -0.2298,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.1197455E-05,
+          "Delta": -0.0054053506,
+          "Frames": [
+            0,
+            35,
+            63,
+            93,
+            96
+          ],
+          "Keys": [
+            [
+              -121,
+              -12,
+              -128,
+              54
+            ],
+            [
+              34,
+              40,
+              4,
+              -70
+            ],
+            [
+              -1,
+              -94,
+              0,
+              -1
+            ],
+            [
+              47,
+              0,
+              -37,
+              -38
+            ],
+            [
+              -1,
+              -75,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 71,
+      "Name": "Skirt_B_1_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ, TranslateX",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -2.720926,
+        0.1993752,
+        -0.4016131,
+        1
+      ],
+      "BaseTranslation": [
+        -0.033095848,
+        -0.10939426,
+        -0.1118
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.8696508E-05,
+          "Delta": -0.4114807,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              107,
+              -63,
+              31,
+              55
+            ],
+            [
+              -50,
+              57,
+              -99,
+              -70
+            ],
+            [
+              -1,
+              -33,
+              0,
+              13
+            ],
+            [
+              -57,
+              -9,
+              59,
+              0
+            ],
+            [
+              -119,
+              -1,
+              -1,
+              -22
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 16,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.1780829E-06,
+          "Delta": -0.03339626,
+          "Frames": [
+            0,
+            44,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              -25,
+              -27,
+              65,
+              52
+            ],
+            [
+              0,
+              -88,
+              66,
+              56
+            ],
+            [
+              -1,
+              0,
+              0,
+              -1
+            ],
+            [
+              0,
+              -1,
+              -1,
+              72
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 72,
+      "Name": "Skirt_B_2_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.3577925,
+        1
+      ],
+      "BaseTranslation": [
+        0.2505,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 4.266415E-06,
+          "Delta": -0.0010879358,
+          "Frames": [
+            0,
+            38,
+            82,
+            96
+          ],
+          "Keys": [
+            [
+              102,
+              9,
+              -69,
+              53
+            ],
+            [
+              -51,
+              -80,
+              15,
+              -71
+            ],
+            [
+              -1,
+              0,
+              -70,
+              -37
+            ],
+            [
+              0,
+              -1,
+              -1,
+              18
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.077035E-05,
+          "Delta": -0.36308894,
+          "Frames": [
+            0,
+            31,
+            61,
+            96
+          ],
+          "Keys": [
+            [
+              78,
+              123,
+              91,
+              54
+            ],
+            [
+              117,
+              -116,
+              -58,
+              -71
+            ],
+            [
+              -1,
+              30,
+              82,
+              -1
+            ],
+            [
+              0,
+              0,
+              -1,
+              46
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 73,
+      "Name": "Skirt_B_3_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0.2298,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 5.034696E-06,
+          "Delta": -0.0012838475,
+          "Frames": [
+            0,
+            40,
+            89,
+            96
+          ],
+          "Keys": [
+            [
+              -36,
+              107,
+              46,
+              53
+            ],
+            [
+              -19,
+              -71,
+              92,
+              56
+            ],
+            [
+              -1,
+              0,
+              0,
+              -1
+            ],
+            [
+              43,
+              -13,
+              -1,
+              48
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.9143436E-05,
+          "Delta": -0.0048815757,
+          "Frames": [
+            0,
+            36,
+            65,
+            96
+          ],
+          "Keys": [
+            [
+              71,
+              102,
+              102,
+              54
+            ],
+            [
+              18,
+              81,
+              -31,
+              -71
+            ],
+            [
+              -1,
+              -100,
+              23,
+              -1
+            ],
+            [
+              0,
+              0,
+              -1,
+              -81
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 74,
+      "Name": "Skirt_B_1_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ, TranslateX",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -2.720926,
+        0.1993752,
+        2.7399795,
+        1
+      ],
+      "BaseTranslation": [
+        -0.033095848,
+        -0.10939426,
+        0.1118
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.869674E-05,
+          "Delta": 2.7301118,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              98,
+              -61,
+              31,
+              55
+            ],
+            [
+              -103,
+              60,
+              -99,
+              -70
+            ],
+            [
+              -1,
+              -33,
+              0,
+              13
+            ],
+            [
+              -57,
+              -9,
+              59,
+              0
+            ],
+            [
+              -119,
+              -1,
+              -1,
+              -22
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 16,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.1780829E-06,
+          "Delta": -0.03339626,
+          "Frames": [
+            0,
+            44,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              -25,
+              -27,
+              65,
+              52
+            ],
+            [
+              0,
+              -88,
+              66,
+              56
+            ],
+            [
+              -1,
+              0,
+              0,
+              -1
+            ],
+            [
+              0,
+              -1,
+              -1,
+              72
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 75,
+      "Name": "Skirt_B_2_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.3577925,
+        1
+      ],
+      "BaseTranslation": [
+        -0.2505,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 4.266415E-06,
+          "Delta": -0.0010879358,
+          "Frames": [
+            0,
+            38,
+            82,
+            96
+          ],
+          "Keys": [
+            [
+              102,
+              9,
+              -69,
+              53
+            ],
+            [
+              -51,
+              -80,
+              15,
+              -71
+            ],
+            [
+              -1,
+              0,
+              -70,
+              -37
+            ],
+            [
+              0,
+              -1,
+              -1,
+              18
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.077035E-05,
+          "Delta": -0.36308894,
+          "Frames": [
+            0,
+            31,
+            61,
+            96
+          ],
+          "Keys": [
+            [
+              -45,
+              118,
+              91,
+              54
+            ],
+            [
+              -79,
+              -114,
+              -58,
+              -71
+            ],
+            [
+              -1,
+              30,
+              82,
+              -1
+            ],
+            [
+              0,
+              0,
+              -1,
+              46
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 76,
+      "Name": "Skirt_B_3_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        6.2831855,
+        1
+      ],
+      "BaseTranslation": [
+        -0.2298,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 5.034696E-06,
+          "Delta": -0.0012838475,
+          "Frames": [
+            0,
+            40,
+            89,
+            96
+          ],
+          "Keys": [
+            [
+              -36,
+              107,
+              46,
+              53
+            ],
+            [
+              -19,
+              -71,
+              92,
+              56
+            ],
+            [
+              -1,
+              0,
+              0,
+              -1
+            ],
+            [
+              43,
+              -13,
+              -1,
+              48
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.9144545E-05,
+          "Delta": 6.2783036,
+          "Frames": [
+            0,
+            36,
+            65,
+            96
+          ],
+          "Keys": [
+            [
+              39,
+              114,
+              102,
+              54
+            ],
+            [
+              95,
+              91,
+              -31,
+              -71
+            ],
+            [
+              -1,
+              -99,
+              23,
+              -1
+            ],
+            [
+              0,
+              0,
+              -1,
+              -81
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 77,
+      "Name": "Skirt_F_1_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ, TranslateX",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -0.49704033,
+        0.23189716,
+        0.42016828,
+        1
+      ],
+      "BaseTranslation": [
+        -0.037006933,
+        0.1146716,
+        -0.1118
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.8694285E-05,
+          "Delta": 0.41030124,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              -127,
+              -60,
+              31,
+              55
+            ],
+            [
+              40,
+              61,
+              -99,
+              -70
+            ],
+            [
+              -1,
+              -33,
+              0,
+              13
+            ],
+            [
+              -57,
+              -9,
+              59,
+              0
+            ],
+            [
+              -119,
+              -1,
+              -1,
+              -22
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 16,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.2359784E-06,
+          "Delta": -0.037006933,
+          "Frames": [
+            0,
+            44,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              -1,
+              -3,
+              75,
+              52
+            ],
+            [
+              0,
+              -101,
+              -53,
+              -72
+            ],
+            [
+              0,
+              -1,
+              -1,
+              0
+            ],
+            [
+              -1,
+              0,
+              0,
+              -73
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 78,
+      "Name": "Skirt_F_2_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.3577925,
+        1
+      ],
+      "BaseTranslation": [
+        0.2505,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 5.95845E-06,
+          "Delta": -0.0015194047,
+          "Frames": [
+            0,
+            36,
+            81,
+            96
+          ],
+          "Keys": [
+            [
+              -38,
+              -26,
+              -37,
+              53
+            ],
+            [
+              32,
+              -67,
+              38,
+              -71
+            ],
+            [
+              -1,
+              0,
+              125,
+              -18
+            ],
+            [
+              0,
+              -1,
+              -1,
+              18
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.2470134E-05,
+          "Delta": -0.3577925,
+          "Frames": [
+            0,
+            32,
+            63,
+            96
+          ],
+          "Keys": [
+            [
+              -73,
+              -84,
+              63,
+              54
+            ],
+            [
+              -56,
+              46,
+              -26,
+              -71
+            ],
+            [
+              0,
+              -8,
+              -123,
+              0
+            ],
+            [
+              -1,
+              -1,
+              0,
+              -26
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 79,
+      "Name": "Skirt_F_3_L",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "BaseTranslation": [
+        0.2298,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 6.849965E-06,
+          "Delta": -0.0017467409,
+          "Frames": [
+            0,
+            39,
+            88,
+            96
+          ],
+          "Keys": [
+            [
+              -126,
+              32,
+              80,
+              53
+            ],
+            [
+              -58,
+              16,
+              -128,
+              56
+            ],
+            [
+              -1,
+              0,
+              0,
+              -1
+            ],
+            [
+              38,
+              -8,
+              -1,
+              47
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.9909514E-05,
+          "Delta": 0,
+          "Frames": [
+            0,
+            36,
+            66,
+            96
+          ],
+          "Keys": [
+            [
+              -51,
+              -1,
+              86,
+              54
+            ],
+            [
+              -58,
+              -59,
+              -33,
+              -71
+            ],
+            [
+              0,
+              101,
+              -42,
+              0
+            ],
+            [
+              -1,
+              -1,
+              0,
+              82
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 80,
+      "Name": "Skirt_F_1_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ, TranslateX",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        -0.49704033,
+        0.23189716,
+        -9.00461,
+        1
+      ],
+      "BaseTranslation": [
+        -0.037006933,
+        0.1146716,
+        0.1118
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 3.8692066E-05,
+          "Delta": -2.731291,
+          "Frames": [
+            0,
+            23,
+            46,
+            69,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              90,
+              -52,
+              31,
+              55
+            ],
+            [
+              1,
+              74,
+              -99,
+              -70
+            ],
+            [
+              -1,
+              -33,
+              0,
+              13
+            ],
+            [
+              -57,
+              -9,
+              59,
+              0
+            ],
+            [
+              -119,
+              -1,
+              -1,
+              -22
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "DataOffset": 16,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.2359784E-06,
+          "Delta": -0.037006933,
+          "Frames": [
+            0,
+            44,
+            92,
+            96
+          ],
+          "Keys": [
+            [
+              -1,
+              -3,
+              75,
+              52
+            ],
+            [
+              0,
+              -101,
+              -53,
+              -72
+            ],
+            [
+              0,
+              -1,
+              -1,
+              0
+            ],
+            [
+              -1,
+              0,
+              0,
+              -73
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 81,
+      "Name": "Skirt_F_2_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        2.1073424E-08,
+        0,
+        -0.3577925,
+        1
+      ],
+      "BaseTranslation": [
+        -0.2505,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 5.95845E-06,
+          "Delta": -0.0015194047,
+          "Frames": [
+            0,
+            36,
+            81,
+            96
+          ],
+          "Keys": [
+            [
+              -38,
+              -26,
+              -37,
+              53
+            ],
+            [
+              32,
+              -67,
+              38,
+              -71
+            ],
+            [
+              -1,
+              0,
+              125,
+              -18
+            ],
+            [
+              0,
+              -1,
+              -1,
+              18
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.2470835E-05,
+          "Delta": -0.3577925,
+          "Frames": [
+            0,
+            32,
+            63,
+            96
+          ],
+          "Keys": [
+            [
+              6,
+              -62,
+              63,
+              54
+            ],
+            [
+              108,
+              62,
+              -26,
+              -71
+            ],
+            [
+              0,
+              -9,
+              -123,
+              0
+            ],
+            [
+              -1,
+              -1,
+              0,
+              -26
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 82,
+      "Name": "Skirt_F_3_R",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateY, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        6.2831855,
+        1
+      ],
+      "BaseTranslation": [
+        -0.2298,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 36,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 6.8499644E-06,
+          "Delta": -0.0017467408,
+          "Frames": [
+            0,
+            39,
+            88,
+            96
+          ],
+          "Keys": [
+            [
+              -126,
+              32,
+              80,
+              53
+            ],
+            [
+              -58,
+              16,
+              -128,
+              56
+            ],
+            [
+              -1,
+              0,
+              0,
+              -1
+            ],
+            [
+              38,
+              -8,
+              -1,
+              47
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 1.9910001E-05,
+          "Delta": 0,
+          "Frames": [
+            0,
+            36,
+            66,
+            96
+          ],
+          "Keys": [
+            [
+              -23,
+              -12,
+              86,
+              54
+            ],
+            [
+              112,
+              -82,
+              -33,
+              -71
+            ],
+            [
+              0,
+              101,
+              -42,
+              0
+            ],
+            [
+              -1,
+              -1,
+              0,
+              82
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 83,
+      "Name": "Skirt_Sub_1",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "RotateZ",
+      "TransformFlags": "SegmentScaleCompensate, ScaleOne",
+      "BaseScale": [
+        1,
+        1,
+        1
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        0.011799987,
+        1
+      ],
+      "BaseTranslation": [
+        0.0588,
+        0,
+        0
+      ],
+      "Curves": [
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.3774102E-05,
+          "Delta": 0.011799987,
+          "Frames": [
+            0,
+            27,
+            57,
+            93,
+            96
+          ],
+          "Keys": [
+            [
+              -96,
+              -15,
+              75,
+              54
+            ],
+            [
+              65,
+              16,
+              -102,
+              -71
+            ],
+            [
+              0,
+              115,
+              -1,
+              92
+            ],
+            [
+              -126,
+              -1,
+              20,
+              0
+            ],
+            [
+              0,
+              78,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "Index": 84,
+      "Name": "Skirt_Sub_2",
+      "BindIndex": 65535,
+      "BaseFlags": "Scale, Rotate, Translate",
+      "CurveFlags": "ScaleZ, RotateZ",
+      "TransformFlags": "SegmentScaleCompensate",
+      "BaseScale": [
+        1,
+        1.0092803,
+        1.0622236
+      ],
+      "BaseRotation": [
+        0,
+        0,
+        -0.122569084,
+        1
+      ],
+      "BaseTranslation": [
+        0.2814,
+        0,
+        -0.001457
+      ],
+      "Curves": [
+        {
+          "DataOffset": 12,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 2.491708E-06,
+          "Delta": 1.0615882,
+          "Frames": [
+            0,
+            45,
+            91,
+            96
+          ],
+          "Keys": [
+            [
+              -26,
+              -27,
+              -107,
+              53
+            ],
+            [
+              0,
+              0,
+              -40,
+              -73
+            ],
+            [
+              -1,
+              0,
+              -92,
+              -97
+            ],
+            [
+              0,
+              -1,
+              -1,
+              46
+            ]
+          ]
+        },
+        {
+          "DataOffset": 40,
+          "Type": "Cubic",
+          "StartFrame": 0,
+          "EndFrame": 96,
+          "Scale": 0,
+          "Offset": 7.4737975E-05,
+          "Delta": -0.122569084,
+          "Frames": [
+            0,
+            20,
+            44,
+            67,
+            93,
+            96
+          ],
+          "Keys": [
+            [
+              -49,
+              83,
+              -31,
+              54
+            ],
+            [
+              -62,
+              -119,
+              -53,
+              -71
+            ],
+            [
+              0,
+              65,
+              -1,
+              -26
+            ],
+            [
+              10,
+              0,
+              -18,
+              -1
+            ],
+            [
+              6,
+              15,
+              0,
+              51
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

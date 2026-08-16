@@ -631,7 +631,16 @@
             selectionKeyInput.value = '';
         }
 
-        updateActionState();
+        if (!String(formatInput.value || '').trim() && optionButtons.length === 1) {
+            const onlyOption = optionButtons[0];
+            applyFormatSelection(
+                onlyOption.dataset.exportValue,
+                onlyOption.dataset.exportKey,
+                onlyOption.dataset.exportQrConsole
+            );
+        } else {
+            updateActionState();
+        }
         updateCardOverflowGap();
     }
 

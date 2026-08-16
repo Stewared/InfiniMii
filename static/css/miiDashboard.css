@@ -47,6 +47,28 @@
     margin: 0;
 }
 
+.dashboard-render-as-menu {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.45rem;
+}
+
+.dashboard-render-as-menu[hidden] {
+    display: none;
+}
+
+.dashboard-render-as-label {
+    font-weight: 600;
+}
+
+.dashboard-render-as-menu [data-renderer-profile].is-active {
+    outline: 2px solid var(--brand-color);
+    outline-offset: 1px;
+}
+
 .dashboard-preview-grid {
     display: grid;
     grid-template-columns: minmax(180px, 0.85fr) minmax(180px, 0.85fr) minmax(180px, 0.75fr) minmax(280px, 1.3fr);

@@ -15,7 +15,8 @@ import {
 
 const EXPECTED_NATIVE_GLASSES_TYPES = Object.freeze([
     0, 1, 2, 3, 4, 5, 6, 7, 8,
-    4, 2, 2, 3, 6, 8, 6, 7, 8, 6, 6
+    // Modern types 9-19 use MiiJS's audited modern-to-legacy selector table.
+    1, 2, 1, 3, 7, 7, 6, 7, 8, 7, 7
 ]);
 
 test("normalizes every supported Mii glasses type for the legacy CFL resource", () => {
@@ -60,11 +61,44 @@ test("plans already-decoded Mongo Mii fields without reparsing them as an encode
         toObject: () => decoded
     });
 
-    assert.equal(directPlan.canonical.glasses_type, 6);
-    assert.equal(wrappedPlan.canonical.glasses_type, 6);
-    assert.equal(documentPlan.canonical.glasses_type, 6);
+    // Modern type 13 maps to legacy selector 7 in that same source table.
+    assert.equal(directPlan.canonical.glasses_type, 7);
+    assert.equal(wrappedPlan.canonical.glasses_type, 7);
+    assert.equal(documentPlan.canonical.glasses_type, 7);
     assert.equal(directPlan.cacheKey, wrappedPlan.cacheKey);
     assert.equal(directPlan.cacheKey, documentPlan.cacheKey);
+});
+
+test("preserves source hair and plans headwear from the authoritative CGFX HeadType", async () => {
+    const cases = [
+        { item: "b100", hair: 121, archive: "headwear_headwear177", typeId: 2, headType: 6, metadataVariant: -1 },
+        { item: "1d00", hair: 49, archive: "headwear_headwear029", typeId: 0, headType: 5, metadataVariant: 0 },
+        { item: "1900", hair: 67, archive: "headwear_headwear025", typeId: 0, headType: 7, metadataVariant: -1 },
+        { item: "0c00", hair: 38, archive: "headwear_headwear012", typeId: 1, headType: 8, metadataVariant: -1 },
+        { item: "0e00", hair: 79, archive: "headwear_headwear014", typeId: 2, headType: 10, metadataVariant: 0 }
+    ];
+
+    for (const expected of cases) {
+        const plan = await planNativeTomodachiRender({
+            meta: { type: "Default" },
+            general: { favoriteColor: 0, gender: 0, height: 64, weight: 64 },
+            hair: { type: expected.hair, color: 1 },
+            tl: {
+                clothing: {
+                    outfit: "0000",
+                    outfitColor: 0,
+                    hat: expected.item,
+                    hatColor: 0
+                }
+            }
+        });
+
+        assert.equal(plan.canonical.hair_type, expected.hair);
+        assert.equal(plan.headwear.archive, expected.archive);
+        assert.equal(plan.headwear.typeId, expected.typeId);
+        assert.equal(plan.headwear.headType, expected.headType);
+        assert.equal(plan.headwear.metadataVariant, expected.metadataVariant);
+    }
 });
 
 test("plans the source-backed 512-square full-body mode for all height extrema", async () => {

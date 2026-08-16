@@ -1,3 +1,11 @@
+<%
+const faqSchemaExportValues = (typeof exportFormats !== 'undefined' && Array.isArray(exportFormats) ? exportFormats : [])
+  .map((format) => String(format?.value || '').trim().toLowerCase())
+  .filter(Boolean);
+const faqSchemaLegacyExportsEnabled = faqSchemaExportValues.some((value) => value !== 'ltd');
+const faqSchemaQrExportsEnabled = faqSchemaExportValues.includes('qr');
+const faqSchemaStringify = typeof toScriptJson === 'function' ? toScriptJson : JSON.stringify;
+%>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -8,7 +16,9 @@
       "name": "What is InfiniMii?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "InfiniMii is the ultimate platform for creating, converting, sharing, and downloading Mii characters for all Nintendo systems including Wii, DS, 3DS, Wii U, Switch, Amiibo, Mii Studio, Tomodachi Life, and Miitomo. We support conversion between all formats, QR code generation, and feature a comprehensive repository of official Nintendo Miis."
+        "text": <%- faqSchemaStringify(faqSchemaLegacyExportsEnabled
+          ? "InfiniMii is a Mii archive with tools for sharing, rendering, and converting supported Mii formats."
+          : "InfiniMii is a Mii archive with tools for sharing Miis, converting supported files to LTD, creating transparent previews for compatible LTD Miis, and downloading original LTD files. If an LTD file uses data the renderer has not verified, InfiniMii does not generate a preview.") %>
       }
     },
     {
@@ -16,7 +26,9 @@
       "name": "How do I download a Mii character?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Browse our collection of Miis, click on any character you like, and you'll find download options for multiple formats including 3DS/Wii U QR codes, encrypted and unencrypted 3DS bins, and Wii bin files. Simply scan the QR code with your 3DS or Wii U camera, or use the bin files with homebrew tools."
+        "text": <%- faqSchemaStringify(faqSchemaLegacyExportsEnabled
+          ? "Browse the collection, open a Mii page, and choose one of its listed download formats."
+          : "Browse the collection, open a Mii page, and use the download control to save its LTD file.") %>
       }
     },
     {
@@ -24,7 +36,9 @@
       "name": "Can I convert Miis between different Nintendo systems?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes! InfiniMii supports conversion between all Mii formats including Wii, 3DS, Wii U, and Switch. Visit our Convert page to upload your Mii file and select your target format. Note that some features may be limited when converting from newer systems (3DS/Wii U) to older ones (Wii) due to hardware differences."
+        "text": <%- faqSchemaStringify(faqSchemaLegacyExportsEnabled
+          ? "InfiniMii accepts supported Mii files and converts them to the formats listed in its export tools."
+          : "Miis from Living the Dream keep their original LTD files. Miis from other systems can use the compatible export formats listed on the site.") %>
       }
     },
     {
@@ -32,7 +46,7 @@
       "name": "What are Official Miis?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Official Miis are characters created by Nintendo that appear in games, promotional materials, or pre-installed on Nintendo consoles. Our repository includes verified official Miis from various Nintendo titles, complete with information about which games or consoles they appeared in."
+        "text": "Official Miis are characters created by Nintendo for games, promotions, system software, or other official materials. InfiniMii records where each verified Mii appeared when that information is known."
       }
     },
     {
@@ -40,7 +54,9 @@
       "name": "How do I use QR codes with my 3DS or Wii U?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "On your 3DS or Wii U, open Mii Maker and select 'QR Code/Image Options', then choose 'Scan QR Code'. Point your camera at the QR code displayed on InfiniMii, and your system will automatically import the Mii character."
+        "text": <%- faqSchemaStringify(faqSchemaQrExportsEnabled
+          ? "On your 3DS or Wii U, open Mii Maker, select QR Code/Image Options, choose Scan QR Code, and point the camera at a compatible QR export."
+          : "QR output is not available for Living the Dream Miis. Their original download format is LTD.") %>
       }
     },
     {
@@ -48,7 +64,7 @@
       "name": "Can I upload my own Mii creations?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Absolutely! Create a free account and use our Upload page to share your custom Mii characters with the community. You can upload Miis in various formats including Wii bin files, 3DS bin files, or by scanning QR codes."
+        "text": "Create an account and use the Upload page to add a Mii. New uploads are private by default and can be published later. Supported inputs include Mii files from several Nintendo systems and compatible QR codes."
       }
     }
   ]

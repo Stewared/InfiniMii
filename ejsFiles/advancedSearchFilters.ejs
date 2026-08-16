@@ -20,15 +20,6 @@
         <%- include('searchFieldFilters', { selectedSearchFields, searchFieldsExplicitlyConfigured, searchFieldUiIdPrefix: `${advancedPrefix}-fields` }) %>
 
         <section class="advanced-search-options" aria-label="Advanced filters">
-            <label class="advanced-search-control" for="<%= advancedPrefix %>-gender">
-                <span>Gender</span>
-                <select id="<%= advancedPrefix %>-gender" name="gender">
-                    <option value="">Any</option>
-                    <option value="0" <%= filters.gender === '0' ? 'selected' : '' %>>Male</option>
-                    <option value="1" <%= filters.gender === '1' ? 'selected' : '' %>>Female</option>
-                </select>
-            </label>
-
             <label class="advanced-search-control" for="<%= advancedPrefix %>-favorite-color">
                 <span>Favorite Color</span>
                 <select id="<%= advancedPrefix %>-favorite-color" name="favoriteColor">
@@ -59,10 +50,14 @@
                 </select>
             </label>
 
-            <label class="advanced-search-check">
-                <input type="checkbox" name="hasTlData" value="1" <%= filters.mustHaveTomodachiLifeData ? 'checked' : '' %>>
-                <span>Must Have Tomodachi Life Data</span>
-            </label>
+            <fieldset class="advanced-era-filters advanced-data-filters">
+                <legend>Game data</legend>
+                <p id="<%= advancedPrefix %>-game-data-help">Limit results to Miis with data from a supported game.</p>
+                <label class="advanced-search-check advanced-data-check">
+                    <input type="checkbox" name="hasTlData" value="1" aria-describedby="<%= advancedPrefix %>-game-data-help" <%= filters.mustHaveTomodachiLifeData ? 'checked' : '' %>>
+                    <span>Must have Tomodachi Life data</span>
+                </label>
+            </fieldset>
 
             <div class="advanced-range-control" data-advanced-range>
                 <div class="advanced-range-heading">

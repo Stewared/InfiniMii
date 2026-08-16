@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "description": "Rendering-relevant ShareMii field audit. It distinguishes exact live behavior, exact Nothing selectors, external presentation state, and unresolved layers without reference-image inference.",
+  "generator": "tools/build_share_mii_render_field_audit.py",
+  "targets": [
+    {
+      "path": "mii0.ltd",
+      "byte_length": 10307,
+      "sha256": "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef",
+      "display_name": "Spider-Man Noir",
+      "format_version": 3
+    },
+    {
+      "path": "mii1.ltd",
+      "byte_length": 434,
+      "sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b",
+      "display_name": "Kestron",
+      "format_version": 2
+    },
+    {
+      "path": "mii2.ltd",
+      "byte_length": 964,
+      "sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+      "display_name": "Johnny Thunder",
+      "format_version": 3
+    },
+    {
+      "path": "mii3.ltd",
+      "byte_length": 434,
+      "sha256": "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776",
+      "display_name": "Emma",
+      "format_version": 2
+    },
+    {
+      "path": "mii4.ltd",
+      "byte_length": 10656,
+      "sha256": "966fa6bf82aa46c8e5b9f16842982a3b715b86ccd1933f540044b05b8d3fc391",
+      "display_name": "Spider-Man",
+      "format_version": 3
+    }
+  ],
+  "sources": {
+    "active_parts": [
+      {
+        "path": "renderer/mii0_active_parts.json",
+        "byte_length": 27498,
+        "sha256": "26f190a935e3275e026ab47dda52dfc2fd7438e116bd74855e3aa57bebe420cd"
+      },
+      {
+        "path": "renderer/mii_active_parts.json",
+        "byte_length": 28405,
+        "sha256": "0c2bcba3da747fd7183e81ad9c5f48e31fe51109a10fa5db9a74a96af63db216"
+      },
+      {
+        "path": "renderer/mii2_active_parts.json",
+        "byte_length": 33632,
+        "sha256": "644182dfec5bad6b16325f984a4fca03c4e42e4f6560edd80f631e02b343dab0"
+      },
+      {
+        "path": "renderer/mii3_active_parts.json",
+        "byte_length": 28171,
+        "sha256": "89958275a105cc3cbd709b6937a8b3abae324630bf81788bb22298184f21e4c5"
+      },
+      {
+        "path": "renderer/mii4_active_parts.json",
+        "byte_length": 27382,
+        "sha256": "3ad5c9ac114398fd760ef37796adaf5635acfbeb8f231e6af85e4fc45d660f69"
+      }
+    ],
+    "decomp": {
+      "path": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "byte_length": 4030968,
+      "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+    },
+    "renderer": {
+      "path": "renderer/render_mii.py",
+      "byte_length": 348872,
+      "sha256": "139e454399b4f1b9f2a79b60f7b25656a046a06a4c25aa58fc2a570f1fdfd325"
+    },
+    "clothing_boundary": {
+      "path": "renderer/share_mii_v3_clothing_evidence.json",
+      "byte_length": 21629,
+      "sha256": "7b428c86b3c75c7d4cf1fd15c5eee4801c78f1e926ed37ce17d78f9db1893d04"
+    },
+    "face_sprite_mips": {
+      "path": "renderer/face_sprite_mips.json",
+      "byte_length": 68095,
+      "sha256": "3d381ac282cf8331acc200d62428a292942e2623cae5fb5b5e32857aa78b87c2"
+    },
+    "presentation_outfit": {
+      "path": "renderer/presentation_outfit.json",
+      "byte_length": 23749,
+      "sha256": "076753585cbba35c4702ba125e0aa29bfef547b8b52b651fb247b9dce572f58f"
+    },
+    "gameplay_capture_context": {
+      "path": "renderer/gameplay_capture_context.json",
+      "byte_length": 48185,
+      "sha256": "ffee342c6022c4318fcf543e2c12e90b5e58f9f89db16b8488e7c4163abb5299"
+    },
+    "faceline_compositor": {
+      "path": "renderer/mii_faceline_stubble.json",
+      "byte_length": 51190,
+      "sha256": "e8be0d3680a7107b231ce6482a26d1d97f45d5846fa66698496a4834f3219e4b"
+    }
+  },
+  "johnny_v3_render_fields": {
+    "parts_and_sprite_selectors": "applied through renderer/mii2_active_parts.json; no ordinal remaps",
+    "faceline_color": {
+      "raw": 85,
+      "namespace": "CommonColor[85]",
+      "status": "applied"
+    },
+    "hair_colors": {
+      "primary": 8,
+      "secondary": 1,
+      "back_gate": "face_flags bit2/back_dual_color -> ordinary hair slots",
+      "front_gate": "face_flags bit3/bangs_dual_color -> attached-front slots 8/9",
+      "status": "applied from FUN_7101d7e010 + FUN_7101d7c4e0"
+    },
+    "geometry_controls": "height/build, nose/ear/glass transforms and selected model resources are applied by source-backed equations",
+    "ordinary_face_flags": "eye shadow, mouth inversion, mustache inversion, mole enable and hair flags are read by their checked consumers; Johnny stores zero",
+    "stubble": {
+      "selector": 8,
+      "record": "BeardShort07",
+      "status": "exact_local_faceline_target_applied",
+      "contract": "renderer/mii_faceline_stubble.json resolves target, texture, transform, mode-6 equation, sampler, blend, draw order within the faceline pass, and Head816 _a0 binding",
+      "boundary": "final Head816 frame/environment/prepass lighting and global Head/Mask submission order remain unresolved"
+    },
+    "wrinkle_upper": {
+      "selector": 12,
+      "status": "unresolved_fail_closed",
+      "reason": "no WrinkleUpper PartsIndex record for selector 12 in the decoded title metadata"
+    },
+    "canvas_and_ugc": "owned by the separately checked v3 facepaint path; not clothing",
+    "clothing": {
+      "serialized_cloth_set_or_color": false,
+      "cloth_style": "male",
+      "cloth_style_used_as_selector": false,
+      "rendered_outfit": "explicit neutral external presentation profile 00"
+    },
+    "not_consumed_by_current_static_renderer": [
+      "uuid",
+      "name/display/pronunciation",
+      "voice",
+      "birthday",
+      "pronouns/love-gender"
+    ]
+  },
+  "spider_man_noir_v3_render_fields": {
+    "parts_and_sprite_selectors": "applied through renderer/mii0_active_parts.json; exact Nothing selectors have no ordinal fallback",
+    "faceline_color": {
+      "raw": 95,
+      "namespace": "CommonColor[95]",
+      "status": "applied"
+    },
+    "wrinkle_upper": {
+      "selector": 1,
+      "record": "WrinkleUpper00",
+      "status": "exact_local_faceline_target_applied",
+      "contract": "native BC4 mip 2, exact slot-3 transform, mode-3 equation, sampler, blend, and Head816 _a0 binding are checked by renderer/mii_faceline_stubble.json",
+      "boundary": "CPU filter quantization is deterministic portable arithmetic; final Head816 frame/environment/prepass lighting and global Head/Mask submission order remain unresolved"
+    },
+    "canvas_and_ugc": "owned by the separately checked v3 facepaint path; not clothing",
+    "clothing": {
+      "serialized_cloth_set_or_color": false,
+      "cloth_style": "male",
+      "cloth_style_used_as_selector": false,
+      "rendered_outfit": "explicit neutral external presentation profile 00"
+    }
+  },
+  "conditional_personality_animation": {
+    "results": [
+      {
+        "input": "mii0.ltd",
+        "display_name": "Spider-Man Noir",
+        "source_values": {
+          "sociability": 2,
+          "audaciousness": 2,
+          "activeness": 2,
+          "commonsense": 1
+        },
+        "score_sociability_audaciousness": 35,
+        "score_activeness_commonsense": 25,
+        "first_band": 0,
+        "second_band": 0,
+        "quadrant_index": 0,
+        "character_type": 0
+      },
+      {
+        "input": "mii1.ltd",
+        "display_name": "Kestron",
+        "source_values": {
+          "sociability": 1,
+          "audaciousness": 8,
+          "activeness": 1,
+          "commonsense": 8
+        },
+        "score_sociability_audaciousness": 105,
+        "score_activeness_commonsense": 105,
+        "first_band": 2,
+        "second_band": 2,
+        "quadrant_index": 10,
+        "character_type": 3
+      },
+      {
+        "input": "mii2.ltd",
+        "display_name": "Johnny Thunder",
+        "source_values": {
+          "sociability": 3,
+          "audaciousness": 7,
+          "activeness": 2,
+          "commonsense": 5
+        },
+        "score_sociability_audaciousness": 115,
+        "score_activeness_commonsense": 85,
+        "first_band": 2,
+        "second_band": 1,
+        "quadrant_index": 6,
+        "character_type": 1
+      },
+      {
+        "input": "mii3.ltd",
+        "display_name": "Emma",
+        "source_values": {
+          "sociability": 2,
+          "audaciousness": 4,
+          "activeness": 6,
+          "commonsense": 5
+        },
+        "score_sociability_audaciousness": 55,
+        "score_activeness_commonsense": 135,
+        "first_band": 1,
+        "second_band": 2,
+        "quadrant_index": 9,
+        "character_type": 2
+      },
+      {
+        "input": "mii4.ltd",
+        "display_name": "Spider-Man",
+        "source_values": {
+          "sociability": 6,
+          "audaciousness": 6,
+          "activeness": 7,
+          "commonsense": 7
+        },
+        "score_sociability_audaciousness": 145,
+        "score_activeness_commonsense": 165,
+        "first_band": 2,
+        "second_band": 3,
+        "quadrant_index": 14,
+        "character_type": 3
+      }
+    ],
+    "source_functions": [
+      "FUN_7100d2ef38",
+      "FUN_7100d2e3d8",
+      "FUN_7100d2dda4"
+    ],
+    "status": "derived_and_reported_not_applied",
+    "boundary": "CharacterType is source-backed and can select a gameplay idle leaf only when the runtime AS command/state reaches that selector. The active command, standing/angry/droop branch, and animation time are not serialized by ShareMii, so the deterministic IconPose render does not invent them."
+  },
+  "exact_nothing_selectors": {
+    "mii0_spider_man_noir": {
+      "hair30": "HairNothing",
+      "eye60": "EyeNothing",
+      "eyebrow23": "EyebrowNothing",
+      "mouth36": "MouthNothing"
+    },
+    "mii4_spider_man": {
+      "hair30": "HairNothing",
+      "eye60": "EyeNothing",
+      "eyebrow23": "EyebrowNothing",
+      "mouth36": "MouthNothing"
+    },
+    "invented_preceding_ordinal_remap_forbidden": true
+  },
+  "reference_image_policy": "reference2.png validation-only; no selector, color, offset, default, clothing, or shader choice is inferred from it"
+}

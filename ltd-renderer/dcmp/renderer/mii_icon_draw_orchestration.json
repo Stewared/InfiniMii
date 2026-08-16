@@ -1,0 +1,514 @@
+{
+  "schema_version": 1,
+  "purpose": "Source-only MiiIcon manager/job and face-target orchestration evidence",
+  "policy": {
+    "reference_png_used": false,
+    "guessed_offsets_or_defaults_used": false,
+    "scope": "manager jobs and faceline/MiiMask target callbacks only",
+    "full_scene_executable": false
+  },
+  "sources": {
+    "main_elf": {
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "byte_length": 65253956,
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a",
+      "instruction_ranges": [
+        {
+          "role": "update_mii_actor_icon_render_requests",
+          "virtual_address_start": "0x7100dbff90",
+          "virtual_address_end_exclusive": "0x7100dc0920",
+          "file_offset": 14421904,
+          "byte_length": 2448,
+          "sha256": "aa4865338e3537cd86a5864f2c0c35c91c62ad454106668ec8529671e1d5cd39"
+        },
+        {
+          "role": "query_actor_is_sleeping",
+          "virtual_address_start": "0x7100e5d990",
+          "virtual_address_end_exclusive": "0x7100e5da80",
+          "file_offset": 15067536,
+          "byte_length": 240,
+          "sha256": "e41b38fc06bf753c503af45c4ec05c3cba0c30bcd3f2a6e0288fd17ddddded21"
+        },
+        {
+          "role": "compare_mii_icon_request_render_parameters",
+          "virtual_address_start": "0x71019edff4",
+          "virtual_address_end_exclusive": "0x71019ef588",
+          "file_offset": 27193332,
+          "byte_length": 5524,
+          "sha256": "301b2bd42bac0be6888b1423f32c15cb16aa9895b0fe9f794ff8440541252eae"
+        },
+        {
+          "role": "upsert_mii_icon_render_request",
+          "virtual_address_start": "0x7101bc7160",
+          "virtual_address_end_exclusive": "0x7101bc7370",
+          "file_offset": 29131104,
+          "byte_length": 528,
+          "sha256": "c083b7a40982ae0be76f0eb1adcd5f262436b27cc6964f1e56a826fb279c4a57"
+        },
+        {
+          "role": "get_or_create_mii_icon_manager_singleton",
+          "virtual_address_start": "0x7101bc74b0",
+          "virtual_address_end_exclusive": "0x7101bc7590",
+          "file_offset": 29131952,
+          "byte_length": 224,
+          "sha256": "de64b1f47b5d4df61f478993a9191519cb98e8a6c4e7a273d5ddfb65697f1a7f"
+        },
+        {
+          "role": "initialize_mii_icon_manager_core_state",
+          "virtual_address_start": "0x7101bc7590",
+          "virtual_address_end_exclusive": "0x7101bc7a60",
+          "file_offset": 29132176,
+          "byte_length": 1232,
+          "sha256": "0157eec30e997ff0eb3bac04e99ca5e06e85b6035184803c73625ebe0b013d8c"
+        },
+        {
+          "role": "initialize_mii_icon_manager_render_resources",
+          "virtual_address_start": "0x7101bc7f40",
+          "virtual_address_end_exclusive": "0x7101bc8ac0",
+          "file_offset": 29134656,
+          "byte_length": 2944,
+          "sha256": "48c959f25c5e717b0c3c9c748483f277bace219fc533209e3185d34377326e4b"
+        },
+        {
+          "role": "update_mii_icon_manager_render_jobs",
+          "virtual_address_start": "0x7101bc8d30",
+          "virtual_address_end_exclusive": "0x7101bc8fe0",
+          "file_offset": 29138224,
+          "byte_length": 688,
+          "sha256": "eb00ca8b1672197ecccb7d19f62066e580df24e3a03edcf80e6c9d469e803900"
+        },
+        {
+          "role": "advance_mii_icon_render_job_state",
+          "virtual_address_start": "0x7101bc8fe0",
+          "virtual_address_end_exclusive": "0x7101bc9cdc",
+          "file_offset": 29138912,
+          "byte_length": 3324,
+          "sha256": "ae330b808118419e539f3c7f55055f8771a249fdb5c79d0fd8af3be10889d221"
+        },
+        {
+          "role": "reset_mii_icon_render_job",
+          "virtual_address_start": "0x7101bc9db0",
+          "virtual_address_end_exclusive": "0x7101bc9f50",
+          "file_offset": 29142448,
+          "byte_length": 416,
+          "sha256": "0cb604af7b9d29dffc4171cfa1ff087b9f9e7f19b4abb6e029394369a724d702"
+        },
+        {
+          "role": "assign_mii_icon_render_request_to_job",
+          "virtual_address_start": "0x7101bc9f50",
+          "virtual_address_end_exclusive": "0x7101bca134",
+          "file_offset": 29142864,
+          "byte_length": 484,
+          "sha256": "72100d4cfdc78c4150fe8071a09784f7f741603e507cdfded5f843d3c273495e"
+        },
+        {
+          "role": "start_mii_icon_model_resource_request",
+          "virtual_address_start": "0x7101bca69c",
+          "virtual_address_end_exclusive": "0x7101bca81c",
+          "file_offset": 29144732,
+          "byte_length": 384,
+          "sha256": "0918a9ce34940b3bc3dc6e9854ed3bedf15a5025cd114fc83f0e81c406843f86"
+        },
+        {
+          "role": "synchronize_mii_icon_model_for_render_job",
+          "virtual_address_start": "0x7101bca81c",
+          "virtual_address_end_exclusive": "0x7101bcaf64",
+          "file_offset": 29145116,
+          "byte_length": 1864,
+          "sha256": "07aed9d257068a13d1c796d21982f49830a24d23860447f777d5ce27c6163476"
+        },
+        {
+          "role": "record_mii_icon_face_target_commands_callback",
+          "virtual_address_start": "0x7101bcb028",
+          "virtual_address_end_exclusive": "0x7101bcb0d8",
+          "file_offset": 29147176,
+          "byte_length": 176,
+          "sha256": "1e81dbacd8e2cb8f36f09425885e8b9bee148ab6e13a1b16367be84b3a992005"
+        },
+        {
+          "role": "flush_mii_icon_face_target_constants_callback",
+          "virtual_address_start": "0x7101bcb0d8",
+          "virtual_address_end_exclusive": "0x7101bcb1ac",
+          "file_offset": 29147352,
+          "byte_length": 212,
+          "sha256": "306f28a7f969d162a2c696f81991ff94afae882a545b8feb7403a1b5404387bd"
+        },
+        {
+          "role": "replace_model_render_record_target_handle",
+          "virtual_address_start": "0x7101c696d0",
+          "virtual_address_end_exclusive": "0x7101c698a0",
+          "file_offset": 29796048,
+          "byte_length": 464,
+          "sha256": "c7dbe8fd65ae549e21cb4f3e3fc1eb8368da92dc241b55e3f168bb383663f37b"
+        },
+        {
+          "role": "clear_model_render_record_target_handles",
+          "virtual_address_start": "0x7101c698a0",
+          "virtual_address_end_exclusive": "0x7101c699c8",
+          "file_offset": 29796512,
+          "byte_length": 296,
+          "sha256": "32efd75cc39f982f9a3f87f763ca98ee38864a7859ac4e8d15cb608841996f74"
+        },
+        {
+          "role": "serialize_mii_faceline_constant_buffers",
+          "virtual_address_start": "0x7101d6f8a0",
+          "virtual_address_end_exclusive": "0x7101d6fc7c",
+          "file_offset": 30869664,
+          "byte_length": 988,
+          "sha256": "b099f167a21d638362223241ece92b0bd53eb717831854d1aa70945e5af1a2f9"
+        },
+        {
+          "role": "record_mii_faceline_texture_commands",
+          "virtual_address_start": "0x7101d78440",
+          "virtual_address_end_exclusive": "0x7101d786e0",
+          "file_offset": 30905408,
+          "byte_length": 672,
+          "sha256": "cd414bf536fac976e13b7346ece73165d0267d34563a249e84ac748ae8b9d54a"
+        }
+      ],
+      "manager_registration_string": {
+        "virtual_address": "0x71030d8b40",
+        "value": "MiiIconMgr"
+      }
+    }
+  },
+  "manager": {
+    "registered_name": "MiiIconMgr",
+    "allocation_size": 15168,
+    "singleton_storage": "0x71040eaa18",
+    "job_count": 4,
+    "job_size": 4112,
+    "job_array_total_size": 16448,
+    "job_count_offset": "0x38",
+    "job_array_pointer_offset": "0x40"
+  },
+  "request_queue": {
+    "upsert_function": "0x7101bc7160",
+    "actor_update_function": "0x7100dbff90",
+    "record_size": 296,
+    "key_fields": {
+      "render_handle_id_offset": "0x0",
+      "request_variant_offset": "0x4"
+    },
+    "manager_offsets": {
+      "pending_list_sentinel": "0x8",
+      "pending_count": "0x18",
+      "free_list": "0x20",
+      "capacity": "0x30"
+    },
+    "actor_request_variants": [
+      0,
+      1,
+      2
+    ],
+    "source_boundary": "The queue preserves source-provided character and render fields. Request variant order is not evidence of final GameUber model/shape draw order."
+  },
+  "request_to_job_model_record_routing": {
+    "ordinary_request": {
+      "render_handle_stride": "0x2310",
+      "request_variant_stride": "0xbb0",
+      "variant_stride_applies_below": 3,
+      "job_model_record_count": 1
+    },
+    "manager_bootstrap_records": {
+      "job_model_record_count": 4,
+      "manager_offsets": [
+        "0x348",
+        "0x11d0",
+        "0x2058",
+        "0x2ee0"
+      ]
+    },
+    "boundary": "These are model render records receiving callbacks, not an ordered list of final Head/Hair/Nose/Ear/Beard/Body/outfit BFRES shape draws."
+  },
+  "model_render_target_record_routing": {
+    "replace_single_target_function": "0x7101c696d0",
+    "clear_targets_function": "0x7101c698a0",
+    "job_state_calls": {
+      "clear_before_callback_install": "0x7101bc9090",
+      "install_manager_target": "0x7101bc9324",
+      "clear_on_job_reset": "0x7101bc9e1c"
+    },
+    "boundary": "These helpers prove target-handle registration and cleanup for each model render record. They do not serialize the final model draw list, bind GameUber runtime buffers, or establish final BFRES shape order."
+  },
+  "render_job_state_machine": {
+    "function": "0x7101bc8fe0",
+    "state_field_offset": "0x0",
+    "jump_table": {
+      "virtual_address": "0x71032b717d",
+      "raw_byte_offsets": [
+        0,
+        54,
+        5,
+        37
+      ],
+      "state_1_through_4_targets": [
+        "0x7101bc903c",
+        "0x7101bc9114",
+        "0x7101bc9050",
+        "0x7101bc90d0"
+      ]
+    },
+    "states": {
+      "0": "idle",
+      "1": "resource_request_started_or_waiting",
+      "2": "model_ready_and_face_target_callbacks_installing",
+      "3": "model_callback_registration_pending",
+      "4": "completion_wait",
+      "5": "completed_until_reset"
+    }
+  },
+  "face_target_routing": {
+    "callback_installation_range": "0x7101bc9200..0x7101bc9250",
+    "command_callback": {
+      "address": "0x7101bcb028",
+      "owner_faceline_config_offset": "0xd58",
+      "owner_mask_config_offset": "0xeb0",
+      "ordered_calls": [
+        "FUN_7101d78440 record_mii_faceline_texture_commands",
+        "FUN_7101d786e0 render_mii_face_sprite_passes"
+      ]
+    },
+    "constant_callback": {
+      "address": "0x7101bcb0d8",
+      "ordered_calls": [
+        "FUN_7101d6f8a0 serialize_mii_faceline_constant_buffers",
+        "FUN_7101d71620 serialize_mii_face_sprite_constant_buffers"
+      ]
+    },
+    "manager_target_descriptors": {
+      "faceline_offset": "0x100",
+      "mask_offset": "0x428",
+      "note": "Dimensions/formats are owned by the separate checked face-mask and title-execution ledgers."
+    }
+  },
+  "remaining_hard_boundary": {
+    "record": "unresolved_final_gameuber_model_draw_orchestration",
+    "detail": "The keyed request queue, manager state machine, and face-target callback routing are source-validated. Request variants 0/1/2 do not prove final draw order. Final Head/Hair/Nose/Ear/Beard/Body/outfit shape submission order, pass selection, render-target routing, and all unresolved GameUber runtime buffers/prepass samplers remain fail-closed."
+  },
+  "decomp_symbols": {
+    "functions": [
+      {
+        "kind": "function",
+        "address": "0x7100dbff90",
+        "name": "update_mii_actor_icon_render_requests",
+        "category": "mii_icon_request_submission",
+        "evidence": "Compares the live actor character/render payload against its cached records and upserts request variants 0, 1, and 2 only when their source fields change."
+      },
+      {
+        "kind": "function",
+        "address": "0x7100e5d990",
+        "name": "query_actor_is_sleeping",
+        "category": "actor_render_state",
+        "evidence": "Resolves the actor identified by the source record and returns the live IsSleeping boolean; the result is copied into MiiIcon request variant 1 rather than supplied as a renderer default."
+      },
+      {
+        "kind": "function",
+        "address": "0x71019edff4",
+        "name": "compare_mii_icon_request_render_parameters",
+        "category": "mii_icon_request_submission",
+        "evidence": "Compares the source-backed 0x5c render-parameter block fields used to decide whether request variants 0 and 1 must be upserted; the untested word at +0x4c is not claimed as padding or data."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bc7160",
+        "name": "upsert_mii_icon_render_request",
+        "category": "mii_icon_request_submission",
+        "evidence": "Under the manager lock, finds a request by render-handle ID and variant or allocates a 0x128-byte record, then copies the 0x98-byte character payload and source-provided render fields without inventing defaults."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bc74b0",
+        "name": "get_or_create_mii_icon_manager_singleton",
+        "category": "mii_icon_manager",
+        "evidence": "Allocates exactly 0x3b40 bytes, constructs the object, and stores it at DAT_71040eaa18."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bc7590",
+        "name": "initialize_mii_icon_manager_core_state",
+        "category": "mii_icon_manager",
+        "evidence": "Initializes the 0x3b40 manager object before render-resource setup."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bc7f40",
+        "name": "initialize_mii_icon_manager_render_resources",
+        "category": "mii_icon_manager",
+        "evidence": "Binary-discovered constructor continuation registered under the exact MiiIconMgr name; allocates four 0x1010 jobs and initializes faceline/mask render resources."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bc8d30",
+        "name": "update_mii_icon_manager_render_jobs",
+        "category": "mii_icon_job_orchestration",
+        "evidence": "Iterates the four 0x1010 render jobs, advances their state, assigns queued requests, and resets completed jobs."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bc8fe0",
+        "name": "advance_mii_icon_render_job_state",
+        "category": "mii_icon_job_orchestration",
+        "evidence": "Dispatches states 1 through 4 through the checked four-byte jump table and installs per-model face-target callbacks after readiness checks."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bc9db0",
+        "name": "reset_mii_icon_render_job",
+        "category": "mii_icon_job_orchestration",
+        "evidence": "Detaches installed callbacks, releases the resource request, clears child lists, and returns the job state to zero."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bc9f50",
+        "name": "assign_mii_icon_render_request_to_job",
+        "category": "mii_icon_job_orchestration",
+        "evidence": "Copies the request's model list and 0x98-byte character payload into an idle/completed job, then starts or resumes its resource request."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bca69c",
+        "name": "start_mii_icon_model_resource_request",
+        "category": "mii_icon_model_resource_loading",
+        "evidence": "Builds and submits the model-resource request stored at job+0xd50."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bca81c",
+        "name": "synchronize_mii_icon_model_for_render_job",
+        "category": "mii_icon_model_submission",
+        "evidence": "Copies the job character payload into the resolved model state and prepares the model-side render callbacks."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bcb028",
+        "name": "record_mii_icon_face_target_commands_callback",
+        "category": "mii_icon_face_target_routing",
+        "evidence": "Model callback records faceline commands from owner+0xd58 and MiiMask commands from owner+0xeb0 in that order."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101bcb0d8",
+        "name": "flush_mii_icon_face_target_constants_callback",
+        "category": "mii_icon_face_target_routing",
+        "evidence": "Model callback serializes/uploads faceline constants first and MiiMask sprite constants second."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101c696d0",
+        "name": "replace_model_render_record_target_handle",
+        "category": "model_render_target_routing",
+        "evidence": "Unregisters the model render record from its scheduler bucket, clears its existing target-handle list, validates the supplied two-word handle, and installs that one handle when valid."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101c698a0",
+        "name": "clear_model_render_record_target_handles",
+        "category": "model_render_target_routing",
+        "evidence": "Unregisters the model render record from its scheduler bucket and returns every target-handle node to the record's free list."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d6f8a0",
+        "name": "serialize_mii_faceline_constant_buffers",
+        "category": "mii_faceline_rendering",
+        "evidence": "Serializes the seven faceline layer transform and color constant-buffer records when dirty."
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d78440",
+        "name": "record_mii_faceline_texture_commands",
+        "category": "mii_faceline_rendering",
+        "evidence": "Records up to seven active faceline layer draws into the faceline render target."
+      }
+    ],
+    "globals": [
+      {
+        "kind": "global",
+        "address": "0x71040eaa18",
+        "name": "g_mii_icon_manager_singleton",
+        "category": "mii_icon_manager",
+        "evidence": "Singleton storage read/written by FUN_7101bc74b0."
+      },
+      {
+        "kind": "global",
+        "address": "0x7103a5d578",
+        "name": "mii_icon_manager_singleton_reference",
+        "category": "mii_icon_manager",
+        "evidence": "ELF GOT slot contains addend 0x40eaa18 and is dereferenced by the manager update caller."
+      },
+      {
+        "kind": "global",
+        "address": "0x710399cba8",
+        "name": "mii_icon_manager_vtable",
+        "category": "mii_icon_manager",
+        "evidence": "Installed as the manager object's primary vtable by FUN_7101bc7590."
+      },
+      {
+        "kind": "global",
+        "address": "0x710399cbe0",
+        "name": "mii_icon_face_target_command_callback_vtable",
+        "category": "mii_icon_face_target_routing",
+        "evidence": "Installed with owner and callback FUN_7101bcb028 in each model render record."
+      },
+      {
+        "kind": "global",
+        "address": "0x710399cc30",
+        "name": "mii_icon_face_target_constant_callback_vtable",
+        "category": "mii_icon_face_target_routing",
+        "evidence": "Installed with owner and callback FUN_7101bcb0d8 in each model render record."
+      },
+      {
+        "kind": "global",
+        "address": "0x7103a64ca0",
+        "name": "model_render_scheduler_bucket_table_reference",
+        "category": "model_render_target_routing",
+        "evidence": "Dereferenced by the checked model-record target helpers to select one of two scheduler buckets from record+0x414."
+      }
+    ],
+    "data_types": [
+      {
+        "kind": "data_type",
+        "name": "MiiIconManager",
+        "category": "mii_icon_manager",
+        "evidence": "Exact registration string MiiIconMgr; singleton allocation size 0x3b40."
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiIconRenderJob",
+        "category": "mii_icon_job_orchestration",
+        "evidence": "Recovered incomplete layout; manager owns four contiguous 0x1010-byte records with state at +0 and model-list count/pointer at +8/+0x10."
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiIconRenderRequest",
+        "category": "mii_icon_job_orchestration",
+        "evidence": "Recovered incomplete request layout copied by FUN_7101bc9f50; includes model list and character/render settings payload."
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiIconQueuedRenderRequest",
+        "category": "mii_icon_request_submission",
+        "evidence": "Exact 0x128-byte manager queue record keyed by render-handle ID and request variant; payload fields through +0x114 and list node at +0x118 are copied by FUN_7101bc7160."
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiIconRequestRenderParameters",
+        "category": "mii_icon_request_submission",
+        "evidence": "Recovered incomplete 0x5c block compared by FUN_71019edff4 and copied into queued request payloads; the comparison intentionally does not classify the untested +0x4c word."
+      },
+      {
+        "kind": "data_type",
+        "name": "ModelRenderRecord",
+        "category": "model_render_target_routing",
+        "evidence": "Recovered incomplete layout used by FUN_7101c696d0/FUN_7101c698a0, with scheduler selector +0x414, target-handle list count/capacity/storage/free-list at +0x518/+0x51c/+0x520/+0x528, and registration bit0 at +0xb9c."
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiIconFaceTargetCallbacks",
+        "category": "mii_icon_face_target_routing",
+        "evidence": "Two owner/function delegate records installed per resolved model for command recording and constant-buffer upload."
+      }
+    ]
+  }
+}

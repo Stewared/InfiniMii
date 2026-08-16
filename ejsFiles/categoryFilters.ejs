@@ -14,6 +14,9 @@
     const excludeCategoryInputName = (typeof excludeCategoryName === 'string' && excludeCategoryName.trim())
         ? excludeCategoryName.trim()
         : 'excludeCategory';
+    const categoryPanelPrefix = (typeof categoryUiIdPrefix === 'string' && categoryUiIdPrefix.trim())
+        ? categoryUiIdPrefix.trim()
+        : 'search-categories';
     const categoryGroupMap = new Map();
 
     safeAvailableCategories.forEach(category => {
@@ -73,8 +76,13 @@
     const categoryGroups = [...categoryGroupMap.values()];
 %>
 
-<section class="search-categories-panel" aria-label="Filter by categories">
-    <h3 class="search-categories-title">Filter by Categories</h3>
+<section class="search-categories-panel" aria-labelledby="<%= categoryPanelPrefix %>-title">
+    <header class="advanced-filter-heading search-categories-heading">
+        <div>
+            <h3 class="search-categories-title" id="<%= categoryPanelPrefix %>-title">Categories</h3>
+            <p id="<%= categoryPanelPrefix %>-help">Narrow official Miis by collection or source.</p>
+        </div>
+    </header>
     <% if (categoryGroups.length > 0) { %>
         <div class="category-filter-groups">
             <% categoryGroups.forEach(group => { %>

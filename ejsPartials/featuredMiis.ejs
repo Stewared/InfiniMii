@@ -5,13 +5,13 @@
     aria-controls="featuredMiisDrawer"
     aria-expanded="false"
 >
-    Highlights <%- include('icon', { name: 'arrow-left', size: 14 }) %>
+    Featured <%- include('icon', { name: 'arrow-left', size: 14 }) %>
 </button>
 
-<aside class="browse-featured-miis mobile-drawer mobile-drawer-right" id="featuredMiisDrawer" aria-label="Highlighted Miis">
+<aside class="browse-featured-miis mobile-drawer mobile-drawer-right" id="featuredMiisDrawer" aria-label="Featured Miis">
     <!--Higlighted Mii-->
     <div class="title-container">
-        <h2>Highlighted Mii</h2>
+        <h2>Featured Mii</h2>
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAScAAAAyCAYAAAAeNh3dAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowN0Q4NEI4MEYyRjUxMUUyQkIyQzgyMzFDMDNCRTc0OSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDowN0Q4NEI4MUYyRjUxMUUyQkIyQzgyMzFDMDNCRTc0OSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkM5RDJFRTU3RjBCRjExRTJCQjJDODIzMUMwM0JFNzQ5IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkM5RDJFRTU4RjBCRjExRTJCQjJDODIzMUMwM0JFNzQ5Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+wjmikgAABsNJREFUeNrsnb9v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" height='20' width='205' />
     </div>
     <div class="mii-card"  style="--favorite-color: <%= highlightedMiiData ? decodeColor(highlightedMiiData.general?.favoriteColor) || decodeColor(0) : decodeColor(0) %>;">
@@ -74,13 +74,13 @@
         <a href='/mii/average'><img src="/miiImgs/average.png?v=<%= encodeURIComponent(averageMiiData.updatedAt ? new Date(averageMiiData.updatedAt).getTime() : (averageMiiData.uploadedOn || Date.now())) %>" alt="The average face of all Miis in the InfiniMii database." width="256" height="256" loading="eager" decoding="async" fetchpriority="high"></a>
         <div class="flex">
             <div>
-                <h3><%= averageMiiData.general.gender>0?"Jane":"John" %> Doe</h3>
+                <h3>Average Mii</h3>
                 <p class="mii-card-byline">
                     <a href="/user/Community">Community</a>
                 </p>
             </div>
         </div>
-        <p>The most common or average features and placements of those features across all Miis on the website</p>
+        <p>Built from the most common feature choices and placements among Miis on InfiniMii.</p>
         <% } %>
     </div>
 </aside>

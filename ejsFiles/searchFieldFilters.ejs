@@ -16,10 +16,15 @@
         : 'search-fields';
 %>
 
-<section class="search-fields-panel" aria-label="Search fields">
-    <h3 class="search-fields-title">Search In</h3>
+<section class="search-fields-panel" aria-labelledby="<%= fieldPanelPrefix %>-title">
+    <header class="advanced-filter-heading search-fields-heading">
+        <div>
+            <h3 class="search-fields-title" id="<%= fieldPanelPrefix %>-title">Search in</h3>
+            <p id="<%= fieldPanelPrefix %>-help">Choose which text fields the search should check.</p>
+        </div>
+    </header>
     <input type="hidden" name="searchFieldsConfigured" value="1">
-    <div class="search-field-options">
+    <div class="search-field-options" aria-describedby="<%= fieldPanelPrefix %>-help">
         <% searchFieldCatalog.forEach(field => { %>
             <% const inputId = `${fieldPanelPrefix}-${field.value}`; %>
             <label class="search-field-option" for="<%= inputId %>">

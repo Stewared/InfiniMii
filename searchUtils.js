@@ -273,8 +273,28 @@ export function buildMiiSearchScoreExpression(searchPlan) {
     return scoreParts.length > 0 ? { $add: scoreParts } : 0;
 }
 
-export function getMiiSearchSort() {
-    return { searchScore: -1, votes: -1, uploadedOn: -1, _id: -1 };
+export function getMiiSearchSort(direction = "desc") {
+    return {
+        searchScore: direction === "asc" ? 1 : -1,
+        votes: -1,
+        uploadedOn: -1,
+        _id: -1
+    };
+}
+
+export function sortRankedMiiSearchCandidates(candidates, direction = "desc") {
+    const primaryDirection = direction === "asc" ? 1 : -1;
+
+    return Array.isArray(candidates)
+        ? [...candidates].sort((left, right) => (
+            (Number(left?.searchScore || 0) - Number(right?.searchScore || 0)) * primaryDirection
+            || Number(right?.votes || 0) - Number(left?.votes || 0)
+            || Number(right?.uploadedOn || 0) - Number(left?.uploadedOn || 0)
+            || String(right?._id || right?.id || "").localeCompare(
+                String(left?._id || left?.id || "")
+            )
+        ))
+        : [];
 }
 
 function getFieldComparableTokens(value) {

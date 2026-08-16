@@ -2,6 +2,11 @@
 <html lang="en">
     <head>
         <%
+        const formatGuideExportValues = (Array.isArray(exportFormats) ? exportFormats : [])
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const formatGuideLegacyExportsEnabled = formatGuideExportValues.some((value) => value !== 'ltd');
+        const formatGuideQrExportsEnabled = formatGuideExportValues.includes('qr');
         const pageTitle = 'Mii File Format Guide - InfiniMii';
         const pageDesc = 'Reference guide to common Mii file formats, QR workflows, compatibility notes, and which InfiniMii tools to use for each format.';
         const canonicalUrl = `${baseUrl}/guides/formats`;
@@ -28,7 +33,7 @@
                 <p class="faq-lede">A quick reference for the Mii formats you will run into on InfiniMii, what each one is for, and which tool to use next.</p>
 
                 <nav class="faq-nav" aria-label="Format Guide Sections">
-                    <h2>Browse This Guide</h2>
+                    <h2>Browse this guide</h2>
                     <ul class="faq-nav-list">
                         <li><a href="#formats">Common Mii Formats</a></li>
                         <li><a href="#tools">Which Tool Should You Use?</a></li>
@@ -40,11 +45,14 @@
                     <h2>Common Mii Formats</h2>
                     <div class="faq-item">
                         <ul>
-                            <li><strong>Wii-era formats:</strong> <code>RCD</code> and <code>RSD</code> are classic Mii exports used by Wii-era workflows. You'll also run into <code>MII</code>, <code>MIIGX</code>, <code>MAE</code>, and others. These are all just different names of <code>RCD</code> born primarily out of split reverse engineering efforts. <code>RCD/RSD</code> are the official formats as named by Nintendo in their files.</li>
-                            <li><strong>3DS and Wii U formats:</strong> <code>CFCD</code>, <code>CFSD</code>, <code>FFCD</code>, and <code>FFSD</code> store richer Mii data and often pair with QR workflows. <code>CFED/FFED</code> are unofficial terms to represent the standard encryption used on these codes for QR purposes. <code>PNG, JPG, and other Image formats</code> can be used to hold QR codes that most Mii tools, the 3DS, and the Wii U can scan.</li>
-                            <li><strong>QR exports:</strong> Use <code>qr</code> when you need a scannable code for compatible systems like 3DS and Wii U.</li>
+                            <li><strong>Wii-era formats:</strong> <code>RCD</code> and <code>RSD</code> are Nintendo's names for classic Wii-era Mii files. You may also see <code>MII</code>, <code>MIIGX</code>, or <code>MAE</code>. These names came from separate reverse-engineering projects and generally refer to RCD data.</li>
+                            <li><strong>3DS and Wii U formats:</strong> <code>CFCD</code>, <code>CFSD</code>, <code>FFCD</code>, and <code>FFSD</code> store Mii data used by these systems. <code>CFED</code> and <code>FFED</code> are community names for the encrypted forms used in QR codes. PNG, JPG, and other image files can carry QR codes for compatible tools, 3DS, and Wii U.</li>
+                            <li><strong>QR:</strong> <%= formatGuideQrExportsEnabled
+                                ? 'Choose the QR export for a scannable code used by a compatible system such as 3DS or Wii U.'
+                                : 'QR output is not available for the selected Living the Dream Mii. Its original download format is LTD.' %></li>
                             <li><strong>Modern formats:</strong> <code>NFCD</code>, <code>NFSD</code>, and <code>charinfo</code> cover newer Nintendo Mii data workflows.</li>
-                            <li><strong>My Nintendo Mii Studio:</strong> <code>MNMS</code> is the format used in localstorage on the Mii Studio website. You can copy this type as hex to use with most importer/exporter tools.</li>
+                            <li><strong>LTD:</strong> InfiniMii keeps original LTD files unchanged. Living the Dream Miis stay LTD-only, while Miis from other systems can use the compatible export formats listed here.</li>
+                            <li><strong>My Nintendo Mii Studio:</strong> <code>MNMS</code> is stored in the Mii Studio website's local storage. Copy it as hexadecimal data to use it with compatible import and export tools.</li>
                         </ul>
                     </div>
                 </section>
@@ -53,10 +61,10 @@
                     <h2>Which Tool Should You Use?</h2>
                     <div class="faq-item">
                         <ul>
-                            <li><a href="/miiDashboard">Mii Dashboard</a> when you already have Mii data and need rendering, JSON editing, QR generation, recreation instructions, or a new output format.</li>
+                            <li>Use the <a href="/miiDashboard">Mii Dashboard</a> when you already have Mii data and need a preview, JSON editing, recreation instructions, or <%= formatGuideLegacyExportsEnabled ? 'one of the listed output formats' : 'an LTD download' %><%= formatGuideQrExportsEnabled ? ', including a QR code' : '' %>.</li>
                             <li><a href="/qr">QR Scanner</a> when you are starting from a QR image.</li>
                             <li><a href="/guides/transfer">Transfer Guide</a> when the best method depends on the source and destination hardware.</li>
-                            <li><a href="/amiibo">Amiibo Tools</a> or <a href="/wiimote">Wii Remote Tools</a> when your Mii lives inside those specific devices.</li>
+                            <li><a href="/amiibo">Amiibo extraction</a> or <a href="/wiimote">Wii Remote Tools</a> when your Mii lives inside those specific devices.</li>
                         </ul>
                         <p><a href="/miiDashboard" class="cta-link">Open the Mii Dashboard</a></p>
                     </div>
@@ -65,8 +73,11 @@
                 <section id="compatibility" class="faq-section">
                     <h2>Compatibility Notes</h2>
                     <div class="faq-item">
+                        <% if (!formatGuideLegacyExportsEnabled) { %>
+                            <p><strong>LTD compatibility:</strong> a Living the Dream Mii keeps its original LTD download instead of being converted to an older format.</p>
+                        <% } %>
                         <ul>
-                            <li>Older Nintendo systems support fewer facial features than newer ones, so down-level conversions can simplify details.</li>
+                            <li>Older Nintendo systems support fewer facial features than newer ones, so converting for an older system can simplify some details.</li>
                             <li>QR code workflows are especially useful for 3DS and Wii U transfers.</li>
                             <li>Switch-related transfers often rely on manual recreation or Amiibo instead of direct file import.</li>
                         </ul>

@@ -1111,6 +1111,10 @@ static int cfl_decode_shape(const CflResource *resource, int section_index, int 
     if (!cfl_record_bounds(resource, section_index, item_index, &record_offset, &record_end)) return 0;
     cursor = record_offset;
 
+    /* FFL accepts zero-sized records as intentionally empty parts.  They
+       preserve the selected normal/cap family and are not decode failures. */
+    if (record_offset == record_end) return 1;
+
     if (section_index == CFL_SHAPE_FACELINE) {
         out->extra_count = 3;
         for (i = 0; i < out->extra_count; i++) {
@@ -1136,7 +1140,9 @@ static int cfl_decode_shape(const CflResource *resource, int section_index, int 
     index_flag = rd_u16(resource->bytes + cursor + 6);
     cursor += 8u;
 
-    if (vertex_count == 0) return 0;
+    if (vertex_count == 0) {
+        return normal_count == 0 && texcoord_count == 0 && index_flag == 0;
+    }
     if (normal_count != 0 && normal_count != 1 && normal_count != vertex_count) return 0;
     if (texcoord_count != 0 && texcoord_count != 1 && texcoord_count != vertex_count) return 0;
 
@@ -1249,7 +1255,7 @@ static int cfl_decode_shape(const CflResource *resource, int section_index, int 
         }
     }
 
-    return out->index_count > 0;
+    return 1;
 }
 
 static int clamp_int(int value, int min, int max) {
@@ -1283,7 +1289,8 @@ static uint32_t tomodachi_hair_dye_color(const MiiFaceParams *params) {
 }
 
 static uint32_t mii_render_hair_color(const MiiFaceParams *params, int index, int fallback) {
-    if (tomodachi_has_valid_hair_dye(params) && params->hair_dye_mode >= 1) {
+    if (tomodachi_has_valid_hair_dye(params) &&
+        (params->hair_dye_mode == 1 || params->hair_dye_mode == 2)) {
         return tomodachi_hair_dye_color(params);
     }
     return mii_hair_color(index, fallback);
@@ -1297,7 +1304,9 @@ static uint32_t mii_render_eyebrow_color(const MiiFaceParams *params, int index,
 }
 
 static uint32_t mii_render_facial_hair_color(const MiiFaceParams *params, int index, int fallback) {
-    (void)params;
+    if (tomodachi_has_valid_hair_dye(params) && params->hair_dye_mode == 2) {
+        return tomodachi_hair_dye_color(params);
+    }
     return mii_hair_color(index, fallback);
 }
 
@@ -2365,11 +2374,6 @@ static int headwear_metadata_select_variant(const HeadwearMetadata *metadata, in
         if (metadata->variant_hair_index[i] == hair_type) return i;
     }
     return -1;
-}
-
-static int tomodachi_headwear_uses_hat_hair(const HeadwearMetadata *metadata, int headwear_type) {
-    if (headwear_type == 0) return 1;
-    return metadata && metadata->head_type == 6;
 }
 
 static int tomodachi_headwear_visibility_animation_index(int head_type) {
@@ -6115,7 +6119,7 @@ static int render_portrait_sized(const CflResource *resource, const MiiFaceParam
     int base_hair_index = clamp_int(params->hair_type, 0, 131) * 2;
     int hair_index = base_hair_index;
     int headwear_variant = 0;
-    int use_hat_hair = 0;
+    int head_model_type = 0;
     int has_headwear = 0;
     int ok = 0;
 
@@ -6154,13 +6158,16 @@ static int render_portrait_sized(const CflResource *resource, const MiiFaceParam
     has_headwear = params->draw_headwear &&
         (tomodachi_direct_headwear_enabled || params->headwear_index > 0) && headwear_path[0];
     if (has_headwear) {
-        use_hat_hair = tomodachi_headwear_uses_hat_hair(&headwear_metadata, headwear_info.headwear_type);
-        if (use_hat_hair) {
-            /* HairNN identifies which Mii hair type receives the paired
-               OffsetNN attachment correction; it is not a CFL shape index.
-               Model type 1 is the selected Mii's adjacent hat-hair record. */
-            hair_index = base_hair_index + 1;
-        }
+        /* HeadType selects the same default/forCap/forHeadgear mode for both
+           the CFL head parts and obj_mHeadwear.  Keep the selected Mii hair;
+           catalog HeadwearType is not a replacement-hair selector. */
+        head_model_type = tomodachi_headwear_visibility_animation_index(headwear_metadata.head_type);
+        if (head_model_type == 1) hair_index = base_hair_index + 1;
+        fprintf(stderr,
+            "cfl-head-model=%s effective-hair=%d shape-index=%d headwear-type=%d head-type=%d\n",
+            head_model_type == 2 ? "headgear" : (head_model_type == 1 ? "cap" : "normal"),
+            params->hair_type, head_model_type == 2 ? -1 : hair_index,
+            headwear_info.headwear_type, headwear_metadata.head_type);
     }
     if (width < 64 || height < 64) goto cleanup;
     if (!image_create(out, width, height)) goto cleanup;
@@ -6173,22 +6180,17 @@ static int render_portrait_sized(const CflResource *resource, const MiiFaceParam
     if (!render_face_texture(resource, params, 1, &mask_texture)) goto cleanup;
     if (!cfl_decode_shape(resource, CFL_SHAPE_FACELINE, params->face_type, &faceline_shape)) goto cleanup;
     if (!cfl_decode_shape(resource, CFL_SHAPE_MASK, params->face_type, &mask_shape)) goto cleanup;
-    if (!cfl_decode_shape(resource, CFL_SHAPE_HAIR, hair_index, &hair_shape) &&
-        hair_index != base_hair_index) {
-        cfl_shape_free(&hair_shape);
-        cfl_decode_shape(resource, CFL_SHAPE_HAIR, base_hair_index, &hair_shape);
-    }
-    if (!cfl_decode_shape(resource, CFL_SHAPE_FOREHEAD, hair_index, &forehead_shape) &&
-        hair_index != base_hair_index) {
-        cfl_shape_free(&forehead_shape);
-        cfl_decode_shape(resource, CFL_SHAPE_FOREHEAD, base_hair_index, &forehead_shape);
-    }
-    /* Match FFLiCharModelCreator: cap geometry uses the same normal/hat model
-       variant as hair and forehead, while its texture is selected by hair
-       type. Most cap records are empty; only load a texture when that model
-       variant supplies cap geometry. */
-    if (cfl_decode_shape(resource, CFL_SHAPE_HAT, hair_index, &cap_shape) &&
-        !decode_texture_or_warn(resource, CFL_TEX_CAP, params->hair_type, &cap_texture)) {
+    if (head_model_type != 2) {
+        if (!cfl_decode_shape(resource, CFL_SHAPE_HAIR, hair_index, &hair_shape)) goto cleanup;
+        if (!cfl_decode_shape(resource, CFL_SHAPE_FOREHEAD, hair_index, &forehead_shape)) goto cleanup;
+        /* FFL selects hair, cap, and forehead from one authored model family;
+           valid empty records must not fall back across families. */
+        if (!cfl_decode_shape(resource, CFL_SHAPE_HAT, hair_index, &cap_shape)) goto cleanup;
+        if (cap_shape.vertices &&
+            !decode_texture_or_warn(resource, CFL_TEX_CAP, params->hair_type, &cap_texture)) {
+            goto cleanup;
+        }
+    } else if (!cfl_decode_shape(resource, CFL_SHAPE_HAIR, base_hair_index, &anchor_hair_shape)) {
         goto cleanup;
     }
     cfl_decode_shape(resource, CFL_SHAPE_NOSE, params->nose_type, &nose_shape);
@@ -6208,7 +6210,7 @@ static int render_portrait_sized(const CflResource *resource, const MiiFaceParam
         parts.beard = faceline_shape.extra[2];
     }
     {
-        const CflShape *parts_shape = &hair_shape;
+        const CflShape *parts_shape = head_model_type == 2 ? &anchor_hair_shape : &hair_shape;
         int has_hair_anchor = hair_shape.extra_count >= 6 &&
             (vec3_has_value(hair_shape.extra[1]) ||
              vec3_has_value(hair_shape.extra[3]) ||
@@ -6307,7 +6309,11 @@ static int render_portrait_sized(const CflResource *resource, const MiiFaceParam
         double nose_scale = clamp_int(params->nose_size, 0, 8) * 0.175 + 0.4;
         transform.scale_x = nose_scale;
         transform.scale_y = nose_scale;
-        transform.scale_z = nose_scale > 1.1 ? 1.1 : nose_scale;
+        transform.scale_z = has_headwear &&
+            (headwear_metadata.head_type == 7 ||
+             headwear_metadata.head_type == 9 ||
+             headwear_metadata.head_type == 10) &&
+            nose_scale > 1.1 ? 1.1 : nose_scale;
         transform.translate_x = parts.nose.x;
         transform.translate_y = parts.nose.y + (clamp_int(params->nose_y, 0, 18) - 8) * -1.5;
         transform.translate_z = parts.nose.z;

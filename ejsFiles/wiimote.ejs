@@ -3,6 +3,7 @@
     <head>
         <%
         const pageTitle = 'Wii Remote Mii Tools - InfiniMii';
+        const wiimoteStoredMiiImportEnabled = (exportFormats || []).some(format => format.value !== 'ltd');
         const pageDesc = 'Connect a supported Wii Remote, inspect its Mii slots, and export or import Mii data through InfiniMii\'s WebHID tools.';
         const canonicalUrl = `${baseUrl}/wiimote`;
         const keywords = 'wii remote mii tool, wiimote mii reader, wiimote export mii, webhid wiimote';
@@ -82,7 +83,7 @@
                 padding: 0.75rem 1.5rem;
                 border: none;
                 border-radius: 6px;
-                font-family: Poppins, sans-serif;
+                font-family: var(--system-font);
                 font-size: 16px;
                 font-weight: 500;
                 cursor: pointer;
@@ -345,7 +346,7 @@
                 background: var(--layer-1-um);
                 color: var(--text-1);
                 box-sizing: border-box;
-                font-family: Poppins, sans-serif;
+                font-family: var(--system-font);
                 font-size: 14px;
             }
 
@@ -443,11 +444,13 @@
                     <div class="import-help">If set, this takes priority over other fields.</div>
                 </div>
 
-                <div class="import-source-panel active">
-                    <label for="importMiiId">Mii ID from InfiniMii (optional):</label>
-                    <input type="text" id="importMiiId" placeholder="Enter Mii ID (for example: A1B2C)">
-                    <div class="import-help">Uses a published Mii, or your own private Mii if you are logged in.</div>
-                </div>
+                <% if (wiimoteStoredMiiImportEnabled) { %>
+                    <div class="import-source-panel active">
+                        <label for="importMiiId">Mii ID from InfiniMii (optional):</label>
+                        <input type="text" id="importMiiId" placeholder="Enter Mii ID (for example: A1B2C)">
+                        <div class="import-help">Uses a published Mii, or your own private Mii if you are logged in.</div>
+                    </div>
+                <% } %>
 
                 <div class="import-source-panel active">
                     <label for="importRawMiiData">Raw Mii data (base64 or hex, optional):</label>

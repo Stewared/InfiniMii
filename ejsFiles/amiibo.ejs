@@ -3,9 +3,20 @@
     <head>
         <%
         const pageTitle = 'Amiibo Mii Tools - InfiniMii';
-        const pageDesc = 'Extract a Mii from an Amiibo dump or insert a Mii into an Amiibo backup with InfiniMii\'s browser-based Amiibo tools.';
+        const amiiboExportFormats = Array.isArray(exportFormats) ? exportFormats : [];
+        const amiiboExportValues = amiiboExportFormats
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const amiiboLegacyExportsEnabled = amiiboExportValues.some((value) => value !== 'ltd');
+        const amiiboQrExportsEnabled = amiiboExportValues.includes('qr');
+        const defaultAmiiboExportFormat = amiiboExportValues[0] || '';
+        const pageDesc = amiiboLegacyExportsEnabled
+            ? 'Extract a Mii from an Amiibo dump or insert a Mii into an Amiibo backup with InfiniMii\'s browser-based Amiibo tools.'
+            : 'Extract a Mii from an Amiibo dump and download it as an LTD file.';
         const canonicalUrl = `${baseUrl}/amiibo`;
-        const keywords = 'amiibo mii tool, extract mii from amiibo, insert mii into amiibo, amiibo backup';
+        const keywords = amiiboLegacyExportsEnabled
+            ? 'amiibo mii tool, extract mii from amiibo, insert mii into amiibo, amiibo backup'
+            : 'amiibo mii extractor, extract mii from amiibo, ltd mii download, amiibo backup';
         const breadcrumbs = [
             { name: 'Home', url: '/' },
             { name: 'Amiibo Tools', url: '/amiibo' }
@@ -123,7 +134,7 @@
                 padding: 0.75rem 1.5rem;
                 border: none;
                 border-radius: 6px;
-                font-family: Poppins, sans-serif;
+                font-family: var(--system-font);
                 font-size: 16px;
                 font-weight: 500;
                 cursor: pointer;
@@ -222,7 +233,9 @@
             <div class='amiibo-tools'>
                 <section class="tool-section" aria-labelledby="amiibo-heading">
                     <h1 id="amiibo-heading">Amiibo Mii Tools</h1>
-                    <p>Work with Amiibo backups that store Mii owner data. Extract a Mii for export or upload, or insert a new Mii into the dump.</p>
+                    <p><%= amiiboLegacyExportsEnabled
+                        ? 'Work with Amiibo backups that store Mii owner data. Extract a Mii for export or upload, or insert a new Mii into the dump.'
+                        : 'Extract the owner Mii from an Amiibo backup for LTD download or upload.' %></p>
                 </section>
                 <!-- Extract Mii from Amiibo -->
                 <div class="tool-section">
@@ -255,18 +268,22 @@
                             <a class="btn btn-primary" href="/upload">Upload to InfiniMii</a>
                             <form id="extractedExportForm" class="export-form" method="GET" action="/exportMii">
                                 <input type="hidden" name="id" id="extractedMiiId">
-                                <input type="text" name="format" list="exportFormatOptions" placeholder="Search formats..." required>
-                                <label style="display: inline-flex; align-items: center; gap: 6px;">
-                                    <input type="checkbox" name="special">
-                                    Special
-                                </label>
-                                <label style="display: inline-flex; align-items: center; gap: 6px;">
-                                    QR:
-                                    <select name="qrConsole">
-                                        <option value="3DS">3DS</option>
-                                        <option value="WIIU">Wii U</option>
-                                    </select>
-                                </label>
+                                <input type="text" name="format" list="exportFormatOptions" value="<%= defaultAmiiboExportFormat %>" placeholder="Choose an export format..." required<%- amiiboLegacyExportsEnabled ? '' : ' readonly aria-readonly="true"' %>>
+                                <% if (amiiboLegacyExportsEnabled) { %>
+                                    <label style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" name="special">
+                                        Special
+                                    </label>
+                                <% } %>
+                                <% if (amiiboQrExportsEnabled) { %>
+                                    <label style="display: inline-flex; align-items: center; gap: 6px;">
+                                        QR:
+                                        <select name="qrConsole">
+                                            <option value="3DS">3DS</option>
+                                            <option value="WIIU">Wii U</option>
+                                        </select>
+                                    </label>
+                                <% } %>
                                 <button type="submit" class="btn btn-secondary">Download</button>
                                 <button type="button" class="btn btn-secondary" onclick="copyExportHexFromForm(document.getElementById('extractedExportForm'))">Copy Hex</button>
                                 <button type="button" class="btn btn-secondary" onclick="copyExportBase64FromForm(document.getElementById('extractedExportForm'))">Copy Base64</button>
@@ -274,7 +291,7 @@
                             <button type="button" class="btn btn-secondary" id="extractedInstructionsBtn" onclick="openExtractedInstructions()">Recreation Instructions</button>
                         </div>
                         <datalist id="exportFormatOptions">
-                            <% exportFormats.forEach(fmt => { %>
+                            <% amiiboExportFormats.forEach(fmt => { %>
                                 <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
                             <% }) %>
                         </datalist>
@@ -283,6 +300,7 @@
                     <div id="extractError" class="error-message"></div>
                 </div>
                 
+                <% if (amiiboLegacyExportsEnabled) { %>
                 <!-- Insert Mii into Amiibo -->
                 <div class="tool-section">
                     <h3><%- include('icon', { name: 'download', size: 20, class: 'icon-inline' }) %> Insert Mii into Amiibo</h3>
@@ -333,6 +351,7 @@
                     <div id="insertError" class="error-message"></div>
                     <div id="insertSuccess" class="success-message"></div>
                 </div>
+                <% } %>
             </div>
             <%- include('featuredMiis') %>
         </div>
@@ -340,6 +359,7 @@
         
         <script>
             let extractedMiiData = null;
+            const DEFAULT_AMIIBO_EXPORT_FORMAT = <%- toScriptJson(defaultAmiiboExportFormat) %>;
 
             function showAmiiboError(elementId, message) {
                 const errorElement = document.getElementById(elementId);
@@ -415,12 +435,12 @@
                     
                     if (result.mii) {
                         extractedMiiData = result.mii;
-                        document.getElementById('extractedMiiImage').src = '/miiImgs/' + result.mii.id + '.png';
+                        document.getElementById('extractedMiiImage').src = result.imageUrl || '/static/assets/ltd-render-unavailable.svg';
                         document.getElementById('extractedMiiName').textContent = result.mii.meta.name;
                         document.getElementById('extractedMiiCreator').textContent = 'Creator: ' + result.mii.meta.creatorName;
                         document.getElementById('extractedMiiId').value = result.mii.id;
                         const formatInput = document.querySelector('#extractedExportForm input[name="format"]');
-                        if (formatInput) formatInput.value = 'qr';
+                        if (formatInput) formatInput.value = DEFAULT_AMIIBO_EXPORT_FORMAT;
                         document.getElementById('extractedMii').classList.add('active');
                         document.getElementById('extractError').classList.remove('active');
                     } else {
@@ -432,6 +452,7 @@
                 }
             });
             
+            <% if (amiiboLegacyExportsEnabled) { %>
             // Insert form handling
             document.getElementById('insertForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -474,6 +495,7 @@
                     document.getElementById('insertAmiiboName').textContent = 'Selected: ' + e.target.files[0].name;
                 }
             });
+            <% } %>
             
             // Drag and drop for extract
             const extractZone = document.getElementById('extractDropZone');
@@ -490,6 +512,7 @@
                 document.getElementById('extractFile').files = e.dataTransfer.files;
             });
             
+            <% if (amiiboLegacyExportsEnabled) { %>
             // Drag and drop for insert
             const insertZone = document.getElementById('insertDropZone');
             insertZone.addEventListener('dragover', (e) => {
@@ -507,6 +530,7 @@
                     document.getElementById('insertAmiiboName').textContent = 'Selected: ' + e.dataTransfer.files[0].name;
                 }
             });
+            <% } %>
             
         </script>
     </body>

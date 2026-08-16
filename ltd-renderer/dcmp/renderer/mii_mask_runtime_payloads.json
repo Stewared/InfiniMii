@@ -1,0 +1,1049 @@
+{
+  "case21": {
+    "constant_buffers_executable": true,
+    "dispatcher_case": 21,
+    "fragment_maxwell_cbuf3": {
+      "active_branch_required_ranges_fully_known": true,
+      "active_branch_required_word_offsets": [
+        0,
+        16,
+        20,
+        24,
+        28
+      ],
+      "byte_length": 64,
+      "data_artifact": {
+        "byte_length": 64,
+        "path": "renderer/assets/mii_mask_runtime/kestron_case21_fragment_cbuf3_data.bin",
+        "sha256": "0a472d9b21cf043c98009bea89dec39cebd1f4e1acac1717e11c2fa39351d2e1"
+      },
+      "data_raw_hex": "000000000000000000000000000000000000000000000000000000000000803f0000000000000000000000000000803f0000000000000000000000000000803f",
+      "data_sha256": "0a472d9b21cf043c98009bea89dec39cebd1f4e1acac1717e11c2fa39351d2e1",
+      "full_native_bytes_claimed": false,
+      "known_mask_artifact": {
+        "byte_length": 64,
+        "path": "renderer/assets/mii_mask_runtime/kestron_case21_fragment_cbuf3_known_mask.bin",
+        "sha256": "db38b8242bf1bb8dd5c78d2465f3d32e72ec8a67dd9f7409b1a2fb559413bb83"
+      },
+      "known_mask_raw_hex": "ffffffff000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "known_mask_sha256": "db38b8242bf1bb8dd5c78d2465f3d32e72ec8a67dd9f7409b1a2fb559413bb83",
+      "producer": "FUN_7101d75d68 zeros the case21 selector and all three source float3 colors; FUN_7101d71620 calls FUN_7100ba7910, which copies xyz and explicitly writes w=1.0",
+      "required_values": {
+        "+0x00_selector_uint32": 0,
+        "+0x10_C1_x_float32": 0.0,
+        "+0x14_C1_y_float32": 0.0,
+        "+0x18_C1_z_float32": 0.0,
+        "+0x1c_C1_w_float32": 1.0
+      },
+      "title_type": "MiiMaskFragmentDrawConstants",
+      "unknown_fragment_byte_policy": "only selector padding +0x04/+0x08/+0x0c is unclaimed; the selector==0 early shader path reads +0x00 and C1 +0x10..+0x1c only",
+      "unknown_fragment_bytes_block_execution": false
+    },
+    "native_emulation": {
+      "callback_independence_checked": true,
+      "descriptor_case": 21,
+      "resource_callback_counts": {}
+    },
+    "submission": "FUN_7101d786e0 invokes case21 once in pass0; FUN_7101d78e10 sets its fallback-allowed flag and proceeds even when the per-case resource lookup is null",
+    "vertex_maxwell_cbuf3": {
+      "artifact": {
+        "byte_length": 64,
+        "path": "renderer/assets/mii_mask_runtime/kestron_case21_vertex_cbuf3.bin",
+        "sha256": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376"
+      },
+      "byte_length": 64,
+      "float32_values": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "fully_exact": true,
+      "producer": "FUN_7101d75d68 case21 -> FUN_7101d71620 transpose",
+      "stored_matrix_before_FUN_7101d71620_transpose_raw_hex": "0000803f000000000000000000000000000000000000803f000000000000000000000000000000000000803f000000000000000000000000000000000000803f",
+      "title_type": "MiiMaskVertexTransformConstants",
+      "uploaded_raw_hex": "0000803f000000000000000000000000000000000000803f000000000000000000000000000000000000803f000000000000000000000000000000000000803f",
+      "uploaded_sha256": "5998e9d1dd9bf48af6af87a1ef8c7783b818ac8329637ada08cc5fb329042376"
+    }
+  },
+  "description": "Exact source-bound per-layer MiiMask constants for Kestron; native AArch64 float32 instructions are executed rather than replaced with host geometry fitting",
+  "execution_contract": {
+    "active_layer_constant_buffers_executable": true,
+    "case21_constant_buffers_executable": true,
+    "host_math_approximation_used": false,
+    "reference_image_fitting_used": false,
+    "seven_active_fragment_branch_payloads_fully_exact": true,
+    "seven_active_layer_vertex_payloads_fully_exact": true,
+    "unknown_fragment_byte_policy": "the selected decoded branch does not read mask-zero bytes; a backend must validate the known mask before uploading the host-materialized data",
+    "unknown_fragment_bytes_block_execution": false
+  },
+  "generator": "tools/build_mii_mask_runtime_payloads.py",
+  "layers": [
+    {
+      "dispatcher_case": 0,
+      "draw_index": 0,
+      "fragment_maxwell_cbuf3": {
+        "active_branch_required_ranges_fully_known": true,
+        "active_branch_required_word_offsets": [
+          0,
+          16,
+          20,
+          24
+        ],
+        "byte_length": 64,
+        "data_raw_hex": "030000000000000000000000000000008180803e8180003e8180803d0000803f0000000000000000000000000000803f0000000000000000000000000000803f",
+        "data_sha256": "842da13518963473bd46877aef6a552612c7822ea8cf436c44d39761f6ca9ea3",
+        "full_native_bytes_claimed": false,
+        "known_mask_raw_hex": "ffffffff000000000000000000000000ffffffffffffffffffffffffffffffff000000000000000000000000ffffffff000000000000000000000000ffffffff",
+        "known_mask_sha256": "4d7b11db6898b05f13367bd8ecb36038fb13ea4d135bd3b6484b3911c895e59a",
+        "packed_artifact_byte_offset": 0,
+        "producer_write_width": "selector uint32 plus FUN_7100ba7910 color packing: source float3 copied to xyz and destination w explicitly set to 1.0; selector padding remains unclaimed",
+        "title_type": "MiiMaskFragmentDrawConstants",
+        "unknown_bytes_are_zero_only_as_host_materialization": true
+      },
+      "geometry_variant": 1,
+      "mirrored": false,
+      "mode": 3,
+      "name": "mustache_character_right",
+      "native_emulation": {
+        "color_lookup_independence_checked": true,
+        "resource_callback_counts": {
+          "external_color_0x7102e95fd0": 1,
+          "resource_vtable_0x18": 1,
+          "resource_vtable_0xa0": 1,
+          "resource_vtable_0xb8": 1
+        }
+      },
+      "selected_mip": {
+        "byte_length": 834,
+        "dimensions": [
+          64,
+          128
+        ],
+        "level": 2,
+        "mode": "RGBA",
+        "path": "renderer/assets/face_sprite_mips/Mustache03/mip_02.png",
+        "sha256": "c480400e3351d4bee57d61a2ae0bb34bc4a8857279970703699bbbb5728e12d2"
+      },
+      "texture": "Mustache03",
+      "vertex_maxwell_cbuf3": {
+        "byte_length": 64,
+        "float32_values": [
+          0.3252653479576111,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.6783568263053894,
+          0.0,
+          -0.29526257514953613,
+          0.0,
+          0.0,
+          0.0024999999441206455,
+          0.5,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fully_exact": true,
+        "packed_artifact_byte_offset": 0,
+        "producer": "FUN_7101d75d68 -> FUN_7101d76bf0 -> FUN_7101d71620 transpose",
+        "stored_matrix_before_FUN_7101d71620_transpose_raw_hex": "2e89a63e00000000000000000000000000000000cba82dbf000000000000000000000000000000000ad7233b0000000000000000a82c97be0000003f0000803f",
+        "title_type": "MiiMaskVertexTransformConstants",
+        "uploaded_raw_hex": "2e89a63e00000000000000000000000000000000cba82dbf00000000a82c97be00000000000000000ad7233b0000003f0000000000000000000000000000803f",
+        "uploaded_sha256": "bb0e135c13502151396d38d673299b7f7701180d5252053e7b05497accd127ee"
+      }
+    },
+    {
+      "dispatcher_case": 1,
+      "draw_index": 1,
+      "fragment_maxwell_cbuf3": {
+        "active_branch_required_ranges_fully_known": true,
+        "active_branch_required_word_offsets": [
+          0,
+          16,
+          20,
+          24
+        ],
+        "byte_length": 64,
+        "data_raw_hex": "030000000000000000000000000000008180803e8180003e8180803d0000803f0000000000000000000000000000803f0000000000000000000000000000803f",
+        "data_sha256": "842da13518963473bd46877aef6a552612c7822ea8cf436c44d39761f6ca9ea3",
+        "full_native_bytes_claimed": false,
+        "known_mask_raw_hex": "ffffffff000000000000000000000000ffffffffffffffffffffffffffffffff000000000000000000000000ffffffff000000000000000000000000ffffffff",
+        "known_mask_sha256": "4d7b11db6898b05f13367bd8ecb36038fb13ea4d135bd3b6484b3911c895e59a",
+        "packed_artifact_byte_offset": 64,
+        "producer_write_width": "selector uint32 plus FUN_7100ba7910 color packing: source float3 copied to xyz and destination w explicitly set to 1.0; selector padding remains unclaimed",
+        "title_type": "MiiMaskFragmentDrawConstants",
+        "unknown_bytes_are_zero_only_as_host_materialization": true
+      },
+      "geometry_variant": 2,
+      "mirrored": true,
+      "mode": 3,
+      "name": "mustache_character_left",
+      "native_emulation": {
+        "color_lookup_independence_checked": true,
+        "resource_callback_counts": {
+          "external_color_0x7102e95fd0": 1,
+          "resource_vtable_0x18": 1,
+          "resource_vtable_0xa0": 1,
+          "resource_vtable_0xb8": 1
+        }
+      },
+      "selected_mip": {
+        "byte_length": 834,
+        "dimensions": [
+          64,
+          128
+        ],
+        "level": 2,
+        "mode": "RGBA",
+        "path": "renderer/assets/face_sprite_mips/Mustache03/mip_02.png",
+        "sha256": "c480400e3351d4bee57d61a2ae0bb34bc4a8857279970703699bbbb5728e12d2"
+      },
+      "texture": "Mustache03",
+      "vertex_maxwell_cbuf3": {
+        "byte_length": 64,
+        "float32_values": [
+          0.3252653479576111,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.6783568263053894,
+          0.0,
+          -0.29526257514953613,
+          0.0,
+          0.0,
+          0.0024999999441206455,
+          0.5,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fully_exact": true,
+        "packed_artifact_byte_offset": 64,
+        "producer": "FUN_7101d75d68 -> FUN_7101d76bf0 -> FUN_7101d71620 transpose",
+        "stored_matrix_before_FUN_7101d71620_transpose_raw_hex": "2e89a63e00000000000000000000000000000000cba82dbf000000000000000000000000000000000ad7233b0000000000000000a82c97be0000003f0000803f",
+        "title_type": "MiiMaskVertexTransformConstants",
+        "uploaded_raw_hex": "2e89a63e00000000000000000000000000000000cba82dbf00000000a82c97be00000000000000000ad7233b0000003f0000000000000000000000000000803f",
+        "uploaded_sha256": "bb0e135c13502151396d38d673299b7f7701180d5252053e7b05497accd127ee"
+      }
+    },
+    {
+      "dispatcher_case": 2,
+      "draw_index": 2,
+      "fragment_maxwell_cbuf3": {
+        "active_branch_required_ranges_fully_known": true,
+        "active_branch_required_word_offsets": [
+          0,
+          48,
+          52,
+          56
+        ],
+        "byte_length": 64,
+        "data_raw_hex": "080000000000000000000000000000000000000000000000000000000000803f0000000000000000000000000000803f0000803f0000803f0000803f0000803f",
+        "data_sha256": "2bf247b20ea54303c905ceaaa406c903f3374b130c44e80a5c15395f5f244a12",
+        "full_native_bytes_claimed": false,
+        "known_mask_raw_hex": "ffffffff000000000000000000000000000000000000000000000000ffffffff000000000000000000000000ffffffffffffffffffffffffffffffffffffffff",
+        "known_mask_sha256": "5759b8a2aeceb9568a9268606afd75d2de7976690d1dd49010fb23f340bdd4a7",
+        "packed_artifact_byte_offset": 128,
+        "producer_write_width": "selector uint32 plus FUN_7100ba7910 color packing: source float3 copied to xyz and destination w explicitly set to 1.0; selector padding remains unclaimed",
+        "title_type": "MiiMaskFragmentDrawConstants",
+        "unknown_bytes_are_zero_only_as_host_materialization": true
+      },
+      "geometry_variant": 0,
+      "mirrored": false,
+      "mode": 8,
+      "name": "mouth",
+      "native_emulation": {
+        "color_lookup_independence_checked": true,
+        "resource_callback_counts": {
+          "external_color_0x7102e96040": 1,
+          "external_color_0x7102e96050": 1,
+          "external_color_0x7102e965f0": 1,
+          "resource_vtable_0x18": 1,
+          "resource_vtable_0x20": 1,
+          "resource_vtable_0x28": 1,
+          "resource_vtable_0x98": 1,
+          "resource_vtable_0xa8": 1,
+          "resource_vtable_0xb8": 1,
+          "resource_vtable_0xc0": 1
+        }
+      },
+      "selected_mip": {
+        "byte_length": 961,
+        "dimensions": [
+          88,
+          64
+        ],
+        "level": 1,
+        "mode": "RGBA",
+        "path": "renderer/assets/face_sprite_mips/Mouth015/mip_01.png",
+        "sha256": "f17d8a4cc88e2059073c117f4fe8505c2b620959db9b9cefa1935fb5b504bab8"
+      },
+      "texture": "Mouth015",
+      "vertex_maxwell_cbuf3": {
+        "byte_length": 64,
+        "float32_values": [
+          0.3784337341785431,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.28699713945388794,
+          0.0,
+          -0.3515024185180664,
+          0.0,
+          0.0,
+          0.0024999999441206455,
+          0.5,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fully_exact": true,
+        "packed_artifact_byte_offset": 128,
+        "producer": "FUN_7101d75d68 -> FUN_7101d76bf0 -> FUN_7101d71620 transpose",
+        "stored_matrix_before_FUN_7101d71620_transpose_raw_hex": "11c2c13e000000000000000000000000000000004af192be000000000000000000000000000000000ad7233b000000000000000020f8b3be0000003f0000803f",
+        "title_type": "MiiMaskVertexTransformConstants",
+        "uploaded_raw_hex": "11c2c13e000000000000000000000000000000004af192be0000000020f8b3be00000000000000000ad7233b0000003f0000000000000000000000000000803f",
+        "uploaded_sha256": "160d54f6c8d1da87a3804dac17e8d77cb27c40b3671cc8ad0b7940d50c544cba"
+      }
+    },
+    {
+      "dispatcher_case": 4,
+      "draw_index": 3,
+      "fragment_maxwell_cbuf3": {
+        "active_branch_required_ranges_fully_known": true,
+        "active_branch_required_word_offsets": [
+          0,
+          16,
+          20,
+          24
+        ],
+        "byte_length": 64,
+        "data_raw_hex": "030000000000000000000000000000008180803e8180003e8180803d0000803f0000000000000000000000000000803f0000000000000000000000000000803f",
+        "data_sha256": "842da13518963473bd46877aef6a552612c7822ea8cf436c44d39761f6ca9ea3",
+        "full_native_bytes_claimed": false,
+        "known_mask_raw_hex": "ffffffff000000000000000000000000ffffffffffffffffffffffffffffffff000000000000000000000000ffffffff000000000000000000000000ffffffff",
+        "known_mask_sha256": "4d7b11db6898b05f13367bd8ecb36038fb13ea4d135bd3b6484b3911c895e59a",
+        "packed_artifact_byte_offset": 192,
+        "producer_write_width": "selector uint32 plus FUN_7100ba7910 color packing: source float3 copied to xyz and destination w explicitly set to 1.0; selector padding remains unclaimed",
+        "title_type": "MiiMaskFragmentDrawConstants",
+        "unknown_bytes_are_zero_only_as_host_materialization": true
+      },
+      "geometry_variant": 1,
+      "mirrored": false,
+      "mode": 3,
+      "name": "eyebrow_character_right",
+      "native_emulation": {
+        "color_lookup_independence_checked": true,
+        "resource_callback_counts": {
+          "external_color_0x7102e95fd0": 1,
+          "resource_vtable_0x18": 1,
+          "resource_vtable_0x20": 1,
+          "resource_vtable_0x28": 1,
+          "resource_vtable_0x98": 1,
+          "resource_vtable_0xa8": 1,
+          "resource_vtable_0xb8": 1
+        }
+      },
+      "selected_mip": {
+        "byte_length": 1057,
+        "dimensions": [
+          72,
+          64
+        ],
+        "level": 1,
+        "mode": "RGBA",
+        "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_01.png",
+        "sha256": "04f254bc0d39e54d4e9449e01c0f1334ca07875f51e3021e1e1c969ddeeab940"
+      },
+      "texture": "Eyebrow19",
+      "vertex_maxwell_cbuf3": {
+        "byte_length": 64,
+        "float32_values": [
+          0.33806920051574707,
+          0.12447371333837509,
+          0.0,
+          -0.05560094118118286,
+          0.1460227519273758,
+          -0.31335997581481934,
+          0.0,
+          0.18016701936721802,
+          0.0,
+          0.0,
+          0.0024999999441206455,
+          0.5,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fully_exact": true,
+        "packed_artifact_byte_offset": 192,
+        "producer": "FUN_7101d75d68 -> FUN_7101d76bf0 -> FUN_7101d71620 transpose",
+        "stored_matrix_before_FUN_7101d71620_transpose_raw_hex": "6817ad3efd86153e000000000000000013ecfe3db870a0be000000000000000000000000000000000ad7233b00000000d0bd63bdb47d383e0000003f0000803f",
+        "title_type": "MiiMaskVertexTransformConstants",
+        "uploaded_raw_hex": "6817ad3e13ecfe3d00000000d0bd63bdfd86153eb870a0be00000000b47d383e00000000000000000ad7233b0000003f0000000000000000000000000000803f",
+        "uploaded_sha256": "a5a76b2e813937162f959c87e51e70d2c12f023812b542048144a0117cc42226"
+      }
+    },
+    {
+      "dispatcher_case": 5,
+      "draw_index": 4,
+      "fragment_maxwell_cbuf3": {
+        "active_branch_required_ranges_fully_known": true,
+        "active_branch_required_word_offsets": [
+          0,
+          16,
+          20,
+          24
+        ],
+        "byte_length": 64,
+        "data_raw_hex": "030000000000000000000000000000008180803e8180003e8180803d0000803f0000000000000000000000000000803f0000000000000000000000000000803f",
+        "data_sha256": "842da13518963473bd46877aef6a552612c7822ea8cf436c44d39761f6ca9ea3",
+        "full_native_bytes_claimed": false,
+        "known_mask_raw_hex": "ffffffff000000000000000000000000ffffffffffffffffffffffffffffffff000000000000000000000000ffffffff000000000000000000000000ffffffff",
+        "known_mask_sha256": "4d7b11db6898b05f13367bd8ecb36038fb13ea4d135bd3b6484b3911c895e59a",
+        "packed_artifact_byte_offset": 256,
+        "producer_write_width": "selector uint32 plus FUN_7100ba7910 color packing: source float3 copied to xyz and destination w explicitly set to 1.0; selector padding remains unclaimed",
+        "title_type": "MiiMaskFragmentDrawConstants",
+        "unknown_bytes_are_zero_only_as_host_materialization": true
+      },
+      "geometry_variant": 2,
+      "mirrored": true,
+      "mode": 3,
+      "name": "eyebrow_character_left",
+      "native_emulation": {
+        "color_lookup_independence_checked": true,
+        "resource_callback_counts": {
+          "external_color_0x7102e95fd0": 1,
+          "resource_vtable_0x18": 1,
+          "resource_vtable_0x20": 1,
+          "resource_vtable_0x28": 1,
+          "resource_vtable_0x98": 1,
+          "resource_vtable_0xa8": 1,
+          "resource_vtable_0xb8": 1
+        }
+      },
+      "selected_mip": {
+        "byte_length": 1057,
+        "dimensions": [
+          72,
+          64
+        ],
+        "level": 1,
+        "mode": "RGBA",
+        "path": "renderer/assets/face_sprite_mips/Eyebrow19/mip_01.png",
+        "sha256": "04f254bc0d39e54d4e9449e01c0f1334ca07875f51e3021e1e1c969ddeeab940"
+      },
+      "texture": "Eyebrow19",
+      "vertex_maxwell_cbuf3": {
+        "byte_length": 64,
+        "float32_values": [
+          0.33806920051574707,
+          -0.12447371333837509,
+          0.0,
+          0.055600881576538086,
+          -0.1460227519273758,
+          -0.31335997581481934,
+          0.0,
+          0.18016701936721802,
+          0.0,
+          0.0,
+          0.0024999999441206455,
+          0.5,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fully_exact": true,
+        "packed_artifact_byte_offset": 256,
+        "producer": "FUN_7101d75d68 -> FUN_7101d76bf0 -> FUN_7101d71620 transpose",
+        "stored_matrix_before_FUN_7101d71620_transpose_raw_hex": "6817ad3efd8615be000000000000000013ecfebdb870a0be000000000000000000000000000000000ad7233b00000000c0bd633db47d383e0000003f0000803f",
+        "title_type": "MiiMaskVertexTransformConstants",
+        "uploaded_raw_hex": "6817ad3e13ecfebd00000000c0bd633dfd8615beb870a0be00000000b47d383e00000000000000000ad7233b0000003f0000000000000000000000000000803f",
+        "uploaded_sha256": "8ee95b6767fdc39f79de4e15d6ad6dad538f446cd1e711440697969d06f17015"
+      }
+    },
+    {
+      "dispatcher_case": 16,
+      "draw_index": 5,
+      "fragment_maxwell_cbuf3": {
+        "active_branch_required_ranges_fully_known": true,
+        "active_branch_required_word_offsets": [
+          0,
+          32,
+          36,
+          40,
+          48,
+          52,
+          56
+        ],
+        "byte_length": 64,
+        "data_raw_hex": "070000000000000000000000000000000000000000000000000000000000803f0000803f0000803f0000803f0000803faaa8283e8482023fd6d4543f0000803f",
+        "data_sha256": "25ee8f70a4737d048427ab78e282b4fd5ab120951c2915205fb52920d8c09234",
+        "full_native_bytes_claimed": false,
+        "known_mask_raw_hex": "ffffffff000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "known_mask_sha256": "75398e45f2ab73daf0443428cdf9ffebd79d15a8ccd90deade48debc43ccdcba",
+        "packed_artifact_byte_offset": 320,
+        "producer_write_width": "selector uint32 plus FUN_7100ba7910 color packing: source float3 copied to xyz and destination w explicitly set to 1.0; selector padding remains unclaimed",
+        "title_type": "MiiMaskFragmentDrawConstants",
+        "unknown_bytes_are_zero_only_as_host_materialization": true
+      },
+      "geometry_variant": 1,
+      "mirrored": false,
+      "mode": 7,
+      "name": "eye_character_right",
+      "native_emulation": {
+        "color_lookup_independence_checked": true,
+        "resource_callback_counts": {
+          "external_color_0x7102e95fd0": 1,
+          "external_color_0x7102e96600": 1,
+          "external_color_0x7102e96610": 1,
+          "resource_vtable_0x18": 1,
+          "resource_vtable_0x20": 1,
+          "resource_vtable_0x28": 1,
+          "resource_vtable_0x98": 1,
+          "resource_vtable_0xa8": 1,
+          "resource_vtable_0xb8": 1,
+          "resource_vtable_0xc0": 1
+        }
+      },
+      "selected_mip": {
+        "byte_length": 1663,
+        "dimensions": [
+          76,
+          64
+        ],
+        "level": 1,
+        "mode": "RGBA",
+        "path": "renderer/assets/face_sprite_mips/Eye002/mip_01.png",
+        "sha256": "9670c2beedc02428832f7a3ca332068535b4288d4a0b5c01e0cca2b5df3f6d55"
+      },
+      "texture": "Eye002",
+      "vertex_maxwell_cbuf3": {
+        "byte_length": 64,
+        "float32_values": [
+          0.32682913541793823,
+          0.0,
+          0.0,
+          -0.055600881576538086,
+          0.0,
+          -0.2525574862957001,
+          0.0,
+          0.01985454559326172,
+          0.0,
+          0.0,
+          0.0024999999441206455,
+          0.5,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fully_exact": true,
+        "packed_artifact_byte_offset": 320,
+        "producer": "FUN_7101d75d68 -> FUN_7101d76bf0 -> FUN_7101d71620 transpose",
+        "stored_matrix_before_FUN_7101d71620_transpose_raw_hex": "2656a73e00000000000000000000000000000000374f81be000000000000000000000000000000000ad7233b00000000c0bd63bd00a6a23c0000003f0000803f",
+        "title_type": "MiiMaskVertexTransformConstants",
+        "uploaded_raw_hex": "2656a73e0000000000000000c0bd63bd00000000374f81be0000000000a6a23c00000000000000000ad7233b0000003f0000000000000000000000000000803f",
+        "uploaded_sha256": "71d4cc749b016aee1287dda3cdabd7ea59e3b9b29401bb22532e9d54da9c6054"
+      }
+    },
+    {
+      "dispatcher_case": 17,
+      "draw_index": 6,
+      "fragment_maxwell_cbuf3": {
+        "active_branch_required_ranges_fully_known": true,
+        "active_branch_required_word_offsets": [
+          0,
+          32,
+          36,
+          40,
+          48,
+          52,
+          56
+        ],
+        "byte_length": 64,
+        "data_raw_hex": "070000000000000000000000000000000000000000000000000000000000803f0000803f0000803f0000803f0000803faaa8283e8482023fd6d4543f0000803f",
+        "data_sha256": "25ee8f70a4737d048427ab78e282b4fd5ab120951c2915205fb52920d8c09234",
+        "full_native_bytes_claimed": false,
+        "known_mask_raw_hex": "ffffffff000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "known_mask_sha256": "75398e45f2ab73daf0443428cdf9ffebd79d15a8ccd90deade48debc43ccdcba",
+        "packed_artifact_byte_offset": 384,
+        "producer_write_width": "selector uint32 plus FUN_7100ba7910 color packing: source float3 copied to xyz and destination w explicitly set to 1.0; selector padding remains unclaimed",
+        "title_type": "MiiMaskFragmentDrawConstants",
+        "unknown_bytes_are_zero_only_as_host_materialization": true
+      },
+      "geometry_variant": 2,
+      "mirrored": true,
+      "mode": 7,
+      "name": "eye_character_left",
+      "native_emulation": {
+        "color_lookup_independence_checked": true,
+        "resource_callback_counts": {
+          "external_color_0x7102e95fd0": 1,
+          "external_color_0x7102e96600": 1,
+          "external_color_0x7102e96610": 1,
+          "resource_vtable_0x18": 1,
+          "resource_vtable_0x20": 1,
+          "resource_vtable_0x28": 1,
+          "resource_vtable_0x98": 1,
+          "resource_vtable_0xa8": 1,
+          "resource_vtable_0xb8": 1,
+          "resource_vtable_0xc0": 1
+        }
+      },
+      "selected_mip": {
+        "byte_length": 1663,
+        "dimensions": [
+          76,
+          64
+        ],
+        "level": 1,
+        "mode": "RGBA",
+        "path": "renderer/assets/face_sprite_mips/Eye002/mip_01.png",
+        "sha256": "9670c2beedc02428832f7a3ca332068535b4288d4a0b5c01e0cca2b5df3f6d55"
+      },
+      "texture": "Eye002",
+      "vertex_maxwell_cbuf3": {
+        "byte_length": 64,
+        "float32_values": [
+          0.32682913541793823,
+          0.0,
+          0.0,
+          0.055600881576538086,
+          0.0,
+          -0.2525574862957001,
+          0.0,
+          0.01985454559326172,
+          0.0,
+          0.0,
+          0.0024999999441206455,
+          0.5,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fully_exact": true,
+        "packed_artifact_byte_offset": 384,
+        "producer": "FUN_7101d75d68 -> FUN_7101d76bf0 -> FUN_7101d71620 transpose",
+        "stored_matrix_before_FUN_7101d71620_transpose_raw_hex": "2656a73e00000000000000000000000000000000374f81be000000000000000000000000000000000ad7233b00000000c0bd633d00a6a23c0000003f0000803f",
+        "title_type": "MiiMaskVertexTransformConstants",
+        "uploaded_raw_hex": "2656a73e0000000000000000c0bd633d00000000374f81be0000000000a6a23c00000000000000000ad7233b0000003f0000000000000000000000000000803f",
+        "uploaded_sha256": "a4d6edde96de87d7b13a4e7fe6cf1585d52f701115f1eb12e1825c6a28fce1b0"
+      }
+    }
+  ],
+  "native_execution_provenance": {
+    "callback_boundary": "only the Mii render-resource accessor vtable and color lookups are replaced; geometry answers are checked against exact target/resource bytes, while color scratch is varied and proven not to affect any vertex payload",
+    "decompiled_source": {
+      "byte_length": 4030968,
+      "path": "src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+    },
+    "emulation_dependencies": {
+      "python_lz4": "NSO rodata block decompression",
+      "python_unicorn": "original AArch64 instruction execution"
+    },
+    "executed_function_ranges": [
+      {
+        "byte_length": 3720,
+        "end_virtual_address_exclusive": "0x7101d76bf0",
+        "raw_name": "FUN_7101d75d68",
+        "sha256": "637ded5281d8c72be67a1b192e79f26201f32661155ad341941f520378188a5e",
+        "start_virtual_address": "0x7101d75d68"
+      },
+      {
+        "byte_length": 1344,
+        "end_virtual_address_exclusive": "0x7101d77130",
+        "raw_name": "FUN_7101d76bf0",
+        "sha256": "e652c8839e43c934df8c47632e830444bb1047a777a31cb78b161d297d44f766",
+        "start_virtual_address": "0x7101d76bf0"
+      },
+      {
+        "byte_length": 304,
+        "end_virtual_address_exclusive": "0x7101d77260",
+        "raw_name": "FUN_7101d77130",
+        "sha256": "ee13dc7bd4724af87b8e298446a5f7ed44ec697e47e7059bcccde67d9ca02f7f",
+        "start_virtual_address": "0x7101d77130"
+      },
+      {
+        "byte_length": 784,
+        "end_virtual_address_exclusive": "0x7101d73b50",
+        "raw_name": "FUN_7101d73840",
+        "sha256": "46f4a4b969dd07bd4d0a969e4156b64401f3e8eb7a49d7ef0e91591ddba51b6e",
+        "start_virtual_address": "0x7101d73840"
+      },
+      {
+        "byte_length": 912,
+        "end_virtual_address_exclusive": "0x7101d73ee0",
+        "raw_name": "FUN_7101d73b50",
+        "sha256": "be0ee3933d3af8150286c1f5b22ed41a65ee54fb7ceb35cc0ef8a4ba6ba376bb",
+        "start_virtual_address": "0x7101d73b50"
+      },
+      {
+        "byte_length": 912,
+        "end_virtual_address_exclusive": "0x7101d75b10",
+        "raw_name": "FUN_7101d75780",
+        "sha256": "b98847f0eb731df87e2bc6f6fcec2e1566b30ac51d9ea514e4ed6be9b58fe076",
+        "start_virtual_address": "0x7101d75780"
+      },
+      {
+        "byte_length": 292,
+        "end_virtual_address_exclusive": "0x7101d71744",
+        "raw_name": "FUN_7101d71620",
+        "sha256": "39953bf8505af190b7e7b4fffce3086d8c7fb4f3cb371856958ed7d66e7b4b37",
+        "start_virtual_address": "0x7101d71620"
+      },
+      {
+        "byte_length": 48,
+        "end_virtual_address_exclusive": "0x7100ba7940",
+        "raw_name": "FUN_7100ba7910",
+        "sha256": "dad051d622b54b7868481437a4aeb84734895b9bc544de322d9a9e07ba50384f",
+        "start_virtual_address": "0x7100ba7910"
+      }
+    ],
+    "main_elf": {
+      "byte_length": 65253956,
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a"
+    },
+    "main_glob_dat_to_sdk_symbols": [
+      {
+        "byte_length": 4,
+        "demangled_name": "nn::util::detail::FloatPiDivided2",
+        "dynamic_symbol_index": 115,
+        "dynamic_symbol_name": "_ZN2nn4util6detail15FloatPiDivided2E",
+        "main_glob_dat_destination": "0x7103a66e68",
+        "raw_hex": "db0fc93f",
+        "sdk_virtual_address": "0x9141d0",
+        "sha256": "ffe8a9dbe92ed9fa0338c87ae9707c16511c68059475793054e2d246bddead75"
+      },
+      {
+        "byte_length": 4,
+        "demangled_name": "nn::util::detail::FloatPi",
+        "dynamic_symbol_index": 116,
+        "dynamic_symbol_name": "_ZN2nn4util6detail7FloatPiE",
+        "main_glob_dat_destination": "0x7103a66e70",
+        "raw_hex": "db0f4940",
+        "sdk_virtual_address": "0x9141c8",
+        "sha256": "3a1d8964b4fe305b5d25d90b8ba168d95e559961da4a9b22df4558cc257e7e11"
+      },
+      {
+        "byte_length": 20,
+        "demangled_name": "nn::util::detail::SinCoefficients",
+        "dynamic_symbol_index": 117,
+        "dynamic_symbol_name": "_ZN2nn4util6detail15SinCoefficientsE",
+        "main_glob_dat_destination": "0x7103a66e78",
+        "raw_hex": "656ad432321b3936bd0f50399688083cabaa2a3e",
+        "sdk_virtual_address": "0x912d78",
+        "sha256": "951d4192970f4caf1353e6cb65780aa7e571af65008b85c6e736e8dffe4cd2b1"
+      },
+      {
+        "byte_length": 20,
+        "demangled_name": "nn::util::detail::CosCoefficients",
+        "dynamic_symbol_index": 118,
+        "dynamic_symbol_name": "_ZN2nn4util6detail15CosCoefficientsE",
+        "main_glob_dat_destination": "0x7103a66e80",
+        "raw_hex": "6fb98c34cfc9cf375d0ab63aa8aa2a3d0000003f",
+        "sdk_virtual_address": "0x912d8c",
+        "sha256": "cbe6b29110f85ea337433cdab9d60c591fbd39ff39f25ddd687e9a1de4d1093b"
+      },
+      {
+        "byte_length": 4,
+        "demangled_name": "nn::util::detail::Float1Divided2Pi",
+        "dynamic_symbol_index": 119,
+        "dynamic_symbol_name": "_ZN2nn4util6detail16Float1Divided2PiE",
+        "main_glob_dat_destination": "0x7103a66e88",
+        "raw_hex": "83f9223e",
+        "sdk_virtual_address": "0x9141d8",
+        "sha256": "1648c99fd1eb13d11073d9725893dbf161a5ddbc37fe943b26d2b8fb9b9ca7fe"
+      },
+      {
+        "byte_length": 4,
+        "demangled_name": "nn::util::detail::Float2Pi",
+        "dynamic_symbol_index": 120,
+        "dynamic_symbol_name": "_ZN2nn4util6detail8Float2PiE",
+        "main_glob_dat_destination": "0x7103a66e90",
+        "raw_hex": "db0fc940",
+        "sdk_virtual_address": "0x9141cc",
+        "sha256": "12d85026b5109a3119231704608d5991a63d8d397d2867a9fc522305810ddb76"
+      },
+      {
+        "byte_length": 4,
+        "demangled_name": "nn::util::detail::AngleIndexHalfRound",
+        "dynamic_symbol_index": 121,
+        "dynamic_symbol_name": "_ZN2nn4util6detail19AngleIndexHalfRoundE",
+        "main_glob_dat_destination": "0x7103a66ee8",
+        "raw_hex": "00000080",
+        "sdk_virtual_address": "0x9141ec",
+        "sha256": "6d58692645c9d1cfaf13541cbd258f86193ef63c2f1d38f6bbca9617372d7bd6"
+      },
+      {
+        "byte_length": 4096,
+        "demangled_name": "nn::util::detail::SinCosSampleTable",
+        "dynamic_symbol_index": 122,
+        "dynamic_symbol_name": "_ZN2nn4util6detail17SinCosSampleTableE",
+        "main_glob_dat_destination": "0x7103a66ef0",
+        "raw_hex": null,
+        "sdk_virtual_address": "0x912dc0",
+        "sha256": "ccb2ac749e8cd14739e4df1adcfa01202766372a0e638df8042838c1740ecad3"
+      },
+      {
+        "byte_length": 4,
+        "demangled_name": "nn::util::detail::FloatDegree180",
+        "dynamic_symbol_index": 151,
+        "dynamic_symbol_name": "_ZN2nn4util6detail14FloatDegree180E",
+        "main_glob_dat_destination": "0x7103a67640",
+        "raw_hex": "00003443",
+        "sdk_virtual_address": "0x9141dc",
+        "sha256": "21b9ff9cf99927e92d16d0fcc3190c14680a24c02dad89f9777d5107fdeb5db1"
+      }
+    ],
+    "normal_expression": {
+      "blank_override_fields": {
+        "EyeLocationName": "",
+        "EyePartsLName": "",
+        "EyePartsRName": "",
+        "EyebrowLocationName": "",
+        "EyebrowPartsLName": "",
+        "EyebrowPartsRName": "",
+        "MouthLocationName": "",
+        "MouthPartsName": "",
+        "MustacheLocationName": "",
+        "MustachePartsName": ""
+      },
+      "dictionary_offset": "0x2f80",
+      "row_index": 45
+    },
+    "rotation_correction_table": {
+      "entry_count": 21,
+      "raw_hex": "000000000000000004000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "selected": {
+        "eye_category_2": 4,
+        "eyebrow_category_3": 6,
+        "mouth_category_5": 0
+      },
+      "sha256": "5f7fa57d4f11bc8537d5cde4acac4a9c5de09aba1c9d237a657fb6d01a9d34f4",
+      "source_virtual_address": "0x71032bbc6c",
+      "values_int32": [
+        0,
+        0,
+        4,
+        6,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "sdk_exact_ranges": [
+      {
+        "byte_length": 20,
+        "name": "SinCoefficients",
+        "raw_hex": "656ad432321b3936bd0f50399688083cabaa2a3e",
+        "sha256": "951d4192970f4caf1353e6cb65780aa7e571af65008b85c6e736e8dffe4cd2b1",
+        "virtual_address": "0x912d78"
+      },
+      {
+        "byte_length": 20,
+        "name": "CosCoefficients",
+        "raw_hex": "6fb98c34cfc9cf375d0ab63aa8aa2a3d0000003f",
+        "sha256": "cbe6b29110f85ea337433cdab9d60c591fbd39ff39f25ddd687e9a1de4d1093b",
+        "virtual_address": "0x912d8c"
+      },
+      {
+        "byte_length": 4096,
+        "name": "SinCosSampleTable",
+        "raw_hex": null,
+        "sha256": "ccb2ac749e8cd14739e4df1adcfa01202766372a0e638df8042838c1740ecad3",
+        "virtual_address": "0x912dc0"
+      },
+      {
+        "byte_length": 40,
+        "name": "scalar_neighborhood",
+        "raw_hex": "db0f4940db0fc940db0fc93fe4cb964083f9223e00003443acc5273700000034f304353f00000080",
+        "sha256": "fe70b3feb2414c323f6f8732f0521d686a48b8ad9964b58265cebab2081c762d",
+        "virtual_address": "0x9141c8"
+      }
+    ],
+    "sdk_nso": {
+      "byte_length": 6198560,
+      "path": "../ltdDemo_filesystem/program/0/sdk",
+      "sha256": "25cb36687a664e48f77fe8e8563ef13cc028336e621c6c8b396ee36f5199be64"
+    },
+    "sdk_rodata_decompression": {
+      "compressed_byte_length": 2183173,
+      "decompressed_byte_length": 5024236,
+      "decompressed_sha256": "b44b2414c6fff32e056e2f3b805ab6099d6687708bc6e405dee91efe9f034fa9",
+      "file_offset": 3934801,
+      "memory_offset": "0x662000",
+      "nso_flags": "0x3f",
+      "segment": "rodata"
+    },
+    "selected_part_axes": [
+      {
+        "field": "AxisForExpression",
+        "logical_name": "eye",
+        "source": {
+          "byte_length": 524,
+          "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eye002.mii__Parts.bgyml",
+          "sha256": "37da75a8b23944721e5becea54a2af01225c28efc8be4c754413e24187410526"
+        },
+        "x_file_offset": "0x1e8",
+        "x_float32": 0.38600000739097595,
+        "x_raw_hex": "cba1c53e",
+        "y_file_offset": "0x1f0",
+        "y_float32": -0.03700000047683716,
+        "y_raw_hex": "508d17bd"
+      },
+      {
+        "field": "AxisForExpression",
+        "logical_name": "eyebrow",
+        "source": {
+          "byte_length": 304,
+          "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Eyebrow19.mii__Parts.bgyml",
+          "sha256": "fbb284232dcf45e4020d5f27d00991e21599202b0e24a3fc9cce5f818a46307e"
+        },
+        "x_file_offset": "0x124",
+        "x_float32": 0.25,
+        "x_raw_hex": "0000803e",
+        "y_file_offset": "0x12c",
+        "y_float32": 0.07999999821186066,
+        "y_raw_hex": "0ad7a33d"
+      },
+      {
+        "field": "RotateAxis",
+        "logical_name": "mustache",
+        "source": {
+          "byte_length": 304,
+          "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mustache03.mii__Parts.bgyml",
+          "sha256": "c4af28882a97be4e2d7720318ff7d7fbd0bf6fa0476da289c6af0ffb444b4b0f"
+        },
+        "x_file_offset": "0x124",
+        "x_float32": 0.0,
+        "x_raw_hex": "00000000",
+        "y_file_offset": "0x12c",
+        "y_float32": 0.04800000041723251,
+        "y_raw_hex": "a69b443d"
+      },
+      {
+        "field": "part origin default",
+        "logical_name": "mouth",
+        "provenance": "selected Parts BGYML has no origin override; get_mii_part_origin returns the zero-initialized resource default",
+        "raw_hex": "0000000000000000",
+        "source": {
+          "byte_length": 240,
+          "path": "../ltdDemo_converted_assets/archives_extracted/1/Pack/MiiParts/Mii/Parts/Mouth015.mii__Parts.bgyml",
+          "sha256": "e4837e47df45dfb46779af787daa229447e625ea8df7660088b2293f03c884d6"
+        },
+        "value_float32": [
+          0.0,
+          0.0
+        ]
+      }
+    ]
+  },
+  "packed_artifacts": {
+    "fragment_maxwell_cbuf3_active_data": {
+      "byte_length": 448,
+      "path": "renderer/assets/mii_mask_runtime/kestron_fragment_cbuf3_active_data.bin",
+      "sha256": "805293b7c0fd4d762bbbe7510a17a08ba0a6ddcef4aecb2e09497186dbaec8fb"
+    },
+    "fragment_maxwell_cbuf3_known_mask": {
+      "byte_length": 448,
+      "path": "renderer/assets/mii_mask_runtime/kestron_fragment_cbuf3_known_mask.bin",
+      "sha256": "d515ddae638a74a97d35b63cc52ec68341ea17e1829ead0c3d720eec62201473"
+    },
+    "layer_order": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      16,
+      17
+    ],
+    "stride_bytes_per_layer": 64,
+    "vertex_maxwell_cbuf3": {
+      "byte_length": 448,
+      "path": "renderer/assets/mii_mask_runtime/kestron_vertex_cbuf3.bin",
+      "sha256": "79c0dbe2365de2aa23f069a0511a0400ab4307d2da33e48fb8e271f585d2b2b3"
+    }
+  },
+  "schema_version": 1,
+  "target": {
+    "active_dispatcher_cases": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      16,
+      17
+    ],
+    "char_info_fields_used": {
+      "eye_aspect": 2,
+      "eye_rotate": 4,
+      "eye_scale": 3,
+      "eye_type": 2,
+      "eye_x": 2,
+      "eye_y": 12,
+      "eyebrow_aspect": 3,
+      "eyebrow_rotate": 4,
+      "eyebrow_scale": 4,
+      "eyebrow_type": 19,
+      "eyebrow_x": 4,
+      "eyebrow_y": 9,
+      "mouth_aspect": 3,
+      "mouth_rotate": 0,
+      "mouth_scale": 3,
+      "mouth_type": 15,
+      "mouth_y": 13,
+      "mustache_aspect": 3,
+      "mustache_scale": 4,
+      "mustache_type": 4,
+      "mustache_y": 9
+    },
+    "display_name": "Kestron",
+    "expression": "Normal",
+    "source": {
+      "byte_length": 434,
+      "path": "mii1.ltd",
+      "sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b"
+    }
+  }
+}

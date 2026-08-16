@@ -1,0 +1,327 @@
+{
+  "schema_version": 1,
+  "purpose": "Byte-exact ShareMii v3 container and current character fixture evidence. Unknown fields remain explicitly uninterpreted.",
+  "source_share_mii": {
+    "path": "mii2.ltd",
+    "sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+    "byte_length": 964
+  },
+  "container_layout": {
+    "format_header": {
+      "offset": 0,
+      "byte_length": 4
+    },
+    "mii_block": {
+      "offset": 4,
+      "byte_length": 156
+    },
+    "char_info": {
+      "offset": 8,
+      "byte_length": 152
+    },
+    "personality_and_voice": {
+      "offset": 160,
+      "byte_length": 72
+    },
+    "display_name": {
+      "offset": 232,
+      "byte_length": 64
+    },
+    "pronunciation": {
+      "offset": 296,
+      "byte_length": 128
+    },
+    "sexuality": {
+      "offset": 424,
+      "byte_length": 4
+    },
+    "canvas_marker": {
+      "offset": 428,
+      "byte_length": 4
+    },
+    "canvas_texture_payload": {
+      "offset": 432,
+      "byte_length": 219
+    },
+    "ugc_texture_marker": {
+      "offset": 651,
+      "byte_length": 4
+    },
+    "ugc_texture_payload": {
+      "offset": 655,
+      "byte_length": 309
+    }
+  },
+  "container_storage_types": {
+    "format_header": "u8 version, bool/u8 has_canvas, bool/u8 has_ugc_texture, u8 reserved",
+    "mii_block": "u32le CharInfoEx byte length followed by LtDMiiCharInfoEx[0x98]",
+    "char_info": "LtDMiiCharInfoEx[0x98]",
+    "personality_and_voice": "i32le[18]",
+    "display_name": "utf16le[32]",
+    "pronunciation": "utf16le[64]",
+    "sexuality": "u8[4]; first three bytes retain the checked love-gender flags",
+    "canvas_marker": "marker[4] = A3 A3 A3 A3",
+    "canvas_texture_payload": "opaque bytes; this fixture is one Zstandard frame",
+    "ugc_texture_marker": "marker[4] = A4 A4 A4 A4",
+    "ugc_texture_payload": "opaque bytes; this fixture is one Zstandard frame"
+  },
+  "markers": {
+    "canvas": "a3a3a3a3",
+    "ugc_texture": "a4a4a4a4"
+  },
+  "header": {
+    "version": 3,
+    "has_canvas": true,
+    "has_ugc_texture": true,
+    "reserved": 0,
+    "char_info_length": 152
+  },
+  "character": {
+    "char_info": {
+      "uuid_raw": "ef7c192c3e1eec4fa7e3d6103d5aec7c",
+      "uuid": "ef7c192c-3e1e-ec4f-a7e3-d6103d5aec7c",
+      "name": "no name",
+      "font_region": 0,
+      "gender": 0,
+      "height": 86,
+      "build": 48,
+      "region_move": 0,
+      "face_flags_raw": 0,
+      "faceline_type": 20,
+      "faceline_color": 85,
+      "wrinkle_lower_type": 0,
+      "wrinkle_lower_scale": 6,
+      "wrinkle_lower_aspect": 3,
+      "wrinkle_lower_x": 2,
+      "wrinkle_lower_y": 15,
+      "wrinkle_upper_type": 12,
+      "wrinkle_upper_scale": 0,
+      "wrinkle_upper_aspect": 6,
+      "wrinkle_upper_x": 0,
+      "wrinkle_upper_y": 25,
+      "makeup_upper_type": 0,
+      "makeup_upper_color": 89,
+      "makeup_upper_scale": 6,
+      "makeup_upper_aspect": 3,
+      "makeup_upper_x": 1,
+      "makeup_upper_y": 12,
+      "makeup_lower_type": 0,
+      "makeup_lower_color": 25,
+      "makeup_lower_scale": 5,
+      "makeup_lower_aspect": 3,
+      "makeup_lower_x": 6,
+      "makeup_lower_y": 19,
+      "hair_type": 206,
+      "hair_color_primary": 8,
+      "hair_color_secondary": 1,
+      "hair_front_type": 29,
+      "hair_back_type": 0,
+      "hair_style_flags_raw": 0,
+      "ear_type": 0,
+      "ear_scale": 2,
+      "ear_y": 4,
+      "eye_type": 18,
+      "eye_color": 8,
+      "eye_scale": 4,
+      "eye_aspect": 3,
+      "eye_rotate": 3,
+      "eye_x": 3,
+      "eye_y": 13,
+      "eye_shadow_color": 64,
+      "eye_highlight_type": 0,
+      "eye_highlight_scale": 0,
+      "eye_highlight_aspect": 0,
+      "eye_highlight_rotate": 0,
+      "eye_highlight_x": 0,
+      "eye_highlight_y": 0,
+      "eyelash_upper_type": 0,
+      "eyelash_upper_scale": 0,
+      "eyelash_upper_aspect": 0,
+      "eyelash_upper_rotate": 0,
+      "eyelash_upper_x": 0,
+      "eyelash_upper_y": 0,
+      "eyelash_lower_type": 0,
+      "eyelash_lower_scale": 0,
+      "eyelash_lower_aspect": 0,
+      "eyelash_lower_rotate": 0,
+      "eyelash_lower_x": 0,
+      "eyelash_lower_y": 0,
+      "eyelid_upper_type": 0,
+      "eyelid_upper_scale": 0,
+      "eyelid_upper_aspect": 0,
+      "eyelid_upper_rotate": 0,
+      "eyelid_upper_x": 0,
+      "eyelid_upper_y": 0,
+      "eyelid_lower_type": 0,
+      "eyelid_lower_scale": 0,
+      "eyelid_lower_aspect": 0,
+      "eyelid_lower_rotate": 0,
+      "eyelid_lower_x": 0,
+      "eyelid_lower_y": 0,
+      "eyebrow_type": 15,
+      "eyebrow_color": 8,
+      "eyebrow_scale": 3,
+      "eyebrow_aspect": 3,
+      "eyebrow_rotate": 6,
+      "eyebrow_x": 4,
+      "eyebrow_y": 13,
+      "nose_type": 19,
+      "nose_scale": 4,
+      "nose_y": 9,
+      "mouth_type": 15,
+      "mouth_color": 19,
+      "mouth_scale": 1,
+      "mouth_aspect": 6,
+      "mouth_rotate": 31,
+      "mouth_y": 12,
+      "beard_type": 0,
+      "beard_color": 8,
+      "stubble_type": 8,
+      "stubble_color": 8,
+      "mustache_type": 0,
+      "mustache_color": 8,
+      "mustache_scale": 4,
+      "mustache_aspect": 3,
+      "mustache_y": 6,
+      "glass_primary_type": 0,
+      "glass_primary_color": 8,
+      "glass_scale": 4,
+      "glass_aspect": 3,
+      "glass_y": 11,
+      "glass_lens_material_mode": 0,
+      "glass_lens_color": 8,
+      "mole_scale": 4,
+      "mole_x": 2,
+      "mole_y": 20,
+      "schema_version": 45,
+      "face_flags": {
+        "special_mii": false,
+        "bangs_side": false,
+        "back_dual_color": false,
+        "bangs_dual_color": false,
+        "eye_shadow_enabled": false,
+        "mouth_inverted": false,
+        "mustache_inverted": false,
+        "mole_enabled": false
+      },
+      "hair_style_flags": {
+        "left_side": false,
+        "right_side": false,
+        "reserved": 0
+      }
+    },
+    "personality_and_voice": {
+      "sociability": 3,
+      "audaciousness": 7,
+      "activeness": 2,
+      "commonsense": 5,
+      "gaiety": 6,
+      "voice_formant": 16,
+      "voice_speed": 35,
+      "voice_intonation": 5,
+      "voice_pitch": 23,
+      "voice_tension": -5,
+      "voice_preset_type_hash": 1658541559,
+      "face_gender_hash": 232570486,
+      "pronoun_type_hash": 1004918996,
+      "cloth_style_hash": 232570486,
+      "birthday_year": 1998,
+      "birthday_day": 15,
+      "birthday_direct_age": -1,
+      "birthday_month": 4,
+      "voice_preset_type": null,
+      "face_gender": "male",
+      "pronoun_type": "he",
+      "cloth_style": "male"
+    },
+    "display_name": "Johnny Thunder",
+    "pronunciation": "Johnny Thunder",
+    "sexuality": {
+      "male": true,
+      "female": true,
+      "third": true,
+      "raw": [
+        1,
+        1,
+        1,
+        0
+      ],
+      "serialized_length": 4,
+      "uninterpreted_fourth_byte": 0
+    }
+  },
+  "embedded_payloads": {
+    "canvas": {
+      "offset": 432,
+      "byte_length": 219,
+      "sha256": "20ed6932347de1baf86c475697c84e102ffdf6402e42bf0c48e62888bc2845c2",
+      "declared_present": true,
+      "compression": "zstandard",
+      "decoded_byte_length": 262144,
+      "decoded_sha256": "cd8eba37421be96b5a78446995d00e6f47368a72467380c0fe5cb541dca9debf"
+    },
+    "ugc_texture": {
+      "offset": 655,
+      "byte_length": 309,
+      "sha256": "d1f8069ddba2f2bd63767af716cba864bf903bf8465df49dd2ce43d8af8462d0",
+      "declared_present": true,
+      "compression": "zstandard",
+      "decoded_byte_length": 131072,
+      "decoded_sha256": "500fed2a6b81e9f4a6e149153572abc0548638a33a6472ee661cb6c64f16648f"
+    }
+  },
+  "local_decomp_evidence": [
+    {
+      "address": "0x7101d68ae8",
+      "name": "validate_mii_char_info_ex",
+      "category": "mii_character_data/validation",
+      "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc:51727",
+      "observation": "Validates the title's extended character record and reads its final schema byte at CharInfoEx +0x97."
+    },
+    {
+      "address": "0x7101d69220",
+      "name": "convert_nn_mii_char_info_to_char_info_ex",
+      "category": "mii_character_data/conversion",
+      "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc:52282",
+      "observation": "Writes hair_type as a ushort at CharInfoEx +0x44."
+    },
+    {
+      "address": "0x7101d69878",
+      "name": "mii_char_info_ex_appearance_equals",
+      "category": "mii_character_data/comparison",
+      "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc:52554",
+      "observation": "Compares hair_type as a short at CharInfoEx +0x44."
+    },
+    {
+      "address": "0x7101d69fdc",
+      "name": "migrate_legacy_mii_char_info_ex_in_place",
+      "category": "mii_character_data/migration",
+      "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc:52830",
+      "observation": "Reads schema_version at CharInfoEx +0x97, preserves the ushort at +0x44, and recognizes schema 45 as current."
+    },
+    {
+      "address": "0x7101d68ae8",
+      "name": "validate_mii_char_info_ex",
+      "category": "mii_character_data/validation",
+      "source": "src/functions/internal/batch_04/7101d00000/2466_functions.inc:51866",
+      "observation": "Validates the byte at CharInfoEx +0x92 as less than 3 and the adjacent byte at +0x93 as less than 100. These are the glass lens material mode and lens common-color index, not Glass PartsIndex selectors."
+    }
+  ],
+  "container_codec_cross_check": {
+    "project": "@alexislours/ltd-sharemii",
+    "source_url": "https://github.com/alexislours/ltd-save-editor/blob/d2afc2cf8774374e8f5365d15130a1e4fa5cc1d5/packages/ltd-sharemii/src/codec.ts",
+    "observations": [
+      "v3 begins with a four-byte format header followed by a 156-byte Mii block",
+      "the Mii block is u32 length plus the 152-byte CharInfoEx payload",
+      "the fixed sexuality block is four bytes",
+      "canvas and UGC texture sections use A3x4 and A4x4 markers"
+    ]
+  },
+  "interpretation_boundaries": {
+    "sexuality_fourth_byte": "Serialized and exposed verbatim; no semantic name is supported by the checked local evidence or codec.",
+    "embedded_texture_pixels": "The payloads are preserved as opaque Zstandard frames. Decoded byte sizes and hashes are verified, but no dimensions or pixel format are inferred.",
+    "hair_type_206": "Exact little-endian ushort at CharInfoEx +0x44 (file offset 0x4c); it is not shifted or translated by the ShareMii v3 container parser.",
+    "glass_lens_material_mode": "Exact byte at CharInfoEx +0x92, validated in the closed range 0..2. It selects lens material/color/opacity behavior and does not select a second Glass Parts record; glass_primary_type remains the PartsIndex.",
+    "glass_lens_color": "Exact byte at CharInfoEx +0x93, validated in the closed range 0..99. It indexes the common-color table for lens material behavior and does not select a Glass Parts record."
+  }
+}

@@ -1,0 +1,548 @@
+{
+  "schema_version": 1,
+  "description": "Exact native BNTX mip chains for Johnny Thunder/mii2.ltd selected Head14, HairBack000, and attached HairFront029 material textures. Shared Dummy_Alb and Kestron's independent material cache are intentionally excluded.",
+  "generator": "tools/build_mii2_texture_mip_cache.py --write",
+  "decoder": "Switch-Toolbox FirstPlugin.TextureData.GetBitmap",
+  "target": {
+    "path": "mii2.ltd",
+    "byte_length": 964,
+    "sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+    "display_name": "Johnny Thunder"
+  },
+  "selection_manifest": {
+    "path": "renderer/mii2_active_parts.json",
+    "byte_length": 33632,
+    "sha256": "644182dfec5bad6b16325f984a4fca03c4e42e4f6560edd80f631e02b343dab0",
+    "target_sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+    "selector_count": 23,
+    "enabled_record_count": 7
+  },
+  "material_state": {
+    "path": "renderer/mii2_material_state.json",
+    "byte_length": 312087,
+    "sha256": "7ccc5aa83f07f91f56c6b182bf2f3b0f114e904917083738daf1f71914b6b928"
+  },
+  "program_ledger": {
+    "path": "renderer/mii2_gameuber_programs.json",
+    "byte_length": 50360,
+    "sha256": "293ccaeec0771567fb7abc04bc6f00cdf1bfb49d54b560b5725a7c280789b5e9"
+  },
+  "texture_count": 5,
+  "mip_level_count": 46,
+  "textures": [
+    {
+      "name": "MiiHead14_Head_Nmh",
+      "logical_part": "faceline",
+      "model_resource": "MiiHead14",
+      "material": "mt_Head",
+      "material_sampler": "_n0",
+      "shader_sampler": "_n0",
+      "program_key": "head",
+      "semantic_role": "GameAll 816 _n0 native packed normal/height binding",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHead14_Head_Nmh.bntx",
+      "source_byte_length": 356464,
+      "source_sha256": "c59625d809ac057995b4aa5136227e4567cd511d961c179ebea33294bdcb5053",
+      "width": 512,
+      "height": 512,
+      "mip_count": 10,
+      "format": "ASTC_4x4_UNORM",
+      "native_channels": "R,A,0,1",
+      "levels": [
+        {
+          "level": 0,
+          "width": 512,
+          "height": 512,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_00.png",
+          "byte_length": 170441,
+          "sha256": "151fbb1183b632846c149170bcce278610ee14d443ecfcac6e4490e392da6eb6"
+        },
+        {
+          "level": 1,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_01.png",
+          "byte_length": 70744,
+          "sha256": "4591da5b0301dae13599dc34ce745d7b71b60345dd8854f462f2782b63aba0c1"
+        },
+        {
+          "level": 2,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_02.png",
+          "byte_length": 25201,
+          "sha256": "e67b27cb40f5b74667c5f2f27059f2044b2a3eead719dc3ad1acb6b0319e6423"
+        },
+        {
+          "level": 3,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_03.png",
+          "byte_length": 8214,
+          "sha256": "07cd85e20eade9e7dbfaa80c93990a02dceb0c91f5e14fc986f1695bfb1687d2"
+        },
+        {
+          "level": 4,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_04.png",
+          "byte_length": 2500,
+          "sha256": "71d321350ff2d7510fefedf3fcb215ed4e55f6aa1b70a9e736f40a1b2932b08e"
+        },
+        {
+          "level": 5,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_05.png",
+          "byte_length": 754,
+          "sha256": "15fe4f60924257f2aa743b7db7ff218e5596a513723857179b217e24829edb7a"
+        },
+        {
+          "level": 6,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_06.png",
+          "byte_length": 279,
+          "sha256": "756333e709b5aa77ca042d1b29ec9923771b65ad2f49f6c510ef2b3993fd7d7e"
+        },
+        {
+          "level": 7,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_07.png",
+          "byte_length": 165,
+          "sha256": "ff94ac36dd5ccabf924c90e61740e1528070abea29ddef2d5716ce9ffcf827da"
+        },
+        {
+          "level": 8,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_08.png",
+          "byte_length": 130,
+          "sha256": "f19ab7d36536c02e44560aa3399717aac20c40db6f1c65800cfc5e477616a4c1"
+        },
+        {
+          "level": 9,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHead14_Head_Nmh/mip_09.png",
+          "byte_length": 120,
+          "sha256": "72f23a858c39c3e7d4797c710b1d51d96c546f83dd009fb2f5d71bbdabb0b643"
+        }
+      ]
+    },
+    {
+      "name": "MiiHairBack000_Mim",
+      "logical_part": "hair",
+      "model_resource": "MiiHairBack000",
+      "material": "mt_Hair",
+      "material_sampler": "_o0",
+      "shader_sampler": "_o0",
+      "program_key": "hair_back",
+      "semantic_role": "GameAll 564 _o0 material-information binding",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHairBack000_Mim.bntx",
+      "source_byte_length": 57456,
+      "source_sha256": "2ad92a2176651d7305f8a329089430d4b0e706fed37769f542972854067b38a1",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,G,1,1",
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_00.png",
+          "byte_length": 7996,
+          "sha256": "cfc388f2148fb0832d63f08dc90801cd0a7c4d9fce382ebfe9132093e08c8f89"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_01.png",
+          "byte_length": 4825,
+          "sha256": "a76f6dd2c326436ea2f88953f6fada579f4e51c58cfc52d3a9734691bd2f55c5"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_02.png",
+          "byte_length": 2057,
+          "sha256": "80616a477123ff93b760126e59bd01f0cfb3fd4d93d62b7783f79e1c72e3fe5c"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_03.png",
+          "byte_length": 820,
+          "sha256": "ac3484ab07bc6519f93787e439383a6b5af590fc36e5dbfaa10a8b78528a26ce"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_04.png",
+          "byte_length": 401,
+          "sha256": "1b31499027aaf3d19c09ef6ca8351189d1063dd2aa8b87e29448acbd0364b329"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_05.png",
+          "byte_length": 204,
+          "sha256": "1701ba3ce1169b92067f15842c2ac7c6bf07ba63e9629e1729503d1d0986dcec"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_06.png",
+          "byte_length": 151,
+          "sha256": "d764a6a3e7abf7189fcf81ea0aa31f5ef39818c6eff6f91883f7dbd46e4dbf08"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_07.png",
+          "byte_length": 131,
+          "sha256": "fb7b030d908b9e55d12ff5f926d666cc00cd3709a6ec2be661b3c3b0a4ab13f9"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mim/mip_08.png",
+          "byte_length": 120,
+          "sha256": "533fd3965ebf0a26b5abe12a6c81dcf30df9323f7d29003778ac7ccaebe112f4"
+        }
+      ]
+    },
+    {
+      "name": "MiiHairBack000_Mgh",
+      "logical_part": "hair",
+      "model_resource": "MiiHairBack000",
+      "material": "mt_Hair",
+      "material_sampler": "user1",
+      "shader_sampler": "_user1",
+      "program_key": "hair_back",
+      "semantic_role": "GameAll 564 _user1 hair endpoint-gradient binding",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHairBack000_Mgh.bntx",
+      "source_byte_length": 53360,
+      "source_sha256": "ac4f092ce75ff87d6de8c92ec249edfcd043f4c10185f398fce53178b05fadf5",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,0,0,1",
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_00.png",
+          "byte_length": 8079,
+          "sha256": "5eabad67c49adfd7af62057692bc7792c75feb7cf1e1c8314342f12119f78a23"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_01.png",
+          "byte_length": 4897,
+          "sha256": "a6233e6394c86b870f31553e9886b228ff3147a573bf3d5c0e9da3b73277a7d0"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_02.png",
+          "byte_length": 2477,
+          "sha256": "1f870390564ef5004ba6ac3486f9f2ee75e9920af29d35fa29fdb09be774eb76"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_03.png",
+          "byte_length": 1018,
+          "sha256": "d9b8b9f0be1a09dcaf16096428543fa12524ddd51411fd31f6ef3ef9e59532a2"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_04.png",
+          "byte_length": 396,
+          "sha256": "f9f8d391874e7ed3e55c6499a01027fc25b782f9bdbf710a487d31ed6fbafab7"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_05.png",
+          "byte_length": 221,
+          "sha256": "ab67b387c9bf9a62bd979ff654b7b0ed337686a6c11598659ff1d17c3685ee73"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_06.png",
+          "byte_length": 151,
+          "sha256": "30d3a35e6b3dae5e0d2e63e7ff98c5a9d510b76cc4287a453abe0e55ec206d0e"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_07.png",
+          "byte_length": 128,
+          "sha256": "26b5715f14ea5fe40bb4ccd866dc9b43b5994fd24620d334cd4d842bf5f29c32"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairBack000_Mgh/mip_08.png",
+          "byte_length": 120,
+          "sha256": "d7806699d51543110d367a4f8d592e6f50e1f0989eb1ad9bf82feea8798235fe"
+        }
+      ]
+    },
+    {
+      "name": "MiiHairFront029_Mim",
+      "logical_part": "hair_front",
+      "model_resource": "MiiHairFront029",
+      "material": "mt_Hair",
+      "material_sampler": "_o0",
+      "shader_sampler": "_o0",
+      "program_key": "hair_front",
+      "semantic_role": "GameAll 564 _o0 material-information binding",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHairFront029_Mim.bntx",
+      "source_byte_length": 57456,
+      "source_sha256": "404316a84fde6340c2053497d01ebb49ad0e1e8d2bb7e7695d3b009410a52b26",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,G,1,1",
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_00.png",
+          "byte_length": 8632,
+          "sha256": "39d633ecf6dc2500535fd850e2fcf8795a12daeb53a1d428ddc5024bbe0c6a53"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_01.png",
+          "byte_length": 5278,
+          "sha256": "d6222b9be5766652f1f4c64098db17bb2c18c66c0cbd0ff2e6e84f674836fbe4"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_02.png",
+          "byte_length": 2448,
+          "sha256": "93d90aae5664635a23e3ecd29368812fc5522f8dae30933da3d1457c5bcbebbd"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_03.png",
+          "byte_length": 921,
+          "sha256": "06a097f349cdc62f7ce99069891f2665049e21721006fd7b230cb725b605edbf"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_04.png",
+          "byte_length": 407,
+          "sha256": "7de2cbee972d03fdbd14246cf82ba138065bd96c891b6b35aa58d2a66b1f9628"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_05.png",
+          "byte_length": 223,
+          "sha256": "de4f5631918e936f9aa8c99775b0425032a4db855617d06e46500ce80dad7444"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_06.png",
+          "byte_length": 161,
+          "sha256": "6337a5166bd0d83810be7c74de7562f12385357e517f7f61efd73ef7cc2c02cd"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_07.png",
+          "byte_length": 131,
+          "sha256": "bcb7a2ec505c7c20356abff0afa3c7a4f866000d1f1588f22eed47f18b054b88"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mim/mip_08.png",
+          "byte_length": 120,
+          "sha256": "7c68f2b2becddda97bca6b2e312daf48964e190c8af53b03e0a5f1c6fa3347ce"
+        }
+      ]
+    },
+    {
+      "name": "MiiHairFront029_Mgh",
+      "logical_part": "hair_front",
+      "model_resource": "MiiHairFront029",
+      "material": "mt_Hair",
+      "material_sampler": "user1",
+      "shader_sampler": "_user1",
+      "program_key": "hair_front",
+      "semantic_role": "GameAll 564 _user1 hair endpoint-gradient binding",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHairFront029_Mgh.bntx",
+      "source_byte_length": 53360,
+      "source_sha256": "d39e2bd123377eec267ec0de5870f02f061e3960dffcf8824866372c789adfff",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,0,0,1",
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_00.png",
+          "byte_length": 6055,
+          "sha256": "221ecfcbe074fd8365eb4382d1d3a8d50f5483cc2083a36a08b7d65f571f749e"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_01.png",
+          "byte_length": 3659,
+          "sha256": "fc69b1ab8ae72c11652346f9f356483359a2761eb1d6aefdfa0d69f821bc0ff9"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_02.png",
+          "byte_length": 1636,
+          "sha256": "e80db1dd80cb92c5e1880dcf0f5ec99483d962ab649098798b49f6cde1023495"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_03.png",
+          "byte_length": 755,
+          "sha256": "1257d41c3a87ad5a87cb14e5261d7fe936159ea6d3a37ba2f36728cf6dcf5a00"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_04.png",
+          "byte_length": 324,
+          "sha256": "4e1476dd4d007a1289fd1e2a431cd5d8cbb453d6f54e4d809d5c9bc86f147efb"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_05.png",
+          "byte_length": 203,
+          "sha256": "5db3ea221237184189cd20a00b026bbb3ab19e55a8e0cca81b4213a2c10f18a7"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_06.png",
+          "byte_length": 145,
+          "sha256": "05a61b7f597c1980826af02604c45699a2d11a4c4a3ecb6bd279f9cea0f15e67"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_07.png",
+          "byte_length": 128,
+          "sha256": "974762b509fe9439214dd2bff9dd33e91b81d6168228fd53322c43dcad6743a1"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips_mii2/MiiHairFront029_Mgh/mip_08.png",
+          "byte_length": 120,
+          "sha256": "e183571c37909703f463534649cc4a7b882c8d23ab66d5c1b094914a0b1ff5d0"
+        }
+      ]
+    }
+  ]
+}

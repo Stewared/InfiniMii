@@ -1,0 +1,2263 @@
+{
+  "schema_version": 1,
+  "description": "Exact BNTX mip levels decoded from the seven active Kestron mii1.ltd model-local head textures, the global mt_Mask Dummy_Alb fallback, and all twelve BodyBaseDefault material textures.",
+  "generator": "tools/build_texture_mip_cache.py",
+  "decoder": "Switch-Toolbox FirstPlugin.TextureData.GetBitmap",
+  "material_state_sources": [
+    {
+      "path": "renderer/mii_material_state.json",
+      "byte_length": 417213,
+      "sha256": "5e59925fb60c4f27c504b6b0d74371809a632d2a48ec3a2ddd632df0331d2463"
+    },
+    {
+      "path": "renderer/body_material_state.json",
+      "byte_length": 170770,
+      "sha256": "05921e090c85a0d3a741ef5a8b227fbe33415477651b7bb9cce49e651d58882e"
+    }
+  ],
+  "texture_count": 20,
+  "mip_level_count": 161,
+  "textures": [
+    {
+      "name": "MiiHead00_Head_Nmh",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHead00_Head_Nmh.bntx",
+      "source_byte_length": 356464,
+      "source_sha256": "dd73174c4f98fa6959d549dcf4e9925d45a5a04ab02c93215631da177c06b1a7",
+      "width": 512,
+      "height": 512,
+      "mip_count": 10,
+      "format": "ASTC_4x4_UNORM",
+      "native_channels": "R,A,0,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "repeat",
+      "sampler": {
+        "material_sampler": "_n0",
+        "shader_sampler": "_n0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "repeat",
+        "wrap_v": "repeat",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiHead00",
+          "model": "MiiHead00",
+          "material": "mt_Head"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 512,
+          "height": 512,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_00.png",
+          "byte_length": 132562,
+          "sha256": "f08d334e80a88e4d78b2b26ad2db2aea566d11f345778db30a7638bf96b02230"
+        },
+        {
+          "level": 1,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_01.png",
+          "byte_length": 58282,
+          "sha256": "e06becb0fcef28b444195d6eec9102e59736f3cc44b462fb084b5745bbf4ef11"
+        },
+        {
+          "level": 2,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_02.png",
+          "byte_length": 22644,
+          "sha256": "54d6121a657f2fbd2abc22830e34adf47412dce89f4dd0f6bf0ca32246acb013"
+        },
+        {
+          "level": 3,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_03.png",
+          "byte_length": 7952,
+          "sha256": "c9244ecd3963bdef687c60c11d9338740a88983269354a5dd99bd865c636e3c3"
+        },
+        {
+          "level": 4,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_04.png",
+          "byte_length": 2503,
+          "sha256": "382b0927f2d374c742ca79631c565aa780e1f47f314459a45b76446ddc7157bd"
+        },
+        {
+          "level": 5,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_05.png",
+          "byte_length": 751,
+          "sha256": "603237b018f47ca1790fb4a22589aaf2e9bc9db7da3927e118d9976eda0502c6"
+        },
+        {
+          "level": 6,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_06.png",
+          "byte_length": 270,
+          "sha256": "6f38791838b5eda0f463580c9c7be402201cfdc36550427ec4487a6ebbffa16b"
+        },
+        {
+          "level": 7,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_07.png",
+          "byte_length": 160,
+          "sha256": "d0c6f9f2996cd318ff71983301874c2a8b6dd1e260e191bcc0c4152b424145b5"
+        },
+        {
+          "level": 8,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_08.png",
+          "byte_length": 133,
+          "sha256": "1bc46f9ec187acab9042bcdfdf5f72e67bcad3248f6d0d0067eba2f03cd487ab"
+        },
+        {
+          "level": 9,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHead00_Head_Nmh/mip_09.png",
+          "byte_length": 120,
+          "sha256": "5b0cd8b4cad2384eb7eafca8a8977e6832fe0ec3f2e52ceb5c887d4cd869a3db"
+        }
+      ]
+    },
+    {
+      "name": "MiiHairAllLegacy121_Mim",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHairAllLegacy121_Mim.bntx",
+      "source_byte_length": 102512,
+      "source_sha256": "c9ea14c8950ca8b8bc704ed8690e20cc1a981a51cf1c5e93795ab6b3147f4ed5",
+      "width": 512,
+      "height": 256,
+      "mip_count": 10,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,G,B,A",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "repeat",
+      "sampler": {
+        "material_sampler": "_o0",
+        "shader_sampler": "_o0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "repeat",
+        "wrap_v": "repeat",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiHairAllLegacy121",
+          "model": "MiiHairAllLegacy121",
+          "material": "mt_Hair"
+        },
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiHairAllLegacy121",
+          "model": "MiiHairAllLegacyHat121",
+          "material": "mt_Hair"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 512,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_00.png",
+          "byte_length": 33779,
+          "sha256": "2d3aa35e2ee2ca4dbf5c2f60fefe0d1c8127c2efa7deaa2ec17960601c88c8bf"
+        },
+        {
+          "level": 1,
+          "width": 256,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_01.png",
+          "byte_length": 12663,
+          "sha256": "fc6f76de772e82ca0acc780cb8fb1302ef3c111ac592225ef8b21d050ce59d7b"
+        },
+        {
+          "level": 2,
+          "width": 128,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_02.png",
+          "byte_length": 4658,
+          "sha256": "f8202bf1ca6f1cd2e2d0a062d99d9e01dd0a6dbee2350fc26ef7cd56cb846ffb"
+        },
+        {
+          "level": 3,
+          "width": 64,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_03.png",
+          "byte_length": 1514,
+          "sha256": "517b4abc5f11197dde00c13d0c768b6c5ae0dacde56dde4597c820d93e04842d"
+        },
+        {
+          "level": 4,
+          "width": 32,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_04.png",
+          "byte_length": 556,
+          "sha256": "c948feda6a2a35f4e5438d73152739464f000ed78fe6d008c54d43c22cf15d09"
+        },
+        {
+          "level": 5,
+          "width": 16,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_05.png",
+          "byte_length": 276,
+          "sha256": "884cb40b984c6817af188aaf910b2fd61b39a1ca0fbc7ada266f933702626c9c"
+        },
+        {
+          "level": 6,
+          "width": 8,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_06.png",
+          "byte_length": 174,
+          "sha256": "9b0b4483fa11d9c79e724270fe0d2a6ac715d7bab5ec204882e29edb0808a85b"
+        },
+        {
+          "level": 7,
+          "width": 4,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_07.png",
+          "byte_length": 148,
+          "sha256": "45e7862e0b59a0f2957778e72731a1f4480dc2bf20d4c6ffb49eebe1ff4ad308"
+        },
+        {
+          "level": 8,
+          "width": 2,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_08.png",
+          "byte_length": 124,
+          "sha256": "17861aa8e14cb08da1955804bbf6fddbad7b6a1ef8d18bd4bd18db93c8f3f74b"
+        },
+        {
+          "level": 9,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mim/mip_09.png",
+          "byte_length": 120,
+          "sha256": "3207e2d870a3edcb5d05d9b468e59e8df04bfdb4aebfa865b6c6671606b53e9d"
+        }
+      ]
+    },
+    {
+      "name": "MiiHairAllLegacy121_Mgh",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiHairAllLegacy121_Mgh.bntx",
+      "source_byte_length": 94320,
+      "source_sha256": "e03ad27b992626d4dc4b737188beaf58710947464be2ee89b8714a7187103f86",
+      "width": 512,
+      "height": 256,
+      "mip_count": 10,
+      "format": "BC4_UNORM",
+      "native_channels": "R,0,0,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "linear",
+      "wrap_u_v": "repeat",
+      "sampler": {
+        "material_sampler": "user1",
+        "shader_sampler": "_user1",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "repeat",
+        "wrap_v": "repeat",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiHairAllLegacy121",
+          "model": "MiiHairAllLegacy121",
+          "material": "mt_Hair"
+        },
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiHairAllLegacy121",
+          "model": "MiiHairAllLegacyHat121",
+          "material": "mt_Hair"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 512,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_00.png",
+          "byte_length": 18374,
+          "sha256": "5968133a0e7a6ff4edfe220c1442ffb8cd1563bbddef4296bd564c5d8b2450b7"
+        },
+        {
+          "level": 1,
+          "width": 256,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_01.png",
+          "byte_length": 6822,
+          "sha256": "c4fce4760fd345566a389a0caab55f5dcf97c6716c3a4382d2242e931907ab40"
+        },
+        {
+          "level": 2,
+          "width": 128,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_02.png",
+          "byte_length": 2390,
+          "sha256": "1db9772d441a450140cc915d620d2c36324de70ec7d329987abacb26c2d5ead7"
+        },
+        {
+          "level": 3,
+          "width": 64,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_03.png",
+          "byte_length": 889,
+          "sha256": "9dbb9ad04e5b7186921ded2cad441752269291da120d213f2908d4ca56566eb8"
+        },
+        {
+          "level": 4,
+          "width": 32,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_04.png",
+          "byte_length": 371,
+          "sha256": "9afa57c7a1d3da2cbc978e43a7f79f8f0bc18f82ee3b655dd5524e1b96d1c77f"
+        },
+        {
+          "level": 5,
+          "width": 16,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_05.png",
+          "byte_length": 220,
+          "sha256": "df194eb7ec3cf5e44cc56ee4d4fa2ab26958006a28404b067e395824e7db44e5"
+        },
+        {
+          "level": 6,
+          "width": 8,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_06.png",
+          "byte_length": 162,
+          "sha256": "fb8b16ad624697acb9b67355701462cb1e3ddb5235dfbc078f399dc05bdb2974"
+        },
+        {
+          "level": 7,
+          "width": 4,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_07.png",
+          "byte_length": 134,
+          "sha256": "531012244dbdd8a9a44f6f885fd15c5d51094b7c2885d4f26150e34c11f00f74"
+        },
+        {
+          "level": 8,
+          "width": 2,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_08.png",
+          "byte_length": 124,
+          "sha256": "98f31c0db4862cdc23547a29aab0a72c5d9dd5742d94a107417d9aa6d243ba23"
+        },
+        {
+          "level": 9,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiHairAllLegacy121_Mgh/mip_09.png",
+          "byte_length": 120,
+          "sha256": "0dbcfeeda036aa5ce5f53a88ea6688b116586680a8dbcbbe6414cc8168d03a65"
+        }
+      ]
+    },
+    {
+      "name": "MiiNose06_Hgt",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiNose06_Hgt.bntx",
+      "source_byte_length": 20592,
+      "source_sha256": "a46de69eb0fb34f628506eb2c6a3e175a52b43f69458a0ec7854e84a8c7cff8f",
+      "width": 128,
+      "height": 128,
+      "mip_count": 8,
+      "format": "BC4_UNORM",
+      "native_channels": "R,R,R,R",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "repeat",
+      "sampler": {
+        "material_sampler": "_h0",
+        "shader_sampler": "_user0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "repeat",
+        "wrap_v": "repeat",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiNose06",
+          "model": "MiiNose06",
+          "material": "mt_Nose"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Hgt/mip_00.png",
+          "byte_length": 700,
+          "sha256": "e4bc931e388c09e2b2be182fef1bf30f7b8d7cc14be1416bf95363c7325cd6ac"
+        },
+        {
+          "level": 1,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Hgt/mip_01.png",
+          "byte_length": 359,
+          "sha256": "2bc8231c49d0dd08a17b39eb6c38a8e1ca3c2fb441884c575e00ecd9e8c9a924"
+        },
+        {
+          "level": 2,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Hgt/mip_02.png",
+          "byte_length": 232,
+          "sha256": "68e6317c0f976b99d8a35d68b53c71771d61eb49fe7173accf7c3307410d9b11"
+        },
+        {
+          "level": 3,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Hgt/mip_03.png",
+          "byte_length": 179,
+          "sha256": "f4879dcc10c760e883d759cad68a91a0e9e62bb8d6c6dc769a763a874fc062e0"
+        },
+        {
+          "level": 4,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Hgt/mip_04.png",
+          "byte_length": 150,
+          "sha256": "84daa67d3e9a924b9d0efd962a8293a48e9e7d63dfaa1c21481562ea9ada1fd7"
+        },
+        {
+          "level": 5,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Hgt/mip_05.png",
+          "byte_length": 128,
+          "sha256": "1a7ac0d89a6d266b8d74263f874dfd21e00ed194898cc4b47f5c6fb9532e32da"
+        },
+        {
+          "level": 6,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Hgt/mip_06.png",
+          "byte_length": 128,
+          "sha256": "9944a15dfe59eeacd285caf32f95196bd9e1c023b9e3593dd9381c600e6895a1"
+        },
+        {
+          "level": 7,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Hgt/mip_07.png",
+          "byte_length": 120,
+          "sha256": "88ba059c90679bfc347ccd565e7b76430693c7d2aa11d4ce7065fd804c74c3ca"
+        }
+      ]
+    },
+    {
+      "name": "MiiNose06_Mim",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiNose06_Mim.bntx",
+      "source_byte_length": 20592,
+      "source_sha256": "7ea4821786db05fd8c39ba2ae16427859568cc0bbc3c4ea0846ab291af73b392",
+      "width": 128,
+      "height": 128,
+      "mip_count": 8,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "0,G,1,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_o0",
+        "shader_sampler": "_s0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiNose06",
+          "model": "MiiNose06",
+          "material": "mt_Nose"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Mim/mip_00.png",
+          "byte_length": 1247,
+          "sha256": "b2440249297bbf96189d4c96d12cf4c00bf6c13fcd636bf4d21135fdbaf10815"
+        },
+        {
+          "level": 1,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Mim/mip_01.png",
+          "byte_length": 595,
+          "sha256": "a2c96e35dc59b9cf361e0bf4ca5ad0749ac0cf8defb9dbc3b003bbdaafc789cc"
+        },
+        {
+          "level": 2,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Mim/mip_02.png",
+          "byte_length": 361,
+          "sha256": "e40bf97e9fc5e78584995b5c5df51887091ea95bc00e50b86a1154b387a86406"
+        },
+        {
+          "level": 3,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Mim/mip_03.png",
+          "byte_length": 214,
+          "sha256": "9043374152663310703369eb782bc0e8a41d258e666ea1692740a55c1564dd13"
+        },
+        {
+          "level": 4,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Mim/mip_04.png",
+          "byte_length": 161,
+          "sha256": "8f4d7e204eeeaf3ec25e8324576b9fbf15f073c84ec3a3a8e574489989581db3"
+        },
+        {
+          "level": 5,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Mim/mip_05.png",
+          "byte_length": 137,
+          "sha256": "fc21f5db454fa8039e845c8068ba743271bd1b8d8385c33f2bedcb16c4c9a4bc"
+        },
+        {
+          "level": 6,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Mim/mip_06.png",
+          "byte_length": 128,
+          "sha256": "3e38c53476f86f44f6b3cdbc7dcdde4e0e24f1f319a1e183b4831037cb1fadc5"
+        },
+        {
+          "level": 7,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_Mim/mip_07.png",
+          "byte_length": 120,
+          "sha256": "f55918f9004f437c4360680df3cfeb65ab97907797109848682fba72714f3705"
+        }
+      ]
+    },
+    {
+      "name": "MiiNose06_NoseLine_Msk",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiNose06_NoseLine_Msk.bntx",
+      "source_byte_length": 53360,
+      "source_sha256": "67c63e04dd4ad6e3760a98822cbf253acd8f1d062f22c3876f478328509e5b11",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,R,R,R",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "repeat",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "repeat",
+        "wrap_v": "repeat",
+        "wrap_w": "repeat",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiNose06",
+          "model": "MiiNose06",
+          "material": "mt_NoseLine"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_00.png",
+          "byte_length": 3860,
+          "sha256": "b009e202764df0972ba81285df955802000d0e1dcea8707f853254141bff0eb0"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_01.png",
+          "byte_length": 1727,
+          "sha256": "b21f97954484ede897ca2fbbeefad81f74023206db3060004442c282870750e0"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_02.png",
+          "byte_length": 786,
+          "sha256": "f2885601184daf00161f7d60f753ada3b3d63df296ce09914a4d4e2aba3adf8d"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_03.png",
+          "byte_length": 457,
+          "sha256": "b288cc652af0c65ab6ca3712889cd337a6a7597e97521e2b9f68fd003fe109f2"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_04.png",
+          "byte_length": 276,
+          "sha256": "a21e39afa1e7c82cddf3f523ddef83256166fd2f4c5acbf467804f127c122310"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_05.png",
+          "byte_length": 183,
+          "sha256": "b68b79325ef4036f0192b63368d0e5f5ee71024b51b2d478d17c4a4af03a3ab2"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_06.png",
+          "byte_length": 147,
+          "sha256": "ec94f0921101e991ca986cb4a7a3ebd121d08d9b659f18e3047a67c3993d5cf1"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_07.png",
+          "byte_length": 131,
+          "sha256": "88c6daa159989b1573cd922f87e9ab711b6994896f3b42a9c6714e2c79a9c90f"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiNose06_NoseLine_Msk/mip_08.png",
+          "byte_length": 120,
+          "sha256": "10b5849689773a221eed86779c50a2e6ab8e4e239ee98684bab58eeb152b9f41"
+        }
+      ]
+    },
+    {
+      "name": "MiiBeard02_Mim",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/MiiBeard02_Mim.bntx",
+      "source_byte_length": 32880,
+      "source_sha256": "ea5164f666cc36b22f263e35be4307da709a6d319fe4d8d8a9c94129b8e0667f",
+      "width": 256,
+      "height": 128,
+      "mip_count": 9,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,G,B,A",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "repeat",
+      "sampler": {
+        "material_sampler": "_o0",
+        "shader_sampler": "_o0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "repeat",
+        "wrap_v": "repeat",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiBeard02",
+          "model": "MiiBeard02",
+          "material": "mt_Beard"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_00.png",
+          "byte_length": 6654,
+          "sha256": "55950353d2b02003bcff5c670dc652026b21b13f086c76a543248c084289e97a"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_01.png",
+          "byte_length": 2406,
+          "sha256": "0843bd9ad17f2219bea19915b81fd70f9fb57c7424e96f393b26c48024f38143"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_02.png",
+          "byte_length": 1046,
+          "sha256": "722904354f43555cdf20a237d75e880283e1a0c040968c8622af99ef63384c5c"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_03.png",
+          "byte_length": 511,
+          "sha256": "15d5a4479c4be17e0cdc884b0333eaa44be4fe34666b88460dc19d859c5ac54f"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_04.png",
+          "byte_length": 286,
+          "sha256": "3a0c89b7f8d5a4fc239148535846b185ee1925b8e3288c1c8fbe24649185ac98"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_05.png",
+          "byte_length": 201,
+          "sha256": "030c28cc7fc6d1018e07de8c1f3d53786ac30c0a3ddc3686de67408df46086cd"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_06.png",
+          "byte_length": 149,
+          "sha256": "8854b5288e8765675b5b75507a28b5a8583ff15daa00db3be760a3bd45ab4c05"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_07.png",
+          "byte_length": 124,
+          "sha256": "6e532c46376c664efb747bdf27184e58fe99868bce7d20dfc7c7d0a6bbcb1db7"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/MiiBeard02_Mim/mip_08.png",
+          "byte_length": 120,
+          "sha256": "b06076d40ded904f30bc6aed68798d2ea787619daf5dde6f38579d7b7ed90ac0"
+        }
+      ]
+    },
+    {
+      "name": "Dummy_Alb",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/Pack/ShareTex.bntx",
+      "source_byte_length": 53384,
+      "source_sha256": "080f9a8790d545ad3dc03ec9dab19dfe45442b42cceeaf55b62114c02f7ec2fe",
+      "width": 8,
+      "height": 8,
+      "mip_count": 4,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "clamptoedge",
+      "sampler": {
+        "material_sampler": "_a1",
+        "shader_sampler": "_user0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamptoedge",
+        "wrap_v": "clamptoedge",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/mii_material_state.json",
+          "resource": "MiiHead00",
+          "model": "MiiHead00",
+          "material": "mt_Mask"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/Dummy_Alb/mip_00.png",
+          "byte_length": 129,
+          "sha256": "170e83da2036bd880115d965cf1b70a664a1cb4c813fa50496a7b9a8a09e40f8"
+        },
+        {
+          "level": 1,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/Dummy_Alb/mip_01.png",
+          "byte_length": 125,
+          "sha256": "3c8c7c3c83c79aeea9bb64a92cb5f505ee1b7fa35f9c6c9d370192ef8fd3212c"
+        },
+        {
+          "level": 2,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/Dummy_Alb/mip_02.png",
+          "byte_length": 124,
+          "sha256": "a721a2b6543e569371d91116d99b6ddfe3999a79c91b5a1e59978dca0009a29c"
+        },
+        {
+          "level": 3,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/Dummy_Alb/mip_03.png",
+          "byte_length": 120,
+          "sha256": "c29d2fe0f3376c03a0bc7c888a7afed14de9e72a3fe95130cb031cca96d98ef5"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Tops_Alb",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Tops_Alb.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "e44c81cd9857d3408b4dd39573a37d685ef914ceb4ddbd900059d31ea4b73f7a",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "linear",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Tops"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_00.png",
+          "byte_length": 4163,
+          "sha256": "26342bb101633ef370cbaa2c27b56ab4fa797fd3588b168fe45b9b54bc39216f"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_01.png",
+          "byte_length": 1665,
+          "sha256": "c856175b5513c9eaddbb04e071482bf57ee1a45708af0bf2003350fee8f72dee"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_02.png",
+          "byte_length": 840,
+          "sha256": "70b0042ac2f6298bff3a0228d4a30831567e83880c9368fcd3a231ce4a636034"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_03.png",
+          "byte_length": 473,
+          "sha256": "f2e181e0ccf1de13f2916c46216efc81a6cdde5644f160a62d8676c7f602fd49"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_04.png",
+          "byte_length": 295,
+          "sha256": "a1f43a92087deb061d4403df289b52db006ab0883226b8ed1942742a3371e2ab"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_05.png",
+          "byte_length": 207,
+          "sha256": "7d43a93d7f48cc10dbcdab3aac05edf9e39cf118734c940d6ab0cf67c5073b74"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_06.png",
+          "byte_length": 164,
+          "sha256": "56e0bed37d26c10460be35724754e9240139fa057a07d99510343a99f19c6ad2"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_07.png",
+          "byte_length": 149,
+          "sha256": "fd3023b35c7827a7e46e276bcd7e74de8ef6befb6be7c3d503dd671d0f4e7671"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Alb/mip_08.png",
+          "byte_length": 120,
+          "sha256": "f25335aafdc62107cae5926255f258214f3b803724ba5ead67412aa60a1e300c"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Tops_Nrm",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Tops_Nrm.bntx",
+      "source_byte_length": 258160,
+      "source_sha256": "d149d596d67876c3991502bccfafdc3e62d0eb3762edbc7bcf16d302918daeb5",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "BC5_SNORM",
+      "native_channels": "R,G,0,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_n0",
+        "shader_sampler": "_n0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Tops"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_00.png",
+          "byte_length": 5872,
+          "sha256": "e4dda2bcb1888a1f12f85633cd6b46fdeb6bf230e423907b91525ef621af64a5"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_01.png",
+          "byte_length": 2169,
+          "sha256": "30a4a90cd6acc97f04543c3eb8420d3d5a26a39eecd7e58289cf3d7f506de961"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_02.png",
+          "byte_length": 895,
+          "sha256": "10d1eb6f9652f2270597acbb3976b6b7bbebbc9b88237c6aee64ab5462ce26ad"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_03.png",
+          "byte_length": 455,
+          "sha256": "e2a517ec6f2ead2c73ad62bb33e7f3c3f0493403c361d4f2eb0a61722ccae59b"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_04.png",
+          "byte_length": 257,
+          "sha256": "e389ce6dedb90c4175f6ae05b6838f88715062e0fd1aead0deced3c9058aa9eb"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_05.png",
+          "byte_length": 199,
+          "sha256": "d6ae6fbc421885fead36b6862deeecfff6607b67e2c60f86cad1beabdb262d40"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_06.png",
+          "byte_length": 157,
+          "sha256": "28b4fe22397c40c3ed604de0b4316ae6d40b37619ba378d71dc025cbc7b2174c"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_07.png",
+          "byte_length": 133,
+          "sha256": "9b74c8b48fbd85a054cf75660d3b9ad513e0a4b328b1ccfabb280e7eb63f1bae"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Nrm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "a4034d2cb3046cfb3aaa2ba9207936a478a0ef78f4245e319d8a577e7428b749"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Tops_Skm",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Tops_Skm.bntx",
+      "source_byte_length": 135280,
+      "source_sha256": "3d24163a5d2c35597e6a894fcff4fbecbcdb9fbe88ed1899d549357e288d834f",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,R,R,R",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "linear",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "user0",
+        "shader_sampler": "_user0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Tops"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_00.png",
+          "byte_length": 3160,
+          "sha256": "0bcb2ab3443d06d24ac3dbcf719f4af0e9b9f587dea555db5cb7cedd72962c66"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_01.png",
+          "byte_length": 1462,
+          "sha256": "fa6792441224bb2f090aad7c49293a22bc0b2e7006ebd7f66bf5db99d1abcf52"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_02.png",
+          "byte_length": 723,
+          "sha256": "f4123486e5ed05bc0c56b9db199f003e54b1eb7daa24ab99df0af1b1fd8420a8"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_03.png",
+          "byte_length": 401,
+          "sha256": "f81e5f6cd3a5eb298fc5f01efd6b30eb67633eb7251e33e10b4e1e6faf7b64fb"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_04.png",
+          "byte_length": 256,
+          "sha256": "348f9f6037cdbf118f7cf17534ff080925bbabde7cd348f8559746ce78c6f5df"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_05.png",
+          "byte_length": 198,
+          "sha256": "f4e48b86a9740adb35e1786fb62ed4e981afb55057bf4ed10640344e343847b3"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_06.png",
+          "byte_length": 161,
+          "sha256": "2d4881a7f38d4e307a2c68f9f2c4c59418d1b0bfb3fa37c22571f10b13dd9d28"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_07.png",
+          "byte_length": 145,
+          "sha256": "24481206acfe3ecc81c9b2e4cfdf375b521419a150cc88eda1b75083079e9517"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Skm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "212c16dcd104a223d3cd74f6c232dcf8fdd565d40e30c2d734107a4b8c05fc01"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Tops_Mic",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Tops_Mic.bntx",
+      "source_byte_length": 8304,
+      "source_sha256": "32a163f82576efc2e5e3421848d0fac94f8e95ff7761be9bfab435466985bfb0",
+      "width": 8,
+      "height": 8,
+      "mip_count": 4,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,0,1,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_r0",
+        "shader_sampler": "_r0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Tops"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Mic/mip_00.png",
+          "byte_length": 126,
+          "sha256": "ef36b6025c3548a5d035b22d93a15d7ff5ea4e04352ef5f89bd717c7c7862e91"
+        },
+        {
+          "level": 1,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Mic/mip_01.png",
+          "byte_length": 122,
+          "sha256": "710e50334b6604cbbb9c00953b4ab2610b506a419e65429fa3c0946ceac8d9f2"
+        },
+        {
+          "level": 2,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Mic/mip_02.png",
+          "byte_length": 121,
+          "sha256": "05c218270c2b2011372507266fa5d4f8d234a911165be8d33396073242b7c2a6"
+        },
+        {
+          "level": 3,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Tops_Mic/mip_03.png",
+          "byte_length": 120,
+          "sha256": "8d6a5297038c59e6e1243a7f7614a6bee5ef2d3525775761dacbfde3f39bd4db"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Bottoms_Alb",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Bottoms_Alb.bntx",
+      "source_byte_length": 73840,
+      "source_sha256": "2a8ca418e8746e8d9d19f488687cbceb20eaa0b691e4122d21d36e0656710122",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "linear",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Bottoms"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_00.png",
+          "byte_length": 2089,
+          "sha256": "967788a74e61101481630af5624fc3ec462140e37d1a3c7ef18bd1e0ef5102e7"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_01.png",
+          "byte_length": 927,
+          "sha256": "0fdf54d710a6b16bcc9a13363119e7d3e637dabd5faf7d2981de6d14790d4f0e"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_02.png",
+          "byte_length": 492,
+          "sha256": "470ea44a27faa5d8b272afbaca1fe283c7394f821a5bc3baebb0374c1ccacc38"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_03.png",
+          "byte_length": 319,
+          "sha256": "98945c94525dc52e8181a62bcf4e168e613d94fde0667d1b844451291f570160"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_04.png",
+          "byte_length": 218,
+          "sha256": "ce7919a81b600236beecfc575406d07107e8bfb03b7dddaa2a8e132e0d2fc815"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_05.png",
+          "byte_length": 154,
+          "sha256": "9b0e7568ee4c277287c3fb01c7fe4470eaabb823eb8e32e3bb33632e68f7c16f"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_06.png",
+          "byte_length": 137,
+          "sha256": "edd074158a61df526de67bbf8d1772b02ba34d0ecb259ebaf070e9094795fd96"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_07.png",
+          "byte_length": 128,
+          "sha256": "78e5925abb25dd015ed61b6d175deebd577aad04d23c46cbee526f6c9d191567"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Alb/mip_08.png",
+          "byte_length": 120,
+          "sha256": "b5d9ab459ef0a389d281e546a60b1e6c0c24a7ce0a99b7a050f361e2296d4008"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Bottoms_Nrm",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Bottoms_Nrm.bntx",
+      "source_byte_length": 163952,
+      "source_sha256": "79e83397f312d97c69a9251dfd50db406b5376bf93005b39daf2013fb7439d0b",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "BC5_SNORM",
+      "native_channels": "R,G,0,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_n0",
+        "shader_sampler": "_n0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Bottoms"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_00.png",
+          "byte_length": 4899,
+          "sha256": "2979b2e38482498f0a482ee0f7d027aa97075121b6f8b850b00c4ed680b1df86"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_01.png",
+          "byte_length": 1648,
+          "sha256": "055383dabcfab1c1ee92090ec6aa214b97dcd8e7094d306ea005fe8e0c2b40f3"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_02.png",
+          "byte_length": 668,
+          "sha256": "4a032df1e433401270d3467db4690e456efd52cf729ccceab748e6910ea594a9"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_03.png",
+          "byte_length": 305,
+          "sha256": "990699c295640e92a3cb109106a908a9f22200077e0d57986dd6d0f891a7c83e"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_04.png",
+          "byte_length": 233,
+          "sha256": "88f4c30a75ab3ed261dab1f94eadcad7b789cfe4a290143b2093f2bedbdacd0f"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_05.png",
+          "byte_length": 179,
+          "sha256": "973c059e35ad5294cd2cc503310c2e1e01540a5d80326f2c7962c1acc6811614"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_06.png",
+          "byte_length": 158,
+          "sha256": "e45a6577640e5bf61f45982e8abb404a92b297cba09a34c4caa1a36f82e50614"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_07.png",
+          "byte_length": 131,
+          "sha256": "1c78be1dc0aa303756721f03c01b5c4a2cd08b7b2a29222aaed1d710df5703d5"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Nrm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "07cbc86c159cb96af6d7447b698eaa15f3579a2d1de39c761e068bcedea9bbb0"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Bottoms_Skm",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Bottoms_Skm.bntx",
+      "source_byte_length": 86128,
+      "source_sha256": "269bbde24506bcb70b17a5e65a99cc98781477d074d151c42a2a12bbee091bf4",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,R,R,R",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "linear",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "user0",
+        "shader_sampler": "_user0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Bottoms"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_00.png",
+          "byte_length": 1140,
+          "sha256": "c9f319023c003fcdf851f80f80ea7f341d187c68d661d40a637ff40075ad92ab"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_01.png",
+          "byte_length": 509,
+          "sha256": "60b4c55b8ea844ca13d659e064721710df94a8b5fe5237ce914c466bb30c17cd"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_02.png",
+          "byte_length": 287,
+          "sha256": "ee96073104f661046747c2e39da1e8a3d1ed45dfa53520252427d345f4894c16"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_03.png",
+          "byte_length": 173,
+          "sha256": "1b4578b537eb97a6365b109c71271958cb87cac0bdd4d6003e2e7cb824cca108"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_04.png",
+          "byte_length": 146,
+          "sha256": "8c36eb778ac752ae4ce14bc5ddc3d31778df0b28b3f3fa719e9d0918e439d4fe"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_05.png",
+          "byte_length": 130,
+          "sha256": "15c695f7f3c9fb7d3d461333415b3e541f883fc567b49f348117a5a166cdc55b"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_06.png",
+          "byte_length": 125,
+          "sha256": "1689ab7a6d08148347abc3999953734c8fb716ec6197496d5fc2032165c651ae"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_07.png",
+          "byte_length": 121,
+          "sha256": "62494e1ac0399273341a93d3ed00f5898094a79333e94bcf91a5bc29669cc37b"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Skm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "8d6a5297038c59e6e1243a7f7614a6bee5ef2d3525775761dacbfde3f39bd4db"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Bottoms_Mic",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Bottoms_Mic.bntx",
+      "source_byte_length": 8304,
+      "source_sha256": "eb4778af3aee1f0d5931516fedb7535754ed012f7f5940053ea46bc61494482b",
+      "width": 8,
+      "height": 8,
+      "mip_count": 4,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,0,1,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_r0",
+        "shader_sampler": "_r0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Bottoms"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Mic/mip_00.png",
+          "byte_length": 126,
+          "sha256": "ef36b6025c3548a5d035b22d93a15d7ff5ea4e04352ef5f89bd717c7c7862e91"
+        },
+        {
+          "level": 1,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Mic/mip_01.png",
+          "byte_length": 122,
+          "sha256": "710e50334b6604cbbb9c00953b4ab2610b506a419e65429fa3c0946ceac8d9f2"
+        },
+        {
+          "level": 2,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Mic/mip_02.png",
+          "byte_length": 121,
+          "sha256": "05c218270c2b2011372507266fa5d4f8d234a911165be8d33396073242b7c2a6"
+        },
+        {
+          "level": 3,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Bottoms_Mic/mip_03.png",
+          "byte_length": 120,
+          "sha256": "8d6a5297038c59e6e1243a7f7614a6bee5ef2d3525775761dacbfde3f39bd4db"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Socks_Alb",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Socks_Alb.bntx",
+      "source_byte_length": 73840,
+      "source_sha256": "7a69b7ca2b2a5a3a2baa27cc7f56a831a48ed57c59a7d8e67464fb72e3e76a0d",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "linear",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Socks"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_00.png",
+          "byte_length": 1069,
+          "sha256": "26443586bc8f9bacffe7f8fb5469e66a06d110ad65e3bff1ab335c7e92288ac7"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_01.png",
+          "byte_length": 493,
+          "sha256": "677d931af23280cb35bedf326bc54e6642b88cf7d4ebbe20d6d6c4034d9baaa1"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_02.png",
+          "byte_length": 287,
+          "sha256": "8b73e15b689a6351deb4153f6052566b415010f66c124a4e61ab9cdb3167d8d5"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_03.png",
+          "byte_length": 195,
+          "sha256": "c92488ea9389d1037914866f12d704dc4ba1896dfc7e9c0264915b41f9994335"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_04.png",
+          "byte_length": 162,
+          "sha256": "777ba2f01f9678dac927a02b0fc77d127f6009c8a820d43fc954ca4304803775"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_05.png",
+          "byte_length": 146,
+          "sha256": "83929ea133824960abe6cd840ebb05aade93835d82b41a66bd26c675f36bd5ca"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_06.png",
+          "byte_length": 126,
+          "sha256": "cbb5f450cd79a65345aa427e19fd9df718484196f8c788b42f9a2d906d6efdf6"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_07.png",
+          "byte_length": 123,
+          "sha256": "45be93703ce8009d85ce7c760d37e289ddd8db7a698fbe3ea390048c213ddc07"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Alb/mip_08.png",
+          "byte_length": 120,
+          "sha256": "a0eeb0b41efbbde3e908531c016bab32d70a63f6c2baa892ea508a6a25ed5ec2"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Socks_Nrm",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Socks_Nrm.bntx",
+      "source_byte_length": 163952,
+      "source_sha256": "262be7721f7ef0eeec1d3ece7ddaa0746f699f24240402468f49e8ec65ab8684",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "BC5_SNORM",
+      "native_channels": "R,G,0,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_n0",
+        "shader_sampler": "_n0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Socks"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_00.png",
+          "byte_length": 1143,
+          "sha256": "526f5ffb63e7d4ec1594f1964338fdb92bb6b4bbba85fb65ec3adb40baaa4100"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_01.png",
+          "byte_length": 513,
+          "sha256": "5228bc5a5cc6abc8007fc04a6d0279b95ae97c826fdff48ce75fc5dc4aa34bce"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_02.png",
+          "byte_length": 290,
+          "sha256": "473fe30531d778c9e5135b0d39f57f60f62a489609995401b301c7a1e1d351d2"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_03.png",
+          "byte_length": 176,
+          "sha256": "89409b8b7445f86c7f75dd2cd3dbc06314d5ab8a7f9ff084ec7b16cbc9129225"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_04.png",
+          "byte_length": 150,
+          "sha256": "7bd01391e7eff0f224037eedc4ea62aded2cab6838389e832f847fad8d19e8dc"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_05.png",
+          "byte_length": 133,
+          "sha256": "9bb9f89de83dcd03da6256183428672ff03ef5e555dc7f8fdc25828423762493"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_06.png",
+          "byte_length": 129,
+          "sha256": "bdd438802bd8356a4f73f1a4a886b0e85e83bd83d625fea90c7eadc586e97b7f"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_07.png",
+          "byte_length": 126,
+          "sha256": "e20812f94b2192d36a6deec9023e8e56142951d4fb0801f91148f845077008d1"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Nrm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "07cbc86c159cb96af6d7447b698eaa15f3579a2d1de39c761e068bcedea9bbb0"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Socks_Skm",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Socks_Skm.bntx",
+      "source_byte_length": 86128,
+      "source_sha256": "205d2361b7b209860b1384b7784470d2917f70200d61ed3351f13e980623f4bf",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,R,R,R",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "linear",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "user0",
+        "shader_sampler": "_user0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Socks"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_00.png",
+          "byte_length": 1069,
+          "sha256": "26443586bc8f9bacffe7f8fb5469e66a06d110ad65e3bff1ab335c7e92288ac7"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_01.png",
+          "byte_length": 493,
+          "sha256": "677d931af23280cb35bedf326bc54e6642b88cf7d4ebbe20d6d6c4034d9baaa1"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_02.png",
+          "byte_length": 287,
+          "sha256": "8b73e15b689a6351deb4153f6052566b415010f66c124a4e61ab9cdb3167d8d5"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_03.png",
+          "byte_length": 195,
+          "sha256": "c92488ea9389d1037914866f12d704dc4ba1896dfc7e9c0264915b41f9994335"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_04.png",
+          "byte_length": 162,
+          "sha256": "777ba2f01f9678dac927a02b0fc77d127f6009c8a820d43fc954ca4304803775"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_05.png",
+          "byte_length": 146,
+          "sha256": "83929ea133824960abe6cd840ebb05aade93835d82b41a66bd26c675f36bd5ca"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_06.png",
+          "byte_length": 126,
+          "sha256": "cbb5f450cd79a65345aa427e19fd9df718484196f8c788b42f9a2d906d6efdf6"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_07.png",
+          "byte_length": 123,
+          "sha256": "45be93703ce8009d85ce7c760d37e289ddd8db7a698fbe3ea390048c213ddc07"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Skm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "a0eeb0b41efbbde3e908531c016bab32d70a63f6c2baa892ea508a6a25ed5ec2"
+        }
+      ]
+    },
+    {
+      "name": "BodyBaseDefault_Socks_Mic",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/BodyBaseDefault_Socks_Mic.bntx",
+      "source_byte_length": 8304,
+      "source_sha256": "bc0820dc571216c1f550c21e197beceb730769d3a1dd307cb56069fbaeecbba1",
+      "width": 8,
+      "height": 8,
+      "mip_count": 4,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,0,1,1",
+      "min_mag_filter": "linear",
+      "mipmap_filter": "point",
+      "wrap_u_v": "clamp",
+      "sampler": {
+        "material_sampler": "_r0",
+        "shader_sampler": "_r0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "sampler_evidence": [
+        {
+          "state": "renderer/body_material_state.json",
+          "resource": "BodyBaseDefault",
+          "model": "BodyBaseDefault",
+          "material": "mt_Socks"
+        }
+      ],
+      "levels": [
+        {
+          "level": 0,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Mic/mip_00.png",
+          "byte_length": 126,
+          "sha256": "ef36b6025c3548a5d035b22d93a15d7ff5ea4e04352ef5f89bd717c7c7862e91"
+        },
+        {
+          "level": 1,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Mic/mip_01.png",
+          "byte_length": 122,
+          "sha256": "710e50334b6604cbbb9c00953b4ab2610b506a419e65429fa3c0946ceac8d9f2"
+        },
+        {
+          "level": 2,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Mic/mip_02.png",
+          "byte_length": 121,
+          "sha256": "05c218270c2b2011372507266fa5d4f8d234a911165be8d33396073242b7c2a6"
+        },
+        {
+          "level": 3,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/texture_mips/BodyBaseDefault_Socks_Mic/mip_03.png",
+          "byte_length": 120,
+          "sha256": "8d6a5297038c59e6e1243a7f7614a6bee5ef2d3525775761dacbfde3f39bd4db"
+        }
+      ]
+    }
+  ]
+}

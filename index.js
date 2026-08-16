@@ -6,7 +6,90 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 import helmet from 'helmet';
 import miijs from "miijs";
-import { renderStoredMiiImage, writeMiiImageBuffer, writeStoredMiiImage } from "./miiImageRenderer.js";
+import {
+    renderStoredMiiImage,
+    renderStoredMiiImageResult,
+    getMiiImageRenderIdentity,
+    getMiiImageFileSha256,
+    withMiiImagePublishLock,
+    writeMiiImageBuffer
+} from "./miiImageRenderer.js";
+import {
+    buildShareMiiV3CompatibleLtdDownload,
+    canonicalizeMiiToLtd,
+    ensureCanonicalLtdForMii,
+    isStoredLtdCanonicalizationCurrent,
+    isTrustedMiiBytesInput,
+    isTrustedMiiFileInput,
+    makeTrustedMiiBytesInput,
+    makeTrustedMiiFileInput,
+    parseNativeLtdUpload
+} from "./ltdCanonical.js";
+import { assignMiiEra } from "./miiEra.js";
+import { resolveMiiRendererRoute } from "./miiRendererRouting.js";
+import {
+    getAverageMiiPresentation,
+    selectMostCommonMiiRendererProfile
+} from "./averageMiiPresentation.js";
+import {
+    MII_ERA_FILTER_OPTIONS,
+    applyMiiEraSearchFilter,
+    getRequestedMiiEraFilters
+} from "./miiEraSearchFilters.js";
+import {
+    MII_FACEPAINT_FILTER_OPTIONS,
+    applyMiiFacepaintSearchFilter,
+    buildBlockedContentConditions,
+    combineRequestedMiiContentFilters,
+    getMiiContentSettingsExemptIds,
+    getRequestedMiiFacepaintFilters,
+    isMiiExemptFromContentSettings,
+    normalizeBlockedFacepaintUsages,
+    normalizeBlockedMiiEras,
+    preserveMiiContentSettingsExemptions
+} from "./miiContentFilters.js";
+import {
+    MII_EFFECTIVE_SEARCH_PROJECT,
+    MII_EFFECTIVE_SEARCH_SELECT,
+    classifyAndMatchEffectiveMiiSearchFilters,
+    withEffectiveMiiSearchClassification
+} from "./miiEffectiveSearchFilters.js";
+import { LtdRenderError, getConfiguredLtdRendererRevision } from "./ltdImageRenderer.js";
+import {
+    LTD_RENDER_BACKGROUND_MODE,
+    LTD_RENDER_RASTER_PROFILE,
+    buildLtdRenderPortraitCasFilter,
+    canAccessPrivateMiiAsset,
+    createRendererRevisionSnapshot,
+    isCurrentReadyLtdRender,
+    persistLtdRenderPortraitStateCas,
+    publishCasGuardedLtdImage,
+    runLtdImageGenerationSingleFlight
+} from "./ltdImageCachePolicy.js";
+import { getStoredLtdPresentationContextIdentity } from "./ltdPresentationContext.js";
+import {
+    LTD_ONLY_EXPORT_FORMATS,
+    LtdOnlyDownloadError,
+    LtdWorkspaceUnavailableError,
+    assertLtdWorkspaceAccessAvailable,
+    assertMiiDownloadFormat,
+    getAllowedExportFormats,
+    getMiiDownloadPolicy,
+    isLtdExclusiveFeatureLockedMii,
+    sendLtdOnlyDownloadError
+} from "./ltdOnlyDownloadPolicy.js";
+import {
+    buildStandardMiiRenderPortraitCasFilter,
+    buildStandardMiiRenderReadyState,
+    isCurrentReadyStandardMiiRender,
+    persistStandardMiiRenderPortraitStateCas,
+    publishCasGuardedStandardMiiImage
+} from "./miiImageCachePolicy.js";
+import {
+    createMiiDownloadPolicyToken,
+    getMiiDownloadPolicyPayloadHash,
+    verifyMiiDownloadPolicyToken
+} from "./miiDownloadPolicyToken.js";
 import { islandAddresses as TOMODACHI_LIFE_ISLAND_WORDS } from "./node_modules/miijs/data.js";
 import crypto from 'crypto';
 import fs from "fs";
@@ -42,11 +125,22 @@ import {
     getMiiSearchSort,
     normalizeSearchText,
     normalizeSearchFieldSelection,
-    rankMiiSearchCandidates
+    rankMiiSearchCandidates,
+    sortRankedMiiSearchCandidates
 } from "./searchUtils.js";
 import {
-    MII_IDENTITY_HASH_PREFIX,
+    getDefaultMiiListSortDirection,
+    getMiiListSortStages,
+    normalizeMiiListSort,
+    normalizeMiiListSortDirection,
+    normalizeMiiSearchSort,
+    sortMiiListItems
+} from "./miiListSort.js";
+import {
+    CURRENT_MII_IDENTITY_HASH_PATTERN,
     getMiiIdentityHash,
+    getMiiIdentityHashCandidates,
+    getMiiIdentityLookupHashCandidates,
     getMiiIdentityHashPayload,
     getMiiIdentityHashVersion,
     hasCurrentMiiIdentityHashVersion,
@@ -78,6 +172,7 @@ import {
     cloneSerializable,
     toMiiDataOnly
 } from "./miiDataUtils.js";
+import { resolveMiiIdForImportWithLookups } from "./miiIdImportResolver.js";
 import {
     ENABLE_MIITOPIA_QRS,
     buildMiitopiaQrMii,
@@ -92,6 +187,10 @@ import {
     normalizeMiiFieldsForExport,
     normalizeQrConsole
 } from "./miiQrUtils.js";
+import {
+    isCurrentMiiQrCacheAsset,
+    publishMiiQrCacheIdentity
+} from "./miiQrCachePolicy.js";
 import {
     EXTERNAL_MII_PREFERENCE_SET,
     getExternalMiiSource,
@@ -109,6 +208,7 @@ import {
 
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 ensureMiiAssetDirectories();
+fs.mkdirSync(path.join(__dirname, "uploads"), { recursive: true });
 // MT QR cache directories are intentionally disabled on the site for now.
 // fs.mkdirSync(path.join(__dirname, "static", "miiQRsMiitopia"), { recursive: true });
 // fs.mkdirSync(path.join(__dirname, "static", "privateMiiQRsMiitopia"), { recursive: true });
@@ -121,7 +221,7 @@ const HOME_PREVIEW_COUNT = 16;
 const FULL_ROW_BROWSE_REQUEST_LIMIT = defaultMiisPerPage + HOME_PREVIEW_COUNT;
 const FULL_ROW_PROFILE_REQUEST_LIMIT = profileMiisPerPage + HOME_PREVIEW_COUNT;
 const MAX_PUBLIC_PAGINATION_START_OFFSET = 10000;
-const GLOBAL_ASSET_VERSION = "20260518-error-scroll-and-zip-preflight";
+const GLOBAL_ASSET_VERSION = "20260815-ltd-workspace-visibility";
 const EJS_TEMPLATE_CACHE_ENABLED = process.env.EJS_CACHE === "true" || process.env.NODE_ENV === "production";
 const MII_CARD_CACHE_TTL_MS = 5000;
 const MII_CARD_CACHE_MAX_ENTRIES = 256;
@@ -143,6 +243,7 @@ const UPLOAD_WEBHOOK_IMAGE_READY_TIMEOUT_MS = ms("10s");
 const UNVERIFIED_ACCOUNT_TTL_MS = ms("7d");
 const UNVERIFIED_ACCOUNT_CLEANUP_INTERVAL_MS = ms("1h");
 const UPLOAD_VERIFICATION_REQUIRED_MESSAGE = "Verify your email before uploading. OAuth sign-in also counts as account verification.";
+const LTD_DASHBOARD_UPLOAD_MESSAGE = "LTD-era Miis cannot be uploaded from decoded dashboard JSON. Download the original LTD file instead.";
 const TRENDING_TIME_DECAY_EXPONENT = 1.25;
 const MII_RENDER_IMAGE_WIDTH = 512;
 const MII_RENDER_IMAGE_HEIGHT = 512;
@@ -265,7 +366,8 @@ const EXPORT_FORMAT_LABELS = {
     nfcd: "Switch NFCD (.nfcd)",
     nfsd: "Switch NFSD (.nfsd)",
     charinfo: "Switch CHARINFO (.charinfo)",
-    mnms: "My Nintendo Mii Studio (.mnms)"
+    mnms: "My Nintendo Mii Studio (.mnms)",
+    ltd: "Tomodachi Life: Living the Dream (.ltd)"
 };
 
 const EXPORT_FORMAT_ORDER = [
@@ -322,6 +424,7 @@ function buildExportFormats() {
 
 const EXPORT_FORMATS = buildExportFormats();
 const EXPORT_FORMAT_SET = new Set(EXPORT_FORMATS.map(fmt => fmt.value));
+const QR_EXPORTS_ENABLED = EXPORT_FORMATS.some(format => format.value === "qr");
 const MII_CHILD_STAGE_LABELS = [
     "Newborn",
     "Infant",
@@ -417,6 +520,10 @@ function normalizeExportFormat(input) {
     }
 
     return null;
+}
+
+function getExportFormatsForMii(mii, { storedRecord = false } = {}) {
+    return getAllowedExportFormats(mii, EXPORT_FORMATS, { storedRecord });
 }
 
 function parseBooleanLike(value) {
@@ -619,6 +726,38 @@ function normalizeMiiInput(input) {
     return input;
 }
 
+function assertSerializedLtdWorkspaceAccessAvailable(input, feature) {
+    if (typeof input !== "string") return;
+    const value = input.trim();
+    if (!value.startsWith("{")) return;
+
+    let parsed;
+    try {
+        parsed = JSON.parse(value);
+    } catch {
+        return;
+    }
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        assertLtdWorkspaceAccessAvailable(parsed, feature);
+    }
+}
+
+function trustedMiiFileInput(fileOrPath, originalName = "") {
+    const filePath = typeof fileOrPath === "string" ? fileOrPath : fileOrPath?.path;
+    const suppliedName = typeof fileOrPath === "object"
+        ? (fileOrPath?.originalname || originalName)
+        : originalName;
+    return makeTrustedMiiFileInput(filePath, {
+        declaredLtd: path.extname(String(suppliedName || "")).toLowerCase() === ".ltd"
+    });
+}
+
+function trustedMiiBytesInput(bytes, originalName = "") {
+    return makeTrustedMiiBytesInput(bytes, {
+        declaredLtd: path.extname(String(originalName || "")).toLowerCase() === ".ltd"
+    });
+}
+
 function getExportOptionsFromRequest(req) {
     const source = req.method === "GET" ? req.query : req.body;
     return {
@@ -635,6 +774,14 @@ function safeMiiFilename(name, fallback = "mii") {
         .replace(/^_+|_+$/g, "")
         .slice(0, 80);
     return base || fallback;
+}
+
+function getTrustedTempMiiPath(rawId, extension = ".bin") {
+    const id = String(rawId || "").trim();
+    if (!/^[A-Za-z0-9]{1,10}$/.test(id)) return null;
+    const tempRoot = path.resolve(__dirname, "static", "temp");
+    const resolved = path.resolve(tempRoot, `${id}${extension}`);
+    return path.dirname(resolved) === tempRoot ? resolved : null;
 }
 
 function isQrImageInput(input) {
@@ -773,13 +920,7 @@ async function decodeQrImageInput(input) {
     let scanInput = input;
 
     if (typeof input === "string") {
-        if (/^https?:\/\//i.test(input)) {
-            const response = await fetch(input);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch QR image: ${response.status}`);
-            }
-            scanInput = Buffer.from(await response.arrayBuffer());
-        } else if (/^data:image\//i.test(input)) {
+        if (/^data:image\//i.test(input)) {
             const commaIndex = input.indexOf(",");
             if (commaIndex === -1) {
                 throw new Error("Invalid data URI image input");
@@ -787,7 +928,7 @@ async function decodeQrImageInput(input) {
             const base64 = input.slice(commaIndex + 1).replace(/\s+/g, "");
             scanInput = Buffer.from(base64, "base64");
         } else {
-            scanInput = await fs.promises.readFile(input);
+            throw new Error("QR image text input must be a data URI, not a URL or filesystem path.");
         }
     } else if (input instanceof ArrayBuffer) {
         scanInput = Buffer.from(input);
@@ -834,15 +975,6 @@ async function detectMiiSourceFormats(input) {
     if (typeof normalizedInput === "string") {
         const trimmed = normalizedInput.trim();
         if (!trimmed) return formats;
-
-        if (!/^https?:\/\//i.test(trimmed) && !/^data:/i.test(trimmed)) {
-            try {
-                const stat = fs.existsSync(trimmed) ? await fs.promises.stat(trimmed) : null;
-                if (stat?.isFile()) {
-                    addFormats(detectMiiFormatsFromValue(await fs.promises.readFile(trimmed)));
-                }
-            } catch (e) { }
-        }
 
         addFormats(detectMiiFormatsFromValue(trimmed));
         for (const fallbackInput of buildMiiStringFallbackCandidates(trimmed)) {
@@ -898,7 +1030,41 @@ function applySourceConsoleToMiiFields(fields, formats) {
 installMiiJsDebugConsoleCapture();
 
 async function createMiiData(input, debug) {
-    const normalizedInput = normalizeMiiInput(input);
+    const trustedFile = isTrustedMiiFileInput(input) ? input : null;
+    const trustedBytes = isTrustedMiiBytesInput(input) ? input : null;
+    const nativeLtd = await parseNativeLtdUpload(trustedFile || trustedBytes || normalizeMiiInput(input));
+    if (nativeLtd) return nativeLtd.fields;
+
+    // Filesystem access is reserved for paths that the server itself wrapped as
+    // trusted upload/internal inputs. Request text is never interpreted as a
+    // path or URL by the format detector or QR decoder.
+    let normalizedInput = trustedFile
+        ? await fs.promises.readFile(trustedFile.path)
+        : (trustedBytes ? Buffer.from(trustedBytes.bytes) : normalizeMiiInput(input));
+    if (!trustedFile && !trustedBytes && typeof normalizedInput === "string") {
+        const text = normalizedInput.trim();
+        const isDataImage = /^data:image\/(?:png|jpe?g|webp);base64,/i.test(text);
+        const isDataBytes = /^data:application\/octet-stream;base64,/i.test(text);
+        if (isDataBytes) {
+            normalizedInput = Buffer.from(text.slice(text.indexOf(",") + 1), "base64");
+        }
+        const hasUrlOrPathPrefix = (
+            /^(?:[a-z][a-z0-9+.-]*:|[\\/]{1,2}|\.{1,2}[\\/])/i.test(text)
+            && !isDataImage
+            && !isDataBytes
+        );
+        const hasImagePathSuffix = !isDataImage && !isDataBytes && /\.(?:png|jpe?g|webp)(?:[?#].*)?$/i.test(text);
+        if (hasUrlOrPathPrefix || hasImagePathSuffix) {
+            throw new Error("Mii text input may not reference a URL or local filesystem path.");
+        }
+        if (!isDataImage && !isDataBytes && !/^data:/i.test(text)) {
+            const decodedBytes = buildMiiStringFallbackCandidates(text).find(Buffer.isBuffer);
+            if (!decodedBytes) {
+                throw new Error("Mii text input must be JSON, hex, base64, or a data URI; filenames and URLs are not accepted.");
+            }
+            normalizedInput = decodedBytes;
+        }
+    }
     const parsedInput = isQrImageInput(normalizedInput) ? await decodeQrImageInput(normalizedInput) : normalizedInput;
     const sourceFormats = await detectMiiSourceFormats(parsedInput);
 
@@ -922,27 +1088,39 @@ async function createMiiData(input, debug) {
     }
 }
 
+async function prepareMiiIdentityCandidate(candidateMii, recordId = "identity-lookup") {
+    if (/^[0-9a-f]{64}$/i.test(String(candidateMii?.ltdAppearanceHash || ""))) {
+        return candidateMii;
+    }
+    const canonical = await canonicalizeMiiToLtd(candidateMii, { recordId });
+    return { ...candidateMii, ...canonical.storedFields };
+}
+
 async function findMatchingMii(candidateMii, {
     includePrivate = true,
     excludeId,
     includeGeneral = false,
     includeLegacyHashCandidates = true
 } = {}) {
-    const candidateHash = getMiiIdentityHash(candidateMii, { includeGeneral });
-    const lookupHash = includeGeneral ? getMiiIdentityHash(candidateMii) : candidateHash;
+    const identityCandidate = await prepareMiiIdentityCandidate(
+        candidateMii,
+        candidateMii?.id || "identity-lookup"
+    );
+    const candidateHashes = new Set(getMiiIdentityHashCandidates(identityCandidate, { includeGeneral }));
+    const lookupHashes = getMiiIdentityLookupHashCandidates(identityCandidate);
     const query = includePrivate ? {} : { private: false };
     if (excludeId) query.id = { $ne: excludeId };
-    if (lookupHash) {
+    if (lookupHashes.length > 0) {
         if (includeLegacyHashCandidates) {
             query.$or = [
-                { miiHash: lookupHash },
-                { miiHash: { $not: new RegExp(`^${MII_IDENTITY_HASH_PREFIX}`) } },
+                { miiHash: { $in: lookupHashes } },
+                { miiHash: { $not: new RegExp(`^${CURRENT_MII_IDENTITY_HASH_PATTERN}`) } },
                 { miiHash: { $exists: false } },
                 { miiHash: null },
                 { miiHash: "" }
             ];
         } else {
-            query.miiHash = lookupHash;
+            query.miiHash = { $in: lookupHashes };
         }
     }
 
@@ -951,10 +1129,11 @@ async function findMatchingMii(candidateMii, {
     let idlessMatchLogged = false;
 
     for (const existingMii of existingMiis) {
-        const existingHash = !includeGeneral && hasCurrentMiiIdentityHashVersion(existingMii.miiHash)
-            ? existingMii.miiHash
-            : getMiiIdentityHash(existingMii, { includeGeneral });
-        if (candidateHash && existingHash === candidateHash) {
+        const existingHashes = new Set(getMiiIdentityHashCandidates(existingMii, { includeGeneral }));
+        if (!includeGeneral && hasCurrentMiiIdentityHashVersion(existingMii.miiHash)) {
+            existingHashes.add(existingMii.miiHash);
+        }
+        if ([...candidateHashes].some(hash => existingHashes.has(hash))) {
             const existingMiiId = normalizeMiiIdInput(existingMii.id);
             if (!existingMiiId) {
                 if (!idlessMatchLogged) {
@@ -1116,6 +1295,25 @@ function getQuickUploadMetadata(dirPath = "./quickUploads") {
 }
 
 async function exportMiiToBuffer(miiInput, format, options = {}) {
+    // Keep the byte encoder itself fail-closed so a new route cannot bypass
+    // the era policy by calling this helper directly.
+    assertMiiDownloadFormat(miiInput, format);
+
+    if (format === "ltd") {
+        if (options.special) {
+            throw new Error("Special-Mii overrides cannot change the original LTD data during download.");
+        }
+        const canonical = await ensureCanonicalLtdForMii(miiInput, { persist: true });
+        return {
+            // Native v3 remains byte-authoritative in storage. Downloads use
+            // an equivalent v2 envelope so ShareMii application v3.0 does not
+            // shift the raw Mii block and corrupt the game save.
+            buffer: buildShareMiiV3CompatibleLtdDownload(canonical.bytes),
+            contentType: "application/octet-stream",
+            extension: "ltd"
+        };
+    }
+
     const sourceInstance = await miijs.Mii.create(miiInput);
     const exportFields = normalizeMiiFieldsForExport(sourceInstance.fields);
     const canReuseSourceInstance = canReuseMiiInstanceForExport(sourceInstance.fields, options);
@@ -1172,7 +1370,7 @@ async function exportMiiToBuffer(miiInput, format, options = {}) {
 
 async function writeQrPng(miiInput, outputPath, qrConsole = "3DS") {
     const { buffer } = await exportMiiToBuffer(miiInput, "qr", { qrConsole });
-    await fs.promises.writeFile(outputPath, buffer);
+    await writeMiiImageBuffer(buffer, outputPath);
 }
 
 async function writeOptionalQrPng(miiInput, outputPath, qrConsole) {
@@ -1193,6 +1391,77 @@ async function writeOptionalQrPng(miiInput, outputPath, qrConsole) {
     }
 
     await writeQrPng(miiInput, outputPath, normalizedConsole);
+    return true;
+}
+
+function getStoredMiiQrAssetPaths(miiId, isPrivate) {
+    const { qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(miiId, isPrivate);
+    return { qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath };
+}
+
+async function removeStoredMiiQrAssets(miiId, isPrivate) {
+    const paths = Object.values(getStoredMiiQrAssetPaths(miiId, isPrivate));
+    await Promise.all(paths.flatMap(filePath => [
+        fs.promises.rm(filePath, { force: true }),
+        fs.promises.rm(`${filePath}.identity`, { force: true })
+    ]));
+}
+
+async function syncStoredMiiQrAssets(mii, {
+    isPrivate = Boolean(mii?.private),
+    onlyMissing = false
+} = {}) {
+    if (!mii?.id) return false;
+
+    const storedMii = await getMiiById(mii.id, true);
+    const sourceWasStored = Boolean(storedMii);
+    const policyMii = storedMii || mii;
+    if (!QR_EXPORTS_ENABLED || getMiiDownloadPolicy(policyMii, { storedRecord: true }).ltdOnly) {
+        await removeStoredMiiQrAssets(mii.id, isPrivate);
+        return false;
+    }
+
+    const { qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getStoredMiiQrAssetPaths(mii.id, isPrivate);
+    const portraitPath = getMiiAssetPaths(mii.id, isPrivate).imgPath;
+    const sourceIdentity = getMiiDownloadPolicyPayloadHash(policyMii);
+    const shouldWrite = async (filePath, qrConsole) => !onlyMissing
+        || !await isCurrentMiiQrCacheAsset(policyMii, filePath, qrConsole, portraitPath);
+    const writeAndPublish = async (writer, filePath, qrConsole) => {
+        if (!await shouldWrite(filePath, qrConsole)) return;
+        const written = await writer();
+        if (written === false) {
+            await fs.promises.rm(`${filePath}.identity`, { force: true });
+            return;
+        }
+        const winnerMii = await getMiiById(mii.id, true) || (!sourceWasStored ? policyMii : null);
+        if (
+            !winnerMii
+            || Boolean(winnerMii.private) !== Boolean(isPrivate)
+            || getMiiDownloadPolicy(winnerMii, { storedRecord: true }).ltdOnly
+            || getMiiDownloadPolicyPayloadHash(winnerMii) !== sourceIdentity
+        ) {
+            await Promise.all([
+                fs.promises.rm(filePath, { force: true }),
+                fs.promises.rm(`${filePath}.identity`, { force: true })
+            ]);
+            return;
+        }
+        await publishMiiQrCacheIdentity(winnerMii, filePath, qrConsole, portraitPath);
+    };
+    const writes = [];
+    writes.push(writeAndPublish(() => writeQrPng(policyMii, qrPath, "3DS"), qrPath, "3DS"));
+    writes.push(writeAndPublish(() => writeQrPng(policyMii, qrWiiPath, "WIIU"), qrWiiPath, "WIIU"));
+    writes.push(writeAndPublish(
+        () => writeOptionalQrPng(policyMii, qrTomodachiPath, "TOMODACHI"),
+        qrTomodachiPath,
+        "TOMODACHI"
+    ));
+    writes.push(writeAndPublish(
+        () => writeOptionalQrPng(policyMii, qrMiitopiaPath, "MIITOPIA"),
+        qrMiitopiaPath,
+        "MIITOPIA"
+    ));
+    await Promise.all(writes);
     return true;
 }
 
@@ -1614,14 +1883,37 @@ function buildMiiDashboardInfoRows(mii, heightMeasurements, weightMeasurements) 
     return rows;
 }
 
-async function buildMiiDashboardResult(miiInput) {
-    const miiInstance = await miijs.Mii.create(miiInput);
-    const mii = toMiiDataOnly(miiInstance.fields || {});
+async function buildMiiDashboardResult(miiInput, {
+    allowedExportFormats = EXPORT_FORMATS,
+    rendererProfile = "",
+    sourceEra = "",
+    ltdExclusive,
+    renderSource: explicitRenderSource = null
+} = {}) {
+    const hasAuthoritativeLtd = Boolean(miiInput?.ltdData);
+    const miiInstance = hasAuthoritativeLtd ? null : await miijs.Mii.create(miiInput);
+    const mii = toMiiDataOnly(hasAuthoritativeLtd ? miiInput : (miiInstance.fields || {}));
+    const renderSource = explicitRenderSource || (hasAuthoritativeLtd ? miiInput : mii);
     const miiName = getDisplayMiiName(mii);
     const miiHeight = Number(mii?.general?.height ?? 0);
     const miiWeight = Number(mii?.general?.weight ?? 0);
-    const hasTomodachiData = hasDecodedTomodachiLifeData(mii);
-    const hasMiitopiaQr = canGenerateMiitopiaQr(mii);
+    const dashboardQrExportsEnabled = allowedExportFormats.some(format => format.value === "qr");
+    const hasTomodachiData = dashboardQrExportsEnabled && hasDecodedTomodachiLifeData(mii);
+    const hasMiitopiaQr = dashboardQrExportsEnabled && canGenerateMiitopiaQr(mii);
+    const rendererRoute = resolveMiiRendererRoute(renderSource, {
+        requestedProfile: rendererProfile,
+        sourceEra,
+        ltdExclusive
+    });
+    const renderOptions = {
+        rendererProfile: rendererRoute.profile,
+        sourceEra: rendererRoute.sourceEra,
+        ltdExclusive: rendererRoute.locked
+    };
+    const dashboardRendererProfile = rendererRoute.profile === "RFL" ? "" : rendererRoute.profile;
+    const dashboardDefaultRendererProfile = rendererRoute.defaultProfile === "RFL"
+        ? ""
+        : rendererRoute.defaultProfile;
 
     const [
         renderBuffer,
@@ -1633,10 +1925,14 @@ async function buildMiiDashboardResult(miiInput) {
         heightMeasurements,
         weightMeasurements
     ] = await Promise.all([
-        renderStoredMiiImage(mii),
-        renderStoredMiiImage(mii, { fullBody: true }),
-        exportMiiToBuffer(mii, "qr", { qrConsole: "3DS" }),
-        exportMiiToBuffer(mii, "qr", { qrConsole: "WIIU" }),
+        renderStoredMiiImage(renderSource, renderOptions),
+        renderStoredMiiImage(renderSource, { ...renderOptions, fullBody: true }),
+        dashboardQrExportsEnabled
+            ? exportMiiToBuffer(mii, "qr", { qrConsole: "3DS" })
+            : Promise.resolve(null),
+        dashboardQrExportsEnabled
+            ? exportMiiToBuffer(mii, "qr", { qrConsole: "WIIU" })
+            : Promise.resolve(null),
         hasTomodachiData
             ? exportMiiToBuffer(mii, "qr", { qrConsole: "TOMODACHI" })
             : Promise.resolve(null),
@@ -1654,8 +1950,17 @@ async function buildMiiDashboardResult(miiInput) {
         miiJson: JSON.stringify(mii, null, 2),
         renderDataUri: bufferToDataUri(renderBuffer, "image/png"),
         fullBodyRenderDataUri: bufferToDataUri(fullBodyRenderBuffer, "image/png"),
-        qr3dsDataUri: bufferToDataUri(qr3dsExport.buffer, qr3dsExport.contentType || "image/png"),
-        qrWiiuDataUri: bufferToDataUri(qrWiiuExport.buffer, qrWiiuExport.contentType || "image/png"),
+        rendererProfile: dashboardRendererProfile,
+        rendererBackend: rendererRoute.backend,
+        rendererDefaultProfile: dashboardDefaultRendererProfile,
+        rendererLocked: rendererRoute.locked,
+        availableRendererProfiles: rendererRoute.locked ? ["LTD"] : ["TL", "LTD"],
+        qr3dsDataUri: qr3dsExport
+            ? bufferToDataUri(qr3dsExport.buffer, qr3dsExport.contentType || "image/png")
+            : "",
+        qrWiiuDataUri: qrWiiuExport
+            ? bufferToDataUri(qrWiiuExport.buffer, qrWiiuExport.contentType || "image/png")
+            : "",
         qrTomodachiDataUri: qrTomodachiExport
             ? bufferToDataUri(qrTomodachiExport.buffer, qrTomodachiExport.contentType || "image/png")
             : "",
@@ -1735,6 +2040,13 @@ async function saveDashboardMiiFields(existingMii, miiFields, { description } = 
         ...fieldsOnly
     };
 
+    const replacementCarriesLtd = Boolean(miiFields?.ltdData);
+    if (getMiiDownloadPolicy(existingMii, { storedRecord: true }).ltdOnly && !replacementCarriesLtd) {
+        throw new Error(
+            "This Mii was uploaded as an LTD file. Replace the LTD file instead of saving edits from decoded JSON."
+        );
+    }
+
     for (const optionalKey of OPTIONAL_MII_DATA_TOP_LEVEL_KEYS) {
         if (!Object.prototype.hasOwnProperty.call(fieldsOnly, optionalKey)) {
             delete mergedMii[optionalKey];
@@ -1745,36 +2057,127 @@ async function saveDashboardMiiFields(existingMii, miiFields, { description } = 
     mergedMii.tags = hasDecodedTomodachiLifeData(mergedMii)
         ? currentTags
         : currentTags.filter(tag => tag.toLowerCase() !== TOMODACHI_LIFE_TAG.toLowerCase());
-    setMiiIdentityHash(mergedMii);
     await applyAutomaticDecodedMiiTags(mergedMii);
     ensureUploadMiiPermissions(mergedMii);
+
+    const canonicalSource = replacementCarriesLtd
+        ? { ...mergedMii, ...miiFields }
+        : { ...mergedMii };
+    if (!replacementCarriesLtd) {
+        for (const key of [
+            "ltdData",
+            "ltdSha256",
+            "ltdAppearanceHash",
+            "ltdVersion",
+            "ltdCharInfo",
+            "ltdProvenance",
+            "ltdConversionReport",
+            "ltdRender"
+        ]) delete canonicalSource[key];
+    }
+    const canonical = await canonicalizeMiiToLtd(canonicalSource, { recordId: existingMii.id });
+    Object.assign(mergedMii, canonical.storedFields);
+    if (replacementCarriesLtd && miiFields.ltdCharInfo) {
+        mergedMii.ltdCharInfo = cloneSerializable(miiFields.ltdCharInfo);
+    }
+    setMiiIdentityHash(mergedMii);
+    await assignMiiEra(mergedMii);
+
+    // Render and validate first, then claim a tokenized Mongo publishing state
+    // before atomically replacing the image and finalizing the ready state.
+    // Unsupported edits fail closed before either published state changes.
+    const rendered = await renderStoredMiiImageResult(mergedMii);
+    const usesLtdRenderer = rendered.rendererBackend === "LTD";
+    if (usesLtdRenderer) {
+        mergedMii.ltdRender = {
+            portrait: {
+                status: "ready",
+                ...rendered.provenance,
+                renderedAt: new Date()
+            }
+        };
+        delete mergedMii.imageRender;
+    } else {
+        mergedMii.imageRender = {
+            portrait: buildStandardMiiRenderReadyState(rendered)
+        };
+        delete mergedMii.ltdRender;
+    }
 
     const { update } = buildSavedMiiFieldUpdate(mergedMii, existingMii, {
         miiHash: mergedMii.miiHash,
         tags: mergedMii.tags
     });
+    Object.assign(update.$set, canonical.storedFields, {
+        era: mergedMii.era,
+        ...(mergedMii.ltdCharInfo ? { ltdCharInfo: cloneSerializable(mergedMii.ltdCharInfo) } : {}),
+        ...(usesLtdRenderer
+            ? { ltdRender: mergedMii.ltdRender }
+            : { imageRender: mergedMii.imageRender })
+    });
+    update.$unset = update.$unset || {};
+    update.$unset[usesLtdRenderer ? "imageRender" : "ltdRender"] = "";
     if (normalizedDescription !== undefined) {
         update.$set.desc = normalizedDescription;
     }
-    const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(existingMii.id, Boolean(existingMii.private));
-    const hasTomodachiQr = hasDecodedTomodachiLifeData(mergedMii);
-    const hasMiitopiaQr = canGenerateMiitopiaQr(mergedMii);
-    const [renderBuffer, qr3dsExport, qrWiiuExport, qrTomodachiExport, qrMiitopiaExport] = await Promise.all([
-        renderStoredMiiImage(mergedMii),
-        exportMiiToBuffer(mergedMii, "qr", { qrConsole: "3DS" }),
-        exportMiiToBuffer(mergedMii, "qr", { qrConsole: "WIIU" }),
-        hasTomodachiQr ? exportMiiToBuffer(mergedMii, "qr", { qrConsole: "TOMODACHI" }) : Promise.resolve(null),
-        hasMiitopiaQr ? exportMiiToBuffer(mergedMii, "qr", { qrConsole: "MIITOPIA" }) : Promise.resolve(null)
-    ]);
+    const { imgPath } = getMiiAssetPaths(existingMii.id, Boolean(existingMii.private));
 
-    await Miis.updateOne({ id: existingMii.id }, update);
-    await Promise.all([
-        writeMiiImageBuffer(renderBuffer, imgPath),
-        fs.promises.writeFile(qrPath, qr3dsExport.buffer),
-        fs.promises.writeFile(qrWiiPath, qrWiiuExport.buffer),
-        qrTomodachiExport ? fs.promises.writeFile(qrTomodachiPath, qrTomodachiExport.buffer) : fs.promises.unlink(qrTomodachiPath).catch(() => {}),
-        qrMiitopiaExport ? fs.promises.writeFile(qrMiitopiaPath, qrMiitopiaExport.buffer) : fs.promises.unlink(qrMiitopiaPath).catch(() => {})
-    ]);
+    await runLtdImageGenerationSingleFlight(imgPath, async () => {
+        const readyState = usesLtdRenderer
+            ? mergedMii.ltdRender.portrait
+            : mergedMii.imageRender.portrait;
+        const commonPublication = {
+            readyState,
+            publishToken: crypto.randomBytes(16).toString("hex"),
+            withPublishLock: task => withMiiImagePublishLock(imgPath, task),
+            resolveCurrentMii: async () => await Miis.findOne({ id: existingMii.id }).select("+ltdData").lean(),
+            publishAsset: async () => await writeMiiImageBuffer(rendered.buffer, imgPath)
+        };
+        const committed = usesLtdRenderer
+            ? await publishCasGuardedLtdImage({
+                ...commonPublication,
+                resolveCurrentMii: async () => await getCurrentLtdRenderIdentityMii(existingMii.id),
+                validateClaimedMii: async (claimedMii) =>
+                    resolveMiiRendererRoute(claimedMii).backend === "LTD",
+                claimPublishing: async (_currentMii, publishingState) => {
+                    update.$set.ltdRender = { portrait: publishingState };
+                    const saveResult = await Miis.updateOne(
+                        buildLtdRenderPortraitCasFilter(existingMii),
+                        update
+                    );
+                    return (saveResult?.matchedCount ?? saveResult?.n ?? 0) === 1;
+                },
+                finalizeReady: async (claimedMii, finalState) =>
+                    await persistCurrentLtdRenderPortraitState(claimedMii, finalState)
+            })
+            : await publishCasGuardedStandardMiiImage({
+                ...commonPublication,
+                validateClaimedMii: async (claimedMii) => {
+                    const identity = await getMiiImageRenderIdentity(claimedMii);
+                    return identity.backend === readyState.rendererBackend
+                        && identity.profile === readyState.rendererProfile
+                        && identity.rendererRevision === readyState.rendererRevision
+                        && identity.rendererCacheKey === readyState.rendererCacheKey;
+                },
+                claimPublishing: async (_currentMii, publishingState) => {
+                    update.$set.imageRender = { portrait: publishingState };
+                    const saveResult = await Miis.updateOne(
+                        buildStandardMiiRenderPortraitCasFilter(existingMii),
+                        update
+                    );
+                    return (saveResult?.matchedCount ?? saveResult?.n ?? 0) === 1;
+                },
+                finalizeReady: async (claimedMii, finalState) =>
+                    await persistStandardMiiRenderPortraitStateCas({
+                        mii: claimedMii,
+                        state: finalState,
+                        updateOne: async (filter, stateUpdate) => await Miis.updateOne(filter, stateUpdate)
+                    })
+            });
+        if (!committed) {
+            throw new Error("The Mii changed while its render was being committed.");
+        }
+    });
 
     return {
         ...mergedMii,
@@ -1785,6 +2188,9 @@ async function saveDashboardMiiFields(existingMii, miiFields, { description } = 
 }
 
 async function buildMiiDashboardErrorPayload(req, error, { reqFile = null, rawInput = "", filePath = "", context = "miiDashboard" } = {}) {
+    if (error?.code === "LTD_SHAREMII_IMPORT_UNSAFE") {
+        return { error: error.message, code: error.code };
+    }
     const isInvalidMiiType = isInvalidMiiTypeError(error);
     const miiJsDebugOutput = isInvalidMiiType ? getMiiJsDebugOutputFromError(error) : "";
     const dumpedUpload = reqFile?.path
@@ -1851,11 +2257,36 @@ async function enrichMiiLifeStagesForClient(stages) {
 async function sendExportResponse(res, miiInput, format, nameHint, options = {}) {
     const normalized = normalizeExportFormat(format);
     if (!normalized) {
-        res.json({ error: "Invalid format specified" });
+        res.status(400).json({ error: "Invalid format specified" });
         return false;
     }
 
-    const { buffer, contentType, extension } = await exportMiiToBuffer(miiInput, normalized, options);
+    try {
+        assertMiiDownloadFormat(miiInput, normalized, {
+            storedRecord: options.storedRecord === true
+        });
+    } catch (error) {
+        if (error instanceof LtdOnlyDownloadError) {
+            res.status(error.status || 400).json({ error: error.message, code: error.code });
+            return false;
+        }
+        throw error;
+    }
+
+    let exported;
+    try {
+        exported = await exportMiiToBuffer(miiInput, normalized, options);
+    } catch (error) {
+        if (error?.code === "LTD_SHAREMII_IMPORT_UNSAFE") {
+            if (normalized === "ltd") {
+                applyNoCacheHeaders(res);
+            }
+            res.status(422).json({ error: error.message, code: error.code });
+            return false;
+        }
+        throw error;
+    }
+    const { buffer, contentType, extension } = exported;
     const safeName = safeMiiFilename(nameHint, "mii");
 
     let filename;
@@ -1867,6 +2298,13 @@ async function sendExportResponse(res, miiInput, format, nameHint, options = {})
 
     res.setHeader("Content-Disposition", `${options.inline ? "inline" : "attachment"}; filename="${filename}"`);
     res.setHeader("Content-Type", contentType);
+    if (normalized === "ltd") {
+        // Public generated LTDs used to be cacheable. A stale pre-safety file
+        // can crash ShareMii even after the origin record has been repaired.
+        applyNoCacheHeaders(res);
+    } else if (miiInput?.private) {
+        res.setHeader("Cache-Control", "private, no-store");
+    }
     res.send(buffer);
     return true;
 }
@@ -1896,9 +2334,9 @@ async function exportMiiById(req, res) {
     }
 
     if (!mii) {
-        const tempPath = `./static/temp/${miiId}.bin`;
-        if (fs.existsSync(tempPath)) {
-            miiInput = tempPath;
+        const tempPath = getTrustedTempMiiPath(miiId);
+        if (tempPath && fs.existsSync(tempPath)) {
+            miiInput = trustedMiiFileInput(tempPath, `${miiId}.bin`);
         } else {
             res.json({ error: "Invalid Mii ID" });
             return;
@@ -1906,11 +2344,28 @@ async function exportMiiById(req, res) {
     }
 
     try {
-        const miiInstance = await miijs.Mii.create(miiInput);
-        const miiName = miiInstance?.fields?.meta?.name || mii?.meta?.name || "mii";
-        await sendExportResponse(res, miiInstance.fields, req.query.format, miiName, getExportOptionsFromRequest(req));
+        if (mii) {
+            const miiName = mii?.meta?.name || "mii";
+            await sendExportResponse(res, mii, req.query.format, miiName, {
+                ...getExportOptionsFromRequest(req),
+                storedRecord: true
+            });
+        } else {
+            const parsed = await createMiiData(miiInput);
+            await sendExportResponse(
+                res,
+                parsed,
+                req.query.format,
+                parsed?.meta?.name || "mii",
+                getExportOptionsFromRequest(req)
+            );
+        }
     } catch (e) {
         console.error("Error exporting Mii:", e);
+        if (e?.code === "LTD_SHAREMII_IMPORT_UNSAFE") {
+            res.status(422).json({ error: e.message, code: e.code });
+            return;
+        }
         res.json({ error: "Failed to export Mii: " + e.message });
     }
 }
@@ -2734,7 +3189,7 @@ async function updateSettings(updates) {
 async function getMiiById(id, includePrivate = false) {
     const query = { id };
     if (!includePrivate) query.private = false;
-    return await Miis.findOne(query).lean();
+    return await Miis.findOne(query).select("+ltdData").lean();
 }
 
 const miiCardCache = new AsyncTtlLruCache({
@@ -2758,13 +3213,16 @@ async function getMiiCardById(id, includePrivate = false) {
     if (!normalizedId) return null;
 
     const cacheKey = getMiiCardCacheKey(normalizedId, includePrivate);
-    return miiCardCache.get(cacheKey, () => {
+    return miiCardCache.get(cacheKey, async () => {
         const query = { id: normalizedId };
         if (!includePrivate) query.private = false;
-        return Miis.findOne(query)
-            .select(MII_CARD_SELECT)
+        const mii = await Miis.findOne(query)
+            .select(`${MII_CARD_SELECT} ${MII_EFFECTIVE_SEARCH_SELECT}`)
             .lean()
             .exec();
+        if (!mii) return null;
+        const effective = classifyAndMatchEffectiveMiiSearchFilters(mii);
+        return withEffectiveMiiSearchClassification(mii, effective.classification);
     });
 }
 
@@ -2776,39 +3234,23 @@ function hasRenderableMiiPageData(mii) {
 }
 
 async function resolveMiiIdForImport(id, req) {
-    const trimmedId = typeof id === "string" ? id.trim() : "";
-    if (!trimmedId) {
-        return { error: "No Mii ID provided" };
-    }
-
-    const publishedMii = await getMiiById(trimmedId, false);
-    if (publishedMii) {
-        if (isMiiHiddenFromViewer(publishedMii, req.user)) {
-            return { error: "Invalid Mii ID - Mii not found" };
-        }
-        return { mii: toMiiDataOnly(publishedMii) };
-    }
-
-    const privateMii = await Miis.findOne({ id: trimmedId, private: true }).lean();
-    if (!privateMii) {
-        return { error: "Invalid Mii ID - Mii not found" };
-    }
-
-    const isOwner = req.user && privateMii.uploader === req.user.username;
-    const isModerator = req.user && canModerate(req.user);
-
-    if (!isOwner && !isModerator) {
-        return { error: "You do not have permission to use this private Mii" };
-    }
-
-    return { mii: toMiiDataOnly(privateMii) };
+    return await resolveMiiIdForImportWithLookups(id, req, {
+        findPublishedMii: async (trimmedId) => await getMiiById(trimmedId, false),
+        // `ltdData` is excluded by the schema. Import/export policy resolution
+        // requires the exact source bytes after the private access check succeeds.
+        findPrivateMii: async (trimmedId) => await Miis.findOne({ id: trimmedId, private: true })
+            .select("+ltdData")
+            .lean(),
+        isMiiHiddenFromViewer,
+        canModerate
+    });
 }
 
 async function resolveMiiInputForInstructions(req, { allowFile = false } = {}) {
     const source = req.method === "GET" ? req.query : req.body;
 
     if (allowFile && req.file?.path) {
-        return req.file.path;
+        return trustedMiiFileInput(req.file);
     }
 
     const rawMiiData = typeof source?.miiData === "string" ? source.miiData.trim() : "";
@@ -2829,9 +3271,9 @@ async function resolveMiiInputForInstructions(req, { allowFile = false } = {}) {
             return resolved.mii;
         }
 
-        const tempPath = `./static/temp/${miiId}.bin`;
-        if (fs.existsSync(tempPath)) {
-            return tempPath;
+        const tempPath = getTrustedTempMiiPath(miiId);
+        if (tempPath && fs.existsSync(tempPath)) {
+            return trustedMiiFileInput(tempPath, `${miiId}.bin`);
         }
 
         throw new Error(resolved.error || "Invalid Mii ID");
@@ -3519,6 +3961,8 @@ async function getSendables(req, title, user) {
             req.user?.blockedOfficialCategories,
             blockableOfficialCategories.map(category => category.path)
         ),
+        blockedMiiEras: normalizeBlockedMiiEras(req.user?.blockedMiiEras),
+        blockedFacepaintUsages: normalizeBlockedFacepaintUsages(req.user?.blockedFacepaintUsages),
         hiddenMiiIds: normalizeUserHiddenMiiIds(req.user?.hiddenMiiIds),
         externalMiiPreference: normalizeExternalMiiPreference(req.user?.externalMiiPreference),
         selectedTags,
@@ -3526,6 +3970,8 @@ async function getSendables(req, title, user) {
         selectedSearchFields,
         searchFieldsExplicitlyConfigured,
         advancedSearchFilters,
+        miiEraFilterOptions: MII_ERA_FILTER_OPTIONS,
+        miiFacepaintFilterOptions: MII_FACEPAINT_FILTER_OPTIONS,
         favoriteColorOptions: getMiiFavoriteColorOptions(),
         birthdayMonthOptions: getBirthdayMonthOptions(),
         birthdayDayOptions: getBirthdayDayOptions(),
@@ -3551,6 +3997,7 @@ async function getSendables(req, title, user) {
         miiDescriptionMaxLength: MII_DESCRIPTION_MAX_LENGTH,
         title: title,
         exportFormats: EXPORT_FORMATS,
+        ltdOnlyExportFormats: LTD_ONLY_EXPORT_FORMATS,
         favoriteColors: Array.isArray(miijs.FavoriteColors) ? miijs.FavoriteColors : [],
         userPfpMiiColor: userPfpMiiColor ?? "#111111",
         highlightedMiiData: visibleHighlightedMiiData,
@@ -4542,50 +4989,23 @@ function buildMiiSeoDetails(mii, categoryConfig, options = {}) {
             : (uploaderName ? ` uploaded by ${uploaderName}` : ""));
 
     const metaDescriptionParts = [
-        `Download ${miiName}, an ${archiveTypeLabel.toLowerCase()}${sourceDescription}${creatorName ? ` with creator name ${creatorName}` : ""}.`,
-        consoleLabel
-            ? `Includes QR code access and export options for ${consoleLabel} Mii workflows.`
-            : "Includes QR code access and export options for Nintendo Mii workflows.",
-        categoryNames.length
-            ? `Filed under ${categoryNames.slice(0, 3).join(", ")}.`
-            : "",
-        tagList.length
-            ? `Tagged ${tagList.slice(0, 4).join(", ")}.`
-            : ""
+        `View ${miiName}${sourceDescription} on InfiniMii.`,
+        consoleLabel ? `Source format: ${consoleLabel}.` : ""
     ].filter(Boolean);
 
     const searchTopicPhrases = uniqueTextValues([
         `${miiName} Mii`,
-        `${miiName} Mii QR code`,
-        `${miiName} Mii download`,
-        `${miiName} Mii character`,
         creatorName ? `${creatorName} Mii` : "",
-        primaryOwnerLabel ? `${primaryOwnerLabel} Mii` : "",
-        externalSource?.user ? `${externalSource.user} Mii` : "",
-        mii?.official && officialSourceName ? `${officialSourceName} official Mii` : "",
-        consoleLabel ? `${miiName} ${consoleLabel}` : "",
-        favoriteColorName ? `${favoriteColorName} Mii` : "",
-        genderLabel ? `${genderLabel} Mii` : "",
-        ...tagList.map(tag => `${tag} Mii`),
-        ...categoryNames.map(name => `${name} Mii`)
-    ]).slice(0, 20);
+        primaryOwnerLabel ? `${primaryOwnerLabel} Mii` : ""
+    ]).slice(0, 6);
 
     const keywordList = uniqueTextValues([
         miiName,
-        `${miiName} Mii`,
-        `${miiName} Mii QR code`,
-        `${miiName} Mii download`,
-        `${miiName} Mii character`,
-        creatorName ? `${creatorName} Mii` : "",
-        primaryOwnerLabel ? `${primaryOwnerLabel} Mii` : "",
-        externalSource?.user ? `${externalSource.user} Mii` : "",
-        mii?.official && officialSourceName ? `${officialSourceName} official Mii` : "",
-        consoleLabel ? `${miiName} ${consoleLabel}` : "",
-        favoriteColorName ? `${favoriteColorName} Mii` : "",
-        genderLabel ? `${genderLabel} Mii` : "",
-        ...tagList,
-        ...categoryNames
-    ]).slice(0, 28);
+        creatorName,
+        primaryOwnerLabel,
+        ...tagList.slice(0, 4),
+        ...categoryNames.slice(0, 3)
+    ]).slice(0, 10);
 
     return {
         name: miiName,
@@ -4677,11 +5097,14 @@ async function serveCachedGuestMiiPage(req, res, next) {
 
 function loadRelatedMiiPageData(mii, miiSeo, viewerUser = null) {
     const load = async () => {
+        const useEffectiveClassifications = shouldResolveEffectiveSearchClassifications({}, viewerUser);
         const relatedVisibilityFilter = applyMiiVisibilityFilters({
             private: false,
             published: true,
             id: { $ne: mii.id }
-        }, viewerUser);
+        }, viewerUser, {
+            includeStoredEraAndFacepaint: !useEffectiveClassifications
+        });
         const sameArchiveOwnerQuery = mii.official
             ? { official: true, officialSource: mii.officialSource || mii.uploader }
             : { uploader: mii.uploader };
@@ -4689,47 +5112,74 @@ function loadRelatedMiiPageData(mii, miiSeo, viewerUser = null) {
             uploader: mii.uploader,
             private: false,
             published: true
-        }, viewerUser);
+        }, viewerUser, {
+            includeStoredEraAndFacepaint: !useEffectiveClassifications
+        });
         const categoryPaths = miiSeo.categoryDetails.map(category => category.path).slice(0, 6);
 
-        const [sameArchiveOwnerMiis, similarMiis, relatedCategoryMiis, archiveOwnerSummary] = await Promise.all([
-            Miis.find({ ...relatedVisibilityFilter, ...sameArchiveOwnerQuery })
-                .select(MII_CARD_SELECT)
-                .sort({ votes: -1, uploadedOn: -1 })
-                .limit(8)
-                .lean(),
-            findSimilarMiis(mii, relatedVisibilityFilter, 8),
+        const loadTopCards = async (query, limit = 8) => {
+            if (!useEffectiveClassifications) {
+                return Miis.find(query)
+                    .select(MII_CARD_SELECT)
+                    .sort({ votes: -1, uploadedOn: -1 })
+                    .limit(limit)
+                    .lean();
+            }
+            const result = await getEffectiveSearchPaginatedResult(
+                Miis.find(query)
+                    .select(`${MII_CARD_SELECT} ${MII_EFFECTIVE_SEARCH_SELECT}`)
+                    .sort({ votes: -1, uploadedOn: -1 })
+                    .lean()
+                    .cursor(),
+                {}, viewerUser, 1, limit, 0
+            );
+            return result.items;
+        };
+
+        const loadArchiveOwnerSummary = async () => {
+            if (!useEffectiveClassifications) {
+                const summary = await Miis.aggregate([
+                    { $match: archiveOwnerVisibilityFilter },
+                    {
+                        $group: {
+                            _id: null,
+                            totalMiis: { $sum: 1 },
+                            totalLikes: { $sum: { $ifNull: ["$votes", 0] } }
+                        }
+                    }
+                ]);
+                return summary?.[0] || { totalMiis: 0, totalLikes: 0 };
+            }
+            let totalLikes = 0;
+            const result = await getEffectiveSearchPaginatedResult(
+                Miis.find(archiveOwnerVisibilityFilter)
+                    .select(`${MII_CARD_SELECT} ${MII_EFFECTIVE_SEARCH_SELECT}`)
+                    .lean()
+                    .cursor(),
+                {}, viewerUser, 1, 1, 0,
+                card => { totalLikes += Number(card.votes || 0); }
+            );
+            return { totalMiis: result.total, totalLikes };
+        };
+
+        const [sameArchiveOwnerMiis, similarMiis, relatedCategoryMiis, archiveOwnerStats] = await Promise.all([
+            loadTopCards({ ...relatedVisibilityFilter, ...sameArchiveOwnerQuery }),
+            findSimilarMiis(mii, relatedVisibilityFilter, 8, viewerUser),
             categoryPaths.length > 0
-                ? Miis.find({
+                ? loadTopCards({
                     ...relatedVisibilityFilter,
                     official: true,
                     officialCategories: { $in: categoryPaths }
                 })
-                    .select(MII_CARD_SELECT)
-                    .sort({ votes: -1, uploadedOn: -1 })
-                    .limit(8)
-                    .lean()
                 : Promise.resolve([]),
-            Miis.aggregate([
-                { $match: archiveOwnerVisibilityFilter },
-                {
-                    $group: {
-                        _id: null,
-                        totalMiis: { $sum: 1 },
-                        totalLikes: { $sum: { $ifNull: ["$votes", 0] } }
-                    }
-                }
-            ])
+            loadArchiveOwnerSummary()
         ]);
 
         return {
             sameArchiveOwnerMiis,
             similarMiis,
             relatedCategoryMiis,
-            archiveOwnerStats: {
-                totalMiis: archiveOwnerSummary?.[0]?.totalMiis || 0,
-                totalLikes: archiveOwnerSummary?.[0]?.totalLikes || 0
-            }
+            archiveOwnerStats
         };
     };
 
@@ -4933,11 +5383,15 @@ function rankSimilarMiiCandidates(candidates, context, limit = 8) {
         .map((entry) => entry.mii);
 }
 
-async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
+async function findSimilarMiis(mii, visibilityFilter, limit = 8, viewerUser = null) {
     const context = buildSimilarMiiContext(mii);
     const candidateQueries = [];
     const sort = getStablePopularitySort();
     const name = getComparableMiiName(mii);
+    const useEffectiveClassifications = shouldResolveEffectiveSearchClassifications({}, viewerUser);
+    const candidateSelect = useEffectiveClassifications
+        ? `${MII_CARD_SELECT} ${MII_EFFECTIVE_SEARCH_SELECT}`
+        : MII_CARD_SELECT;
 
     if (name) {
         const nameRegex = buildExactCaseInsensitiveRegex(name);
@@ -4949,7 +5403,7 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
                     { name: nameRegex }
                 ]
             })
-                .select(MII_CARD_SELECT)
+                .select(candidateSelect)
                 .sort(sort)
                 .limit(SIMILAR_MII_QUERY_LIMIT)
                 .lean()
@@ -4962,7 +5416,7 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
                 ...visibilityFilter,
                 tags: { $in: context.currentTags.map(buildExactCaseInsensitiveRegex) }
             })
-                .select(MII_CARD_SELECT)
+                .select(candidateSelect)
                 .sort(sort)
                 .limit(SIMILAR_MII_QUERY_LIMIT)
                 .lean()
@@ -4979,7 +5433,7 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
                 ...visibilityFilter,
                 tags: { $in: tagTermRegexes }
             })
-                .select(MII_CARD_SELECT)
+                .select(candidateSelect)
                 .sort(sort)
                 .limit(SIMILAR_MII_QUERY_LIMIT)
                 .lean()
@@ -4996,7 +5450,7 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
                 ...visibilityFilter,
                 $or: descriptionTermRegexes.map((regex) => ({ desc: regex }))
             })
-                .select(MII_CARD_SELECT)
+                .select(candidateSelect)
                 .sort(sort)
                 .limit(SIMILAR_MII_QUERY_LIMIT)
                 .lean()
@@ -5008,7 +5462,16 @@ async function findSimilarMiis(mii, visibilityFilter, limit = 8) {
     }
 
     const candidateGroups = await Promise.all(candidateQueries);
-    return rankSimilarMiiCandidates(candidateGroups.flat(), context, limit);
+    const candidates = candidateGroups.flat();
+    const visibleCandidates = useEffectiveClassifications
+        ? candidates.flatMap(candidate => {
+            const effective = classifyAndMatchEffectiveMiiSearchFilters(candidate, {}, viewerUser);
+            return effective.matches
+                ? [withEffectiveMiiSearchClassification(candidate, effective.classification)]
+                : [];
+        })
+        : candidates;
+    return rankSimilarMiiCandidates(visibleCandidates, context, limit);
 }
 
 function getTomodachiLifeDisplayValue(value, fallback = "Unknown") {
@@ -5529,9 +5992,12 @@ async function persistUploadedMii(mii, {
     mii.official = shouldStoreOfficial;
     mii.published = wantsPublic;
     mii.blockedFromPublishing = false;
+    const canonicalLtd = await canonicalizeMiiToLtd(mii, { recordId: mii.id });
+    Object.assign(mii, canonicalLtd.storedFields);
     setMiiIdentityHash(mii);
     await applyAutomaticDecodedMiiTags(mii);
     ensureUploadMiiPermissions(mii);
+    await assignMiiEra(mii);
 
     const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(mii.id, !wantsPublic);
     const assetPaths = {
@@ -5543,26 +6009,64 @@ async function persistUploadedMii(mii, {
     };
 
     try {
-        await Promise.all([
-            writeRenderedMiiImage(mii, assetPaths.img),
-            writeQrPng(mii, assetPaths.qr3ds, "3DS"),
-            writeQrPng(mii, assetPaths.qrWii, "WIIU"),
-            writeOptionalQrPng(mii, assetPaths.qrTomodachi, "TOMODACHI"),
-            writeOptionalQrPng(mii, assetPaths.qrMiitopia, "MIITOPIA")
-        ]);
+        try {
+            const rendered = await renderStoredMiiImageResult(mii);
+            await writeMiiImageBuffer(rendered.buffer, assetPaths.img);
+            if (rendered.rendererBackend === "LTD") {
+                mii.ltdRender = {
+                    portrait: {
+                        status: "ready",
+                        ...rendered.provenance,
+                        renderedAt: new Date()
+                    }
+                };
+                delete mii.imageRender;
+            } else {
+                mii.imageRender = {
+                    portrait: buildStandardMiiRenderReadyState(rendered)
+                };
+                delete mii.ltdRender;
+            }
+        } catch (error) {
+            if (!(error instanceof LtdRenderError) || !error.deterministic || error.status !== 422) throw error;
+            mii.ltdRender = {
+                portrait: {
+                    status: "unsupported",
+                    ltdSha256: error.ltdSha256 || mii.ltdSha256,
+                    rendererRevision: error.rendererRevision || getConfiguredLtdRendererRevision(),
+                    backgroundMode: LTD_RENDER_BACKGROUND_MODE,
+                    presentationContextKind: error.presentationContextKind,
+                    presentationContextSha256: error.presentationContextSha256,
+                    rasterProfile: error.rasterProfile || LTD_RENDER_RASTER_PROFILE,
+                    failureCode: error.code,
+                    checkedAt: new Date()
+                }
+            };
+            assetPaths.img = "";
+        }
+        await syncStoredMiiQrAssets(mii, { isPrivate: !wantsPublic });
         await Miis.create({
             ...mii,
             id: mii.id,
             private: !wantsPublic
         });
     } catch (error) {
-        await Promise.all([
+        const rollbackPaths = [
             fs.promises.unlink(assetPaths.img).catch(() => {}),
             fs.promises.unlink(assetPaths.qr3ds).catch(() => {}),
             fs.promises.unlink(assetPaths.qrWii).catch(() => {}),
             fs.promises.unlink(assetPaths.qrTomodachi).catch(() => {}),
             fs.promises.unlink(assetPaths.qrMiitopia).catch(() => {})
-        ]);
+        ];
+        for (const qrAssetPath of [
+            assetPaths.qr3ds,
+            assetPaths.qrWii,
+            assetPaths.qrTomodachi,
+            assetPaths.qrMiitopia
+        ]) {
+            rollbackPaths.push(fs.promises.unlink(`${qrAssetPath}.identity`).catch(() => {}));
+        }
+        await Promise.all(rollbackPaths);
         throw error;
     }
 
@@ -5917,15 +6421,16 @@ async function processOfficialZipUpload({
 
     await runConcurrentZipEntryWorkers(archiveEntries, OFFICIAL_ZIP_UPLOAD_CONCURRENCY, async (entry) => {
         try {
-            const mii = await createMiiData(entry.data);
-            const miiHash = getMiiIdentityHash(mii, { includeGeneral: true });
+            const mii = await createMiiData(trustedMiiBytesInput(entry.data, entry.name));
+            const identityMii = await prepareMiiIdentityCandidate(mii, "official-zip-identity");
+            const miiHash = getMiiIdentityHash(identityMii, { includeGeneral: true });
 
             const entryResult = await withOfficialZipMiiHashLock(miiHash, async () => {
                 if (miiHash && seenArchiveHashes.has(miiHash)) {
                     return { status: "duplicate" };
                 }
 
-                const matchingMii = await findMatchingMii(mii, {
+                const matchingMii = await findMatchingMii(identityMii, {
                     includeGeneral: true,
                     includeLegacyHashCandidates: false
                 });
@@ -6090,7 +6595,7 @@ async function processOfficialZipReupload({ zipFilePath, archiveEntries: provide
 
     await runConcurrentZipEntryWorkers(archiveEntries, OFFICIAL_ZIP_REUPLOAD_CONCURRENCY, async (entry) => {
         try {
-            const replacementMii = await createMiiData(entry.data);
+            const replacementMii = await createMiiData(trustedMiiBytesInput(entry.data, entry.name));
             const maskedHash = getMiiIdentityHashWithoutFaceFeatureMakeup(replacementMii, { includeGeneral: true });
             const matchingMiis = maskedHash ? (existingMiisByMaskedHash.get(maskedHash) || []) : [];
 
@@ -6319,7 +6824,10 @@ function buildArrayExcludesCategoryPathCondition(fieldName, categoryPath) {
     };
 }
 
-function getMiiVisibilityConditionsForUser(user, { includeHiddenMiiIds = true } = {}) {
+function getMiiVisibilityConditionsForUser(user, {
+    includeHiddenMiiIds = true,
+    includeStoredEraAndFacepaint = true
+} = {}) {
     const conditions = [];
     const blockedTags = getBlockedTagsForViewer(user);
     const blockedCategories = user
@@ -6330,13 +6838,29 @@ function getMiiVisibilityConditionsForUser(user, { includeHiddenMiiIds = true } 
         : [];
 
     blockedTags.forEach(tag => {
-        conditions.push(buildArrayExcludesExactTextCondition("tags", tag));
+        const condition = buildArrayExcludesExactTextCondition("tags", tag);
+        // The anonymous controversial-content default is not a user Setting.
+        // Signed-in content preferences cannot hide Average or the viewer's
+        // current profile Mii.
+        conditions.push(user
+            ? preserveMiiContentSettingsExemptions(condition, user)
+            : condition);
     });
     blockedCategories.forEach(categoryPath => {
-        conditions.push(buildArrayExcludesCategoryPathCondition("officialCategories", categoryPath));
+        conditions.push(preserveMiiContentSettingsExemptions(
+            buildArrayExcludesCategoryPathCondition("officialCategories", categoryPath),
+            user
+        ));
     });
+    if (includeStoredEraAndFacepaint) {
+        conditions.push(...buildBlockedContentConditions(user));
+    }
     if (hiddenMiiIds.length > 0) {
-        conditions.push({ id: { $nin: hiddenMiiIds } });
+        const exemptIdSet = new Set(getMiiContentSettingsExemptIds(user));
+        const blockableHiddenIds = hiddenMiiIds.filter(id => !exemptIdSet.has(id));
+        if (blockableHiddenIds.length > 0) {
+            conditions.push({ id: { $nin: blockableHiddenIds } });
+        }
     }
 
     return conditions;
@@ -6382,17 +6906,27 @@ function isCategoryPathBlockedForUser(categoryPath, user) {
 function isMiiHiddenFromViewer(mii, user, { includeHiddenMiiIds = true } = {}) {
     if (!mii) return true;
 
+    const settingsExempt = Boolean(user && isMiiExemptFromContentSettings(mii, user));
+
     const tagSet = new Set(normalizeTagList(mii.tags || []).map(tag => tag.toLowerCase()));
-    if (getBlockedTagsForViewer(user).some(tag => tagSet.has(String(tag).toLowerCase()))) {
+    if (
+        !settingsExempt
+        && getBlockedTagsForViewer(user).some(tag => tagSet.has(String(tag).toLowerCase()))
+    ) {
         return true;
     }
 
-    if (isMiiBlockedByCategoryForUser(mii, user)) {
+    if (!settingsExempt && isMiiBlockedByCategoryForUser(mii, user)) {
+        return true;
+    }
+
+    if (!classifyAndMatchEffectiveMiiSearchFilters(mii, {}, user).matches) {
         return true;
     }
 
     if (
         user
+        && !settingsExempt
         && includeHiddenMiiIds
         && normalizeUserHiddenMiiIds(user.hiddenMiiIds).includes(normalizeMiiIdInput(mii.id))
     ) {
@@ -6525,16 +7059,20 @@ function normalizeRangeFilterValues(rawMinValue, rawMaxValue, minimum = MII_DIME
 }
 
 function getRequestedAdvancedSearchFilters(source = {}) {
-    const gender = normalizeIntegerFilterValue(source?.gender, 0, 1);
     const favoriteColor = normalizeIntegerFilterValue(source?.favoriteColor, 0, MII_FAVORITE_COLOR_LABELS.length - 1);
     const birthMonth = normalizeIntegerFilterValue(source?.birthMonth, 1, 12);
     const birthday = normalizeIntegerFilterValue(source?.birthday, 1, 31);
     const heightRange = normalizeRangeFilterValues(source?.heightMin, source?.heightMax);
     const weightRange = normalizeRangeFilterValues(source?.weightMin, source?.weightMax);
     const mustHaveTomodachiLifeData = parseBooleanLike(source?.hasTlData ?? source?.mustHaveTomodachiLifeData);
+    const miiEraFilters = getRequestedMiiEraFilters(source);
+    const miiFacepaintFilters = getRequestedMiiFacepaintFilters(source);
+    const miiContentFilters = combineRequestedMiiContentFilters(
+        miiEraFilters,
+        miiFacepaintFilters
+    );
 
     return {
-        gender,
         favoriteColor,
         birthMonth,
         birthday,
@@ -6543,14 +7081,15 @@ function getRequestedAdvancedSearchFilters(source = {}) {
         weightMin: weightRange.min,
         weightMax: weightRange.max,
         mustHaveTomodachiLifeData,
+        ...miiContentFilters,
         isActive: Boolean(
-            gender
-            || favoriteColor
+            favoriteColor
             || birthMonth
             || birthday
             || heightRange.isActive
             || weightRange.isActive
             || mustHaveTomodachiLifeData
+            || miiContentFilters.isActive
         )
     };
 }
@@ -6564,12 +7103,13 @@ function getTomodachiLifeDataPresentCondition() {
     };
 }
 
-function applyAdvancedMiiSearchFilters(query, filters = {}) {
+function applyAdvancedMiiSearchFilters(query, filters = {}, {
+    includeStoredEraAndFacepaint = true
+} = {}) {
     if (!filters || typeof filters !== "object") {
         return query;
     }
 
-    const gender = normalizeIntegerFilterValue(filters.gender, 0, 1);
     const favoriteColor = normalizeIntegerFilterValue(filters.favoriteColor, 0, MII_FAVORITE_COLOR_LABELS.length - 1);
     const birthMonth = normalizeIntegerFilterValue(filters.birthMonth, 1, 12);
     const birthday = normalizeIntegerFilterValue(filters.birthday, 1, 31);
@@ -6577,9 +7117,6 @@ function applyAdvancedMiiSearchFilters(query, filters = {}) {
     const weightRange = normalizeRangeFilterValues(filters.weightMin, filters.weightMax);
     const conditions = [];
 
-    if (gender) {
-        conditions.push({ "general.gender": Number(gender) });
-    }
     if (favoriteColor) {
         conditions.push({ "general.favoriteColor": Number(favoriteColor) });
     }
@@ -6607,6 +7144,11 @@ function applyAdvancedMiiSearchFilters(query, filters = {}) {
     }
     if (parseBooleanLike(filters.mustHaveTomodachiLifeData ?? filters.hasTlData)) {
         conditions.push(getTomodachiLifeDataPresentCondition());
+    }
+
+    if (includeStoredEraAndFacepaint) {
+        applyMiiEraSearchFilter(query, filters);
+        applyMiiFacepaintSearchFilter(query, filters);
     }
 
     if (conditions.length > 0) {
@@ -6808,30 +7350,19 @@ async function renameMiiAssets(oldId, newId, isPrivate) {
     const sourcePaths = getMiiAssetPaths(oldId, isPrivate);
     const destinationPaths = getMiiAssetPaths(newId, isPrivate);
 
-    if (fs.existsSync(sourcePaths.imgPath)) {
-        try { await fs.promises.unlink(destinationPaths.imgPath); } catch (e) {}
-        await fs.promises.rename(sourcePaths.imgPath, destinationPaths.imgPath);
-    }
-
-    if (fs.existsSync(sourcePaths.qrPath)) {
-        try { await fs.promises.unlink(destinationPaths.qrPath); } catch (e) {}
-        await fs.promises.rename(sourcePaths.qrPath, destinationPaths.qrPath);
-    }
-
-    if (fs.existsSync(sourcePaths.qrWiiPath)) {
-        try { await fs.promises.unlink(destinationPaths.qrWiiPath); } catch (e) {}
-        await fs.promises.rename(sourcePaths.qrWiiPath, destinationPaths.qrWiiPath);
-    }
-
-    if (fs.existsSync(sourcePaths.qrTomodachiPath)) {
-        try { await fs.promises.unlink(destinationPaths.qrTomodachiPath); } catch (e) {}
-        await fs.promises.rename(sourcePaths.qrTomodachiPath, destinationPaths.qrTomodachiPath);
-    }
-
-    if (fs.existsSync(sourcePaths.qrMiitopiaPath)) {
-        try { await fs.promises.unlink(destinationPaths.qrMiitopiaPath); } catch (e) {}
-        await fs.promises.rename(sourcePaths.qrMiitopiaPath, destinationPaths.qrMiitopiaPath);
-    }
+    const moveIfPresent = async (sourcePath, destinationPath) => {
+        try {
+            await fs.promises.access(sourcePath, fs.constants.F_OK);
+            await fs.promises.rm(destinationPath, { force: true });
+            await fs.promises.rename(sourcePath, destinationPath);
+        } catch (error) {
+            if (error?.code !== "ENOENT") throw error;
+        }
+    };
+    await Promise.all(Object.keys(sourcePaths).flatMap(key => [
+        moveIfPresent(sourcePaths[key], destinationPaths[key]),
+        moveIfPresent(`${sourcePaths[key]}.identity`, `${destinationPaths[key]}.identity`)
+    ]));
 
     return destinationPaths;
 }
@@ -6839,27 +7370,22 @@ async function renameMiiAssets(oldId, newId, isPrivate) {
 async function ensureStoredMiiAssets(mii) {
     if (!mii?.id) return;
 
-    const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
+    const { imgPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
 
-    if (!fs.existsSync(imgPath)) {
-        await writeStoredMiiImage(mii, imgPath);
-    }
+    const imageReady = await ensureCurrentStoredMiiImageAsset({
+        assetPath: imgPath,
+        initialMii: mii,
+        resolveCurrentMii: async () => await Miis.findOne({
+            id: mii.id,
+            private: Boolean(mii.private)
+        }).select("+ltdData").lean()
+    });
+    if (!imageReady) throw new Error("The Mii changed while its render image asset was being ensured.");
 
-    if (!fs.existsSync(qrPath)) {
-        await writeQrPng(mii, qrPath, "3DS");
-    }
-
-    if (!fs.existsSync(qrWiiPath)) {
-        await writeQrPng(mii, qrWiiPath, "WIIU");
-    }
-
-    if (!fs.existsSync(qrTomodachiPath)) {
-        await writeOptionalQrPng(mii, qrTomodachiPath, "TOMODACHI");
-    }
-
-    if (!fs.existsSync(qrMiitopiaPath)) {
-        await writeOptionalQrPng(mii, qrMiitopiaPath, "MIITOPIA");
-    }
+    await syncStoredMiiQrAssets(mii, {
+        isPrivate: Boolean(mii.private),
+        onlyMissing: true
+    });
 }
 
 async function replaceStoredMiiIdReferences(oldId, newId) {
@@ -7113,12 +7639,14 @@ async function genId() {
     return newId;
 }
 
-function getStablePopularitySort() {
-    return { votes: -1, uploadedOn: -1, _id: -1 };
+function getStablePopularitySort(direction = "desc") {
+    const primaryDirection = direction === "asc" ? 1 : -1;
+    return { votes: primaryDirection, uploadedOn: -1, _id: -1 };
 }
 
-function getStableRecencySort() {
-    return { uploadedOn: -1, _id: -1 };
+function getStableRecencySort(direction = "desc") {
+    const primaryDirection = direction === "asc" ? 1 : -1;
+    return { uploadedOn: primaryDirection, _id: -1 };
 }
 
 const MII_CARD_SELECT = [
@@ -7137,6 +7665,7 @@ const MII_CARD_SELECT = [
     "uploadedOn",
     "updatedAt",
     "console",
+    "era",
     "meta.name",
     "meta.creatorName",
     "meta.console",
@@ -7148,7 +7677,16 @@ const MII_CARD_SELECT = [
     "private",
     "published",
     "blockedFromPublishing",
-    "blockReason"
+    "blockReason",
+    "facepaintUsage",
+    "ltdSha256",
+    "hair.type",
+    "ltdProvenance.kind",
+    "ltdProvenance.sourceFormat",
+    "ltdProvenance.sourceKind",
+    "ltdProvenance.byteExactSourceClaimed",
+    "ltdProvenance.appearanceProjectionExact",
+    "ltdRender"
 ].join(" ");
 
 const MII_CARD_PROJECT = Object.freeze({
@@ -7167,6 +7705,7 @@ const MII_CARD_PROJECT = Object.freeze({
     uploadedOn: 1,
     updatedAt: 1,
     console: 1,
+    era: 1,
     "meta.name": 1,
     "meta.creatorName": 1,
     "meta.console": 1,
@@ -7178,8 +7717,167 @@ const MII_CARD_PROJECT = Object.freeze({
     private: 1,
     published: 1,
     blockedFromPublishing: 1,
-    blockReason: 1
+    blockReason: 1,
+    facepaintUsage: 1,
+    ltdSha256: 1,
+    "hair.type": 1,
+    "ltdProvenance.kind": 1,
+    "ltdProvenance.sourceFormat": 1,
+    "ltdProvenance.sourceKind": 1,
+    "ltdProvenance.byteExactSourceClaimed": 1,
+    "ltdProvenance.appearanceProjectionExact": 1,
+    ltdRender: 1
 });
+
+const MII_EFFECTIVE_SEARCH_CARD_PROJECT = Object.freeze({
+    ...Object.fromEntries(
+        Object.entries(MII_CARD_PROJECT)
+            .filter(([field]) => !field.startsWith("ltdProvenance."))
+    ),
+    ...MII_EFFECTIVE_SEARCH_PROJECT
+});
+
+async function getEffectiveSearchPaginatedResult(
+    candidates,
+    filters,
+    viewerUser,
+    page,
+    perPage,
+    skip,
+    onMatch = null
+) {
+    const items = [];
+    let total = 0;
+    let rawTotal = 0;
+
+    // The database supplies a sorted cursor; only the requested window is
+    // retained in memory. This keeps pagination exact even while hundreds of
+    // rows still contain stale migration-cache values.
+    for await (const candidate of candidates) {
+        rawTotal += 1;
+        const effective = classifyAndMatchEffectiveMiiSearchFilters(
+            candidate,
+            filters,
+            viewerUser
+        );
+        if (!effective.matches) continue;
+
+        const card = withEffectiveMiiSearchClassification(
+            candidate,
+            effective.classification
+        );
+        if (typeof onMatch === "function") {
+            onMatch(card, candidate, effective.classification);
+        }
+        if (total >= skip && items.length < perPage) {
+            items.push(card);
+        }
+        total += 1;
+    }
+
+    return {
+        items,
+        total,
+        rawTotal,
+        page,
+        perPage,
+        start: skip,
+        totalPages: Math.ceil(total / perPage)
+    };
+}
+
+function shouldResolveEffectiveSearchClassifications(filters, viewerUser) {
+    return Boolean(
+        filters?.eraFiltersConfigured
+        || filters?.facepaintFiltersConfigured
+        || normalizeBlockedMiiEras(viewerUser?.blockedMiiEras).length > 0
+        || normalizeBlockedFacepaintUsages(viewerUser?.blockedFacepaintUsages).length > 0
+    );
+}
+
+function incrementPresentationCount(counts, rawValue) {
+    const value = String(rawValue || "").trim();
+    if (!value) return;
+    counts.set(value, (counts.get(value) || 0) + 1);
+}
+
+function presentationCountRows(counts, limit) {
+    return [...counts.entries()]
+        .map(([_id, count]) => ({ _id, count }))
+        .sort((left, right) => right.count - left.count
+            || left._id.localeCompare(right._id, undefined, { sensitivity: "base" }))
+        .slice(0, limit);
+}
+
+function compareStablePopularityCards(left, right) {
+    return Number(right?.votes || 0) - Number(left?.votes || 0)
+        || Number(right?.uploadedOn || 0) - Number(left?.uploadedOn || 0)
+        || String(right?._id || right?.id || "").localeCompare(
+            String(left?._id || left?.id || "")
+        );
+}
+
+async function loadEffectiveProfilePresentation(
+    query,
+    viewerUser,
+    sortName,
+    sortDirection,
+    skip,
+    pageLimit
+) {
+    const tagCounts = new Map();
+    const categoryCounts = new Map();
+    const creatorCounts = new Map();
+    const featuredMiis = [];
+    const summary = {
+        totalMiis: 0,
+        totalLikes: 0,
+        officialCount: 0,
+        latestUploadOn: undefined,
+        firstUploadOn: undefined
+    };
+
+    const page = await getEffectiveSearchPaginatedResult(
+        Miis.aggregate([
+            { $match: query },
+            ...getMiiListSortStages(sortName, sortDirection),
+            { $project: MII_EFFECTIVE_SEARCH_CARD_PROJECT }
+        ]).cursor({ batchSize: 100 }),
+        {}, viewerUser, Math.floor(skip / pageLimit) + 1, pageLimit, skip,
+        card => {
+            summary.totalLikes += Number(card.votes || 0);
+            if (card.official) summary.officialCount += 1;
+            const uploadedOn = Number(card.uploadedOn);
+            if (Number.isFinite(uploadedOn)) {
+                summary.latestUploadOn = summary.latestUploadOn == null
+                    ? uploadedOn
+                    : Math.max(summary.latestUploadOn, uploadedOn);
+                summary.firstUploadOn = summary.firstUploadOn == null
+                    ? uploadedOn
+                    : Math.min(summary.firstUploadOn, uploadedOn);
+            }
+            (Array.isArray(card.tags) ? card.tags : [])
+                .forEach(tag => incrementPresentationCount(tagCounts, tag));
+            (Array.isArray(card.officialCategories) ? card.officialCategories : [])
+                .forEach(category => incrementPresentationCount(categoryCounts, category));
+            incrementPresentationCount(creatorCounts, card.meta?.creatorName);
+
+            featuredMiis.push(card);
+            featuredMiis.sort(compareStablePopularityCards);
+            if (featuredMiis.length > 4) featuredMiis.length = 4;
+        }
+    );
+    summary.totalMiis = page.total;
+
+    return {
+        displayedMiis: page.items,
+        profileSummaryRows: summary.totalMiis > 0 ? [summary] : [],
+        topTagsRows: presentationCountRows(tagCounts, 10),
+        topCategoryRows: presentationCountRows(categoryCounts, 8),
+        topCreatorRows: presentationCountRows(creatorCounts, 8),
+        featuredMiis
+    };
+}
 
 async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date.now()) {
     const pipeline = [
@@ -7230,21 +7928,34 @@ async function getTrendingPaginatedResult(query, page, perPage, skip, now = Date
     };
 }
 
-async function getFallbackSearchPaginatedResult(baseQuery, searchPlan, page, perPage, skip) {
+async function getFallbackSearchPaginatedResult(
+    baseQuery,
+    searchPlan,
+    page,
+    perPage,
+    skip,
+    listSort,
+    listDirection
+) {
     const candidates = await Miis.find(baseQuery)
         .select(MII_CARD_SELECT)
         .sort(getStablePopularitySort())
         .limit(SEARCH_FALLBACK_CANDIDATE_LIMIT)
         .lean();
     const rankedCandidates = rankMiiSearchCandidates(candidates, searchPlan);
+    const sortedCandidates = listSort === "relevance"
+        ? sortRankedMiiSearchCandidates(rankedCandidates, listDirection)
+        : (listSort
+            ? sortMiiListItems(rankedCandidates, listSort, listDirection)
+            : rankedCandidates);
 
     return {
-        items: rankedCandidates.slice(skip, skip + perPage),
-        total: rankedCandidates.length,
+        items: sortedCandidates.slice(skip, skip + perPage),
+        total: sortedCandidates.length,
         page,
         perPage,
         start: skip,
-        totalPages: Math.ceil(rankedCandidates.length / perPage)
+        totalPages: Math.ceil(sortedCandidates.length / perPage)
     };
 }
 
@@ -7360,12 +8071,51 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
     const requestLimit = paginationWindow.perPage;
     const skip = paginationWindow.start;
     
-    let query = applyMiiVisibilityFilters({ private: false, id: { $ne: "average" } }, viewerUser);
+    const initialSearchFilterObject = what === "search"
+        ? (filter && typeof filter === "object" && !Array.isArray(filter)
+            ? filter
+            : { query: filter })
+        : null;
+    const initialAdvancedSearchFilters = initialSearchFilterObject
+        ? getRequestedAdvancedSearchFilters(initialSearchFilterObject)
+        : null;
+    const useEffectiveClassifications = shouldResolveEffectiveSearchClassifications(
+        initialAdvancedSearchFilters || {},
+        viewerUser
+    );
+    let query = applyMiiVisibilityFilters(
+        { private: false, id: { $ne: "average" } },
+        viewerUser,
+        { includeStoredEraAndFacepaint: !useEffectiveClassifications }
+    );
     let sort = {};
     
     switch(what) {
         case "random": { // TODO: this is random, but based on sort order. True random is possible but not deterministically
                          // QK, Kestron: I think this is more random than it was, I left the old code commented, reimplement if necessary.
+            if (useEffectiveClassifications) {
+                const totalCandidates = await Miis.countDocuments(query);
+                if (totalCandidates === 0) {
+                    return {
+                        items: [], total: 0, page, perPage: requestLimit,
+                        start: skip, totalPages: 0
+                    };
+                }
+                const result = await getEffectiveSearchPaginatedResult(
+                    Miis.aggregate([
+                        { $match: query },
+                        { $sample: { size: totalCandidates } },
+                        { $project: MII_EFFECTIVE_SEARCH_CARD_PROJECT }
+                    ]).cursor({ batchSize: 100 }),
+                    {},
+                    viewerUser,
+                    page,
+                    requestLimit,
+                    skip
+                );
+                const { rawTotal, ...publicResult } = result;
+                return publicResult;
+            }
             if (skip === 0) {
                 const items = await Miis.aggregate([
                     { $match: query },
@@ -7434,6 +8184,48 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
         }
         
         case "trending": { // TODO: rebrand to "trending"
+            if (useEffectiveClassifications) {
+                const now = Date.now();
+                const result = await getEffectiveSearchPaginatedResult(
+                    Miis.aggregate([
+                        { $match: query },
+                        {
+                            $addFields: {
+                                ageHours: {
+                                    $divide: [
+                                        { $subtract: [now, "$uploadedOn"] },
+                                        1000 * 60 * 60
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            $addFields: {
+                                hotness: {
+                                    $divide: [
+                                        "$votes",
+                                        {
+                                            $pow: [
+                                                { $add: ["$ageHours", 2] },
+                                                TRENDING_TIME_DECAY_EXPONENT
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        { $sort: { hotness: -1, uploadedOn: -1, _id: -1 } },
+                        { $project: MII_EFFECTIVE_SEARCH_CARD_PROJECT }
+                    ]).cursor({ batchSize: 100 }),
+                    {},
+                    viewerUser,
+                    page,
+                    requestLimit,
+                    skip
+                );
+                const { rawTotal, ...publicResult } = result;
+                return publicResult;
+            }
             return getTrendingPaginatedResult(query, page, requestLimit, skip);
         }
 
@@ -7449,6 +8241,44 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                 selectedCategories
             );
             applyOfficialCategoryFilters(query, selectedCategories, excludedCategories);
+            if (useEffectiveClassifications) {
+                const now = Date.now();
+                const result = await getEffectiveSearchPaginatedResult(
+                    Miis.aggregate([
+                        { $match: query },
+                        {
+                            $addFields: {
+                                ageHours: {
+                                    $divide: [
+                                        { $subtract: [now, "$uploadedOn"] },
+                                        1000 * 60 * 60
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            $addFields: {
+                                hotness: {
+                                    $divide: [
+                                        "$votes",
+                                        {
+                                            $pow: [
+                                                { $add: ["$ageHours", 2] },
+                                                TRENDING_TIME_DECAY_EXPONENT
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        { $sort: { hotness: -1, uploadedOn: -1, _id: -1 } },
+                        { $project: MII_EFFECTIVE_SEARCH_CARD_PROJECT }
+                    ]).cursor({ batchSize: 100 }),
+                    {}, viewerUser, page, requestLimit, skip
+                );
+                const { rawTotal, ...publicResult } = result;
+                return publicResult;
+            }
             return getTrendingPaginatedResult(query, page, requestLimit, skip);
         }
 
@@ -7490,6 +8320,34 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                         ...(Array.isArray(query.$and) ? query.$and : []),
                         ...searchMatchClauses
                     ];
+                }
+
+                if (useEffectiveClassifications) {
+                    const primaryResult = await getEffectiveSearchPaginatedResult(
+                        Miis.aggregate([
+                            { $match: query },
+                            { $addFields: { searchScore: buildMiiSearchScoreExpression(searchPlan) } },
+                            { $sort: getMiiSearchSort() },
+                            { $project: MII_EFFECTIVE_SEARCH_CARD_PROJECT }
+                        ]).cursor({ batchSize: 100 }),
+                        {}, viewerUser, page, requestLimit, skip
+                    );
+                    if (primaryResult.rawTotal > 0) {
+                        const { rawTotal, ...result } = primaryResult;
+                        return result;
+                    }
+
+                    const fallbackCandidates = await Miis.find(baseSearchQuery)
+                        .select(`${MII_CARD_SELECT} ${MII_EFFECTIVE_SEARCH_SELECT}`)
+                        .sort(getStablePopularitySort())
+                        .limit(SEARCH_FALLBACK_CANDIDATE_LIMIT)
+                        .lean();
+                    const fallbackResult = await getEffectiveSearchPaginatedResult(
+                        rankMiiSearchCandidates(fallbackCandidates, searchPlan),
+                        {}, viewerUser, page, requestLimit, skip
+                    );
+                    const { rawTotal, ...result } = fallbackResult;
+                    return result;
                 }
 
                 const [items, totalCount] = await Promise.all([
@@ -7541,8 +8399,20 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
             const selectedSearchFields = normalizeSearchFieldSelection(filterObject.searchIn, {
                 defaultToAll: !parseBooleanLike(filterObject.searchFieldsConfigured)
             });
-            const advancedSearchFilters = getRequestedAdvancedSearchFilters(filterObject);
+            const advancedSearchFilters = initialAdvancedSearchFilters
+                || getRequestedAdvancedSearchFilters(filterObject);
             const searchPlan = buildMiiSearchPlan(searchText, selectedSearchFields);
+            const selectedListSort = normalizeMiiSearchSort(filterObject.sort, searchPlan.active);
+            const selectedListDirection = normalizeMiiListSortDirection(
+                filterObject.direction,
+                selectedListSort
+            );
+            const searchSortStages = selectedListSort === "relevance"
+                ? [
+                    { $addFields: { searchScore: buildMiiSearchScoreExpression(searchPlan) } },
+                    { $sort: getMiiSearchSort(selectedListDirection) }
+                ]
+                : getMiiListSortStages(selectedListSort, selectedListDirection);
 
             if (selectedTags.length > 0 || excludedTags.length > 0) {
                 query.tags = {
@@ -7550,7 +8420,9 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                     ...(excludedTags.length > 0 ? { $nin: excludedTags } : {})
                 };
             }
-            applyAdvancedMiiSearchFilters(query, advancedSearchFilters);
+            applyAdvancedMiiSearchFilters(query, advancedSearchFilters, {
+                includeStoredEraAndFacepaint: !useEffectiveClassifications
+            });
 
             if (searchPlan.active) {
                 const baseSearchQuery = { ...query };
@@ -7562,11 +8434,56 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                     ];
                 }
 
+                if (useEffectiveClassifications) {
+                    const primaryResult = await getEffectiveSearchPaginatedResult(
+                        Miis.aggregate([
+                            { $match: query },
+                            ...searchSortStages,
+                            { $project: MII_EFFECTIVE_SEARCH_CARD_PROJECT }
+                        ]).cursor({ batchSize: 100 }),
+                        advancedSearchFilters,
+                        viewerUser,
+                        page,
+                        requestLimit,
+                        skip
+                    );
+                    if (primaryResult.rawTotal > 0) {
+                        const { rawTotal, ...result } = primaryResult;
+                        return result;
+                    }
+
+                    const fallbackCandidates = await Miis.find(baseSearchQuery)
+                        .select(`${MII_CARD_SELECT} ${MII_EFFECTIVE_SEARCH_SELECT}`)
+                        .sort(getStablePopularitySort())
+                        .limit(SEARCH_FALLBACK_CANDIDATE_LIMIT)
+                        .lean();
+                    const rankedFallbackCandidates = rankMiiSearchCandidates(fallbackCandidates, searchPlan);
+                    const sortedFallbackCandidates = selectedListSort === "relevance"
+                        ? sortRankedMiiSearchCandidates(
+                            rankedFallbackCandidates,
+                            selectedListDirection
+                        )
+                        : sortMiiListItems(
+                            rankedFallbackCandidates,
+                            selectedListSort,
+                            selectedListDirection
+                        );
+                    const fallbackResult = await getEffectiveSearchPaginatedResult(
+                        sortedFallbackCandidates,
+                        advancedSearchFilters,
+                        viewerUser,
+                        page,
+                        requestLimit,
+                        skip
+                    );
+                    const { rawTotal, ...result } = fallbackResult;
+                    return result;
+                }
+
                 const [items, totalCount] = await Promise.all([
                     Miis.aggregate([
                         { $match: query },
-                        { $addFields: { searchScore: buildMiiSearchScoreExpression(searchPlan) } },
-                        { $sort: getMiiSearchSort() },
+                        ...searchSortStages,
                         { $skip: skip },
                         { $limit: requestLimit },
                         { $project: MII_CARD_PROJECT }
@@ -7585,11 +8502,52 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
                     };
                 }
 
-                return getFallbackSearchPaginatedResult(baseSearchQuery, searchPlan, page, requestLimit, skip);
+                return getFallbackSearchPaginatedResult(
+                    baseSearchQuery,
+                    searchPlan,
+                    page,
+                    requestLimit,
+                    skip,
+                    selectedListSort,
+                    selectedListDirection
+                );
             }
 
-            sort = getStablePopularitySort();
-            break;
+            if (useEffectiveClassifications) {
+                const effectiveResult = await getEffectiveSearchPaginatedResult(
+                    Miis.aggregate([
+                        { $match: query },
+                        ...getMiiListSortStages(selectedListSort, selectedListDirection),
+                        { $project: MII_EFFECTIVE_SEARCH_CARD_PROJECT }
+                    ]).cursor({ batchSize: 100 }),
+                    advancedSearchFilters,
+                    viewerUser,
+                    page,
+                    requestLimit,
+                    skip
+                );
+                const { rawTotal, ...result } = effectiveResult;
+                return result;
+            }
+
+            const [items, totalCount] = await Promise.all([
+                Miis.aggregate([
+                    { $match: query },
+                    ...getMiiListSortStages(selectedListSort, selectedListDirection),
+                    { $skip: skip },
+                    { $limit: requestLimit },
+                    { $project: MII_CARD_PROJECT }
+                ]),
+                Miis.countDocuments(query)
+            ]);
+            return {
+                items,
+                total: totalCount,
+                page,
+                perPage: requestLimit,
+                start: skip,
+                totalPages: Math.ceil(totalCount / requestLimit)
+            };
         }
         
         default:
@@ -7597,6 +8555,18 @@ async function paginatedApi(what, pageOrOptions = 1, perPage = defaultMiisPerPag
     }
     
     // For simple sorted queries (best, recent, official without category)
+    if (useEffectiveClassifications) {
+        const result = await getEffectiveSearchPaginatedResult(
+            Miis.find(query)
+                .select(`${MII_CARD_SELECT} ${MII_EFFECTIVE_SEARCH_SELECT}`)
+                .sort(sort)
+                .lean()
+                .cursor(),
+            {}, viewerUser, page, requestLimit, skip
+        );
+        const { rawTotal, ...publicResult } = result;
+        return publicResult;
+    }
     const [items, totalCount] = await Promise.all([
         Miis.find(query)
             .select(MII_CARD_SELECT)
@@ -8176,9 +9146,18 @@ function finalizeAverageNode(node, accumulator, pathParts = [], parentKey = "") 
 
 async function collectAverageStatsFromCursor(cursor) {
     const accumulator = createAverageAccumulator();
+    const appearanceKeys = [
+        "general", "hair", "face", "eyes", "eyebrows", "nose",
+        "mouth", "beard", "glasses", "mole"
+    ];
 
     for await (const mii of cursor) {
-        addAverageValue(accumulator, accumulator.root, [], mii);
+        const appearance = {};
+        for (const key of appearanceKeys) {
+            if (mii?.[key] !== undefined) appearance[key] = mii[key];
+        }
+        addAverageValue(accumulator, accumulator.root, [], appearance);
+
         accumulator.count++;
 
         if (accumulator.count % AVERAGE_MII_YIELD_INTERVAL === 0) {
@@ -8188,6 +9167,20 @@ async function collectAverageStatsFromCursor(cursor) {
 
     return accumulator;
 }
+
+async function collectWebsiteRendererProfileCounts(cursor) {
+    const counts = new Map();
+    let count = 0;
+    for await (const mii of cursor) {
+        if (!hasRenderableMiiPageData(mii)) continue;
+        const profile = resolveMiiRendererRoute(mii).profile;
+        counts.set(profile, (counts.get(profile) || 0) + 1);
+        count++;
+        if (count % AVERAGE_MII_YIELD_INTERVAL === 0) await yieldToEventLoop();
+    }
+    return counts;
+}
+
 async function setAverageMii(){
     const pipeline = [
         {
@@ -8213,7 +9206,22 @@ async function setAverageMii(){
     const cursor = Miis.aggregate(pipeline)
         .allowDiskUse(true)
         .cursor({ batchSize: AVERAGE_MII_CURSOR_BATCH_SIZE });
-    const accumulator = await collectAverageStatsFromCursor(cursor);
+    // Renderer style is a site-wide presentation statistic, independent of
+    // the Face Art/Animal exclusions used to construct average facial fields.
+    // Every non-private Mii page participates, including exact native LTD
+    // evidence required to distinguish LTD from stale/unknown stored eras.
+    const rendererStyleCursor = Miis.find({
+        private: false,
+        published: true,
+        id: { $ne: "average" }
+    })
+        .select("+ltdData id era console meta.console officialCategories tl ltdProvenance ltdSha256 ltdVersion ltdCharInfo ltdConversionReport general.height general.weight")
+        .lean()
+        .cursor();
+    const [accumulator, websiteRendererProfileCounts] = await Promise.all([
+        collectAverageStatsFromCursor(cursor),
+        collectWebsiteRendererProfileCounts(rendererStyleCursor)
+    ]);
 
     if (accumulator.count === 0) {
         await Miis.deleteOne({ id: "average" });
@@ -8222,17 +9230,26 @@ async function setAverageMii(){
 
     var avg = finalizeAverageNode(accumulator.root, accumulator);
     delete avg._id;
+    const mostCommonRendererProfile = selectMostCommonMiiRendererProfile(
+        websiteRendererProfileCounts
+    );
+    const averagePresentation = getAverageMiiPresentation(mostCommonRendererProfile);
     avg.id = "average";
     avg.meta = { 
-        name: `J${avg.general?.gender===0?"ohn":"ane"} Doe`, 
-        creatorName: "InfiniMii"
+        name: "Average Mii",
+        creatorName: "InfiniMii",
+        console: averagePresentation.console
     };
-    avg.desc="The most common or average features and placements of those features across all Miis on the website.";
+    avg.console = averagePresentation.console;
+    avg.era = averagePresentation.era;
+    avg.desc="Built from the most common feature choices and placements among Miis in the archive.";
     avg.uploader = "Community";
     avg.uploadedOn = Date.now();
     avg.private = false;
     avg.published = true;
     avg.votes = await countUsersWhoVotedForMii("average");
+    const canonicalLtd = await canonicalizeMiiToLtd(avg, { recordId: "average" });
+    Object.assign(avg, canonicalLtd.storedFields);
     setMiiIdentityHash(avg);
     
     // Upsert average Mii
@@ -8241,19 +9258,37 @@ async function setAverageMii(){
         { $set: avg },
         { upsert: true, returnDocument: "after" }
     );
-    console.log(`[average] Averaged ${accumulator.count} Mii${accumulator.count === 1 ? "" : "s"}.`);
+    console.log(
+        `[average] Averaged ${accumulator.count} Mii${accumulator.count === 1 ? "" : "s"}; `
+        + `selected ${mostCommonRendererProfile} as the most common render style.`
+    );
 
     return avg;
 }
 
 async function syncAverageMiiAssets(avgMii) {
     if (avgMii) {
-        const renderedAverageMii = await renderStoredMiiImage(avgMii);
-        await Promise.all([
-            fs.promises.writeFile("./static/miiImgs/average.png", renderedAverageMii),
-            writeQrPng(avgMii, "./static/miiQRs/average.png", "3DS"),
-            writeQrPng(avgMii, "./static/miiQRsWii/average.png", "WIIU")
-        ]);
+        const averageImagePath = getMiiAssetPath("miiImgs", "average");
+        try {
+            const generated = await ensureCurrentStoredMiiImageAsset({
+                assetPath: averageImagePath,
+                initialMii: avgMii,
+                resolveCurrentMii: async () => await Miis.findOne({ id: "average", private: false }).select("+ltdData").lean()
+            });
+            if (!generated) {
+                throw new Error("The average Mii changed while its render image was being committed.");
+            }
+        } catch (error) {
+            if (!(error instanceof LtdRenderError) || !error.deterministic || error.status !== 422) {
+                throw error;
+            }
+            await cacheDeterministicLtdRenderFailure("average", error);
+            console.log(`[average] LTD render unavailable (${error.code}); serving the unavailable response.`);
+        }
+        // The average's appearance can change on every refresh. Keep its QR
+        // payloads in lockstep even if an independently deterministic LTD
+        // portrait failure is being served through the unavailable response.
+        await syncStoredMiiQrAssets(avgMii, { isPrivate: false, onlyMissing: false });
         return;
     }
 
@@ -8381,7 +9416,10 @@ function getMiiFeedDescription(mii) {
         ? mii.uploader.trim()
         : "Unknown uploader";
 
-    return `${description} Uploaded by ${uploader}. View, download, scan a QR code, or convert this Mii on InfiniMii.`;
+    const action = getExportFormatsForMii(mii, { storedRecord: true }).some(format => format.value !== "ltd")
+        ? "View, download, scan a QR code, or convert this Mii on InfiniMii."
+        : "View this Mii and download its LTD file on InfiniMii.";
+    return `${description} Uploaded by ${uploader}. ${action}`;
 }
 
 function getMiiFeedDescriptionHtml(mii, imageUrl) {
@@ -8606,6 +9644,27 @@ function buildRequestPathWithStart(req, startOffset) {
     return queryString ? `${req.path}?${queryString}` : req.path;
 }
 
+function withNormalizedMiiListSort(
+    req,
+    selectedSort,
+    defaultSort = "top",
+    selectedDirection = getDefaultMiiListSortDirection(selectedSort)
+) {
+    const query = { ...(req.query || {}) };
+    delete query.sort;
+    delete query.direction;
+
+    if (selectedSort !== defaultSort) {
+        query.sort = selectedSort;
+    }
+
+    if (selectedDirection !== getDefaultMiiListSortDirection(selectedSort)) {
+        query.direction = selectedDirection;
+    }
+
+    return { path: req.path, query };
+}
+
 function buildRequestPathWithPage(req, pageNumber) {
     const params = new URLSearchParams();
 
@@ -8823,7 +9882,7 @@ async function getPublicMiiSitemapCount() {
 async function getPublicMiisForSitemapPage(pageNumber) {
     const safePageNumber = Math.max(1, Number(pageNumber) || 1);
     return await Miis.find(getPublicMiiSitemapQuery())
-        .select("id meta.name name desc official uploadedOn updatedAt")
+        .select("id meta.name name desc official uploadedOn updatedAt era console meta.console ltdSha256 ltdProvenance")
         .sort({ uploadedOn: -1, _id: -1 })
         .skip((safePageNumber - 1) * MII_SITEMAP_PAGE_SIZE)
         .limit(MII_SITEMAP_PAGE_SIZE)
@@ -8842,6 +9901,8 @@ function buildMiiSitemapUrls(miis, resolvedBaseUrl) {
         .map((mii) => {
             const miiId = mii?.id;
             if (!miiId) return null;
+            const includeQrAssets = getExportFormatsForMii(mii, { storedRecord: true })
+                .some(format => format.value === "qr");
 
             const encodedMiiId = encodeURIComponent(miiId);
             const miiName = mii?.meta?.name || mii?.name || "Unknown Mii";
@@ -8857,7 +9918,8 @@ function buildMiiSitemapUrls(miis, resolvedBaseUrl) {
                         loc: `${resolvedBaseUrl}/miiImgs/${encodedMiiId}.png`,
                         title: `${miiName} Mii character preview`,
                         caption: mii.desc || `${miiName} Mii character for Nintendo systems`
-                    },
+                    }
+                ].concat(includeQrAssets ? [
                     {
                         loc: `${resolvedBaseUrl}/miiQRs/${encodedMiiId}.png`,
                         title: `${miiName} Mii QR code`,
@@ -8868,15 +9930,15 @@ function buildMiiSitemapUrls(miis, resolvedBaseUrl) {
                         title: `${miiName} Mii Wii U QR code`,
                         caption: `Wii U QR code for ${miiName}`
                     }
-                ].concat(
-                    hasDecodedTomodachiLifeData(mii)
+                ] : [],
+                    includeQrAssets && hasDecodedTomodachiLifeData(mii)
                         ? [{
                             loc: `${resolvedBaseUrl}/miiQRsTomodachi/${encodedMiiId}.png`,
                             title: `${miiName} Tomodachi Life QR code`,
                             caption: `Tomodachi Life QR code for ${miiName}`
                         }]
                         : [],
-                    canGenerateMiitopiaQr(mii)
+                    includeQrAssets && canGenerateMiitopiaQr(mii)
                         ? [{
                             loc: `${resolvedBaseUrl}/miiQRsMiitopia/${encodedMiiId}.png`,
                             title: `${miiName} Miitopia QR code`,
@@ -9286,6 +10348,11 @@ function shouldSendJsonError(req) {
 const privateAssetMiiCacheKey = Symbol("privateAssetMii");
 const publicAssetMiiCacheKey = Symbol("publicAssetMii");
 const assetGenerationTasks = new Map();
+// Renderer deployments restart this process. Snapshotting avoids synchronously
+// walking and hashing the renderer tree on every cached image request.
+const getImageCacheRendererRevision = createRendererRevisionSnapshot(
+    getConfiguredLtdRendererRevision
+);
 
 function getRequestedMiiId(req) {
     return req.path.split('/').pop()?.split('.')?.[0] || "";
@@ -9402,6 +10469,54 @@ async function ensureGeneratedAsset(assetPath, generator) {
     });
 }
 
+async function ensureCurrentStoredMiiImageAsset({
+    assetPath,
+    initialMii,
+    rendererRevision = null,
+    resolveCurrentMii
+}) {
+    if (!initialMii) return false;
+    if (await hasCurrentStoredMiiImageAsset(initialMii, rendererRevision, assetPath)) return true;
+
+    return Boolean(await runLtdImageGenerationSingleFlight(assetPath, async () => {
+        const currentMii = await resolveCurrentMii();
+        if (!currentMii) return false;
+        if (await hasCurrentStoredMiiImageAsset(currentMii, rendererRevision, assetPath)) return true;
+
+        const written = await writeRenderedMiiImage(currentMii, assetPath);
+        if (written === false) {
+            const winnerMii = await resolveCurrentMii();
+            return Boolean(
+                winnerMii
+                && await hasCurrentStoredMiiImageAsset(winnerMii, rendererRevision, assetPath)
+            );
+        }
+
+        const committedMii = await resolveCurrentMii();
+        return Boolean(
+            committedMii
+            && await hasCurrentStoredMiiImageAsset(committedMii, rendererRevision, assetPath)
+        );
+    }));
+}
+
+async function hasCurrentStoredMiiImageAsset(mii, rendererRevision, assetPath) {
+    const identity = await getMiiImageRenderIdentity(mii);
+    const state = identity.backend === "LTD"
+        ? mii?.ltdRender?.portrait
+        : mii?.imageRender?.portrait;
+    const current = identity.backend === "LTD"
+        ? isCurrentReadyLtdRender(mii, rendererRevision || getImageCacheRendererRevision())
+        : isCurrentReadyStandardMiiRender(mii, identity);
+    if (!current || !await fileExists(assetPath)) return false;
+    try {
+        return (await getMiiImageFileSha256(assetPath)).toLowerCase()
+            === String(state.outputSha256).toLowerCase();
+    } catch {
+        return false;
+    }
+}
+
 async function resolvePrivateAssetMii(req) {
     if (Object.prototype.hasOwnProperty.call(req, privateAssetMiiCacheKey)) {
         return req[privateAssetMiiCacheKey];
@@ -9409,7 +10524,7 @@ async function resolvePrivateAssetMii(req) {
 
     const miiId = getRequestedMiiId(req);
     req[privateAssetMiiCacheKey] = miiId
-        ? await Miis.findOne({ id: miiId, private: true }).lean()
+        ? await Miis.findOne({ id: miiId, private: true }).select("+ltdData").lean()
         : null;
     return req[privateAssetMiiCacheKey];
 }
@@ -9422,7 +10537,9 @@ async function resolvePublicAssetMii(req) {
     const miiId = getRequestedMiiId(req);
     req[publicAssetMiiCacheKey] = miiId
         ? await Miis.findOne({ id: miiId, private: false })
-            .select(MII_CARD_SELECT)
+            // QR policy needs the complete native-LTD evidence when an older
+            // record has not been backfilled with an explicit era yet.
+            .select("+ltdData")
             .lean()
         : null;
     return req[publicAssetMiiCacheKey];
@@ -9434,10 +10551,10 @@ async function requirePrivateMiiAssetAccess(req, res, next) {
         return next();
     }
 
-    const isOwner = Boolean(req.user && privateMii.uploader === req.user.username);
     const isModerator = Boolean(req.user && canModerate(req.user));
 
-    if (isOwner || isModerator) {
+    if (canAccessPrivateMiiAsset(privateMii, req.user, isModerator)) {
+        res.setHeader("Cache-Control", "private, no-store");
         return next();
     }
 
@@ -9470,8 +10587,161 @@ async function requireVisiblePublicMiiAssetAccess(req, res, next) {
     return next();
 }
 
+async function persistCurrentLtdRenderPortraitState(mii, state) {
+    return await persistLtdRenderPortraitStateCas({
+        mii,
+        state,
+        updateOne: async (filter, update) => await Miis.updateOne(filter, update)
+    });
+}
+
+async function getCurrentLtdRenderIdentityMii(miiId) {
+    return await Miis.findOne({ id: miiId })
+        .select("+ltdData")
+        .lean();
+}
+
 async function writeRenderedMiiImage(mii, assetPath) {
-    await writeStoredMiiImage(mii, assetPath);
+    const rendered = await renderStoredMiiImageResult(mii);
+    if (!mii?.id) {
+        await writeMiiImageBuffer(rendered.buffer, assetPath);
+        return rendered.buffer;
+    }
+
+    if (rendered.rendererBackend !== "LTD") {
+        const readyState = buildStandardMiiRenderReadyState(rendered);
+        const committed = await publishCasGuardedStandardMiiImage({
+            readyState,
+            publishToken: crypto.randomBytes(16).toString("hex"),
+            withPublishLock: task => withMiiImagePublishLock(assetPath, task),
+            resolveCurrentMii: async () => await Miis.findOne({ id: mii.id }).select("+ltdData").lean(),
+            claimPublishing: async (currentMii, publishingState) => {
+                const currentIdentity = await getMiiImageRenderIdentity(currentMii);
+                if (
+                    currentIdentity.backend !== "TL"
+                    || currentIdentity.profile !== rendered.rendererProfile
+                    || currentIdentity.rendererRevision !== rendered.rendererRevision
+                    || currentIdentity.rendererCacheKey !== rendered.rendererCacheKey
+                ) return false;
+                return await persistStandardMiiRenderPortraitStateCas({
+                    mii: currentMii,
+                    state: publishingState,
+                    updateOne: async (filter, update) => await Miis.updateOne(filter, update)
+                });
+            },
+            validateClaimedMii: async (claimedMii) => {
+                const identity = await getMiiImageRenderIdentity(claimedMii);
+                return identity.backend === readyState.rendererBackend
+                    && identity.profile === readyState.rendererProfile
+                    && identity.rendererRevision === readyState.rendererRevision
+                    && identity.rendererCacheKey === readyState.rendererCacheKey;
+            },
+            publishAsset: async () => await writeMiiImageBuffer(rendered.buffer, assetPath),
+            finalizeReady: async (claimedMii, finalState) =>
+                await persistStandardMiiRenderPortraitStateCas({
+                    mii: claimedMii,
+                    state: finalState,
+                    updateOne: async (filter, update) => await Miis.updateOne(filter, update)
+                })
+        });
+        return committed ? rendered.buffer : false;
+    }
+
+    const renderedSha256 = String(rendered.provenance?.ltdSha256 || "").toLowerCase();
+    const renderedRevision = String(rendered.provenance?.rendererRevision || "").toLowerCase();
+    const readyState = {
+        status: "ready",
+        ...rendered.provenance,
+        renderedAt: new Date()
+    };
+    const committed = await publishCasGuardedLtdImage({
+        readyState,
+        publishToken: crypto.randomBytes(16).toString("hex"),
+        withPublishLock: task => withMiiImagePublishLock(assetPath, task),
+        resolveCurrentMii: async () => await getCurrentLtdRenderIdentityMii(mii.id),
+        validateClaimedMii: async (claimedMii) =>
+            resolveMiiRendererRoute(claimedMii).backend === "LTD",
+        claimPublishing: async (currentMii, publishingState) => {
+            if (
+                resolveMiiRendererRoute(currentMii).backend !== "LTD"
+                || String(currentMii?.ltdSha256 || "").toLowerCase() !== renderedSha256
+                || renderedRevision !== getImageCacheRendererRevision().toLowerCase()
+                || publishingState.backgroundMode !== LTD_RENDER_BACKGROUND_MODE
+            ) return false;
+            // Claim against the exact state that authorized this render, not a
+            // fresh state that another process may already have committed.
+            return rendered.authorizationMii
+                ? await persistCurrentLtdRenderPortraitState(rendered.authorizationMii, publishingState)
+                : false;
+        },
+        publishAsset: async () => await writeMiiImageBuffer(rendered.buffer, assetPath),
+        finalizeReady: async (claimedMii, finalState) =>
+            await persistCurrentLtdRenderPortraitState(claimedMii, finalState)
+    });
+    if (!committed) return false;
+
+    return rendered.buffer;
+}
+
+async function cacheDeterministicLtdRenderFailure(miiId, error, status = "unsupported") {
+    if (!miiId || !error?.ltdSha256 || !error?.rendererRevision) return false;
+    const authorizationMii = error.authorizationMii;
+    if (
+        !authorizationMii
+        || authorizationMii.id !== miiId
+        || String(authorizationMii.ltdSha256 || "").toLowerCase() !== String(error.ltdSha256).toLowerCase()
+        || String(error.rendererRevision).toLowerCase() !== getImageCacheRendererRevision().toLowerCase()
+    ) {
+        return false;
+    }
+    return await persistCurrentLtdRenderPortraitState(authorizationMii, {
+        status,
+        ltdSha256: String(error.ltdSha256).toLowerCase(),
+        rendererRevision: String(error.rendererRevision).toLowerCase(),
+        backgroundMode: LTD_RENDER_BACKGROUND_MODE,
+        presentationContextKind: error.presentationContextKind,
+        presentationContextSha256: error.presentationContextSha256,
+        rasterProfile: error.rasterProfile || LTD_RENDER_RASTER_PROFILE,
+        failureCode: error.code,
+        checkedAt: new Date()
+    });
+}
+
+async function sendLtdRenderUnavailablePlaceholder(res, miiId, error) {
+    await cacheDeterministicLtdRenderFailure(miiId, error);
+    applyNoCacheHeaders(res);
+    res.setHeader("X-InfiniMii-Render-Status", "unsupported");
+    return res.sendFile(path.join(__dirname, "static", "assets", "ltd-render-unavailable.svg"));
+}
+
+function isCurrentUnsupportedLtdRender(mii, rendererRevision = null) {
+    const route = resolveMiiRendererRoute(mii);
+    if (route.backend !== "LTD") return false;
+    if (!isStoredLtdCanonicalizationCurrent(mii)) return false;
+    const state = mii?.ltdRender?.portrait;
+    if (state?.status !== "unsupported") return false;
+    const ltdSha256 = String(mii?.ltdSha256 || "");
+    if (!ltdSha256 || String(state.ltdSha256 || "") !== ltdSha256) return false;
+    if (state.backgroundMode !== LTD_RENDER_BACKGROUND_MODE) return false;
+    const presentationContext = getStoredLtdPresentationContextIdentity(mii);
+    if (
+        state.presentationContextKind !== presentationContext.kind
+        || String(state.presentationContextSha256 || "").toLowerCase()
+            !== presentationContext.sha256
+        || state.rasterProfile !== LTD_RENDER_RASTER_PROFILE
+    ) return false;
+    try {
+        const currentRevision = rendererRevision || getConfiguredLtdRendererRevision();
+        return String(state.rendererRevision || "") === currentRevision;
+    } catch {
+        return false;
+    }
+}
+
+function sendCachedLtdRenderUnavailablePlaceholder(res) {
+    applyNoCacheHeaders(res);
+    res.setHeader("X-InfiniMii-Render-Status", "unsupported");
+    return res.sendFile(path.join(__dirname, "static", "assets", "ltd-render-unavailable.svg"));
 }
 
 async function writeRenderedMiiQr(mii, assetPath, qrConsole = "3DS") {
@@ -9492,19 +10762,65 @@ async function serveGeneratedMiiQrAsset(req, res, next, {
     const miiId = getRequestedMiiId(req);
     if (!miiId) return next();
 
+    const mii = isPrivate
+        ? await resolvePrivateAssetMii(req)
+        : await resolvePublicAssetMii(req);
+    if (!mii) return next();
+    const downloadPolicy = getMiiDownloadPolicy(mii, { storedRecord: true });
+    if (downloadPolicy.ltdOnly) {
+        return sendLtdOnlyDownloadError(req, res, new LtdOnlyDownloadError(downloadPolicy.message));
+    }
+
     const qrPath = getMiiAssetPath(dirName, miiId);
-    if (await fileExists(qrPath)) {
+    const portraitPath = getMiiAssetPaths(miiId, isPrivate).imgPath;
+    if (await isCurrentMiiQrCacheAsset(mii, qrPath, qrConsole, portraitPath)) {
         if (!isPrivate) applyPublicImageSeoHeaders(res);
         return res.sendFile(qrPath);
     }
 
     try {
-        const generated = await ensureGeneratedAsset(qrPath, async () => {
-            const mii = isPrivate
-                ? await resolvePrivateAssetMii(req)
-                : await Miis.findOne({ id: miiId, private: false }).lean();
-            if (!mii) return false;
-            return await writeRenderedMiiQr(mii, qrPath, qrConsole);
+        const generated = await runSingleFlightTask(assetGenerationTasks, qrPath, async () => {
+            const currentMii = isPrivate
+                ? await Miis.findOne({ id: miiId, private: true }).select("+ltdData").lean()
+                : await Miis.findOne({ id: miiId, private: false }).select("+ltdData").lean();
+            if (!currentMii) return false;
+            if (
+                isPrivate
+                && !canAccessPrivateMiiAsset(currentMii, req.user, Boolean(req.user && canModerate(req.user)))
+            ) return false;
+            if (await isCurrentMiiQrCacheAsset(currentMii, qrPath, qrConsole, portraitPath)) return true;
+            if (!await writeRenderedMiiQr(currentMii, qrPath, qrConsole)) return false;
+            const winnerMii = await getMiiById(miiId, isPrivate);
+            if (!winnerMii) return false;
+            if (
+                Boolean(winnerMii.private) !== Boolean(isPrivate)
+                || getMiiDownloadPolicy(winnerMii, { storedRecord: true }).ltdOnly
+                || (
+                    isPrivate
+                    && !canAccessPrivateMiiAsset(
+                        winnerMii,
+                        req.user,
+                        Boolean(req.user && canModerate(req.user))
+                    )
+                )
+            ) {
+                await Promise.all([
+                    fs.promises.rm(qrPath, { force: true }),
+                    fs.promises.rm(`${qrPath}.identity`, { force: true })
+                ]);
+                return false;
+            }
+            const beforeIdentity = getMiiDownloadPolicyPayloadHash(currentMii);
+            const winnerIdentity = getMiiDownloadPolicyPayloadHash(winnerMii);
+            if (beforeIdentity !== winnerIdentity) {
+                await Promise.all([
+                    fs.promises.rm(qrPath, { force: true }),
+                    fs.promises.rm(`${qrPath}.identity`, { force: true })
+                ]);
+                return false;
+            }
+            await publishMiiQrCacheIdentity(winnerMii, qrPath, qrConsole, portraitPath);
+            return await isCurrentMiiQrCacheAsset(winnerMii, qrPath, qrConsole, portraitPath);
         });
 
         if (generated) {
@@ -9528,22 +10844,61 @@ site.use('/miiQRsWii', requireVisiblePublicMiiAssetAccess);
 site.use('/miiQRsTomodachi', requireVisiblePublicMiiAssetAccess);
 site.use('/miiQRsMiitopia', requireVisiblePublicMiiAssetAccess);
 
+async function requireStoredMiiQrExportAllowed(req, res, next) {
+    const isPrivate = String(req.baseUrl || "").toLowerCase().startsWith("/privatemiiqrs");
+    const mii = isPrivate
+        ? await resolvePrivateAssetMii(req)
+        : await resolvePublicAssetMii(req);
+    if (!mii) return next();
+
+    const policy = getMiiDownloadPolicy(mii, { storedRecord: true });
+    if (policy.ltdOnly) {
+        return sendLtdOnlyDownloadError(req, res, new LtdOnlyDownloadError(policy.message));
+    }
+    return next();
+}
+
+site.use('/privateMiiQRs', requireStoredMiiQrExportAllowed);
+site.use('/privateMiiQRsWii', requireStoredMiiQrExportAllowed);
+site.use('/privateMiiQRsTomodachi', requireStoredMiiQrExportAllowed);
+site.use('/privateMiiQRsMiitopia', requireStoredMiiQrExportAllowed);
+site.use('/miiQRs', requireStoredMiiQrExportAllowed);
+site.use('/miiQRsWii', requireStoredMiiQrExportAllowed);
+site.use('/miiQRsTomodachi', requireStoredMiiQrExportAllowed);
+site.use('/miiQRsMiitopia', requireStoredMiiQrExportAllowed);
+
 // Render missing private Mii images on demand
 site.use('/privateMiiImgs', async (req, res, next) => {
     const miiId = getRequestedMiiId(req);
     if (!miiId) return next();
 
     const imgPath = getMiiAssetPath('privateMiiImgs', miiId);
-    if (await fileExists(imgPath)) {
+    const privateMii = await resolvePrivateAssetMii(req);
+    const isModerator = Boolean(req.user && canModerate(req.user));
+    if (!canAccessPrivateMiiAsset(privateMii, req.user, isModerator)) return next();
+
+    const privateRenderIdentity = await getMiiImageRenderIdentity(privateMii);
+    const rendererRevision = privateRenderIdentity.backend === "LTD"
+        ? getImageCacheRendererRevision()
+        : null;
+    if (await hasCurrentStoredMiiImageAsset(privateMii, rendererRevision, imgPath)) {
         return res.sendFile(imgPath);
+    }
+    if (isCurrentUnsupportedLtdRender(privateMii, rendererRevision)) {
+        return sendCachedLtdRenderUnavailablePlaceholder(res);
     }
 
     try {
-        const generated = await ensureGeneratedAsset(imgPath, async () => {
-            const mii = await resolvePrivateAssetMii(req);
-            if (!mii) return false;
-            await writeRenderedMiiImage(mii, imgPath);
-            return true;
+        const generated = await ensureCurrentStoredMiiImageAsset({
+            assetPath: imgPath,
+            initialMii: privateMii,
+            rendererRevision,
+            resolveCurrentMii: async () => {
+                const currentMii = await Miis.findOne({ id: miiId, private: true }).select("+ltdData").lean();
+                return canAccessPrivateMiiAsset(currentMii, req.user, isModerator)
+                    ? currentMii
+                    : null;
+            }
         });
 
         if (generated) {
@@ -9551,62 +10906,28 @@ site.use('/privateMiiImgs', async (req, res, next) => {
         }
         return next();
     } catch (e) {
+        if (e instanceof LtdRenderError && e.deterministic) {
+            return await sendLtdRenderUnavailablePlaceholder(res, miiId, e);
+        }
         return next(e);
     }
 });
 
-// Render missing private Mii QRs on demand
+// Render missing or stale private Mii QRs on demand
 site.use('/privateMiiQRs', async (req, res, next) => {
-    const miiId = getRequestedMiiId(req);
-    if (!miiId) return next();
-
-    const qrPath = getMiiAssetPath('privateMiiQRs', miiId);
-    if (await fileExists(qrPath)) {
-        return res.sendFile(qrPath);
-    }
-
-    try {
-        const generated = await ensureGeneratedAsset(qrPath, async () => {
-            const mii = await resolvePrivateAssetMii(req);
-            if (!mii) return false;
-            await writeRenderedMiiQr(mii, qrPath, "3DS");
-            return true;
-        });
-
-        if (generated) {
-            return res.sendFile(qrPath);
-        }
-        return next();
-    } catch (e) {
-        return next(e);
-    }
+    return await serveGeneratedMiiQrAsset(req, res, next, {
+        dirName: 'privateMiiQRs',
+        qrConsole: '3DS',
+        isPrivate: true
+    });
 });
 
-// Render missing private Mii Wii QRs on demand
 site.use('/privateMiiQRsWii', async (req, res, next) => {
-    const miiId = getRequestedMiiId(req);
-    if (!miiId) return next();
-
-    const qrPath = getMiiAssetPath('privateMiiQRsWii', miiId);
-    if (await fileExists(qrPath)) {
-        return res.sendFile(qrPath);
-    }
-
-    try {
-        const generated = await ensureGeneratedAsset(qrPath, async () => {
-            const mii = await resolvePrivateAssetMii(req);
-            if (!mii) return false;
-            await writeRenderedMiiQr(mii, qrPath, "WIIU");
-            return true;
-        });
-
-        if (generated) {
-            return res.sendFile(qrPath);
-        }
-        return next();
-    } catch (e) {
-        return next(e);
-    }
+    return await serveGeneratedMiiQrAsset(req, res, next, {
+        dirName: 'privateMiiQRsWii',
+        qrConsole: 'WIIU',
+        isPrivate: true
+    });
 });
 
 // Render missing private Mii Tomodachi Life QRs on demand
@@ -9632,29 +10953,33 @@ site.use('/miiImgs', async (req, res, next) => {
     const miiId = getRequestedMiiId(req);
     if (!miiId) return next();
 
-    const imgPath = getMiiAssetPath('miiImgs', miiId);
-    const shouldDisableCache = miiId === "average";
-    if (miiId === BLANK_MII_ID) {
-        const fallbackImgPath = getMiiAssetPath('miiImgs', "average");
-        if (await fileExists(fallbackImgPath)) {
-            applyPublicImageSeoHeaders(res);
-            return sendFileWithoutCache(res, fallbackImgPath);
-        }
-    }
+    const storedMiiId = miiId === BLANK_MII_ID ? "average" : miiId;
+    const imgPath = getMiiAssetPath('miiImgs', storedMiiId);
+    const shouldDisableCache = storedMiiId === "average";
+    const publicMii = await Miis.findOne({ id: storedMiiId, private: false }).select("+ltdData").lean();
+    if (!publicMii) return next();
 
-    if (await fileExists(imgPath)) {
+    const publicRenderIdentity = await getMiiImageRenderIdentity(publicMii);
+    const rendererRevision = publicRenderIdentity.backend === "LTD"
+        ? getImageCacheRendererRevision()
+        : null;
+    if (await hasCurrentStoredMiiImageAsset(publicMii, rendererRevision, imgPath)) {
         applyPublicImageSeoHeaders(res);
         return shouldDisableCache
             ? sendFileWithoutCache(res, imgPath)
             : res.sendFile(imgPath);
     }
+    if (isCurrentUnsupportedLtdRender(publicMii, rendererRevision)) {
+        return sendCachedLtdRenderUnavailablePlaceholder(res);
+    }
 
     try {
-        const generated = await ensureGeneratedAsset(imgPath, async () => {
-            const mii = await Miis.findOne({ id: miiId, private: false }).lean();
-            if (!mii) return false;
-            await writeRenderedMiiImage(mii, imgPath);
-            return true;
+        const generated = await ensureCurrentStoredMiiImageAsset({
+            assetPath: imgPath,
+            initialMii: publicMii,
+            rendererRevision,
+            resolveCurrentMii: async () =>
+                await Miis.findOne({ id: storedMiiId, private: false }).select("+ltdData").lean()
         });
 
         if (generated) {
@@ -9666,66 +10991,26 @@ site.use('/miiImgs', async (req, res, next) => {
         applyNoCacheHeaders(res);
         return next();
     } catch (e) {
+        if (e instanceof LtdRenderError && e.deterministic) {
+            return await sendLtdRenderUnavailablePlaceholder(res, storedMiiId, e);
+        }
         return next(e);
     }
 });
 
-// Render missing public Mii QRs on demand
+// Render missing or stale public Mii QRs on demand
 site.use('/miiQRs', async (req, res, next) => {
-    const miiId = getRequestedMiiId(req);
-    if (!miiId) return next();
-
-    const qrPath = getMiiAssetPath('miiQRs', miiId);
-    if (await fileExists(qrPath)) {
-        applyPublicImageSeoHeaders(res);
-        return res.sendFile(qrPath);
-    }
-
-    try {
-        const generated = await ensureGeneratedAsset(qrPath, async () => {
-            const mii = await Miis.findOne({ id: miiId, private: false }).lean();
-            if (!mii) return false;
-            await writeRenderedMiiQr(mii, qrPath, "3DS");
-            return true;
-        });
-
-        if (generated) {
-            applyPublicImageSeoHeaders(res);
-            return res.sendFile(qrPath);
-        }
-        return next();
-    } catch (e) {
-        return next(e);
-    }
+    return await serveGeneratedMiiQrAsset(req, res, next, {
+        dirName: 'miiQRs',
+        qrConsole: '3DS'
+    });
 });
 
-// Render missing public Mii Wii QRs on demand
 site.use('/miiQRsWii', async (req, res, next) => {
-    const miiId = getRequestedMiiId(req);
-    if (!miiId) return next();
-
-    const qrPath = getMiiAssetPath('miiQRsWii', miiId);
-    if (await fileExists(qrPath)) {
-        applyPublicImageSeoHeaders(res);
-        return res.sendFile(qrPath);
-    }
-
-    try {
-        const generated = await ensureGeneratedAsset(qrPath, async () => {
-            const mii = await Miis.findOne({ id: miiId, private: false }).lean();
-            if (!mii) return false;
-            await writeRenderedMiiQr(mii, qrPath, "WIIU");
-            return true;
-        });
-
-        if (generated) {
-            applyPublicImageSeoHeaders(res);
-            return res.sendFile(qrPath);
-        }
-        return next();
-    } catch (e) {
-        return next(e);
-    }
+    return await serveGeneratedMiiQrAsset(req, res, next, {
+        dirName: 'miiQRsWii',
+        qrConsole: 'WIIU'
+    });
 });
 
 // Render missing public Mii Tomodachi Life QRs on demand
@@ -9852,7 +11137,7 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
                         if (lowerName.endsWith(".txt")) return;
 
                         try {
-                            const mii = await createMiiData(`./quickUploads/${file}`);
+                            const mii = await createMiiData(trustedMiiFileInput(`./quickUploads/${file}`, file));
                             const matchingMii = await findMatchingMii(mii, { includeGeneral: quickUploadOfficial });
                             if (matchingMii) {
                                 await fs.promises.unlink(`./quickUploads/${file}`);
@@ -9869,9 +11154,12 @@ connectionPromise.then(() => { // TODO: server error page if DB fails
                             mii.desc = "Uploaded in Bulk";
                             mii.private = false;
                             mii.published = true;
+                            const canonicalLtd = await canonicalizeMiiToLtd(mii, { recordId: mii.id });
+                            Object.assign(mii, canonicalLtd.storedFields);
                             setMiiIdentityHash(mii);
                             await applyAutomaticDecodedMiiTags(mii);
                             ensureUploadMiiPermissions(mii);
+                            await assignMiiEra(mii);
 
                             await Miis.create(mii);
 
@@ -10131,6 +11419,19 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
     const selectedTags = Array.isArray(toSend.selectedTags) ? toSend.selectedTags : [];
     const excludedTags = Array.isArray(toSend.excludedTags) ? toSend.excludedTags : [];
     const selectedSearchFields = getRequestedSearchFields(req.query);
+    const hasTextSearch = Boolean(searchQuery && selectedSearchFields.length > 0);
+    const defaultSearchSort = hasTextSearch ? "relevance" : "top";
+    const selectedSearchSort = normalizeMiiSearchSort(req.query.sort, hasTextSearch);
+    const selectedSearchDirection = normalizeMiiListSortDirection(
+        req.query.direction,
+        selectedSearchSort
+    );
+    const normalizedSortRequest = withNormalizedMiiListSort(
+        req,
+        selectedSearchSort,
+        defaultSearchSort,
+        selectedSearchDirection
+    );
     const advancedSearchFilters = getRequestedAdvancedSearchFilters(req.query);
     
     const paginatedData = await paginatedApi("search", { start }, FULL_ROW_BROWSE_REQUEST_LIMIT, {
@@ -10139,16 +11440,28 @@ site.get('/searchResults', miiListRatelimiter, async (req, res) => {
         excludeTags: excludedTags,
         searchIn: selectedSearchFields,
         searchFieldsConfigured: true,
+        sort: selectedSearchSort,
+        direction: selectedSearchDirection,
         ...advancedSearchFilters
     }, req.user);
     if (paginatedData.total > 0 && start >= paginatedData.total) {
-        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(paginatedData.total, paginatedData.perPage)));
+        return res.redirect(buildRequestPathWithStart(
+            normalizedSortRequest,
+            getLastStartOffset(paginatedData.total, paginatedData.perPage)
+        ));
     }
     toSend.displayedMiis = paginatedData.items;
-    toSend.pagination = buildStartPagination(req, paginatedData.start, paginatedData.total, paginatedData.perPage);
-    toSend.currentPath = buildRequestPathWithStart(req, paginatedData.start);
+    toSend.pagination = buildStartPagination(
+        normalizedSortRequest,
+        paginatedData.start,
+        paginatedData.total,
+        paginatedData.perPage
+    );
+    toSend.currentPath = buildRequestPathWithStart(normalizedSortRequest, paginatedData.start);
     
     toSend.searchQuery = searchQuery;
+    toSend.searchSort = selectedSearchSort;
+    toSend.searchDirection = selectedSearchDirection;
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
     const hasActiveSearchQuery = Boolean(searchQuery && selectedSearchFields.length > 0);
     const hasTagFilters = selectedTags.length > 0 || excludedTags.length > 0;
@@ -10290,6 +11603,7 @@ async function readLegacyImageFromFile(filePath) {
 
 async function renderLegacyPreviewImage(miiData) {
     if (!miiData) return null;
+    if (isCurrentUnsupportedLtdRender(miiData)) return null;
     try {
         // Keep legacy previews very small for 3DS/Wii U browsers.
         const rendered = await renderStoredMiiImage(miiData, { size: 128 });
@@ -10345,6 +11659,14 @@ function applyNoCacheHeaders(res) {
     for (const [headerName, headerValue] of Object.entries(NO_CACHE_RESPONSE_HEADERS)) {
         res.setHeader(headerName, headerValue);
     }
+}
+
+function sendLtdWorkspaceUnavailableError(res, error) {
+    applyNoCacheHeaders(res);
+    return res.status(error?.status || 422).json({
+        error: error?.message || "This LTD-era Mii is temporarily unavailable in this workspace.",
+        code: error?.code || "LTD_WORKSPACE_UNAVAILABLE"
+    });
 }
 
 function sendFileWithoutCache(res, filePath) {
@@ -10414,17 +11736,29 @@ async function sendLegacyHighlightedPreview(req, res) {
         return sendLegacyImageBuffer(res, rendered.data, rendered.mime);
     }
 
-    if (highlightedMii && highlightedId) {
-        const publicPath = path.join(__dirname, "static", "miiImgs", `${highlightedId}.png`);
-        const publicImage = await readLegacyImageFromFile(publicPath);
-        if (publicImage) {
-            return sendLegacyImageBuffer(res, publicImage.data, publicImage.mime);
-        }
-
-        const privatePath = path.join(__dirname, "static", "privateMiiImgs", `${highlightedId}.png`);
-        const privateImage = await readLegacyImageFromFile(privatePath);
-        if (privateImage) {
-            return sendLegacyImageBuffer(res, privateImage.data, privateImage.mime);
+    if (
+        highlightedMii
+        && highlightedId
+        && await hasCurrentStoredMiiImageAsset(
+            highlightedMii,
+            null,
+            path.join(
+                __dirname,
+                "static",
+                highlightedMii.private ? "privateMiiImgs" : "miiImgs",
+                `${highlightedId}.png`
+            )
+        )
+    ) {
+        const currentPath = path.join(
+            __dirname,
+            "static",
+            highlightedMii.private ? "privateMiiImgs" : "miiImgs",
+            `${highlightedId}.png`
+        );
+        const currentImage = await readLegacyImageFromFile(currentPath);
+        if (currentImage) {
+            return sendLegacyImageBuffer(res, currentImage.data, currentImage.mime);
         }
     }
 
@@ -10440,10 +11774,19 @@ async function sendLegacyAveragePreview(req, res) {
         return sendLegacyImageBuffer(res, rendered.data, rendered.mime);
     }
 
-    const averagePath = path.join(__dirname, "static", "miiImgs", "average.png");
-    const averageImage = await readLegacyImageFromFile(averagePath);
-    if (averageImage) {
-        return sendLegacyImageBuffer(res, averageImage.data, averageImage.mime);
+    if (
+        averageMii
+        && await hasCurrentStoredMiiImageAsset(
+            averageMii,
+            null,
+            path.join(__dirname, "static", "miiImgs", "average.png")
+        )
+    ) {
+        const averagePath = path.join(__dirname, "static", "miiImgs", "average.png");
+        const averageImage = await readLegacyImageFromFile(averagePath);
+        if (averageImage) {
+            return sendLegacyImageBuffer(res, averageImage.data, averageImage.mime);
+        }
     }
 
     return sendLegacyPreviewFallback(res);
@@ -10550,7 +11893,7 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
 
         let mii;
         try {
-            mii = await createMiiData(req.file.path);
+            mii = await createMiiData(trustedMiiFileInput(req.file));
         } catch (e) {
             const dumpedUpload = await dumpFailingUploadFile(req.file, e, "legacy-upload");
             if (dumpedUpload) {
@@ -10595,41 +11938,13 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
             return;
         }
 
-        clearSubmittedExternalMiiMetadata(mii);
-        mii.id = await genId();
-        mii.uploadedOn = Date.now();
-        mii.uploader = user.username;
-        mii.desc = normalizeMiiDescription(formValues.desc);
-        mii.votes = 1;
-        mii.official = false;
-        mii.published = wantsPublic;
-        mii.blockedFromPublishing = false;
-        setMiiIdentityHash(mii);
-        await applyAutomaticDecodedMiiTags(mii);
-        ensureUploadMiiPermissions(mii);
-
-        const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(mii.id, !wantsPublic);
-        const assetPaths = {
-            img: imgPath,
-            qr3ds: qrPath,
-            qrWii: qrWiiPath,
-            qrTomodachi: qrTomodachiPath,
-            qrMiitopia: qrMiitopiaPath
-        };
-        await Promise.all([
-            writeRenderedMiiImage(mii, assetPaths.img),
-            writeQrPng(mii, assetPaths.qr3ds, "3DS"),
-            writeQrPng(mii, assetPaths.qrWii, "WIIU"),
-            writeOptionalQrPng(mii, assetPaths.qrTomodachi, "TOMODACHI"),
-            writeOptionalQrPng(mii, assetPaths.qrMiitopia, "MIITOPIA")
-        ]);
-
-        await Miis.create({
-            ...mii,
-            id: mii.id,
-            private: !wantsPublic
+        const persistedUpload = await persistUploadedMii(mii, {
+            uploader: user.username,
+            wantsPublic,
+            desc: formValues.desc
         });
-        await ensureUploaderAutoLike(user.username, mii.id, 1);
+        mii = persistedUpload.mii;
+        const assetPaths = persistedUpload.assetPaths;
 
         const legacyUploadReportEmbed = {
             type: "rich",
@@ -10658,13 +11973,13 @@ site.post('/legacy-upload', upload.single('mii'), async (req, res) => {
                 text: `View: https://infinimii.com/mii/${mii.id}`
             }
         };
-        if (wantsPublic) {
+        if (wantsPublic && mii.ltdRender?.portrait?.status === "ready") {
             legacyUploadReportEmbed.image = {
                 url: `https://infinimii.com/miiImgs/${encodeURIComponent(mii.id)}.png`
             };
         }
         queueUploadWebhookReport(legacyUploadReportEmbed, {
-            imagePath: assetPaths.img
+            imagePath: mii.ltdRender?.portrait?.status === "ready" ? assetPaths.img : ""
         });
 
         cleanupUpload();
@@ -10696,9 +12011,12 @@ site.get('/upload', requireAuth, requireVerifiedUploadAccount, async (req, res) 
     toSend.fromAmiibo = null;
     // Check if coming from Amiibo extraction
     if (req.query.fromAmiibo) {
-        const tempMiiId = req.query.fromAmiibo;
-        const tempImgPath = `./static/miiImgs/${tempMiiId}.png`;
-        const tempBinPath = `./static/temp/${tempMiiId}.bin`;
+        const tempMiiId = String(req.query.fromAmiibo || "").trim();
+        const safeTempId = /^[A-Za-z0-9]{1,10}$/.test(tempMiiId);
+        const tempImgPath = safeTempId
+            ? path.resolve(__dirname, "static", "miiImgs", `${tempMiiId}.png`)
+            : "";
+        const tempBinPath = safeTempId ? getTrustedTempMiiPath(tempMiiId) : null;
         
         if (fs.existsSync(tempImgPath) && fs.existsSync(tempBinPath)) {
             // Read the Mii data
@@ -11137,6 +12455,11 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                 if (normalizedValue.length > 10) {
                     return res.json({ error: 'Mii name must be 10 characters or fewer' });
                 }
+                if (mii?.ltdProvenance?.kind === 'native-upload') {
+                    return res.json({
+                        error: 'The name stored inside this LTD file cannot be changed here. Replace the LTD file instead.'
+                    });
+                }
                 oldValue = mii.meta.name;
                 updates['meta.name'] = normalizedValue;
                 break;
@@ -11291,6 +12614,28 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                 return res.json({ error: 'Invalid field' });
         }
 
+        if (requestedField === 'name') {
+            const canonicalSource = {
+                ...mii,
+                meta: { ...(mii.meta || {}), name: normalizedValue }
+            };
+            for (const key of [
+                'ltdData',
+                'ltdSha256',
+                'ltdAppearanceHash',
+                'ltdVersion',
+                'ltdCharInfo',
+                'ltdProvenance',
+                'ltdConversionReport',
+                'ltdRender'
+            ]) delete canonicalSource[key];
+            const canonical = await canonicalizeMiiToLtd(canonicalSource, { recordId: id });
+            Object.assign(updates, canonical.storedFields);
+            const identitySource = { ...canonicalSource, ...canonical.storedFields };
+            setMiiIdentityHash(identitySource);
+            updates.miiHash = identitySource.miiHash;
+        }
+
         await Miis.findOneAndUpdate({ id }, { $set: updates }, { runValidators: true });
 
         if (shouldRegenerateQrPreviews) {
@@ -11299,13 +12644,9 @@ site.post('/updateMiiField', requireAuth, async (req, res) => {
                 setNestedPreviewValue(updatedMiiForResponse, path, nextValue);
             }
 
-            const { qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(id, Boolean(mii.private));
-            await Promise.all([
-                writeQrPng(updatedMiiForResponse, qrPath, "3DS"),
-                writeQrPng(updatedMiiForResponse, qrWiiPath, "WIIU"),
-                writeOptionalQrPng(updatedMiiForResponse, qrTomodachiPath, "TOMODACHI"),
-                writeOptionalQrPng(updatedMiiForResponse, qrMiitopiaPath, "MIITOPIA")
-            ]);
+            await syncStoredMiiQrAssets(updatedMiiForResponse, {
+                isPrivate: Boolean(mii.private)
+            });
         }
 
         const actorRoleLabel = isAdmin(req.user)
@@ -11492,15 +12833,17 @@ site.post('/regenerateQR', requireAuth, requireRole(ROLES.MODERATOR), async (req
     if (!mii) {
         return res.json({ error: 'Mii not found' });
     }
+    try {
+        assertMiiDownloadFormat(mii, "qr", { storedRecord: true });
+    } catch (error) {
+        if (error instanceof LtdOnlyDownloadError) {
+            return res.status(error.status || 400).json({ error: error.message, code: error.code });
+        }
+        throw error;
+    }
 
     // Regenerate all QR previews so the page tabs stay synchronized.
-    const { qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(id, Boolean(mii.private));
-    await Promise.all([
-        writeQrPng(mii, qrPath, "3DS"),
-        writeQrPng(mii, qrWiiPath, "WIIU"),
-        writeOptionalQrPng(mii, qrTomodachiPath, "TOMODACHI"),
-        writeOptionalQrPng(mii, qrMiitopiaPath, "MIITOPIA")
-    ]);
+    await syncStoredMiiQrAssets(mii, { isPrivate: Boolean(mii.private) });
 
     // Log to Discord
     makeReport(JSON.stringify({
@@ -11534,7 +12877,33 @@ site.post('/regenerateRender', requireAuth, requireRole(ROLES.MODERATOR), async 
     }
 
     const { imgPath } = getMiiAssetPaths(id, mii.private);
-    await writeStoredMiiImage(mii, imgPath);
+    try {
+        const renderIdentity = await getMiiImageRenderIdentity(mii);
+        const rendererRevision = renderIdentity.backend === "LTD"
+            ? getImageCacheRendererRevision()
+            : null;
+        const generated = await ensureCurrentStoredMiiImageAsset({
+            assetPath: imgPath,
+            initialMii: mii,
+            rendererRevision,
+            resolveCurrentMii: async () => await Miis.findOne({ id, private: Boolean(mii.private) }).select("+ltdData").lean()
+        });
+        if (!generated) {
+            return res.status(409).json({ error: "The Mii changed while its render image was being regenerated." });
+        }
+    } catch (error) {
+        if (error instanceof LtdRenderError && error.deterministic) {
+            const invalid = error.status === 400;
+            await cacheDeterministicLtdRenderFailure(id, error, invalid ? "invalid" : "unsupported");
+            return res.status(invalid ? 400 : 422).json({
+                error: invalid
+                    ? "This LTD contains a CharInfoEx value that the renderer does not support."
+                    : "This LTD format is not supported by the renderer yet.",
+                code: error.code
+            });
+        }
+        throw error;
+    }
 
     makeReport(JSON.stringify({
         embeds: [{
@@ -11597,14 +12966,20 @@ site.post('/clearMiiTlData', requireAuth, requireRole(ROLES.ADMINISTRATOR), asyn
         };
         delete updatedMii.tl;
 
-        const { imgPath, qrPath, qrWiiPath, qrTomodachiPath, qrMiitopiaPath } = getMiiAssetPaths(id, Boolean(mii.private));
-        await Promise.all([
-            writeStoredMiiImage(updatedMii, imgPath),
-            writeQrPng(updatedMii, qrPath, "3DS"),
-            writeQrPng(updatedMii, qrWiiPath, "WIIU"),
-            writeOptionalQrPng(updatedMii, qrTomodachiPath, "TOMODACHI"),
-            writeOptionalQrPng(updatedMii, qrMiitopiaPath, "MIITOPIA")
-        ]);
+        const { imgPath } = getMiiAssetPaths(id, Boolean(mii.private));
+        const assetWrites = [ensureCurrentStoredMiiImageAsset({
+            assetPath: imgPath,
+            initialMii: updatedMii,
+            resolveCurrentMii: async () => await Miis.findOne({
+                id,
+                private: Boolean(mii.private)
+            }).select("+ltdData").lean()
+        })];
+        assetWrites.push(syncStoredMiiQrAssets(updatedMii, {
+            isPrivate: Boolean(mii.private)
+        }));
+        const [imageReady] = await Promise.all(assetWrites);
+        if (!imageReady) throw new Error("The Mii changed while its render image asset was being ensured.");
 
         makeReport(JSON.stringify({
             embeds: [{
@@ -12370,6 +13745,7 @@ site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) 
         }
 
         let miiInput;
+        let downloadPolicySource = null;
 
         if (source === "miiId") {
             const resolved = await resolveMiiIdForImport(req.body.miiId, req);
@@ -12377,9 +13753,10 @@ site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) 
                 res.status(400).json({ error: resolved.error });
                 return;
             }
-
             miiInput = resolved.mii;
-        } else if (source === "rcd") {
+            downloadPolicySource = resolved.record;
+        }
+        else if (source === "rcd") {
             if (!req.file) {
                 res.status(400).json({ error: "No .rcd file uploaded" });
                 return;
@@ -12391,7 +13768,10 @@ site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) 
                 return;
             }
 
-            miiInput = req.file.path;
+            // Decode the trusted bytes before the RCD encoder so a native LTD
+            // renamed to .rcd cannot bypass the per-era export policy.
+            miiInput = await createMiiData(trustedMiiFileInput(req.file));
+            downloadPolicySource = miiInput;
         } else if (source === "raw") {
             const rawMiiData = String(req.body.miiData || "").trim();
             if (!rawMiiData) {
@@ -12400,9 +13780,24 @@ site.post('/api/wiimote/importData', upload.single('miiFile'), async (req, res) 
             }
 
             miiInput = await createMiiData(rawMiiData);
+            downloadPolicySource = miiInput;
         } else {
             res.status(400).json({ error: "Invalid import source" });
             return;
+        }
+
+        if (downloadPolicySource) {
+            try {
+                assertMiiDownloadFormat(downloadPolicySource, "rcd", {
+                    storedRecord: source === "miiId"
+                });
+            } catch (error) {
+                if (error instanceof LtdOnlyDownloadError) {
+                    res.status(error.status || 400).json({ error: error.message, code: error.code });
+                    return;
+                }
+                throw error;
+            }
         }
 
         const miiInstance = await miijs.Mii.create(miiInput);
@@ -12448,7 +13843,8 @@ site.post('/extractMiiFromAmiibo', upload.single('amiibo'), async (req, res) => 
         // Convert to JSON
         const mii = await createMiiData(miiData);
         
-        // Generate ID and save temporarily
+        // Generate an opaque temporary token and retain the extracted binary;
+        // do not create a QR/JSON alternate-format download.
         const tempId = await genId();
         mii.id = tempId;
         mii.uploadedOn = Date.now();
@@ -12457,18 +13853,35 @@ site.post('/extractMiiFromAmiibo', upload.single('amiibo'), async (req, res) => 
         mii.votes = 0;
         mii.official = false;
         
-        // Render images with FFL - save to temp location
-        const miiImage = await renderStoredMiiImage(mii);
-        await fs.promises.writeFile("./static/miiImgs/" + tempId + ".png", miiImage);
-        await writeQrPng(mii, "./static/miiQRs/" + tempId + ".png");
-        
-        // Also save the decrypted bin data for upload
-        await fs.promises.writeFile("./static/temp/" + tempId + ".bin", miiData);
+        const tempImagePath = path.resolve(__dirname, "static", "miiImgs", `${tempId}.png`);
+        const tempBinPath = getTrustedTempMiiPath(tempId);
+        if (!tempBinPath) throw new Error("Could not allocate a safe temporary Mii token.");
+        let renderAvailable = true;
+        try {
+            const miiImage = await renderStoredMiiImage(mii);
+            await writeMiiImageBuffer(miiImage, tempImagePath);
+        } catch (error) {
+            if (!(error instanceof LtdRenderError) || !error.deterministic) throw error;
+            renderAvailable = false;
+        }
+        await fs.promises.writeFile(tempBinPath, miiData, { flag: "wx" });
         
         // Clean up upload
         try { fs.unlinkSync("./uploads/" + req.file.filename); } catch (e) { }
         
-        res.json({ mii: mii });
+        res.json({
+            mii: {
+                id: tempId,
+                meta: {
+                    name: mii.meta?.name || "Unknown",
+                    creatorName: mii.meta?.creatorName || "Unknown"
+                }
+            },
+            renderAvailable,
+            imageUrl: renderAvailable
+                ? `/miiImgs/${encodeURIComponent(tempId)}.png`
+                : "/static/assets/ltd-render-unavailable.svg"
+        });
     } catch (e) {
     //     console.error('Error extracting Mii from Amiibo:', e); Commented because this block will be hit any time they don't upload a valid Amiibo
         try { fs.unlinkSync("./uploads/" + req.file.filename); } catch (e) { }
@@ -12492,6 +13905,7 @@ site.post('/insertMiiIntoAmiibo', upload.fields([
         const amiiboDump = fs.readFileSync(req.files.amiibo[0].path);
         
         let miiData;
+        let downloadPolicySource = null;
         const miiFile = req.files.mii?.[0];
         const miiId = typeof req.body.miiId === "string" ? req.body.miiId.trim() : "";
         const rawMiiData = typeof req.body.miiData === "string" ? req.body.miiData.trim() : "";
@@ -12499,7 +13913,8 @@ site.post('/insertMiiIntoAmiibo', upload.fields([
         // Auto-detect Mii source by provided input so users do not need to specify a source type.
         if (miiFile?.path) {
             try {
-                miiData = await createMiiData(miiFile.path);
+                miiData = await createMiiData(trustedMiiFileInput(miiFile));
+                downloadPolicySource = miiData;
             } catch (e) {
                 res.json({ error: 'Failed to read Mii file: ' + e.message });
                 try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e2) { }
@@ -12516,9 +13931,11 @@ site.post('/insertMiiIntoAmiibo', upload.fields([
                 return;
             }
             miiData = resolved.mii;
+            downloadPolicySource = resolved.record;
         } else if (rawMiiData) {
             try {
                 miiData = await createMiiData(rawMiiData);
+                downloadPolicySource = miiData;
             } catch (e) {
                 res.json({ error: 'Failed to parse pasted Mii data: ' + e.message });
                 try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e2) { }
@@ -12528,6 +13945,19 @@ site.post('/insertMiiIntoAmiibo', upload.fields([
             res.json({ error: 'No Mii source provided. Upload a file, enter a Mii ID, or paste raw Mii data.' });
             try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e) { }
             return;
+        }
+
+        try {
+            // Amiibo owner data is another non-LTD binary representation.
+            assertMiiDownloadFormat(downloadPolicySource || miiData, "amiibo", {
+                storedRecord: Boolean(miiId)
+            });
+        } catch (error) {
+            if (error instanceof LtdOnlyDownloadError) {
+                try { fs.unlinkSync(req.files.amiibo[0].path); } catch (e) { }
+                return res.status(error.status || 400).json({ error: error.message, code: error.code });
+            }
+            throw error;
         }
 
         // Insert Mii into Amiibo
@@ -12562,7 +13992,11 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
             res.status(403).json({ error: UPLOAD_VERIFICATION_REQUIRED_MESSAGE });
             return;
         }
-        const tempMiiId = req.body.miiId;
+        const tempMiiId = String(req.body.miiId || "").trim();
+        if (!/^[A-Za-z0-9]{1,10}$/.test(tempMiiId)) {
+            res.status(400).json({ error: "Invalid extracted Mii token." });
+            return;
+        }
         
         // Check private Mii limit
         const privateMiisCount = await Miis.countDocuments({ uploader: req.user.username, private: true });
@@ -12571,66 +14005,48 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
             return;
         }
         
-        // Check if temporary files exist
-        const tempImgPath = `./static/miiImgs/${tempMiiId}.png`;
-        const tempQrPath = `./static/miiQRs/${tempMiiId}.png`;
-        
-        if (!fs.existsSync(tempImgPath) || !fs.existsSync(tempQrPath)) {
+        const tempImgPath = path.resolve(__dirname, "static", "miiImgs", `${tempMiiId}.png`);
+        const tempBinPath = getTrustedTempMiiPath(tempMiiId);
+        if (!tempBinPath || !fs.existsSync(tempBinPath)) {
             res.json({error: "Extracted Mii data not found. Please extract again."});
             return;
         }
 
-        // Create the Mii object from extracted QR first so we can duplicate-check before moving files.
-        const mii = await createMiiData(tempQrPath);
+        const mii = await createMiiData(trustedMiiFileInput(tempBinPath, "amiibo-owner.bin"));
         const matchingMii = await findMatchingMii(mii);
         if (matchingMii) {
             res.json(getDuplicateMiiErrorPayload(matchingMii.id));
             return;
         }
 
-        // Generate new ID for the actual upload
-        const newMiiId = await genId();
-
-        // Move files from temp location to private folders
-        fs.renameSync(tempImgPath, `./static/privateMiiImgs/${newMiiId}.png`);
-        fs.renameSync(tempQrPath, `./static/privateMiiQRs/${newMiiId}.png`);
-
-        clearSubmittedExternalMiiMetadata(mii);
-        mii.id = newMiiId;
-        mii.uploadedOn = Date.now();
-        mii.uploader = req.user.username;
-        mii.desc = "Extracted from Amiibo";
-        mii.votes = 1;
-        mii.official = false;
-        mii.published = false;
-        mii.blockedFromPublishing = false;
-        setMiiIdentityHash(mii);
-        await applyAutomaticDecodedMiiTags(mii);
-        ensureUploadMiiPermissions(mii);
-        
-        // Store in database as private Mii
-        await Miis.create({
-            ...mii,
-            id: newMiiId,
-            private: true
+        const persisted = await persistUploadedMii(mii, {
+            uploader: req.user.username,
+            wantsPublic: false,
+            desc: "Extracted from Amiibo"
         });
-        await ensureUploaderAutoLike(req.user.username, newMiiId, 1);
+        const uploadedMii = persisted.mii;
+        const newMiiId = uploadedMii.id;
+        await Promise.all([
+            fs.promises.unlink(tempBinPath).catch(() => {}),
+            fs.promises.unlink(tempImgPath).catch(() => {})
+        ]);
         
         // Send to Discord for moderator review
         var d = new Date();
-        const miiImagePath = `./static/privateMiiImgs/${newMiiId}.png`;
-        const miiImageData = fs.readFileSync(miiImagePath);
+        const miiImagePath = persisted.assetPaths.img;
+        const hasRenderedImage = uploadedMii.ltdRender?.portrait?.status === "ready" && miiImagePath;
+        const miiImageData = hasRenderedImage ? fs.readFileSync(miiImagePath) : null;
 
         makeReport(JSON.stringify({
             embeds: [{
                 "type": "rich",
                 "title": `Private Mii Uploaded (Extracted from Amiibo)`,
-                "description": mii.desc,
+                "description": uploadedMii.desc,
                 "color": 0x00aaff,
                 "fields": [
                     {
                         "name": `Mii Name`,
-                        "value": mii.meta?.name || "Unknown",
+                        "value": uploadedMii.meta?.name || "Unknown",
                         "inline": true
                     },
                     {
@@ -12640,24 +14056,22 @@ site.post('/uploadExtractedAmiibo', async (req, res) => {
                     },
                     {
                         "name": `Mii Creator Name`,
-                        "value": mii.meta?.creatorName || "Unknown",
+                        "value": uploadedMii.meta?.creatorName || "Unknown",
                         "inline": true
                     }
-                ].concat(buildTomodachiLifeUploadWebhookFields(mii)),
-                "image": {
-                    "url": `attachment://${newMiiId}.png`
-                },
+                ].concat(buildTomodachiLifeUploadWebhookFields(uploadedMii)),
+                ...(hasRenderedImage ? {
+                    "image": { "url": `attachment://${newMiiId}.png` }
+                } : {}),
                 "footer": {
                     "text": `View: https://infinimii.com/mii/${newMiiId} | Uploaded at ${d.getHours()}:${d.getMinutes()}, ${d.toDateString()} UTC`
                 }
             }]
-        }), [
-            {
+        }), hasRenderedImage ? [{
                 data: miiImageData,
                 filename: `${newMiiId}.png`,
                 contentType: 'image/png'
-            }
-        ]);
+            }] : []);
         
         // Redirect to private Miis page
         // res.redirect("/myPrivateMiis");
@@ -12750,7 +14164,7 @@ site.post('/exportMii', upload.single('mii'), async (req, res) => {
             return;
         }
 
-        const miiInput = req.file?.path || req.body.miiData;
+        const miiInput = req.file ? trustedMiiFileInput(req.file) : req.body.miiData;
         if (!miiInput) {
             res.json({ error: "No Mii data provided" });
             return;
@@ -12774,6 +14188,11 @@ site.post('/exportMii', upload.single('mii'), async (req, res) => {
                 context: "exportMii",
                 dumpedUpload
             });
+        }
+        if (e?.code === "LTD_SHAREMII_IMPORT_UNSAFE") {
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
+            res.status(422).json({ error: e.message, code: e.code });
+            return;
         }
         if (isInvalidMiiTypeError(e)) {
             if (!dumpedUpload) {
@@ -12867,11 +14286,24 @@ async function getConsoleApiCfsdHex(mii) {
     }
 }
 
+function cardMayNeedNativeLtdPolicyRefetch(mii) {
+    if (!mii) return false;
+    const era = String(mii.era || "").trim().toUpperCase();
+    if (["RCD", "TL", "CFCD", "FFCD", "CHARINFO", "LTD"].includes(era)) return false;
+    return mii?.ltdProvenance?.kind === "native-upload"
+        || mii?.ltdProvenance?.sourceFormat === "ltd";
+}
+
 async function buildConsoleApiMiiRow(mii, req) {
     if (!mii) return "";
     const resolvedBaseUrl = getResolvedBaseUrlFromRequest(req);
     const imageDir = mii.private ? "privateMiiImgs" : "miiImgs";
-    const previewHex = await getConsoleApiCfsdHex(mii);
+    const policyMii = cardMayNeedNativeLtdPolicyRefetch(mii)
+        ? (await getMiiById(mii.id, Boolean(mii.private)) || mii)
+        : mii;
+    const previewHex = getMiiDownloadPolicy(policyMii, { storedRecord: true }).ltdOnly
+        ? ""
+        : await getConsoleApiCfsdHex(mii);
     return [
         normalizeConsoleApiText(mii.id, 32),
         normalizeConsoleApiText(getDisplayMiiName(mii), 80),
@@ -13000,7 +14432,14 @@ site.get(consoleApiRoute('/list_thumbs'), miiListRatelimiter, async (req, res) =
     if (ids.length > 0) {
         items = (await Promise.all(ids.map(id => getMiiById(id, true)))).filter(Boolean);
         const byId = new Map(items
-            .filter(mii => !isMiiHiddenFromViewer(mii, viewerUser))
+            .filter(mii => {
+                if (isMiiHiddenFromViewer(mii, viewerUser)) return false;
+                if (!mii.private) return true;
+                return Boolean(
+                    viewerUser
+                    && (mii.uploader === viewerUser.username || canModerate(viewerUser))
+                );
+            })
             .map(mii => [String(mii.id), mii]));
         items = ids.map(id => byId.get(String(id)) || null);
     } else {
@@ -13028,7 +14467,9 @@ site.get(consoleApiRoute('/list_thumbs'), miiListRatelimiter, async (req, res) =
 
         res.status(200)
             .setHeader("Content-Type", "application/octet-stream")
-            .setHeader("Cache-Control", "public, max-age=900")
+            // Explicit-ID batches can contain owner-authorized private Miis.
+            // Never let an intermediary replay that response to another user.
+            .setHeader("Cache-Control", ids.length > 0 ? "private, no-store" : "public, max-age=900")
             .send(Buffer.concat(thumbs));
     } catch (e) {
         console.error("Error building console thumbnail batch:", e);
@@ -13055,7 +14496,9 @@ site.get(consoleApiRoute('/mii/:id.cfsd'), async (req, res) => {
         }
     }
 
-    await sendExportResponse(res, mii, "cfsd", getDisplayMiiName(mii));
+    await sendExportResponse(res, mii, "cfsd", getDisplayMiiName(mii), {
+        storedRecord: true
+    });
 });
 
 async function getConsoleApiAccessibleMii(req, res) {
@@ -13083,11 +14526,25 @@ async function getConsoleApiAccessibleMii(req, res) {
     return mii;
 }
 
+site.get(consoleApiRoute('/mii/:id.ltd'), async (req, res) => {
+    const mii = await getConsoleApiAccessibleMii(req, res);
+    if (!mii) return;
+    await sendExportResponse(res, mii, "ltd", getDisplayMiiName(mii), {
+        storedRecord: true
+    });
+});
+
 async function getConsoleApiRenderSource(mii) {
-    const { imgPath } = getMiiAssetPaths(mii.id, Boolean(mii.private));
-    return fs.existsSync(imgPath)
-        ? await fs.promises.readFile(imgPath)
-        : await renderStoredMiiImage(mii, { size: 128 });
+    // A newly generated 64x64 console thumbnail must not derive from an
+    // unversioned legacy cached PNG. Render the source LTD lazily instead.
+    if (isCurrentUnsupportedLtdRender(mii)) {
+        throw new LtdRenderError(
+            mii.ltdRender.portrait.failureCode || "UNSUPPORTED_LTD_RESOURCE_SIGNATURE",
+            "This LTD is negatively cached as unsupported by the current renderer.",
+            { deterministic: true }
+        );
+    }
+    return await renderStoredMiiImage(mii, { size: 128 });
 }
 
 async function buildConsoleApiRgbaThumb(source) {
@@ -13142,7 +14599,7 @@ site.get(consoleApiRoute('/mii/:id.rgb565'), async (req, res) => {
         const rgb565 = await buildConsoleApiRgb565Thumb(await getConsoleApiRenderSource(mii));
         res.status(200)
             .setHeader("Content-Type", "application/octet-stream")
-            .setHeader("Cache-Control", "public, max-age=86400")
+            .setHeader("Cache-Control", mii.private ? "private, no-store" : "public, max-age=86400")
             .send(rgb565);
     } catch (e) {
         console.error("Error building console RGB565 Mii render:", e);
@@ -13158,7 +14615,7 @@ site.get(consoleApiRoute('/mii/:id.rgba'), async (req, res) => {
         const rgba = await buildConsoleApiRgbaThumb(await getConsoleApiRenderSource(mii));
         res.status(200)
             .setHeader("Content-Type", "application/octet-stream")
-            .setHeader("Cache-Control", "public, max-age=86400")
+            .setHeader("Cache-Control", mii.private ? "private, no-store" : "public, max-age=86400")
             .send(rgba);
     } catch (e) {
         console.error("Error building console RGBA Mii render:", e);
@@ -13370,6 +14827,9 @@ site.get('/mii/:id', serveCachedGuestMiiPage, async (req, res) => {
     }
     
     inp.mii = mii;
+    const miiPageDownloadPolicy = getMiiDownloadPolicy(mii, { storedRecord: true });
+    inp.miiWorkspaceToolsEnabled = !miiPageDownloadPolicy.ltdOnly;
+    inp.exportFormats = getExportFormatsForMii(mii, { storedRecord: true });
     const [height, weight, uploaderUser] = await Promise.all([
         miijs.miiHeightToMeasurements(inp.mii.general.height),
         miijs.miiWeightToMeasurements(inp.mii.general.height, inp.mii.general.weight),
@@ -13406,18 +14866,18 @@ site.get('/mii/:id', serveCachedGuestMiiPage, async (req, res) => {
                 ? `More official Miis from ${inp.miiSeo.officialSourceName}`
                 : `More Miis from ${inp.miiSeo.uploaderName}`,
             description: mii.official
-                ? `Browse other preserved official Miis filed under the ${inp.miiSeo.officialSourceName} archive.`
-                : `Browse additional Miis uploaded by ${inp.miiSeo.uploaderName}.`,
+                ? `Other official Miis from ${inp.miiSeo.officialSourceName}.`
+                : `Other Miis uploaded by ${inp.miiSeo.uploaderName}.`,
             items: relatedData.sameArchiveOwnerMiis
         },
         {
             title: "Similar Miis",
-            description: "These Miis share matching names, exact or similar tags, and description topics.",
+            description: "Matched by name, tags, or description.",
             items: relatedData.similarMiis
         },
         {
-            title: "Miis in matching official categories",
-            description: "These official archive entries share the same source categories.",
+            title: "Miis in the same official categories",
+            description: "Other official Miis in these categories.",
             items: relatedData.relatedCategoryMiis
         }
     ], 5);
@@ -13454,18 +14914,27 @@ site.get('/user/:username', async (req, res) => {
         ));
     const targetUserRoles = getUserRoles(targetUser);
     const targetUserHasResearcherRole = targetUserRoles.includes(ROLES.RESEARCHER);
-    const selectedProfileSort = req.query.sort === "latest" ? "latest" : "popular";
+    const selectedProfileSort = normalizeMiiListSort(req.query.sort, "top");
+    const selectedProfileDirection = normalizeMiiListSortDirection(
+        req.query.direction,
+        selectedProfileSort
+    );
+    const normalizedSortRequest = withNormalizedMiiListSort(
+        req,
+        selectedProfileSort,
+        "top",
+        selectedProfileDirection
+    );
     const profileStart = getRequestedStartOffset(req.query, profileMiisPerPage);
 
+    const useEffectiveClassifications = shouldResolveEffectiveSearchClassifications({}, req.user);
     const profileFilter = applyMiiVisibilityFilters({
         uploader: targetUsername,
         private: false,
         published: true
-    }, req.user);
-    const profileListSort = selectedProfileSort === "popular"
-        ? getStablePopularitySort()
-        : getStableRecencySort();
-
+    }, req.user, {
+        includeStoredEraAndFacepaint: !useEffectiveClassifications
+    });
     const researcherOfficialUploadFilter = {
         official: true,
         private: false,
@@ -13482,65 +14951,83 @@ site.get('/user/:username', async (req, res) => {
         ]
     };
 
+    const effectiveProfilePresentation = useEffectiveClassifications
+        ? await loadEffectiveProfilePresentation(
+            profileFilter,
+            req.user,
+            selectedProfileSort,
+            selectedProfileDirection,
+            profileStart,
+            FULL_ROW_PROFILE_REQUEST_LIMIT
+        )
+        : null;
+    const profilePresentationRows = effectiveProfilePresentation
+        ? [
+            effectiveProfilePresentation.profileSummaryRows,
+            effectiveProfilePresentation.topTagsRows,
+            effectiveProfilePresentation.topCategoryRows,
+            effectiveProfilePresentation.topCreatorRows,
+            effectiveProfilePresentation.featuredMiis
+        ]
+        : await Promise.all([
+            Miis.aggregate([
+                { $match: profileFilter },
+                {
+                    $group: {
+                        _id: null,
+                        totalMiis: { $sum: 1 },
+                        totalLikes: { $sum: { $ifNull: ["$votes", 0] } },
+                        officialCount: {
+                            $sum: {
+                                $cond: ["$official", 1, 0]
+                            }
+                        },
+                        latestUploadOn: { $max: "$uploadedOn" },
+                        firstUploadOn: { $min: "$uploadedOn" }
+                    }
+                }
+            ]),
+            Miis.aggregate([
+                { $match: profileFilter },
+                { $unwind: "$tags" },
+                { $group: { _id: "$tags", count: { $sum: 1 } } },
+                { $sort: { count: -1, _id: 1 } },
+                { $limit: 10 }
+            ]),
+            Miis.aggregate([
+                { $match: profileFilter },
+                { $unwind: "$officialCategories" },
+                { $group: { _id: "$officialCategories", count: { $sum: 1 } } },
+                { $sort: { count: -1, _id: 1 } },
+                { $limit: 8 }
+            ]),
+            Miis.aggregate([
+                {
+                    $match: {
+                        ...profileFilter,
+                        "meta.creatorName": { $exists: true, $type: "string", $ne: "" }
+                    }
+                },
+                { $group: { _id: "$meta.creatorName", count: { $sum: 1 } } },
+                { $sort: { count: -1, _id: 1 } },
+                { $limit: 8 }
+            ]),
+            Miis.find(profileFilter)
+                .select(MII_CARD_SELECT)
+                .sort(getStablePopularitySort())
+                .limit(4)
+                .lean()
+        ]);
     const [
         profileSummaryRows,
         topTagsRows,
         topCategoryRows,
         topCreatorRows,
-        featuredMiis,
-        researcherOfficialUploadCount
-    ] = await Promise.all([
-        Miis.aggregate([
-            { $match: profileFilter },
-            {
-                $group: {
-                    _id: null,
-                    totalMiis: { $sum: 1 },
-                    totalLikes: { $sum: { $ifNull: ["$votes", 0] } },
-                    officialCount: {
-                        $sum: {
-                            $cond: ["$official", 1, 0]
-                        }
-                    },
-                    latestUploadOn: { $max: "$uploadedOn" },
-                    firstUploadOn: { $min: "$uploadedOn" }
-                }
-            }
-        ]),
-        Miis.aggregate([
-            { $match: profileFilter },
-            { $unwind: "$tags" },
-            { $group: { _id: "$tags", count: { $sum: 1 } } },
-            { $sort: { count: -1, _id: 1 } },
-            { $limit: 10 }
-        ]),
-        Miis.aggregate([
-            { $match: profileFilter },
-            { $unwind: "$officialCategories" },
-            { $group: { _id: "$officialCategories", count: { $sum: 1 } } },
-            { $sort: { count: -1, _id: 1 } },
-            { $limit: 8 }
-        ]),
-        Miis.aggregate([
-            {
-                $match: {
-                    ...profileFilter,
-                    "meta.creatorName": { $exists: true, $type: "string", $ne: "" }
-                }
-            },
-            { $group: { _id: "$meta.creatorName", count: { $sum: 1 } } },
-            { $sort: { count: -1, _id: 1 } },
-            { $limit: 8 }
-        ]),
-        Miis.find(profileFilter)
-            .select(MII_CARD_SELECT)
-            .sort(getStablePopularitySort())
-            .limit(4)
-            .lean(),
-        targetUserHasResearcherRole
-            ? Miis.countDocuments(researcherOfficialUploadFilter)
-            : Promise.resolve(0)
-    ]);
+        featuredMiis
+    ] = profilePresentationRows;
+    const researcherOfficialUploadCount = targetUserHasResearcherRole
+        ? await Miis.countDocuments(researcherOfficialUploadFilter)
+        : 0;
 
     const profileSummary = profileSummaryRows?.[0] || {
         totalMiis: 0,
@@ -13551,16 +15038,22 @@ site.get('/user/:username', async (req, res) => {
     };
     const totalMiis = profileSummary.totalMiis || 0;
     if (totalMiis > 0 && profileStart >= totalMiis) {
-        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(totalMiis, FULL_ROW_PROFILE_REQUEST_LIMIT)));
+        return res.redirect(buildRequestPathWithStart(
+            normalizedSortRequest,
+            getLastStartOffset(totalMiis, FULL_ROW_PROFILE_REQUEST_LIMIT)
+        ));
     }
     const skip = profileStart;
 
-    inp.displayedMiis = await Miis.find(profileFilter)
-        .select(MII_CARD_SELECT)
-        .sort(profileListSort)
-        .skip(skip)
-        .limit(FULL_ROW_PROFILE_REQUEST_LIMIT)
-        .lean();
+    inp.displayedMiis = effectiveProfilePresentation
+        ? effectiveProfilePresentation.displayedMiis
+        : await Miis.aggregate([
+            { $match: profileFilter },
+            ...getMiiListSortStages(selectedProfileSort, selectedProfileDirection),
+            { $skip: skip },
+            { $limit: FULL_ROW_PROFILE_REQUEST_LIMIT },
+            { $project: MII_CARD_PROJECT }
+        ]);
     const topCategories = getMiiCategoryDetails(
         topCategoryRows.map(row => row?._id).filter(Boolean),
         inp.officialCategories
@@ -13583,11 +15076,17 @@ site.get('/user/:username', async (req, res) => {
         featuredNames: uniqueTextValues(featuredMiis.map(getDisplayMiiName)).slice(0, 6)
     };
     inp.profileSort = selectedProfileSort;
-    inp.pagination = buildStartPagination(req, profileStart, totalMiis, FULL_ROW_PROFILE_REQUEST_LIMIT);
+    inp.profileSortDirection = selectedProfileDirection;
+    inp.pagination = buildStartPagination(
+        normalizedSortRequest,
+        profileStart,
+        totalMiis,
+        FULL_ROW_PROFILE_REQUEST_LIMIT
+    );
     inp.pagination.baseCount = profileMiisPerPage;
     inp.pagination.totalPages = Math.max(1, Math.ceil(Math.max(1, totalMiis) / profileMiisPerPage));
     inp.pagination.currentPage = Math.min(inp.pagination.totalPages, Math.floor(profileStart / profileMiisPerPage) + 1);
-    inp.currentPath = buildRequestPathWithStart(req, profileStart);
+    inp.currentPath = buildRequestPathWithStart(normalizedSortRequest, profileStart);
     inp.pageUpdatedAt = profileSummary.latestUploadOn
         ? new Date(profileSummary.latestUploadOn).toISOString()
         : undefined;
@@ -13912,7 +15411,7 @@ site.post('/islandAddresses/analyzeMii', upload.single('mii'), async (req, res) 
             return;
         }
 
-        const decoded = await createMiiDataWithDebug(req.file.path);
+        const decoded = await createMiiDataWithDebug(trustedMiiFileInput(req.file));
         const mii = decoded.mii;
         const hasTomodachiLifeData = hasDecodedTomodachiLifeData(mii);
         const islandAddress = hasTomodachiLifeData ? getTomodachiLifeIslandAddressInfo(mii) : {};
@@ -13954,7 +15453,15 @@ site.post('/islandAddresses/generateMiiQr', upload.single('mii'), async (req, re
             return;
         }
 
-        const decoded = await createMiiDataWithDebug(req.file.path);
+        const decoded = await createMiiDataWithDebug(trustedMiiFileInput(req.file));
+        try {
+            assertMiiDownloadFormat(decoded.mii, "qr");
+        } catch (error) {
+            if (error instanceof LtdOnlyDownloadError) {
+                return sendLtdOnlyDownloadError(req, res, error);
+            }
+            throw error;
+        }
         const miiName = getDisplayMiiName(decoded.mii);
         const overridden = buildTomodachiLifeMiiWithIslandOverrides(decoded.mii, islandId, req.body?.islandName);
         const qrExport = await exportMiiToBuffer(overridden.mii, "qr", { qrConsole: "TOMODACHI" });
@@ -13995,15 +15502,23 @@ site.post('/miiDashboard/analyze', upload.single('mii'), async (req, res) => {
         const miiId = typeof req.body?.miiId === "string" && req.body.miiId.trim()
             ? req.body.miiId.trim()
             : (typeof req.body?.id === "string" ? req.body.id.trim() : "");
-        let miiInput = req.file?.path || rawInput || objectInput;
+        let miiInput = req.file ? trustedMiiFileInput(req.file) : (rawInput || objectInput);
+        const hasExplicitMiiPayload = Boolean(req.file || rawInput || objectInput);
+        let storedRecord = null;
 
-        if (!miiInput && miiId) {
+        if (miiId) {
             const resolved = await resolveMiiIdForImport(miiId, req);
             if (resolved.error) {
                 res.json({ error: resolved.error });
                 return;
             }
-            miiInput = resolved.mii;
+            // Keep authorization ahead of the LTD policy check so private IDs
+            // cannot be probed through the temporary workspace restriction.
+            assertLtdWorkspaceAccessAvailable(resolved.record, "dashboard", { storedRecord: true });
+            if (!miiInput) {
+                miiInput = resolved.mii;
+            }
+            storedRecord = resolved.record;
         }
 
         if (!miiInput) {
@@ -14011,14 +15526,78 @@ site.post('/miiDashboard/analyze', upload.single('mii'), async (req, res) => {
             return;
         }
 
+        if (objectInput) assertLtdWorkspaceAccessAvailable(objectInput, "dashboard");
+        else assertSerializedLtdWorkspaceAccessAvailable(rawInput, "dashboard");
         const decoded = await createMiiDataWithDebug(miiInput);
-        const dashboard = await buildMiiDashboardResult(decoded.mii);
+        assertLtdWorkspaceAccessAvailable(decoded.mii, "dashboard");
+        const submittedPolicyToken = typeof req.body?.downloadPolicyToken === "string"
+            ? req.body.downloadPolicyToken.trim()
+            : "";
+        let verifiedTokenPolicy = null;
+        if (submittedPolicyToken) {
+            const tokenBindingInput = req.body?.downloadPolicyMiiData !== undefined
+                ? normalizeMiiInput(req.body.downloadPolicyMiiData)
+                : normalizeMiiInput(bodyMiiData);
+            verifiedTokenPolicy = verifyMiiDownloadPolicyToken(submittedPolicyToken, tokenBindingInput, {
+                secret: getJwtSecret()
+            });
+            if (!verifiedTokenPolicy.valid) {
+                res.status(400).json({
+                    error: "The dashboard download-policy token is invalid, expired, or does not match its Mii data.",
+                    code: "INVALID_DOWNLOAD_POLICY_TOKEN"
+                });
+                return;
+            }
+            if (verifiedTokenPolicy.ltdOnly) {
+                throw new LtdWorkspaceUnavailableError("dashboard");
+            }
+        }
+        const storedDownloadPolicy = storedRecord
+            ? getMiiDownloadPolicy(storedRecord, { storedRecord: true })
+            : null;
+        const decodedDownloadPolicy = getMiiDownloadPolicy(decoded.mii);
+        // An ID may be supplied alongside replacement bytes/JSON. Treat every
+        // independently authoritative source as a restriction and never let a
+        // non-LTD stored record mask a native LTD payload (or vice versa).
+        const downloadPolicySource = storedDownloadPolicy?.ltdOnly
+            || decodedDownloadPolicy.ltdOnly
+            || verifiedTokenPolicy?.ltdOnly
+            ? { era: "LTD" }
+            : (storedRecord || decoded.mii);
+        const downloadPolicy = getMiiDownloadPolicy(downloadPolicySource, {
+            storedRecord: Boolean(storedRecord)
+        });
+        const allowedExportFormats = getExportFormatsForMii(downloadPolicySource, {
+            storedRecord: Boolean(storedRecord)
+        });
+        const requestedRendererProfile = typeof req.body?.rendererProfile === "string"
+            ? req.body.rendererProfile
+            : "";
+        const dashboard = await buildMiiDashboardResult(decoded.mii, {
+            allowedExportFormats,
+            rendererProfile: requestedRendererProfile,
+            sourceEra: downloadPolicy.era || storedRecord?.era || decoded.mii?.era || "",
+            ltdExclusive: downloadPolicy.ltdOnly,
+            // ID-only loads render the authorized stored classic record;
+            // replacement input renders the submitted decoded payload.
+            renderSource: !hasExplicitMiiPayload && storedRecord
+                ? storedRecord
+                : decoded.mii
+        });
         res.json({
             ...dashboard,
             sourceMiiId: miiId || "",
+            sourceMiiEra: downloadPolicy.era || storedRecord?.era || decoded.mii?.era || "",
+            downloadPolicyToken: downloadPolicy.ltdOnly
+                ? createMiiDownloadPolicyToken(dashboard.mii, { secret: getJwtSecret() })
+                : "",
+            allowedExportFormats: allowedExportFormats.map(format => format.value),
             message: `Decoded ${dashboard.miiName || "Mii"} successfully.`
         });
     } catch (e) {
+        if (e instanceof LtdWorkspaceUnavailableError) {
+            return sendLtdWorkspaceUnavailableError(res, e);
+        }
         console.error("Error decoding Mii for dashboard:", e);
         const payload = await buildMiiDashboardErrorPayload(req, e, {
             reqFile: req.file,
@@ -14026,7 +15605,7 @@ site.post('/miiDashboard/analyze', upload.single('mii'), async (req, res) => {
             filePath: req.file?.path,
             context: "miiDashboard"
         });
-        res.json(payload);
+        res.status(e?.code === "LTD_SHAREMII_IMPORT_UNSAFE" ? 422 : 200).json(payload);
     } finally {
         try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
     }
@@ -14045,6 +15624,7 @@ site.post('/miiDashboard/saveJson', requireAuth, requireRole(ROLES.ADMINISTRATOR
             res.json({ error: "Mii not found" });
             return;
         }
+        assertLtdWorkspaceAccessAvailable(existingMii, "dashboard", { storedRecord: true });
 
         if (!req.body?.miiData) {
             res.json({ error: "MiiJS decoded JSON required" });
@@ -14052,14 +15632,29 @@ site.post('/miiDashboard/saveJson', requireAuth, requireRole(ROLES.ADMINISTRATOR
         }
 
         const decoded = await createMiiData(req.body.miiData);
-        const dashboard = await buildMiiDashboardResult(decoded);
+        const allowedExportFormats = getExportFormatsForMii(existingMii, { storedRecord: true });
+        const dashboardPolicy = getMiiDownloadPolicy(existingMii, { storedRecord: true });
+        const dashboard = await buildMiiDashboardResult(decoded, {
+            allowedExportFormats,
+            rendererProfile: typeof req.body?.rendererProfile === "string" ? req.body.rendererProfile : "",
+            sourceEra: dashboardPolicy.era || existingMii.era || "",
+            ltdExclusive: dashboardPolicy.ltdOnly
+        });
         await saveDashboardMiiFields(existingMii, dashboard.mii);
         res.json({
             ...dashboard,
             sourceMiiId: miiId,
+            sourceMiiEra: existingMii.era || "",
+            downloadPolicyToken: getMiiDownloadPolicy(existingMii, { storedRecord: true }).ltdOnly
+                ? createMiiDownloadPolicyToken(dashboard.mii, { secret: getJwtSecret() })
+                : "",
+            allowedExportFormats: allowedExportFormats.map(format => format.value),
             message: `Saved ${dashboard.miiName || "Mii"} successfully.`
         });
     } catch (e) {
+        if (e instanceof LtdWorkspaceUnavailableError) {
+            return sendLtdWorkspaceUnavailableError(res, e);
+        }
         console.error("Error saving dashboard Mii JSON:", e);
         res.json({ error: e?.message || "Failed to save Mii JSON." });
     }
@@ -14140,8 +15735,25 @@ site.post('/updateContentPreferences', requireAuth, async (req, res) => {
                 : (typeof req.body?.blockedOfficialCategories === "string" ? [req.body.blockedOfficialCategories] : [])
         ).slice(0, MAX_USER_BLOCKED_CATEGORIES);
         const invalidCategories = requestedCategories.filter(categoryPath => !categoryPathByLower.has(categoryPath.toLowerCase()));
+        const requestBody = req.body && typeof req.body === "object" ? req.body : {};
+        const hasBlockedMiiEras = Object.prototype.hasOwnProperty.call(requestBody, "blockedMiiEras");
+        const hasBlockedFacepaintUsages = Object.prototype.hasOwnProperty.call(requestBody, "blockedFacepaintUsages");
+        const requestedBlockedMiiEras = hasBlockedMiiEras ? uniqueTextValues(
+            Array.isArray(requestBody.blockedMiiEras)
+                ? requestBody.blockedMiiEras
+                : (typeof requestBody.blockedMiiEras === "string" ? [requestBody.blockedMiiEras] : [])
+        ) : normalizeBlockedMiiEras(req.user.blockedMiiEras);
+        const invalidBlockedMiiEras = requestedBlockedMiiEras
+            .filter(era => normalizeBlockedMiiEras([era]).length !== 1);
+        const requestedBlockedFacepaintUsages = hasBlockedFacepaintUsages ? uniqueTextValues(
+            Array.isArray(requestBody.blockedFacepaintUsages)
+                ? requestBody.blockedFacepaintUsages
+                : (typeof requestBody.blockedFacepaintUsages === "string" ? [requestBody.blockedFacepaintUsages] : [])
+        ) : normalizeBlockedFacepaintUsages(req.user.blockedFacepaintUsages);
+        const invalidBlockedFacepaintUsages = requestedBlockedFacepaintUsages
+            .filter(usage => normalizeBlockedFacepaintUsages([usage]).length !== 1);
         const hasExternalMiiPreference = Object.prototype.hasOwnProperty.call(
-            req.body && typeof req.body === "object" ? req.body : {},
+            requestBody,
             "externalMiiPreference"
         );
         const requestedExternalMiiPreference = hasExternalMiiPreference
@@ -14151,15 +15763,25 @@ site.post('/updateContentPreferences', requireAuth, async (req, res) => {
         if (invalidCategories.length > 0) {
             return res.status(400).json({ error: "One or more categories are invalid." });
         }
+        if (invalidBlockedMiiEras.length > 0) {
+            return res.status(400).json({ error: "One or more Mii eras are invalid." });
+        }
+        if (invalidBlockedFacepaintUsages.length > 0) {
+            return res.status(400).json({ error: "One or more facepaint categories are invalid." });
+        }
         if (hasExternalMiiPreference && !EXTERNAL_MII_PREFERENCE_SET.has(requestedExternalMiiPreference)) {
             return res.status(400).json({ error: "Invalid external Mii preference." });
         }
 
         const blockedTags = requestedTags.map(tag => blockableTagByLower.get(tag.toLowerCase()));
         const blockedOfficialCategories = requestedCategories.map(categoryPath => categoryPathByLower.get(categoryPath.toLowerCase()));
+        const blockedMiiEras = normalizeBlockedMiiEras(requestedBlockedMiiEras);
+        const blockedFacepaintUsages = normalizeBlockedFacepaintUsages(requestedBlockedFacepaintUsages);
         const userPreferenceUpdates = {
             blockedTags,
-            blockedOfficialCategories
+            blockedOfficialCategories,
+            blockedMiiEras,
+            blockedFacepaintUsages
         };
         if (hasExternalMiiPreference) {
             userPreferenceUpdates.externalMiiPreference = requestedExternalMiiPreference;
@@ -14172,6 +15794,8 @@ site.post('/updateContentPreferences', requireAuth, async (req, res) => {
 
         req.user.blockedTags = blockedTags;
         req.user.blockedOfficialCategories = blockedOfficialCategories;
+        req.user.blockedMiiEras = blockedMiiEras;
+        req.user.blockedFacepaintUsages = blockedFacepaintUsages;
         if (hasExternalMiiPreference) {
             req.user.externalMiiPreference = requestedExternalMiiPreference;
         }
@@ -14179,6 +15803,8 @@ site.post('/updateContentPreferences', requireAuth, async (req, res) => {
             okay: true,
             blockedTags,
             blockedOfficialCategories,
+            blockedMiiEras,
+            blockedFacepaintUsages,
             externalMiiPreference: requestedExternalMiiPreference
         });
     } catch (e) {
@@ -14219,6 +15845,14 @@ site.post('/hideMii', requireAuth, async (req, res) => {
         const mii = await getMiiById(miiId, false);
         if (!mii) {
             return res.status(404).json({ error: "Mii not found" });
+        }
+
+        if (isMiiExemptFromContentSettings({ id: miiId }, req.user)) {
+            return res.status(400).json({
+                error: miiId === "average"
+                    ? "The Average Mii cannot be hidden."
+                    : "Your current profile Mii cannot be hidden."
+            });
         }
 
         const currentHiddenMiiIds = normalizeUserHiddenMiiIds(req.user.hiddenMiiIds);
@@ -14295,9 +15929,20 @@ site.get('/myLikedMiis', requireAuth, async (req, res) => {
     let toSend = await getSendables(req, undefined, req.user);
     const start = getRequestedStartOffset(req.query, defaultMiisPerPage);
     const likedSort = req.query.sort === "likes" ? "likes" : "latest";
+    const likedSortDirection = normalizeMiiListSortDirection(
+        req.query.direction,
+        likedSort
+    );
+    const normalizedSortRequest = withNormalizedMiiListSort(
+        req,
+        likedSort,
+        "latest",
+        likedSortDirection
+    );
     const likedMiiIds = Array.isArray(req.user?.votedFor)
         ? req.user.votedFor.map(id => String(id || "").trim()).filter(Boolean)
         : [];
+    const useEffectiveClassifications = shouldResolveEffectiveSearchClassifications({}, req.user);
     const likedMiisQuery = applyMiiVisibilityFilters({
         private: false,
         published: true,
@@ -14307,28 +15952,56 @@ site.get('/myLikedMiis', requireAuth, async (req, res) => {
         },
         uploader: { $ne: req.user.username },
         contributor: { $ne: req.user.username }
-    }, req.user);
+    }, req.user, {
+        includeStoredEraAndFacepaint: !useEffectiveClassifications
+    });
     const sort = likedSort === "likes"
-        ? getStablePopularitySort()
-        : getStableRecencySort();
-    const [likedMiis, totalLikedMiis] = likedMiiIds.length > 0
-        ? await Promise.all([
-            Miis.find(likedMiisQuery)
-                .select(MII_CARD_SELECT)
-                .sort(sort)
-                .skip(start)
-                .limit(FULL_ROW_BROWSE_REQUEST_LIMIT)
-                .lean(),
-            Miis.countDocuments(likedMiisQuery)
-        ])
-        : [[], 0];
+        ? getStablePopularitySort(likedSortDirection)
+        : getStableRecencySort(likedSortDirection);
+    let likedMiis = [];
+    let totalLikedMiis = 0;
+    if (likedMiiIds.length > 0) {
+        if (useEffectiveClassifications) {
+            const result = await getEffectiveSearchPaginatedResult(
+                Miis.find(likedMiisQuery)
+                    .select(`${MII_CARD_SELECT} ${MII_EFFECTIVE_SEARCH_SELECT}`)
+                    .sort(sort)
+                    .lean()
+                    .cursor(),
+                {}, req.user, Math.floor(start / FULL_ROW_BROWSE_REQUEST_LIMIT) + 1,
+                FULL_ROW_BROWSE_REQUEST_LIMIT, start
+            );
+            likedMiis = result.items;
+            totalLikedMiis = result.total;
+        } else {
+            [likedMiis, totalLikedMiis] = await Promise.all([
+                Miis.find(likedMiisQuery)
+                    .select(MII_CARD_SELECT)
+                    .sort(sort)
+                    .skip(start)
+                    .limit(FULL_ROW_BROWSE_REQUEST_LIMIT)
+                    .lean(),
+                Miis.countDocuments(likedMiisQuery)
+            ]);
+        }
+    }
     if (totalLikedMiis > 0 && start >= totalLikedMiis) {
-        return res.redirect(buildRequestPathWithStart(req, getLastStartOffset(totalLikedMiis, FULL_ROW_BROWSE_REQUEST_LIMIT)));
+        return res.redirect(buildRequestPathWithStart(
+            normalizedSortRequest,
+            getLastStartOffset(totalLikedMiis, FULL_ROW_BROWSE_REQUEST_LIMIT)
+        ));
     }
 
     toSend.displayedMiis = likedMiis;
-    toSend.pagination = buildStartPagination(req, start, totalLikedMiis, FULL_ROW_BROWSE_REQUEST_LIMIT);
-    toSend.currentPath = buildRequestPathWithStart(req, start);
+    toSend.likedSort = likedSort;
+    toSend.likedSortDirection = likedSortDirection;
+    toSend.pagination = buildStartPagination(
+        normalizedSortRequest,
+        start,
+        totalLikedMiis,
+        FULL_ROW_BROWSE_REQUEST_LIMIT
+    );
+    toSend.currentPath = buildRequestPathWithStart(normalizedSortRequest, start);
     toSend.pageUpdatedAt = getNewestUploadedOn(toSend.displayedMiis);
 
     ejs.renderFile('./ejsFiles/miis.ejs', toSend, {}, function(err, str) {
@@ -14747,10 +16420,18 @@ site.post('/contact', contactRequestRatelimiter, upload.none(), async (req, res)
         return res.status(500).json({ error: "Failed to send your message. Please try again in a moment." });
     }
 });
-site.get('/miiWii',async (req,res)=>{
+site.get('/miiWii', async (req,res)=>{
     const fetchedMii = await getMiiById(req.query.id, false);
     if (!fetchedMii || isMiiHiddenFromViewer(fetchedMii, req.user)) {
         return res.status(404).json({ error: "Mii not found" });
+    }
+    try {
+        assertMiiDownloadFormat(fetchedMii, "rsd", { storedRecord: true });
+    } catch (error) {
+        if (error instanceof LtdOnlyDownloadError) {
+            return sendLtdOnlyDownloadError(req, res, error);
+        }
+        throw error;
     }
     let miiInstance = await miijs.Mii.create(fetchedMii);
     if (parseBooleanLike(req.query.special)) {
@@ -15437,6 +17118,73 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
         };
         let uploadDescription = "";
 
+        // Dashboard JSON deliberately omits native LTD bytes and provenance.
+        // Resolve stored lineage and verify the server-attested policy binding
+        // before treating that projection as a new upload. Ordinary upload
+        // forms do not send any of these dashboard-only fields.
+        const isDashboardUpload = parseBooleanLike(req.body?.dashboardUpload);
+        const dashboardSourceMiiId = normalizeMiiIdInput(req.body?.sourceMiiId);
+        const rawDashboardPolicyToken = req.body?.downloadPolicyToken;
+        const malformedDashboardPolicyToken = rawDashboardPolicyToken !== undefined
+            && rawDashboardPolicyToken !== null
+            && rawDashboardPolicyToken !== ""
+            && typeof rawDashboardPolicyToken !== "string";
+        const dashboardPolicyToken = typeof rawDashboardPolicyToken === "string"
+            ? rawDashboardPolicyToken.trim()
+            : "";
+        const hasDashboardLineage = isDashboardUpload
+            || malformedDashboardPolicyToken
+            || Boolean(dashboardSourceMiiId || dashboardPolicyToken);
+        if (hasDashboardLineage) {
+            if (malformedDashboardPolicyToken) {
+                cleanupRequestFile();
+                res.status(400).json({
+                    error: "The dashboard download-policy token is malformed.",
+                    code: "INVALID_DOWNLOAD_POLICY_TOKEN"
+                });
+                return;
+            }
+            let storedSourcePolicy = null;
+            if (dashboardSourceMiiId) {
+                const resolvedSource = await resolveMiiIdForImport(dashboardSourceMiiId, req);
+                if (resolvedSource.error) {
+                    cleanupRequestFile();
+                    res.status(400).json({
+                        error: resolvedSource.error,
+                        code: "INVALID_DASHBOARD_SOURCE_MII"
+                    });
+                    return;
+                }
+                storedSourcePolicy = getMiiDownloadPolicy(resolvedSource.record, { storedRecord: true });
+            }
+
+            let verifiedTokenPolicy = null;
+            if (dashboardPolicyToken) {
+                verifiedTokenPolicy = verifyMiiDownloadPolicyToken(
+                    dashboardPolicyToken,
+                    normalizeMiiInput(req.body?.downloadPolicyMiiData),
+                    { secret: getJwtSecret() }
+                );
+                if (!verifiedTokenPolicy.valid) {
+                    cleanupRequestFile();
+                    res.status(400).json({
+                        error: "The dashboard download-policy token is invalid, expired, or does not match its Mii data.",
+                        code: "INVALID_DOWNLOAD_POLICY_TOKEN"
+                    });
+                    return;
+                }
+            }
+
+            if (storedSourcePolicy?.ltdOnly || verifiedTokenPolicy?.ltdOnly) {
+                cleanupRequestFile();
+                res.status(400).json({
+                    error: LTD_DASHBOARD_UPLOAD_MESSAGE,
+                    code: "LTD_DASHBOARD_UPLOAD_UNAVAILABLE"
+                });
+                return;
+            }
+        }
+
         // Check if trying to upload official Mii without permission
         if (isOfficialUpload && !canUploadOfficial(req.user)) {
             res.json({'error': 'Only Researchers and Administrators can upload official Miis'});
@@ -15492,7 +17240,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
 
             let replacementMii;
             try {
-                const decodedMii = await createMiiDataWithDebug(req.file.path);
+                const decodedMii = await createMiiDataWithDebug(trustedMiiFileInput(req.file));
                 replacementMii = decodedMii.mii;
             } catch (e) {
                 const isInvalidMiiType = isInvalidMiiTypeError(e);
@@ -15669,15 +17417,15 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
             if (fromAmiiboId && !req.file && !hasSubmittedMiiData) {
                 // Uploading from Amiibo extraction
                 const tempMiiId = fromAmiiboId;
-                tempBinPath = `./static/temp/${tempMiiId}.bin`;
+                tempBinPath = getTrustedTempMiiPath(tempMiiId);
 
-                if (!fs.existsSync(tempBinPath)) {
+                if (!tempBinPath || !fs.existsSync(tempBinPath)) {
                     res.json({ error: 'Amiibo Mii data not found. Please extract again.' });
                     return;
                 }
 
                 try {
-                    const decodedMii = await createMiiDataWithDebug(tempBinPath);
+                    const decodedMii = await createMiiDataWithDebug(trustedMiiFileInput(tempBinPath, "amiibo.bin"));
                     mii = decodedMii.mii;
 
                     // Clean up temp files
@@ -15714,7 +17462,7 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                         res.json({ error: 'No file uploaded' });
                         return;
                     }
-                    const decodedMii = await createMiiDataWithDebug(req.file.path);
+                    const decodedMii = await createMiiDataWithDebug(trustedMiiFileInput(req.file));
                     mii = decodedMii.mii;
                 }
             }
@@ -15734,6 +17482,10 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                 });
             }
             console.error('Error processing Mii file:', e);
+            if (e?.code === "LTD_SHAREMII_IMPORT_UNSAFE") {
+                res.status(422).json({ error: e.message, code: e.code });
+                return;
+            }
             if (isInvalidMiiType) {
                 if (!dumpedUpload) {
                     await sendInvalidMiiInputToWebhook({
@@ -15844,13 +17596,15 @@ site.post('/uploadMii', requireAuth, requireVerifiedUploadAccount, upload.single
                 "text": `View: https://infinimii.com/mii/${mii.id} | Uploaded at ${d.getHours()}:${d.getMinutes()}, ${d.toDateString()} UTC`
             }
         };
-        if (wantsPublic) {
+        if (wantsPublic && mii.ltdRender?.portrait?.status === "ready") {
             uploadReportEmbed.image = {
                 "url": `https://infinimii.com/miiImgs/${encodeURIComponent(mii.id)}.png`
             };
         }
         queueUploadWebhookReport(uploadReportEmbed, {
-            imagePath: persistedUpload.assetPaths?.img || getMiiAssetPath(wantsPublic ? "miiImgs" : "privateMiiImgs", mii.id),
+            imagePath: mii.ltdRender?.portrait?.status === "ready"
+                ? (persistedUpload.assetPaths?.img || getMiiAssetPath(wantsPublic ? "miiImgs" : "privateMiiImgs", mii.id))
+                : "",
             imageFilename: `${mii.id}.png`,
             sendReport: isOfficialUpload ? makeResearchReport : makeReport
         });
@@ -16747,27 +18501,8 @@ site.post('/publishMii', requireAuth, async (req, res) => {
         mii.published = true;
         mii.uploadedOn = publishedOn;
 
-        const {
-            qrPath: publicQrPath,
-            qrWiiPath: publicQrWiiPath,
-            qrTomodachiPath: publicQrTomodachiPath,
-            qrMiitopiaPath: publicQrMiitopiaPath
-        } = getMiiAssetPaths(mii.id, false);
-
         await moveMiiAssets(mii.id, true, false);
-
-        if (!fs.existsSync(publicQrPath)) {
-            await writeQrPng(mii, publicQrPath, "3DS");
-        }
-        if (!fs.existsSync(publicQrWiiPath)) {
-            await writeQrPng(mii, publicQrWiiPath, "WIIU");
-        }
-        if (!fs.existsSync(publicQrTomodachiPath)) {
-            await writeOptionalQrPng(mii, publicQrTomodachiPath, "TOMODACHI");
-        }
-        if (!fs.existsSync(publicQrMiitopiaPath)) {
-            await writeOptionalQrPng(mii, publicQrMiitopiaPath, "MIITOPIA");
-        }
+        await syncStoredMiiQrAssets(mii, { isPrivate: false, onlyMissing: true });
 
         // Clean up any remaining private files after successful publish
         await deleteMiiAssets(miiId, true);
@@ -16919,7 +18654,7 @@ site.post('/unblockMiiFromPublishing', requireAuth, requireRole(ROLES.MODERATOR)
 });
 site.post('/convertMii', upload.single('mii'), async (req, res) => {
     try {
-        const miiInput = req.file?.path || req.body.miiData;
+        const miiInput = req.file ? trustedMiiFileInput(req.file) : req.body.miiData;
         if (!miiInput) {
             res.json({ error: "No Mii data provided" });
             return;
@@ -16939,11 +18674,60 @@ site.post('/convertMii', upload.single('mii'), async (req, res) => {
         }
 
         const miiData = await createMiiData(miiInput);
+        const sourceMiiId = normalizeMiiIdInput(req.body?.sourceMiiId);
+        const decodedDownloadPolicy = getMiiDownloadPolicy(miiData);
+        let storedDownloadPolicy = null;
+        let storedRecord = false;
+        if (sourceMiiId) {
+            const resolved = await resolveMiiIdForImport(sourceMiiId, req);
+            if (resolved.error) {
+                try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+                res.status(400).json({ error: resolved.error });
+                return;
+            }
+            storedDownloadPolicy = getMiiDownloadPolicy(resolved.record, { storedRecord: true });
+            storedRecord = true;
+        }
+        const submittedPolicyToken = typeof req.body?.downloadPolicyToken === "string"
+            ? req.body.downloadPolicyToken.trim()
+            : "";
+        let verifiedTokenPolicy = null;
+        if (submittedPolicyToken) {
+            const tokenBindingInput = req.file
+                ? miiData
+                : normalizeMiiInput(
+                    req.body?.downloadPolicyMiiData !== undefined
+                        ? req.body.downloadPolicyMiiData
+                        : req.body?.miiData
+                );
+            verifiedTokenPolicy = verifyMiiDownloadPolicyToken(
+                submittedPolicyToken,
+                tokenBindingInput,
+                { secret: getJwtSecret() }
+            );
+            if (!verifiedTokenPolicy.valid) {
+                try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
+                res.status(400).json({
+                    error: "The download-policy token is invalid, expired, or does not match this Mii.",
+                    code: "INVALID_DOWNLOAD_POLICY_TOKEN"
+                });
+                return;
+            }
+        }
+        const effectiveLtdOnly = decodedDownloadPolicy.ltdOnly
+            || storedDownloadPolicy?.ltdOnly
+            || verifiedTokenPolicy?.ltdOnly;
         const miiName = miiData?.meta?.name || "mii";
 
         try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e) { }
 
-        await sendExportResponse(res, miiData, normalized, miiName, getExportOptionsFromRequest(req));
+        await sendExportResponse(res, {
+            ...miiData,
+            ...(effectiveLtdOnly ? { era: "LTD" } : {})
+        }, normalized, miiName, {
+            ...getExportOptionsFromRequest(req),
+            storedRecord
+        });
     } catch (e) {
         console.error("Error converting Mii:", e);
         const dumpedUpload = req.file?.path
@@ -16956,6 +18740,11 @@ site.post('/convertMii', upload.single('mii'), async (req, res) => {
                 context: "convertMii",
                 dumpedUpload
             });
+        }
+        if (e?.code === "LTD_SHAREMII_IMPORT_UNSAFE") {
+            try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch (e2) { }
+            res.status(422).json({ error: e.message, code: e.code });
+            return;
         }
         if (isInvalidMiiTypeError(e)) {
             if (!dumpedUpload) {
@@ -16998,8 +18787,8 @@ site.post('/makeMiiChild', defaultRatelimiter, upload.fields([
             return;
         }
 
-        const parentAData = await createMiiData(parentAFile.path);
-        const parentBData = await createMiiData(parentBFile.path);
+        const parentAData = await createMiiData(trustedMiiFileInput(parentAFile));
+        const parentBData = await createMiiData(trustedMiiFileInput(parentBFile));
         const parentA = await miijs.Mii.create(parentAData);
         const parentB = await miijs.Mii.create(parentBData);
 
@@ -17058,14 +18847,17 @@ site.post('/makeMiiKidomatic', defaultRatelimiter, upload.single('mii'), async (
         const bodyMiiData = req.body?.miiData;
         const rawInput = typeof bodyMiiData === "string" ? bodyMiiData.trim() : "";
         const objectInput = bodyMiiData && typeof bodyMiiData === "object" ? bodyMiiData : null;
-        const miiInput = req.file?.path || rawInput || objectInput;
+        const miiInput = req.file ? trustedMiiFileInput(req.file) : (rawInput || objectInput);
 
         if (!miiInput) {
             res.json({ error: "Upload a Mii file or decode one in the dashboard first." });
             return;
         }
 
+        if (objectInput) assertLtdWorkspaceAccessAvailable(objectInput, "kidomatic");
+        else assertSerializedLtdWorkspaceAccessAvailable(rawInput, "kidomatic");
         const miiData = objectInput && miiInput === objectInput ? objectInput : await createMiiData(miiInput);
+        assertLtdWorkspaceAccessAvailable(miiData, "kidomatic");
         const mii = await miijs.Mii.create(miiData);
         const kidStages = await miijs.kidomatic(mii);
 
@@ -17077,6 +18869,9 @@ site.post('/makeMiiKidomatic', defaultRatelimiter, upload.single('mii'), async (
         const enrichedChildren = await enrichMiiLifeStagesForClient(kidStages);
         res.json({ children: enrichedChildren });
     } catch (e) {
+        if (e instanceof LtdWorkspaceUnavailableError) {
+            return sendLtdWorkspaceUnavailableError(res, e);
+        }
         console.error("Error generating Kidomatic stages:", e);
         res.json({ error: `Failed to run Kidomatic: ${e.message}` });
     } finally {

@@ -1,0 +1,2114 @@
+{
+  "schema_version": 1,
+  "artifact": "source-only gsys Context/Shape recovery ledger",
+  "scope": {
+    "target": "MiiIcon GameUber draws for the Kestron mii1.ltd input",
+    "reference_image_values_used": false,
+    "buffers": [
+      {
+        "maxwell_constant_buffer": 4,
+        "name": "gsys_context",
+        "canonical_block": "Context",
+        "byte_size": 2496
+      },
+      {
+        "maxwell_constant_buffer": 7,
+        "name": "gsys_shape",
+        "canonical_block": "ShpMtx",
+        "byte_size": 256
+      }
+    ],
+    "evidence_policy": [
+      "Only literal decompiled-source, ELF-byte, and selected-shader-read facts are recorded as exact.",
+      "Static initializer bytes are initialization evidence, not Kestron draw values.",
+      "Generic formulas are producer closure, not values, until their live inputs are captured.",
+      "No conventional matrix, offset, camera, or renderer default is inferred.",
+      "reference.png was not inspected and supplies no evidence to this ledger.",
+      "mii1.ltd identifies the requested Mii input but does not contain the live renderer state serialized into either buffer."
+    ]
+  },
+  "source_artifacts": [
+    {
+      "id": "matrix_math_split",
+      "path": "src/functions/internal/batch_01/7100d00000/2397_functions.inc",
+      "byte_size": 4665000,
+      "sha256": "e70352641bc0a5b1c8ceecbcf0074dba8614a67ef0902ca33bea6d995df3c6ad"
+    },
+    {
+      "id": "mii_shape_split",
+      "path": "src/functions/internal/batch_04/7101b00000/2462_functions.inc",
+      "byte_size": 3717377,
+      "sha256": "4846fda016407541588f168a58479677f4bba190822b1ec4388aac59b8cc79b6"
+    },
+    {
+      "id": "mii_snapshot_split",
+      "path": "src/functions/internal/batch_04/7101c00000/2465_functions.inc",
+      "byte_size": 2569108,
+      "sha256": "a574d01eeabd8d6256009e7f23f356eb1b5a02a9abdfb6690484e1ed0a5b44da"
+    },
+    {
+      "id": "uniform_layout_split",
+      "path": "src/functions/internal/batch_05/7102500000/2480_functions.inc",
+      "byte_size": 3104821,
+      "sha256": "5b95e9929c91d9a138241e432b013d5d21a04d8cbb0a03a661e70729b5e1cd64"
+    },
+    {
+      "id": "gsys_uniform_split",
+      "path": "src/functions/internal/batch_05/7102600000/2488_functions.inc",
+      "byte_size": 1946064,
+      "sha256": "9ce179f20557c1fef2446fdfe1acf93f1f7394ee05d3a8792ebb343b74e12dac"
+    },
+    {
+      "id": "gsys_frame_split",
+      "path": "src/functions/internal/batch_05/7102700000/2489_functions.inc",
+      "byte_size": 5018379,
+      "sha256": "653a512a377851a21bc551ce231d575b38dfa087f247139c19f6a41e5046badb"
+    },
+    {
+      "id": "main_elf",
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "byte_size": 65253956,
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a"
+    },
+    {
+      "id": "target_mii",
+      "path": "mii1.ltd",
+      "byte_size": 434,
+      "sha256": "c6f39c4af77644151ab219c5fb5ae440f6ddde0594a2a600b8aa343ec238a86b"
+    },
+    {
+      "id": "selected_runtime_read_manifest",
+      "path": "renderer/gameuber_runtime_inputs.json",
+      "mutable": true,
+      "verification": "semantic selected-read comparison; no hash pin because parallel recovery updates this manifest"
+    }
+  ],
+  "identity_ledger": {
+    "functions": [
+      {
+        "raw": "FUN_7100d05564",
+        "address": "0x7100d05564",
+        "canonical_name": "invert_affine_float3x4_matrix",
+        "category": "matrix_math",
+        "source_artifact": "matrix_math_split",
+        "rename_status": "existing_canonical"
+      },
+      {
+        "raw": "FUN_7101bda1f0",
+        "address": "0x7101bda1f0",
+        "canonical_name": "serialize_mii_shape_user_float4_fields_to_model_nw",
+        "category": "mii_shape_uniform",
+        "source_artifact": "mii_shape_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_7101bf4620",
+        "address": "0x7101bf4620",
+        "canonical_name": "serialize_mii_shape_user_float4_index7",
+        "category": "mii_shape_uniform",
+        "source_artifact": "mii_shape_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_7101bf9e90",
+        "address": "0x7101bf9e90",
+        "canonical_name": "serialize_mii_shape_user_float4_indices5_and6",
+        "category": "mii_shape_uniform",
+        "source_artifact": "mii_shape_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_7101c66580",
+        "address": "0x7101c66580",
+        "canonical_name": "serialize_snapshot_render_context_views",
+        "category": "mii_snapshot_context",
+        "source_artifact": "mii_snapshot_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71025a33d4",
+        "address": "0x71025a33d4",
+        "canonical_name": "allocate_uniform_block_member_descriptors",
+        "category": "agl_uniform_block_layout",
+        "source_artifact": "uniform_layout_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026b0754",
+        "address": "0x71026b0754",
+        "canonical_name": "get_or_create_gsys_render_uniform_layout_registry",
+        "category": "gsys_uniform_registry",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026b0c10",
+        "address": "0x71026b0c10",
+        "canonical_name": "initialize_gsys_render_uniform_layout_registry",
+        "category": "gsys_uniform_registry",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026c5640",
+        "address": "0x71026c5640",
+        "canonical_name": "construct_model_render_object_and_register",
+        "category": "model_render_object_lifecycle",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026d0530",
+        "address": "0x71026d0530",
+        "canonical_name": "initialize_gsys_shape_transform_uniform_records",
+        "category": "gsys_shape_transform",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026d0c1c",
+        "address": "0x71026d0c1c",
+        "canonical_name": "compose_and_commit_gsys_shape_transform",
+        "category": "gsys_shape_transform",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026d10f8",
+        "address": "0x71026d10f8",
+        "canonical_name": "serialize_and_flush_gsys_shape_transform_payload",
+        "category": "gsys_shape_transform",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026e26b0",
+        "address": "0x71026e26b0",
+        "canonical_name": "build_model_shader_resources_and_system_uniform_bindings",
+        "category": "model_shader_resource_construction",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026e3860",
+        "address": "0x71026e3860",
+        "canonical_name": "set_gsys_model_shape_user_float4",
+        "category": "gsys_shape_uniform",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026fb574",
+        "address": "0x71026fb574",
+        "canonical_name": "serialize_gsys_context_view_payload",
+        "category": "gsys_context_uniform",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026feb9c",
+        "address": "0x71026feb9c",
+        "canonical_name": "serialize_gsys_context_secondary_view_matrices_and_depth_scalars",
+        "category": "gsys_context_uniform",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71026fcf80",
+        "address": "0x71026fcf80",
+        "canonical_name": "build_gsys_context_uniform_layout_2496",
+        "category": "gsys_uniform_layout",
+        "source_artifact": "gsys_uniform_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_710277f020",
+        "address": "0x710277f020",
+        "canonical_name": "build_and_serialize_gsys_draw_view_context",
+        "category": "gsys_frame_context",
+        "source_artifact": "gsys_frame_split",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "FUN_71027a4e88",
+        "address": "0x71027a4e88",
+        "canonical_name": "initialize_gsys_shape_uniform_payload",
+        "category": "gsys_shape_uniform",
+        "source_artifact": "gsys_frame_split",
+        "rename_status": "primary_manifest"
+      }
+    ],
+    "globals": [
+      {
+        "raw": "DAT_7105a07120",
+        "address": "0x7105a07120",
+        "canonical_name": "g_gsys_render_uniform_layout_registry",
+        "category": "gsys_uniform_registry_global",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "DAT_7103a71a88",
+        "address": "0x7103a71a88",
+        "canonical_name": "got_g_gsys_render_uniform_layout_registry",
+        "category": "gsys_uniform_registry_global",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "UNK_71032df0de",
+        "address": "0x71032df0de",
+        "canonical_name": "g_gsys_uniform_element_stride_table_default",
+        "category": "gsys_uniform_layout_constant",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "DAT_71032df0df",
+        "address": "0x71032df0df",
+        "canonical_name": "g_gsys_uniform_element_stride_table_flag8",
+        "category": "gsys_uniform_layout_constant",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "DAT_7103a5a0f8",
+        "address": "0x7103a5a0f8",
+        "canonical_name": "got_g_zero_float3",
+        "category": "matrix_constant_pointer",
+        "rename_status": "primary_manifest"
+      },
+      {
+        "raw": "DAT_7103a5a138",
+        "address": "0x7103a5a138",
+        "canonical_name": "got_g_identity_affine3x4",
+        "category": "matrix_constant_pointer",
+        "rename_status": "primary_manifest"
+      }
+    ],
+    "data_objects": [
+      {
+        "address": "0x71032a8da8",
+        "canonical_name": "g_zero_float3",
+        "category": "matrix_constant"
+      },
+      {
+        "address": "0x71032a8db4",
+        "canonical_name": "g_identity_affine3x4",
+        "category": "matrix_constant"
+      }
+    ],
+    "types": [
+      {
+        "name": "GsysUniformLayoutDescriptor",
+        "category": "gsys_uniform_layout",
+        "size": 12,
+        "size_status": "exact",
+        "fields": [
+          {
+            "name": "element_count",
+            "offset": 0,
+            "type": "uint32"
+          },
+          {
+            "name": "byte_offset",
+            "offset": 4,
+            "type": "uint32"
+          },
+          {
+            "name": "component_count",
+            "offset": 8,
+            "type": "uint16"
+          },
+          {
+            "name": "type_code",
+            "offset": 10,
+            "type": "uint8"
+          },
+          {
+            "name": "unknown_or_padding",
+            "offset": 11,
+            "type": "uint8"
+          }
+        ]
+      },
+      {
+        "name": "GsysRenderUniformLayoutRegistry",
+        "category": "gsys_uniform_registry",
+        "size": 1176,
+        "size_status": "exact allocation size",
+        "known_members": [
+          {
+            "name": "context_layout",
+            "offset": 8
+          },
+          {
+            "name": "shape_layout",
+            "offset": 144
+          }
+        ]
+      },
+      {
+        "name": "GsysContextUniformPayload",
+        "category": "gsys_context_uniform",
+        "size": 2496,
+        "size_status": "exact layout end"
+      },
+      {
+        "name": "GsysShapeUniformPayload",
+        "category": "gsys_shape_uniform",
+        "size": 256,
+        "size_status": "exact layout end"
+      },
+      {
+        "name": "GsysContextViewRecord",
+        "category": "gsys_context_uniform",
+        "stride": 1168,
+        "stride_status": "exact source loop stride"
+      },
+      {
+        "name": "GsysShapeTransformUniformRecord",
+        "category": "gsys_shape_transform",
+        "stride": 168,
+        "stride_status": "exact source indexing stride"
+      },
+      {
+        "name": "MiiShapeUserUniformState",
+        "category": "mii_shape_uniform",
+        "minimum_size": 80,
+        "size_status": "lower bound from highest direct read plus width"
+      },
+      {
+        "name": "GsysModelNW",
+        "category": "gsys_model",
+        "size": 760,
+        "size_status": "exact allocation size and RTTI string gsys::ModelNW"
+      },
+      {
+        "name": "GsysModelNWShapeRecord",
+        "category": "gsys_model",
+        "stride": 112,
+        "gpu_payload_size": 72,
+        "stride_status": "exact source iteration and payload copy sizes"
+      }
+    ]
+  },
+  "exact_source_facts": {
+    "layout_descriptor_tuple_fields": [
+      "descriptor_index",
+      "byte_offset",
+      "element_count",
+      "component_count",
+      "type_code",
+      "alignment"
+    ],
+    "layouts": {
+      "gsys_context": {
+        "registry_member_offset": 8,
+        "builder": "FUN_71026fcf80",
+        "descriptor_capacity": 43,
+        "descriptor_count": 43,
+        "byte_size": 2496,
+        "descriptors": [
+          [
+            0,
+            0,
+            3,
+            4,
+            7,
+            16
+          ],
+          [
+            1,
+            48,
+            4,
+            4,
+            7,
+            16
+          ],
+          [
+            2,
+            112,
+            4,
+            4,
+            7,
+            16
+          ],
+          [
+            3,
+            176,
+            3,
+            4,
+            7,
+            16
+          ],
+          [
+            4,
+            224,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            5,
+            240,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            6,
+            256,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            7,
+            272,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            8,
+            288,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            9,
+            304,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            10,
+            320,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            11,
+            336,
+            3,
+            4,
+            7,
+            16
+          ],
+          [
+            12,
+            384,
+            4,
+            4,
+            7,
+            16
+          ],
+          [
+            13,
+            448,
+            4,
+            4,
+            7,
+            16
+          ],
+          [
+            14,
+            512,
+            3,
+            4,
+            7,
+            16
+          ],
+          [
+            15,
+            560,
+            6,
+            4,
+            7,
+            16
+          ],
+          [
+            16,
+            656,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            17,
+            672,
+            16,
+            4,
+            7,
+            16
+          ],
+          [
+            18,
+            928,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            19,
+            944,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            20,
+            960,
+            4,
+            4,
+            7,
+            16
+          ],
+          [
+            21,
+            1024,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            22,
+            1040,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            23,
+            1056,
+            1,
+            4,
+            8,
+            16
+          ],
+          [
+            24,
+            1072,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            25,
+            1088,
+            56,
+            4,
+            7,
+            16
+          ],
+          [
+            26,
+            1984,
+            1,
+            1,
+            2,
+            4
+          ],
+          [
+            27,
+            1988,
+            1,
+            1,
+            2,
+            4
+          ],
+          [
+            28,
+            1992,
+            1,
+            1,
+            1,
+            4
+          ],
+          [
+            29,
+            1996,
+            1,
+            1,
+            1,
+            4
+          ],
+          [
+            30,
+            2000,
+            3,
+            4,
+            7,
+            16
+          ],
+          [
+            31,
+            2048,
+            16,
+            4,
+            7,
+            16
+          ],
+          [
+            32,
+            2304,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            33,
+            2320,
+            1,
+            1,
+            2,
+            4
+          ],
+          [
+            34,
+            2324,
+            1,
+            1,
+            2,
+            4
+          ],
+          [
+            35,
+            2328,
+            1,
+            1,
+            2,
+            4
+          ],
+          [
+            36,
+            2332,
+            1,
+            1,
+            2,
+            4
+          ],
+          [
+            37,
+            2336,
+            1,
+            2,
+            4,
+            8
+          ],
+          [
+            38,
+            2344,
+            1,
+            2,
+            5,
+            8
+          ],
+          [
+            39,
+            2352,
+            1,
+            2,
+            4,
+            8
+          ],
+          [
+            40,
+            2360,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            41,
+            2364,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            42,
+            2368,
+            1,
+            32,
+            19,
+            16
+          ]
+        ]
+      },
+      "gsys_shape": {
+        "registry_member_offset": 144,
+        "builder": "FUN_71026b0c10",
+        "descriptor_capacity": 22,
+        "descriptor_count": 15,
+        "byte_size": 256,
+        "descriptors": [
+          [
+            0,
+            0,
+            3,
+            4,
+            7,
+            16
+          ],
+          [
+            1,
+            48,
+            1,
+            1,
+            1,
+            4
+          ],
+          [
+            2,
+            52,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            3,
+            56,
+            1,
+            1,
+            1,
+            4
+          ],
+          [
+            4,
+            60,
+            1,
+            1,
+            2,
+            4
+          ],
+          [
+            5,
+            64,
+            1,
+            3,
+            6,
+            16
+          ],
+          [
+            6,
+            76,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            7,
+            80,
+            1,
+            3,
+            6,
+            16
+          ],
+          [
+            8,
+            92,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            9,
+            96,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            10,
+            100,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            11,
+            104,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            12,
+            108,
+            1,
+            1,
+            3,
+            4
+          ],
+          [
+            13,
+            112,
+            1,
+            4,
+            7,
+            16
+          ],
+          [
+            14,
+            128,
+            8,
+            4,
+            7,
+            16
+          ]
+        ]
+      }
+    },
+    "registry": {
+      "singleton_getter": "FUN_71026b0754",
+      "initializer": "FUN_71026b0c10",
+      "allocation_size": 1176,
+      "stored_in": "DAT_7105a07120",
+      "got_slot": "DAT_7103a71a88"
+    },
+    "platform_packing": {
+      "type7_stride_default_table_symbol": "UNK_71032df0de",
+      "type7_stride_flag8_table_symbol": "DAT_71032df0df",
+      "type7_table_index_expression": "type_code * 4",
+      "type7_default_stride_in_floats": 4,
+      "type7_flag8_stride_in_floats": 4,
+      "consequence": "Every cited type-7 3x4 or 4x4 serializer stores contiguous float4 rows in either flag branch."
+    },
+    "elf_constants": {
+      "zero_float3": {
+        "got_symbol": "DAT_7103a5a0f8",
+        "got_file_offset": 61185008,
+        "raw_relative_pointer": "0x032a8da8",
+        "resolved_address": "0x71032a8da8",
+        "float_words": [
+          0,
+          0,
+          0
+        ],
+        "use": "generic Shape transform initialization input only"
+      },
+      "identity_affine3x4": {
+        "got_symbol": "DAT_7103a5a138",
+        "got_file_offset": 61185072,
+        "raw_relative_pointer": "0x032a8db4",
+        "resolved_address": "0x71032a8db4",
+        "float_word_bits": [
+          1065353216,
+          0,
+          0,
+          0,
+          0,
+          1065353216,
+          0,
+          0,
+          0,
+          0,
+          1065353216,
+          0
+        ],
+        "use": "generic Shape transform initialization input only"
+      }
+    },
+    "shape_initialization": {
+      "initializer": "FUN_71027a4e88",
+      "called_by": "FUN_71026d0530",
+      "record_stride": 168,
+      "per_record_call_arguments": {
+        "descriptor1_value": 0,
+        "descriptor3_value": "record index"
+      },
+      "exact_explicit_writes": [
+        {
+          "descriptor": 0,
+          "byte_offset": 0,
+          "value": "literal affine 3x4 identity seed"
+        },
+        {
+          "descriptor": 1,
+          "byte_offset": 48,
+          "value": "call parameter 3; zero in FUN_71026d0530"
+        },
+        {
+          "descriptor": 2,
+          "byte_offset": 52,
+          "value": "uint32 zero"
+        },
+        {
+          "descriptor": 3,
+          "byte_offset": 56,
+          "value": "call parameter 4; record index in FUN_71026d0530"
+        },
+        {
+          "descriptor": 4,
+          "byte_offset": 60,
+          "value": "uint32 zero"
+        },
+        {
+          "descriptor": 5,
+          "byte_offset": 64,
+          "value": "literal zero float3"
+        },
+        {
+          "descriptor": 7,
+          "byte_offset": 80,
+          "value": "literal zero float3"
+        },
+        {
+          "descriptor": 9,
+          "byte_offset": 96,
+          "value": "float32 1.0"
+        },
+        {
+          "descriptor": 14,
+          "byte_offset": 128,
+          "byte_count": 128,
+          "value": "all zero"
+        }
+      ],
+      "not_explicitly_written_by_initializer": [
+        6,
+        8,
+        10,
+        11,
+        12,
+        13
+      ],
+      "target_value_rule": "None of these generic initialization writes is promoted to a final Kestron draw value."
+    },
+    "shape_transform_producer": {
+      "chain": [
+        "FUN_71026d0530",
+        "FUN_71026d0c1c",
+        "FUN_71026d10f8"
+      ],
+      "record_inputs": {
+        "basis_rows": [
+          48,
+          52,
+          56,
+          64,
+          68,
+          72,
+          80,
+          84,
+          88
+        ],
+        "translations": [
+          60,
+          76,
+          92
+        ],
+        "axis_scales": [
+          96,
+          100,
+          104
+        ],
+        "translation_enable_flag": "record uint16 at +0x82 bit 7"
+      },
+      "compose_formula": "Scale the three record basis columns by record +0x60/+0x64/+0x68, retain record translations +0x3c/+0x4c/+0x5c, then left-compose the resulting affine 3x4 with the supplied parent affine 3x4.",
+      "serializer_writes": [
+        {
+          "descriptor": 0,
+          "byte_offset": 0,
+          "value": "composed affine 3x4; literal identity branch exists when the matrix pointer is null"
+        },
+        {
+          "descriptor": 5,
+          "byte_offset": 64,
+          "value": "record translations when bit 7 is set, otherwise zero float3"
+        },
+        {
+          "descriptor": 7,
+          "byte_offset": 80,
+          "value": "composed matrix translation components at matrix byte offsets +0x0c/+0x1c/+0x2c; zero in the identity branch"
+        },
+        {
+          "descriptor": 2,
+          "byte_offset": 52,
+          "value": "record word at +0x6c"
+        }
+      ],
+      "initial_parent_inputs": {
+        "translation": "DAT_7103a5a0f8",
+        "affine": "DAT_7103a5a138",
+        "scale": 1.0
+      },
+      "target_value_rule": "The live record and live parent chain at each selected draw are not captured, so descriptor 0 remains value-unresolved for every selected program that reads it."
+    },
+    "shape_user_float4_producer": {
+      "writer": "FUN_71026e3860",
+      "model_type": "GsysModelNW",
+      "model_constructor": "FUN_71026c5640",
+      "model_initializer": "FUN_71026e26b0",
+      "shape_record_stride": 112,
+      "gpu_payload_size": 72,
+      "destination_formula": "Shape descriptor 14 base +0x80 plus user index * 0x10; copy exactly 16 bytes for each ModelNW shape record and update the corresponding dirty mask.",
+      "mii_indices_0_through_4": {
+        "producer": "FUN_7101bda1f0",
+        "state_type": "MiiShapeUserUniformState",
+        "dirty_rule": "Only indices whose bits are set in the input dirty byte are serialized; unchanged GPU words may persist.",
+        "formulas": [
+          {
+            "index": 0,
+            "destination_byte_offset": 128,
+            "xyzw": [
+              "float32(uint16(+0x38) >> 8) / 255.0",
+              "float32(uint16(+0x38) & 0xff) / 255.0",
+              "raw uint32 bits from +0x3c",
+              "float32(uint32(+0x3c)) / 60.0"
+            ]
+          },
+          {
+            "index": 1,
+            "destination_byte_offset": 144,
+            "xyzw": [
+              "+0x20 byte != 0 ? 1.0 : 0.0",
+              "+0x15 byte != 0 ? 1.0 : 0.0",
+              "raw uint32 bits from +0x1c",
+              "clamp(1.0 - float32(+0x18), 0.0, 1.0)"
+            ]
+          },
+          {
+            "index": 2,
+            "destination_byte_offset": 160,
+            "xyzw": [
+              "+0x09 byte != 0 ? 0.0 : 1.0",
+              "+0x09 byte != 0 ? float32(+0x0c) : 0.0",
+              "raw uint32 bits from +0x24",
+              "float32(+0x28)"
+            ]
+          },
+          {
+            "index": 3,
+            "destination_byte_offset": 176,
+            "xyzw": [
+              "float32(+0x2c)",
+              "float32(+0x30)",
+              "raw uint32 bits from +0x34",
+              "float32(+0x10)"
+            ]
+          },
+          {
+            "index": 4,
+            "destination_byte_offset": 192,
+            "xyzw": [
+              "float32(+0x40)",
+              "float32(+0x44)",
+              "raw uint32 bits from +0x48",
+              "float32(+0x4c)"
+            ]
+          }
+        ]
+      },
+      "additional_full_descriptor_producers": [
+        {
+          "producer": "FUN_7101bf9e90",
+          "indices": [
+            5,
+            6
+          ],
+          "source_offsets": [
+            104,
+            120
+          ]
+        },
+        {
+          "producer": "FUN_7101bf4620",
+          "indices": [
+            7
+          ],
+          "source_offsets": [
+            128
+          ]
+        }
+      ],
+      "target_value_rule": "The Kestron live MiiShapeUserUniformState fields and dirty history are not captured, so no formula result is committed as a target word."
+    },
+    "context_primary_producer": {
+      "producer": "FUN_71026fb574",
+      "snapshot_caller": "FUN_7101c66580",
+      "view_record_type": "GsysContextViewRecord",
+      "view_record_stride": 1168,
+      "snapshot_call_binding": {
+        "param3_affine3x4": "view record +0x000",
+        "param4_matrix4x4": "view record +0x1a8",
+        "param5_settings": "view record +0x060"
+      },
+      "writes": [
+        {
+          "descriptor": 0,
+          "byte_offset": 0,
+          "value": "direct param3 affine 3x4"
+        },
+        {
+          "descriptor": 1,
+          "byte_offset": 48,
+          "value": "inline product of param3 affine 3x4 and param4 matrix 4x4"
+        },
+        {
+          "descriptor": 2,
+          "byte_offset": 112,
+          "value": "direct param4 matrix 4x4"
+        },
+        {
+          "descriptor": 3,
+          "byte_offset": 176,
+          "value": "FUN_7100d05564 inverse of param3 affine 3x4 when its determinant is nonzero; the caller ignores the false return and still serializes the local output on the singular path"
+        },
+        {
+          "descriptor": 4,
+          "byte_offset": 224,
+          "value": "[near, far, near/far, 1.0-near/far]"
+        },
+        {
+          "descriptor": 5,
+          "byte_offset": 240,
+          "value": "[inv_range, near*inv_range, z, 1.0/z]"
+        },
+        {
+          "descriptor": 6,
+          "byte_offset": 256,
+          "value": "[far-near, 1.0/(1.0-near/far), 0.0, 1.0/(z*d)]"
+        },
+        {
+          "descriptor": 7,
+          "byte_offset": 272,
+          "value": "[z*d, d, extra, 1.0/d]"
+        }
+      ],
+      "settings_sources": {
+        "near": "+0x1c8",
+        "far": "+0x1cc",
+        "extra": "+0x1d0",
+        "z": "+0x1d4",
+        "d": "+0x1dc",
+        "inv_range": "1.0 initially; changed to 1.0/(far-near) only when far-near != 0.0"
+      },
+      "selected_read_gap": {
+        "descriptor": 8,
+        "byte_offsets": [
+          288,
+          292,
+          296,
+          300
+        ],
+        "status": "layout exact; no write found in FUN_71026fb574 and exact producer not yet located"
+      },
+      "target_value_rule": "The live GsysContextViewRecord bytes used by the Kestron draw were not captured; every selected value remains unresolved."
+    },
+    "context_secondary_producer": {
+      "producer": "FUN_71026feb9c",
+      "caller": "FUN_710277f020",
+      "writes": [
+        {
+          "descriptor": 15,
+          "byte_offset": 560,
+          "byte_count": 48,
+          "value": "param4 affine 3x4"
+        },
+        {
+          "descriptor": 15,
+          "byte_offset": 608,
+          "byte_count": 48,
+          "value": "param5 affine 3x4"
+        },
+        {
+          "descriptor": 16,
+          "byte_offset": 656,
+          "value": "[param1, param2, 0.0, 0.0]"
+        }
+      ],
+      "exact_call": "FUN_71026feb9c(fVar39, fVar46, param_2, local_118, local_e8)",
+      "target_value_rule": "The caller's live renderer inputs that form fVar39, fVar46, local_118, and local_e8 were not captured."
+    },
+    "source_anchor_checks": [
+      {
+        "function": "FUN_71025a33d4",
+        "contains": [
+          "ZEXT816(0xc)",
+          "((long)param_2 + (long)param_2 * 2) * 4",
+          "param_1 + 0x10"
+        ]
+      },
+      {
+        "function": "FUN_71026b0754",
+        "contains": [
+          "0x498",
+          "DAT_7105a07120",
+          "return puVar3"
+        ]
+      },
+      {
+        "function": "FUN_71026b0c10",
+        "contains": [
+          "FUN_71025a33d4(param_1 + 0x90,0x16",
+          "FUN_71026fcf80(param_1 + 8"
+        ]
+      },
+      {
+        "function": "FUN_71026fcf80",
+        "contains": [
+          "FUN_71025a33d4(param_1,0x2b",
+          "*piVar3 = 0x38",
+          "*piVar3 = 0x10"
+        ]
+      },
+      {
+        "function": "FUN_71027a4e88",
+        "contains": [
+          "DAT_7105a07120 + 0xa0",
+          "+ 0xac",
+          "0x3f800000"
+        ]
+      },
+      {
+        "function": "FUN_71026d0530",
+        "contains": [
+          "uVar18 * 0xa8",
+          "FUN_71027a4e88",
+          "FUN_71026d0c1c(1.0"
+        ]
+      },
+      {
+        "function": "FUN_71026d0c1c",
+        "contains": [
+          "param_2 + 0x60",
+          "param_2 + 0x68",
+          "FUN_71026d10f8"
+        ]
+      },
+      {
+        "function": "FUN_71026d10f8",
+        "contains": [
+          "UNK_71032df0de",
+          "DAT_71032df0df",
+          "param_1 + 0x6c"
+        ]
+      },
+      {
+        "function": "FUN_71026e3860",
+        "contains": [
+          "DAT_7105a07120",
+          "param_2) * 4",
+          "puVar1[1] = uVar2"
+        ]
+      },
+      {
+        "function": "FUN_7101bda1f0",
+        "contains": [
+          "uVar6 != 5",
+          "FUN_71026e3860",
+          "local_78 = *(uint *)(param_1 + 0x3c)"
+        ]
+      },
+      {
+        "function": "FUN_7101bf4620",
+        "contains": [
+          "FUN_71026e3860(param_2,7",
+          "param_1 + 0x80"
+        ]
+      },
+      {
+        "function": "FUN_7101bf9e90",
+        "contains": [
+          "FUN_71026e3860(plVar7,5",
+          "FUN_71026e3860(plVar7,6"
+        ]
+      },
+      {
+        "function": "FUN_71026c5640",
+        "contains": [
+          "0x2f8",
+          "FUN_71026e26b0"
+        ]
+      },
+      {
+        "function": "FUN_71026e26b0",
+        "contains": [
+          "gsys::ModelNW",
+          "0x70"
+        ]
+      },
+      {
+        "function": "FUN_71026fb574",
+        "contains": [
+          "FUN_7100d05564",
+          "param_5 + 0x1c8",
+          "param_5 + 0x1dc",
+          "UNK_71032df0de",
+          "DAT_71032df0df"
+        ]
+      },
+      {
+        "function": "FUN_7101c66580",
+        "contains": [
+          "FUN_71026fb574",
+          "pfVar2 + 0x6a",
+          "pfVar2 + 0x18",
+          "0x490"
+        ]
+      },
+      {
+        "function": "FUN_71026feb9c",
+        "contains": [
+          "param_4",
+          "param_5",
+          "puVar2[1] = param_2"
+        ]
+      },
+      {
+        "function": "FUN_710277f020",
+        "contains": [
+          "FUN_71026feb9c(fVar39,fVar46,param_2,local_118,local_e8)"
+        ]
+      },
+      {
+        "function": "FUN_7100d05564",
+        "contains": [
+          "bool FUN_7100d05564",
+          "return fVar1 != 0.0"
+        ]
+      }
+    ]
+  },
+  "selected_gameuber_reads": {
+    "source": "renderer/gameuber_runtime_inputs.json programs[*].{vertex,fragment}.constant_buffers",
+    "row_count": 67,
+    "templates": {
+      "context_vertex_common": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        112,
+        116,
+        120,
+        124,
+        128,
+        132,
+        136,
+        140,
+        144,
+        148,
+        152,
+        156,
+        160,
+        164,
+        168,
+        172,
+        188,
+        204,
+        220,
+        560,
+        564,
+        568,
+        572,
+        576,
+        580,
+        584,
+        588,
+        592,
+        596,
+        600,
+        604
+      ],
+      "context_fragment_reconstruction": [
+        112,
+        116,
+        120,
+        124,
+        128,
+        132,
+        136,
+        140,
+        160,
+        164,
+        168,
+        172,
+        224,
+        236,
+        240,
+        244,
+        256,
+        272,
+        276,
+        284,
+        288,
+        292,
+        296,
+        300,
+        656
+      ],
+      "context_fragment_basic": [
+        224,
+        240,
+        244,
+        256,
+        284,
+        288,
+        292,
+        296,
+        300,
+        656
+      ],
+      "shape_vertex_matrix": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44
+      ],
+      "shape_vertex_matrix_index2_zw": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        168,
+        172
+      ],
+      "shape_vertex_matrix_indices2_3": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        168,
+        172,
+        176,
+        180,
+        184
+      ],
+      "shape_fragment_basic": [
+        128,
+        132,
+        144
+      ],
+      "shape_fragment_index3_w": [
+        128,
+        132,
+        144,
+        188
+      ]
+    },
+    "program_templates": [
+      {
+        "program": "head",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_reconstruction",
+        "shape_vertex": "shape_vertex_matrix_indices2_3",
+        "shape_fragment": "shape_fragment_index3_w"
+      },
+      {
+        "program": "face_mask",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": "shape_vertex_matrix_index2_zw",
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "hair",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": "shape_vertex_matrix",
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "nose",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_reconstruction",
+        "shape_vertex": "shape_vertex_matrix_indices2_3",
+        "shape_fragment": "shape_fragment_index3_w"
+      },
+      {
+        "program": "nose_line",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": "shape_vertex_matrix_index2_zw",
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "ear",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_reconstruction",
+        "shape_vertex": "shape_vertex_matrix_indices2_3",
+        "shape_fragment": "shape_fragment_index3_w"
+      },
+      {
+        "program": "beard",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": "shape_vertex_matrix_index2_zw",
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_arm_tops",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_tops",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_elbow_tops",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_foot_socks",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_hand_tops",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_hip_bottoms",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_hip_socks",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_knee_socks",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_leg_socks",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_shoulder_tops",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_sole_socks",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_thigh_socks",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      },
+      {
+        "program": "body_waist_tops",
+        "context_vertex": "context_vertex_common",
+        "context_fragment": "context_fragment_basic",
+        "shape_vertex": null,
+        "shape_fragment": "shape_fragment_basic"
+      }
+    ],
+    "union_offsets": {
+      "gsys_context": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        112,
+        116,
+        120,
+        124,
+        128,
+        132,
+        136,
+        140,
+        144,
+        148,
+        152,
+        156,
+        160,
+        164,
+        168,
+        172,
+        188,
+        204,
+        220,
+        224,
+        236,
+        240,
+        244,
+        256,
+        272,
+        276,
+        284,
+        288,
+        292,
+        296,
+        300,
+        560,
+        564,
+        568,
+        572,
+        576,
+        580,
+        584,
+        588,
+        592,
+        596,
+        600,
+        604,
+        656
+      ],
+      "gsys_shape": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20,
+        24,
+        28,
+        32,
+        36,
+        40,
+        44,
+        128,
+        132,
+        144,
+        168,
+        172,
+        176,
+        180,
+        184,
+        188
+      ]
+    },
+    "producer_groups": {
+      "gsys_context": [
+        {
+          "name": "primary_affine_param3",
+          "producer": "FUN_71026fb574",
+          "offsets": [
+            0,
+            4,
+            8,
+            12,
+            16,
+            20,
+            24,
+            28,
+            32,
+            36,
+            40,
+            44
+          ],
+          "producer_status": "exact"
+        },
+        {
+          "name": "clip_matrix_param4",
+          "producer": "FUN_71026fb574",
+          "offsets": [
+            112,
+            116,
+            120,
+            124,
+            128,
+            132,
+            136,
+            140,
+            144,
+            148,
+            152,
+            156,
+            160,
+            164,
+            168,
+            172
+          ],
+          "producer_status": "exact"
+        },
+        {
+          "name": "inverse_affine_selected_w_components",
+          "producer": "FUN_71026fb574",
+          "offsets": [
+            188,
+            204,
+            220
+          ],
+          "producer_status": "exact"
+        },
+        {
+          "name": "view_depth_vectors",
+          "producer": "FUN_71026fb574",
+          "offsets": [
+            224,
+            236,
+            240,
+            244,
+            256,
+            272,
+            276,
+            284
+          ],
+          "producer_status": "exact"
+        },
+        {
+          "name": "descriptor8_selected_vector",
+          "producer": null,
+          "offsets": [
+            288,
+            292,
+            296,
+            300
+          ],
+          "producer_status": "unresolved_exact_producer"
+        },
+        {
+          "name": "secondary_affine_param4",
+          "producer": "FUN_71026feb9c",
+          "offsets": [
+            560,
+            564,
+            568,
+            572,
+            576,
+            580,
+            584,
+            588,
+            592,
+            596,
+            600,
+            604
+          ],
+          "producer_status": "exact"
+        },
+        {
+          "name": "secondary_depth_scalar_x",
+          "producer": "FUN_71026feb9c",
+          "offsets": [
+            656
+          ],
+          "producer_status": "exact"
+        }
+      ],
+      "gsys_shape": [
+        {
+          "name": "per_draw_affine3x4",
+          "producer": "FUN_71026d10f8",
+          "offsets": [
+            0,
+            4,
+            8,
+            12,
+            16,
+            20,
+            24,
+            28,
+            32,
+            36,
+            40,
+            44
+          ],
+          "producer_status": "exact"
+        },
+        {
+          "name": "mii_user_index0_xy",
+          "producer": "FUN_7101bda1f0",
+          "offsets": [
+            128,
+            132
+          ],
+          "producer_status": "exact_formula"
+        },
+        {
+          "name": "mii_user_index1_x",
+          "producer": "FUN_7101bda1f0",
+          "offsets": [
+            144
+          ],
+          "producer_status": "exact_formula"
+        },
+        {
+          "name": "mii_user_index2_zw",
+          "producer": "FUN_7101bda1f0",
+          "offsets": [
+            168,
+            172
+          ],
+          "producer_status": "exact_formula"
+        },
+        {
+          "name": "mii_user_index3_xyzw",
+          "producer": "FUN_7101bda1f0",
+          "offsets": [
+            176,
+            180,
+            184,
+            188
+          ],
+          "producer_status": "exact_formula"
+        }
+      ]
+    }
+  },
+  "kestron_target_values": {
+    "status": "unresolved_live_draw_bytes",
+    "resolved_kestron_words": [],
+    "resolved_kestron_byte_ranges": [],
+    "draws": [
+      {
+        "program": "head",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": true,
+        "shape_matrix_value": "uncaptured_kestron_live_value",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "face_mask",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": true,
+        "shape_matrix_value": "uncaptured_kestron_live_value",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "hair",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": true,
+        "shape_matrix_value": "uncaptured_kestron_live_value",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "nose",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": true,
+        "shape_matrix_value": "uncaptured_kestron_live_value",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "nose_line",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": true,
+        "shape_matrix_value": "uncaptured_kestron_live_value",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "ear",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": true,
+        "shape_matrix_value": "uncaptured_kestron_live_value",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "beard",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": true,
+        "shape_matrix_value": "uncaptured_kestron_live_value",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_arm_tops",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_tops",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_elbow_tops",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_foot_socks",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_hand_tops",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_hip_bottoms",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_hip_socks",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_knee_socks",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_leg_socks",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_shoulder_tops",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_sole_socks",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_thigh_socks",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      },
+      {
+        "program": "body_waist_tops",
+        "context_values": "uncaptured_kestron_live_value",
+        "shape_matrix_required": false,
+        "shape_matrix_value": "not_required_by_selected_vertex_program",
+        "shape_user_values": "uncaptured_kestron_live_value"
+      }
+    ],
+    "capture_boundaries_needed_to_resolve_values": [
+      "Capture the selected draw's live GsysContextViewRecord fields used by FUN_71026fb574.",
+      "Capture the live fVar39, fVar46, local_118, and local_e8 inputs passed by FUN_710277f020 to FUN_71026feb9c.",
+      "Locate the exact writer for Context descriptor 8 at +0x120 or capture those four selected words at binding.",
+      "Capture each selected draw's live GsysShapeTransformUniformRecord and supplied parent affine chain before FUN_71026d10f8.",
+      "Capture the live MiiShapeUserUniformState plus dirty/persistence history before FUN_7101bda1f0."
+    ],
+    "forbidden_substitutions": [
+      "Do not use g_identity_affine3x4 as a final per-draw matrix without live-chain proof.",
+      "Do not use zeroed descriptor 14 initializer bytes as final Mii user values.",
+      "Do not synthesize Context descriptor 8.",
+      "Do not derive any target word from reference.png."
+    ]
+  },
+  "verification": {
+    "checker": "tools/verify_gsys_context_shape_source_trace.py",
+    "command": "python tools/verify_gsys_context_shape_source_trace.py",
+    "guarantees": [
+      "immutable evidence hashes and lengths",
+      "ELF VA-to-file mapping and exact static bytes",
+      "Context and Shape descriptor tuples parsed from decompiled builders",
+      "descriptor offset/alignment arithmetic and final sizes",
+      "function/source-anchor presence",
+      "selected GameUber per-program/stage read templates and unions",
+      "selected-read producer-group union closure",
+      "complete local FUN/DAT/UNK identity coverage",
+      "absence of claimed Kestron target words or byte ranges"
+    ]
+  }
+}

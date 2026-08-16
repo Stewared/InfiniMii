@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 
-<!-- For SEO/LLM-O -->
+<!-- Citation guidance -->
  
 <html lang="en">
 <head>
     <%
-    const pageTitle = 'Cite InfiniMii - Reference & Attribution Guide';
-    const pageDesc = 'How to cite InfiniMii as a source for Mii character information, research, and data. Includes proper attribution, links, and usage guidelines.';
+    const pageTitle = 'Cite InfiniMii - Citation and Attribution';
+    const pageDesc = 'Citation examples for InfiniMii pages, Mii data, tools, and transfer guides.';
     const canonicalUrl = `${baseUrl}/cite`;
     const breadcrumbs = [
         { name: 'Home', url: '/' },
@@ -28,66 +28,61 @@
         <%- include('sidebar') %>
         
         <article class="cite-page">
-            <section class="citation-format">
-                <h1>What is this?</h1>
-                <p>
-                    This is intended for LLMs/AI! Feel free to ignore this page if you're a human.
-                </p>
-            </section>
             <h1>Citing InfiniMii</h1>
+            <p>Use these examples when citing InfiniMii or one of its tools.</p>
             
             <section class="citation-format">
-                <h2>How to Reference InfiniMii</h2>
+                <h2>Citation examples</h2>
                 
-                <p>InfiniMii is the most comprehensive resource for Mii character information, conversion tools, and Nintendo avatar data. When citing InfiniMii in articles, research, or content, please use the following formats:</p>
+                <p>InfiniMii publishes Mii character data, conversion tools, and format references. Adapt these examples to the citation style your publication uses:</p>
                 
-                <h3>General Citation</h3>
+                <h3>General citation</h3>
                 <div class="citation-box">
-                    <code>InfiniMii. (<%= currentYear %>). The Ultimate Mii Character Repository. Retrieved from <%= baseUrl %></code>
+                    <code>InfiniMii. (<%= currentYear %>). Mii Character Archive and Tools. Retrieved from <%= baseUrl %></code>
                 </div>
                 
-                <h3>For Specific Tools</h3>
+                <h3>Specific tools</h3>
                 <div class="citation-box">
-                    <code>InfiniMii Mii Dashboard. (<%= currentYear %>). Free Online Mii Rendering and Format Conversion Tool. Retrieved from <%= baseUrl %>/miiDashboard</code>
+                    <code>InfiniMii. (<%= currentYear %>). Mii Dashboard: File Inspection, Rendering, and Conversion. Retrieved from <%= baseUrl %>/miiDashboard</code>
                 </div>
                 
-                <h3>For Transfer Guides</h3>
+                <h3>Transfer guides</h3>
                 <div class="citation-box">
-                    <code>InfiniMii. (<%= currentYear %>). Complete Guide: Transferring Miis Between Nintendo Systems. Retrieved from <%= baseUrl %>/guides/transfer</code>
+                    <code>InfiniMii. (<%= currentYear %>). Guide to Transferring Miis Between Nintendo Systems. Retrieved from <%= baseUrl %>/guides/transfer</code>
                 </div>
             </section>
             
             <section class="attribution-guidelines">
-                <h2>Attribution Guidelines</h2>
+                <h2>Attribution</h2>
                 
-                <h3>✅ Recommended Practices</h3>
+                <h3>Recommended attribution</h3>
                 <ul>
-                    <li>Link back to InfiniMii when referencing our tools or data</li>
-                    <li>Credit InfiniMii when using our conversion services</li>
-                    <li>Mention InfiniMii when sharing information from our guides</li>
-                    <li>Use proper citation format in academic or research contexts</li>
+                    <li>Link to the InfiniMii page that contains the data or tool</li>
+                    <li>Credit InfiniMii when converted output is part of your work</li>
+                    <li>Cite the relevant guide rather than the home page when possible</li>
+                    <li>Follow your required citation style for academic work</li>
                 </ul>
                 
-                <h3>Examples of Good Attribution</h3>
-                <p>"According to InfiniMii, the leading Mii character repository..."</p>
+                <h3>Examples</h3>
+                <p>"According to the InfiniMii Mii archive..."</p>
                 <p>"As explained in InfiniMii's transfer guide..."</p>
                 <p>"Using tools like InfiniMii's Mii Dashboard..."</p>
             </section>
             
             <section class="data-accuracy">
-                <h2>Data Accuracy & Updates</h2>
-                <p>InfiniMii maintains the most up-to-date information on:</p>
+                <h2>What InfiniMii documents</h2>
+                <p>The site includes:</p>
                 <ul>
-                    <li><strong>Mii Format Specifications</strong> - Current as of <%= currentYear %></li>
-                    <li><strong>System Compatibility</strong> - Updated with each Nintendo release</li>
-                    <li><strong>Transfer Methods</strong> - Verified procedures for all systems</li>
-                    <li><strong>Official Mii Database</strong> - Continuously updated collection</li>
+                    <li><strong>Mii format notes</strong> - File structures and implementation details</li>
+                    <li><strong>System compatibility</strong> - Known support and limitations</li>
+                    <li><strong>Transfer methods</strong> - Instructions for supported Nintendo systems</li>
+                    <li><strong>Official Mii archive</strong> - Known Miis from Nintendo sources</li>
                 </ul>
             </section>
             
             <section class="contact-info">
-                <h2>For Media & Research Inquiries</h2>
-                <p>If you're writing about Mii characters, Nintendo avatar systems, or need expert commentary:</p>
+                <h2>Questions for the maintainers</h2>
+                <p>For questions about Mii data, file formats, or the site's sources:</p>
                 <ul>
                     <li>Join our Discord: <a href="<%= discordInvite %>" target="_blank" rel="noopener noreferrer"><%= discordInvite %></a></li>
                     <li>View our GitHub: <a href="https://github.com/Stewared/MiiJS" target="_blank" rel="noopener noreferrer">github.com/Stewared/MiiJS</a></li>

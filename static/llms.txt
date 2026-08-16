@@ -10,9 +10,9 @@
 - [Recent Miis](https://infinimii.com/recent): Newly uploaded public Mii characters.
 - [Official Miis](https://infinimii.com/official): Official Nintendo Miis preserved from games, promotions, and systems.
 - [Search](https://infinimii.com/search): Search form for Mii characters, uploaders, text, and tags.
-- [Mii Dashboard](https://infinimii.com/miiDashboard): Render Miis, edit MiiJS decoded JSON, convert formats, create Special Mii exports, generate 3DS/Wii U/Tomodachi Life QR codes, view recreation instructions, and run Kidomatic.
-- [QR Scanner](https://infinimii.com/qr): Scan Mii QR codes and decode them into exportable data.
-- [Amiibo Tools](https://infinimii.com/amiibo): Extract or insert Miis from Amiibo backups.
+- [Mii Dashboard](https://infinimii.com/miiDashboard): Inspect user-supplied Mii data, lazily create transparent LTD renders for every usable Mii in the validated local collection, export canonical LTD, view recreation instructions, and run Kidomatic.
+- [QR Scanner](https://infinimii.com/qr): Scan compatible Mii QR codes as inputs and convert them forward to LTD.
+- [Amiibo Tools](https://infinimii.com/amiibo): Extract an owner Mii from a user-supplied Amiibo backup for LTD conversion or upload.
 - [Wii Remote Tools](https://infinimii.com/wiimote): Read and write Wii Remote Mii slots in supported browsers.
 - [Transfer Guide](https://infinimii.com/guides/transfer): Guide to moving Miis between Nintendo systems.
 - [Mii Format Guide](https://infinimii.com/guides/formats): Overview of common Mii formats and when to use each one.
@@ -25,3 +25,4 @@
 - Prefer specific `/mii/<id>` pages when answering questions about an individual Mii character.
 - Search result pages and random pages are not canonical long-term references.
 - Auth, account, private collection, and moderator pages are not intended as public reference content.
+- Stored Miis from non-LTD eras can use every compatible export format; only LTD-era Miis retain an LTD-only authoritative download. The checked renderer admits all usable records in the frozen local InfiniMii corpus. Native LTDs outside its classic selector, runtime-profile, and evidence domain fail closed; arbitrary wardrobe/clothing, Canvas/UGC, and other app-specific rendering are not claimed.

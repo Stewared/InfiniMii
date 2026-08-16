@@ -1,0 +1,144 @@
+{
+  "default_char_info_templates": {
+    "0": {
+      "char_info_base64": "55GwLa7STHqxtITYMRHk0W4AbwAgAG4AYQBtAGUAAAAAAAAAAAAAAEBAAAAAaAAGAwIPAAYDBxcAWQYDAQwAGQUDBhNEAAAAAAAAAAIEAgAEAwQCDEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAQDBgQKAQQJFwAEAwANAAAACAAABAMKAAAEAwoACAQCFC0=",
+      "char_info_sha256": "b326b804241dff2b7ed6213764467f47b1a30d1f7c389654036823563c6d405e",
+      "favorite_color_argument": 0,
+      "identity_bytes": "replace offsets 0x00..0x0f with the source CreateId",
+      "nickname": "no name",
+      "provenance": {
+        "corpus_scaffold_id": "QfK19",
+        "default_mii_public_index": 0,
+        "kind": "DefaultMii-row-plus-recovered-CharInfoRaw-converter",
+        "note": "not selected by the frozen corpus' region replacements"
+      }
+    },
+    "1": {
+      "char_info_base64": "aR1u9ikDQAGXMPbqETyf1m4AbwAgAG4AYQBtAGUAAAAAAAAAAAAAAEBAAAAAZAAGAwIPAAYDBxcAWQYDAQwAGQUDBhM3AAYGAAAAAAIEAgQEAwQCDEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGBgQDBgQKAQQJFwAEAwANAAAACAAABAMKAAAEAwoACAQCFC0=",
+      "char_info_sha256": "4ea96857e5f497d15d0c6cd3b5a82336c0d7468846584b40935b70068c971e61",
+      "favorite_color_argument": 0,
+      "identity_bytes": "replace offsets 0x00..0x0f with the source CreateId",
+      "nickname": "no name",
+      "provenance": {
+        "canonical_ltd_sha256": "65dfe91b012a61478d92fe642a27d0c23d18ddddaf0b48b869f3f076264f7002",
+        "corpus_id": "bvzVp",
+        "kind": "frozen-corpus-byte-exact-sdk-default"
+      }
+    },
+    "2": {
+      "char_info_base64": "55GwLa7STHqxtITYMRHk0W4AbwAgAG4AYQBtAGUAAAAAAAAAAAAAAEBAAAAAZQAGAwIPAAYDBxcAWQYDAQwAGQUDBhMhAAEBAAAAAAIEAgAEAwQCDEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAQQDBgQKAQQJFwAEAwANAAAACAAABAMKAAAEAwoACAQCFC0=",
+      "char_info_sha256": "7854750fca28050b1d3c3b06d47b3ebeb8d8482a6aea0c7ad557e6ee9d4efb27",
+      "favorite_color_argument": 0,
+      "identity_bytes": "replace offsets 0x00..0x0f with the source CreateId",
+      "nickname": "no name",
+      "provenance": {
+        "canonical_ltd_sha256": "82237df3e42f9bf13b9a2c22e5c02af1d63409e2db9a2c93f4e7d754ec7b2c34",
+        "corpus_id": "QfK19",
+        "kind": "frozen-corpus-byte-exact-sdk-default"
+      }
+    },
+    "3": {
+      "char_info_base64": "NptXrDKoQm+ChnDYOzZ2OG4AbwAgAG4AYQBtAGUAAAAAAAAAAAAAAUBAAAAAZgAGAwIPAAYDBxcAWQYDAQwAGQUDBhMYAAAAAAAAAAIEBAAEAwMCDEAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQDBgQKAQQJFwAEAwANAAAACAAABAMKAAAEAwoACAQCFC0=",
+      "char_info_sha256": "346a7a9bfdd3aa7b688a05f4810034ebd89ae610867b11729d8f807d665a4c61",
+      "favorite_color_argument": 0,
+      "identity_bytes": "replace offsets 0x00..0x0f with the source CreateId",
+      "nickname": "no name",
+      "provenance": {
+        "canonical_ltd_sha256": "562378108bc9a6ebe42d0fe21ca0ba146d399030c79089949e6a64d048da0c49",
+        "corpus_id": "DHrJj",
+        "kind": "frozen-corpus-byte-exact-sdk-default"
+      }
+    },
+    "4": {
+      "char_info_base64": "0XMwFX40Rmme/euYAIXkNG4AbwAgAG4AYQBtAGUAAAAAAAAAAAAAAUBAAAAAZAAGAwIPAAYDBxcAWQYDAQwAGQUDBhMOAAcHAAAAAAIEBAUEAwMCDEAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwQDBgQKAQQJFwAEAwANAAAACAAABAMKAAAEAwoACAQCFC0=",
+      "char_info_sha256": "71e76311f17741621d05458eaa1bbefc45380a531d4565b728068115daf8f6e3",
+      "favorite_color_argument": 0,
+      "identity_bytes": "replace offsets 0x00..0x0f with the source CreateId",
+      "nickname": "no name",
+      "provenance": {
+        "canonical_ltd_sha256": "13b2e4349be3b85600c017d5584310c28371b65b4dabdda57378bd7190c9fb9c",
+        "corpus_id": "S1J0q",
+        "kind": "frozen-corpus-byte-exact-sdk-default"
+      }
+    },
+    "5": {
+      "char_info_base64": "FKXbxXAPSwiyzCMtnvAb7m4AbwAgAG4AYQBtAGUAAAAAAAAAAAAAAUBAAAAAZAAGAwIPAAYDBxcAWQYDAQwAGQUDBhMMAAEBAAAAAAIEBAAEAwMCDEAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQQDBgQKAQQJFwAEAwANAAAACAAABAMKAAAEAwoACAQCFC0=",
+      "char_info_sha256": "e610a7921542a0a6f9c8478ad0091f318b12b22d3fdd67cda1a10c9ed2bd9f35",
+      "favorite_color_argument": 0,
+      "identity_bytes": "replace offsets 0x00..0x0f with the source CreateId",
+      "nickname": "no name",
+      "provenance": {
+        "canonical_ltd_sha256": "1da1b7b6a4250de5461a7f4b4edf9953703ba15e273734d5857b552c9714266f",
+        "corpus_id": "tZOhz",
+        "kind": "frozen-corpus-byte-exact-sdk-default"
+      }
+    }
+  },
+  "description": "Exact pre-selection normalization used by normalize_special_origin_mii_char_info_ex for the checked local USA/AmericanEnglish title runtime.",
+  "fail_closed": "unknown region_move, invalid CreateId, missing template, changed runtime evidence, or inconsistent gender/index must abort before selector resolution",
+  "frozen_corpus": {
+    "checked_profile_result": {
+      "preserved": 539,
+      "replaced": 1,
+      "replacement_default_indices": {
+        "1": 1
+      }
+    },
+    "manifest_sha256": "052103e866698aa0468500e011074cf3b2f0e58f19d4985803d405894778c62b",
+    "record_count": 3152,
+    "region_move_counts_for_special": {
+      "0": 531,
+      "1": 8,
+      "3": 1
+    },
+    "special_mii_count": 540
+  },
+  "key": "classic-title-ryujinx-usa-special-normalization-v1",
+  "normalization": {
+    "address": "0x7101d6ef40",
+    "decomp_evidence": {
+      "byte_length": 4030968,
+      "path": "C:/Users/kestr/Coding/LtDRender/dcmp/src/functions/internal/batch_04/7101d00000/2466_functions.inc",
+      "sha256": "f89a227c8568d0c0bc43a9ded3d75491b3a96913ddb60bd88c2cdfa98b3d4797"
+    },
+    "default_index_equation": "(3 if gender != 0 else 0) + (CreateId[15] % 3)",
+    "function": "normalize_special_origin_mii_char_info_ex",
+    "order": "after CharInfoEx validation and before every face/model/resource selection",
+    "replacement_identity": "preserve the source 16-byte CreateId; replace nickname with GetReplacedNickname; pass FavoriteColor(0); convert the selected CharInfoRaw back to CharInfoEx"
+  },
+  "runtime": {
+    "configuration_evidence": {
+      "byte_length": 5175,
+      "path": "C:/Users/kestr/AppData/Roaming/Ryujinx/Config.json",
+      "sha256": "5d47be86a4c1b861bc2034b0ce4cf2c35544b46f176b9b78c21e02259271d385"
+    },
+    "is_enabled_special_mii": true,
+    "merged_region_code": 0,
+    "region_mapping": {
+      "0": "always preserve",
+      "1": "preserve iff merged_region_code == 0",
+      "2": "preserve iff merged_region_code == 1",
+      "3": "preserve iff merged_region_code == 2"
+    },
+    "selected_configuration": {
+      "language_code": "en_US",
+      "system_language": "AmericanEnglish",
+      "system_region": "USA",
+      "system_time_zone": "America/Los_Angeles"
+    }
+  },
+  "schema_version": 1,
+  "sdk_default_table": {
+    "commit": "7d158acc3b5826a08941d6e8d50d3a3897021bcd",
+    "public_index_rows": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "source": "Ryujinx/Ryujinx src/Ryujinx.HLE/HOS/Services/Mii/Types/DefaultMii.cs",
+    "source_sha256": "f919f0a6de02ec5f11a5b4dc2188f13171c2245294f451fabc5223628b88c4b3"
+  }
+}

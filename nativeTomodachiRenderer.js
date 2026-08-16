@@ -27,11 +27,19 @@ const RENDER_CONTRACT = "tomodachi-native-pica-cgfx-v1:THMSBIN1:THLUBIN1:spica-t
 const COMPOSITION_CONTRACT = "tomodachi-shared-body-head-depth-ffl-high-v3";
 const PORTRAIT_PROJECTION_CONTRACT = "tomodachi-portrait-orthographic-v1";
 const FULL_BODY_PROJECTION_CONTRACT = "ffl-whole-body-camera-fov15-height-v1";
-const RENDER_PLAN_VERSION = "infinimii-native-all-mii-ffl-high-v4";
+const RENDER_PLAN_VERSION = "infinimii-native-all-mii-ffl-high-v5";
 const FAVORITE_COLOR_RGB = Object.freeze([
     "D21E14", "FF6E19", "FFD820", "78D220", "007830", "0A48B4",
     "3CAAE0", "F55A7D", "7328AD", "483818", "E0E0E0", "181814"
 ]);
+const NATIVE_TOMODACHI_RENDERER_REVISION = sha256Json({
+    renderContract: RENDER_CONTRACT,
+    compositionContract: COMPOSITION_CONTRACT,
+    portraitProjectionContract: PORTRAIT_PROJECTION_CONTRACT,
+    fullBodyProjectionContract: FULL_BODY_PROJECTION_CONTRACT,
+    renderPlanVersion: RENDER_PLAN_VERSION,
+    favoriteColorRgb: FAVORITE_COLOR_RGB
+});
 const requestedConcurrency = Number.parseInt(
     process.env.TOMODACHI_NATIVE_RENDER_CONCURRENCY || "",
     10
@@ -69,6 +77,10 @@ function sha256Json(value) {
         .createHash("sha256")
         .update(Buffer.from(JSON.stringify(stable(value)), "utf8"))
         .digest("hex");
+}
+
+export function getNativeTomodachiRendererRevision() {
+    return NATIVE_TOMODACHI_RENDERER_REVISION;
 }
 
 function toPlainMii(mii) {
@@ -352,11 +364,20 @@ export async function planNativeTomodachiRender(mii, options = {}) {
         if (!/^[0-9A-F]{6}$/.test(rgb)) {
             throw new Error(`Invalid headwear color for item ${headwearIndex}: ${JSON.stringify(rgb)}`);
         }
+        const headTypes = new Set(
+            (metadataRowsByArchive.get(archive) || []).map(metadataRow =>
+                integer(metadataRow.head_type, -1)
+            )
+        );
+        if (headTypes.size !== 1 || [...headTypes][0] < 0) {
+            throw new Error(`${archive} does not have one authoritative CGFX HeadType`);
+        }
         headwear = Object.freeze({
             itemIndex: headwearIndex,
             archive,
             rgb,
             typeId: integer(row.headwear_type_id, -1),
+            headType: [...headTypes][0],
             metadataVariant: metadataVariantFor(archive, canonical.hair_type)
         });
     }
@@ -436,7 +457,7 @@ function releaseRenderPermit() {
     renderWaiters.shift()?.();
 }
 
-function validateRendererLog(log, rendererKind, mode) {
+function validateRendererLog(log, rendererKind, mode, plan) {
     if (!log.includes(`native-pica=${RENDER_CONTRACT}`)) {
         throw new Error(`${rendererKind} renderer did not report the audited native shader contract`);
     }
@@ -463,6 +484,38 @@ function validateRendererLog(log, rendererKind, mode) {
     const requiredCounts = rendererKind === "body" ? counts?.slice(0, 2) : counts;
     if (!requiredCounts || requiredCounts.some(value => !Number.isFinite(value) || value <= 0)) {
         throw new Error(`${rendererKind} renderer reported an incomplete native draw`);
+    }
+
+    if (rendererKind === "headwear") {
+        const selectorLines = log
+            .split(/\r?\n/)
+            .filter(line => line.startsWith("cfl-head-model="));
+        const selectorMatch = selectorLines.length === 1
+            ? /^cfl-head-model=(normal|cap|headgear) effective-hair=(-?\d+) shape-index=(-?\d+) headwear-type=(-?\d+) head-type=(-?\d+)$/.exec(selectorLines[0])
+            : null;
+        if (!selectorMatch) {
+            throw new Error("headwear renderer did not report one complete CFL head selector");
+        }
+        const headType = plan.headwear.headType;
+        const expectedModel = headType === 6
+            ? "cap"
+            : (headType === 7 || headType === 8 ? "headgear" : "normal");
+        const expectedShapeIndex = expectedModel === "headgear"
+            ? -1
+            : (Math.min(131, Math.max(0, plan.canonical.hair_type)) * 2) +
+                (expectedModel === "cap" ? 1 : 0);
+        const [, model, effectiveHair, shapeIndex, headwearType, reportedHeadType] = selectorMatch;
+        if (
+            model !== expectedModel ||
+            Number(effectiveHair) !== plan.canonical.hair_type ||
+            Number(shapeIndex) !== expectedShapeIndex ||
+            Number(headwearType) !== plan.headwear.typeId ||
+            Number(reportedHeadType) !== headType
+        ) {
+            throw new Error(
+                `headwear renderer CFL selector changed: expected ${expectedModel}/${plan.canonical.hair_type}/${expectedShapeIndex}/${plan.headwear.typeId}/${headType}, got ${selectorLines[0]}`
+            );
+        }
     }
 }
 
@@ -573,7 +626,8 @@ async function executePlan(plan) {
         validateRendererLog(
             `${result.stdout || ""}${result.stderr || ""}`,
             rendererKind,
-            plan.mode
+            plan.mode,
+            plan
         );
         const sourceBuffer = decodeRendererBmp(
             await fs.promises.readFile(outputPath),

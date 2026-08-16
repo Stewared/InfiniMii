@@ -8,10 +8,13 @@
     "start": "node index.js",
     "dev": "cross-env NODE_ENV=development node index.js",
     "build:native-renderer": "cmake -S native/tomodachi -B native/tomodachi/build -DCMAKE_BUILD_TYPE=Release && cmake --build native/tomodachi/build --config Release --parallel",
+    "build:native-ltd-renderer": "node scripts/buildNativeLtdRenderer.js",
     "test:renderer-colors": "node --test tests/nativeTomodachiRenderer.colors.test.js",
     "test:external-mii-dates": "node --test tests/miiDateMetadata.test.js",
     "test:miicharacters-importer": "node --test tests/fillin.test.cjs",
     "migrate:tl-palette-selectors": "node scripts/backfillTomodachiPaletteSelectors.js",
+    "backfill:mii-era": "node scripts/backfillMiiEra.js",
+    "backfill:mii-facepaint": "node scripts/backfillMiiFacepaintUsage.js",
     "rerender:all-images": "node scripts/rerenderAllMiiImages.js",
     "test:native-renderer": "node --test spec/native-tomodachi-renderer.test.mjs",
     "test:native-c": "ctest --test-dir native/tomodachi/build -C Release --output-on-failure",
@@ -21,6 +24,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "dependencies": {
     "@types/node": "^18.0.6",
     "chalk": "^5.6.2",
@@ -34,11 +40,12 @@
     "express-rate-limit": "^8.2.1",
     "ffl.js": "github:ariankordi/FFL.js#f63076162584808715008a39f9cd7b606442cee3",
     "fflate": "^0.8.2",
+    "fzstd": "^0.1.1",
     "form-data": "^4.0.4",
     "fs": "^0.0.1-security",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
-    "miijs": "^3.1.0",
+    "miijs": "file:vendor/miijs-3.1.0-ltd-workspace.tgz",
     "mongodb-memory-server": "^11.0.1",
     "mongoose": "^9.1.1",
     "ms": "^2.1.3",
@@ -47,6 +54,7 @@
     "obscenity": "^0.4.5",
     "path": "^0.12.7",
     "prettier": "^2.8.8",
+    "qrcode-generator": "^1.5.2",
     "sharp": "^0.34.5",
     "validator": "^13.15.26"
   }

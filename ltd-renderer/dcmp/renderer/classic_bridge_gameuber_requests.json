@@ -1,0 +1,3836 @@
+[
+  {
+    "key": "head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead00",
+    "model": "MiiHead00",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead00",
+    "model": "MiiHead00",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "hair_043",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy043",
+    "model": "MiiHairAllLegacy043",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair_068",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy068",
+    "model": "MiiHairAllLegacy068",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair_051",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy051",
+    "model": "MiiHairAllLegacy051",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose01",
+    "model": "MiiNose01",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose01",
+    "model": "MiiNose01",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "ear",
+    "kind": "material",
+    "family": "ear",
+    "resource": "MiiEar00",
+    "model": "MiiEar00",
+    "shape": "Ear__mt_Ear",
+    "material": "mt_Ear"
+  },
+  {
+    "key": "glass_frame",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass01",
+    "model": "MiiGlass01",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_translucent",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass01",
+    "model": "MiiGlass01",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_lens_opaque",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass01",
+    "model": "MiiGlass01",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "headwear__ClothHeadwearHatSimpleCap__ClothHeadwearHatSimpleCap__SimpleCap__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "headwear",
+    "resource": "ClothHeadwearHatSimpleCap",
+    "model": "ClothHeadwearHatSimpleCap",
+    "shape": "SimpleCap__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "headwear__ClothHeadwearHatSimpleKnit__ClothHeadwearHatSimpleKnit__SimpleKnit__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "headwear",
+    "resource": "ClothHeadwearHatSimpleKnit",
+    "model": "ClothHeadwearHatSimpleKnit",
+    "shape": "SimpleKnit__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "beard__MiiBeard00__MiiBeard00__Beard__mt_Beard__mt_Beard",
+    "kind": "material",
+    "family": "beard",
+    "resource": "MiiBeard00",
+    "model": "MiiBeard00",
+    "shape": "Beard__mt_Beard",
+    "material": "mt_Beard"
+  },
+  {
+    "key": "beard__MiiBeard01__MiiBeard01__Beard__mt_Beard__mt_Beard",
+    "kind": "material",
+    "family": "beard",
+    "resource": "MiiBeard01",
+    "model": "MiiBeard01",
+    "shape": "Beard__mt_Beard",
+    "material": "mt_Beard"
+  },
+  {
+    "key": "beard__MiiBeard02__MiiBeard02__Beard__mt_Beard__mt_Beard",
+    "kind": "material",
+    "family": "beard",
+    "resource": "MiiBeard02",
+    "model": "MiiBeard02",
+    "shape": "Beard__mt_Beard",
+    "material": "mt_Beard"
+  },
+  {
+    "key": "ear__MiiEar01__MiiEar01__Ear__mt_Ear__mt_Ear",
+    "kind": "material",
+    "family": "ear",
+    "resource": "MiiEar01",
+    "model": "MiiEar01",
+    "shape": "Ear__mt_Ear",
+    "material": "mt_Ear"
+  },
+  {
+    "key": "ear__MiiEar02__MiiEar02__Ear__mt_Ear__mt_Ear",
+    "kind": "material",
+    "family": "ear",
+    "resource": "MiiEar02",
+    "model": "MiiEar02",
+    "shape": "Ear__mt_Ear",
+    "material": "mt_Ear"
+  },
+  {
+    "key": "ear__MiiEar03__MiiEar03__Ear__mt_Ear__mt_Ear",
+    "kind": "material",
+    "family": "ear",
+    "resource": "MiiEar03",
+    "model": "MiiEar03",
+    "shape": "Ear__mt_Ear",
+    "material": "mt_Ear"
+  },
+  {
+    "key": "glass_frame__MiiGlass00__MiiGlass00__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass00",
+    "model": "MiiGlass00",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass00__MiiGlass00__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass00",
+    "model": "MiiGlass00",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass00__MiiGlass00__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass00",
+    "model": "MiiGlass00",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass02__MiiGlass02__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass02",
+    "model": "MiiGlass02",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass02__MiiGlass02__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass02",
+    "model": "MiiGlass02",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass02__MiiGlass02__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass02",
+    "model": "MiiGlass02",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass03__MiiGlass03__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass03",
+    "model": "MiiGlass03",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass03__MiiGlass03__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass03",
+    "model": "MiiGlass03",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass03__MiiGlass03__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass03",
+    "model": "MiiGlass03",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass04__MiiGlass04__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass04",
+    "model": "MiiGlass04",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass04__MiiGlass04__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass04",
+    "model": "MiiGlass04",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass04__MiiGlass04__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass04",
+    "model": "MiiGlass04",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass05__MiiGlass05__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass05",
+    "model": "MiiGlass05",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass05__MiiGlass05__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass05",
+    "model": "MiiGlass05",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass05__MiiGlass05__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass05",
+    "model": "MiiGlass05",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass06__MiiGlass06__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass06",
+    "model": "MiiGlass06",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass06__MiiGlass06__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass06",
+    "model": "MiiGlass06",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass06__MiiGlass06__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass06",
+    "model": "MiiGlass06",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass07__MiiGlass07__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass07",
+    "model": "MiiGlass07",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass07__MiiGlass07__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass07",
+    "model": "MiiGlass07",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass07__MiiGlass07__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass07",
+    "model": "MiiGlass07",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass08__MiiGlass08__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass08",
+    "model": "MiiGlass08",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass08__MiiGlass08__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass08",
+    "model": "MiiGlass08",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass08__MiiGlass08__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass08",
+    "model": "MiiGlass08",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass09__MiiGlass09__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass09",
+    "model": "MiiGlass09",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass09__MiiGlass09__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass09",
+    "model": "MiiGlass09",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass09__MiiGlass09__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass09",
+    "model": "MiiGlass09",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass10__MiiGlass10__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass10",
+    "model": "MiiGlass10",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass10__MiiGlass10__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass10",
+    "model": "MiiGlass10",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass10__MiiGlass10__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass10",
+    "model": "MiiGlass10",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "glass_frame__MiiGlass11__MiiGlass11__Flame__mt_Body__mt_Body",
+    "kind": "material",
+    "family": "glass_frame",
+    "resource": "MiiGlass11",
+    "model": "MiiGlass11",
+    "shape": "Flame__mt_Body",
+    "material": "mt_Body"
+  },
+  {
+    "key": "glass_lens_opaque__MiiGlass11__MiiGlass11__Opa__mt_LensOpa__mt_LensOpa",
+    "kind": "material",
+    "family": "glass_lens_opaque",
+    "resource": "MiiGlass11",
+    "model": "MiiGlass11",
+    "shape": "Opa__mt_LensOpa",
+    "material": "mt_LensOpa"
+  },
+  {
+    "key": "glass_lens_translucent__MiiGlass11__MiiGlass11__Trs__mt_LensTrs__mt_LensTrs",
+    "kind": "material",
+    "family": "glass_lens_translucent",
+    "resource": "MiiGlass11",
+    "model": "MiiGlass11",
+    "shape": "Trs__mt_LensTrs",
+    "material": "mt_LensTrs"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy000__MiiHairAllLegacy000__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy000",
+    "model": "MiiHairAllLegacy000",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy000__MiiHairAllLegacy000_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy000",
+    "model": "MiiHairAllLegacy000_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy000__MiiHairAllLegacyHat000__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy000",
+    "model": "MiiHairAllLegacyHat000",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy000__MiiHairAllLegacyHat000_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy000",
+    "model": "MiiHairAllLegacyHat000_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy001__MiiHairAllLegacy001__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy001",
+    "model": "MiiHairAllLegacy001",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy001__MiiHairAllLegacyHat001__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy001",
+    "model": "MiiHairAllLegacyHat001",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy002__MiiHairAllLegacy002__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy002",
+    "model": "MiiHairAllLegacy002",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy002__MiiHairAllLegacyHat002__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy002",
+    "model": "MiiHairAllLegacyHat002",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy003__MiiHairAllLegacy003__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy003",
+    "model": "MiiHairAllLegacy003",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy003__MiiHairAllLegacyHat003__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy003",
+    "model": "MiiHairAllLegacyHat003",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy004__MiiHairAllLegacy004__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy004",
+    "model": "MiiHairAllLegacy004",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy004__MiiHairAllLegacyHat004__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy004",
+    "model": "MiiHairAllLegacyHat004",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy005__MiiHairAllLegacy005__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy005",
+    "model": "MiiHairAllLegacy005",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy005__MiiHairAllLegacyHat005__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy005",
+    "model": "MiiHairAllLegacyHat005",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy006__MiiHairAllLegacy006__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy006",
+    "model": "MiiHairAllLegacy006",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy006__MiiHairAllLegacyHat006__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy006",
+    "model": "MiiHairAllLegacyHat006",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy007__MiiHairAllLegacy007__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy007",
+    "model": "MiiHairAllLegacy007",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy007__MiiHairAllLegacyHat007__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy007",
+    "model": "MiiHairAllLegacyHat007",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy008__MiiHairAllLegacy008__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy008",
+    "model": "MiiHairAllLegacy008",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy008__MiiHairAllLegacyHat008__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy008",
+    "model": "MiiHairAllLegacyHat008",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy009__MiiHairAllLegacy009__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy009",
+    "model": "MiiHairAllLegacy009",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy009__MiiHairAllLegacy009__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy009",
+    "model": "MiiHairAllLegacy009",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy009__MiiHairAllLegacyHat009__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy009",
+    "model": "MiiHairAllLegacyHat009",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy009__MiiHairAllLegacyHat009__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy009",
+    "model": "MiiHairAllLegacyHat009",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy010__MiiHairAllLegacy010__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy010",
+    "model": "MiiHairAllLegacy010",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy010__MiiHairAllLegacyHat010__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy010",
+    "model": "MiiHairAllLegacyHat010",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy011__MiiHairAllLegacy011__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy011",
+    "model": "MiiHairAllLegacy011",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy011__MiiHairAllLegacyHat011__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy011",
+    "model": "MiiHairAllLegacyHat011",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy012__MiiHairAllLegacy012__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy012",
+    "model": "MiiHairAllLegacy012",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy012__MiiHairAllLegacyHat012__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy012",
+    "model": "MiiHairAllLegacyHat012",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy013__MiiHairAllLegacy013__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy013",
+    "model": "MiiHairAllLegacy013",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy013__MiiHairAllLegacyHat013__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy013",
+    "model": "MiiHairAllLegacyHat013",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy014__MiiHairAllLegacy014__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy014",
+    "model": "MiiHairAllLegacy014",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy014__MiiHairAllLegacy014_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy014",
+    "model": "MiiHairAllLegacy014_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy014__MiiHairAllLegacyHat014__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy014",
+    "model": "MiiHairAllLegacyHat014",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy014__MiiHairAllLegacyHat014_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy014",
+    "model": "MiiHairAllLegacyHat014_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy015__MiiHairAllLegacy015__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy015",
+    "model": "MiiHairAllLegacy015",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy015__MiiHairAllLegacyHat015__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy015",
+    "model": "MiiHairAllLegacyHat015",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy016__MiiHairAllLegacy016__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy016",
+    "model": "MiiHairAllLegacy016",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy016__MiiHairAllLegacyHat016__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy016",
+    "model": "MiiHairAllLegacyHat016",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy017__MiiHairAllLegacy017__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy017",
+    "model": "MiiHairAllLegacy017",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy017__MiiHairAllLegacyHat017__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy017",
+    "model": "MiiHairAllLegacyHat017",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy018__MiiHairAllLegacy018__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy018",
+    "model": "MiiHairAllLegacy018",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy018__MiiHairAllLegacyHat018__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy018",
+    "model": "MiiHairAllLegacyHat018",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy019__MiiHairAllLegacy019__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy019",
+    "model": "MiiHairAllLegacy019",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy019__MiiHairAllLegacy019__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy019",
+    "model": "MiiHairAllLegacy019",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy019__MiiHairAllLegacy019_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy019",
+    "model": "MiiHairAllLegacy019_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy019__MiiHairAllLegacy019_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy019",
+    "model": "MiiHairAllLegacy019_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy019__MiiHairAllLegacyHat019__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy019",
+    "model": "MiiHairAllLegacyHat019",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy019__MiiHairAllLegacyHat019__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy019",
+    "model": "MiiHairAllLegacyHat019",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy019__MiiHairAllLegacyHat019_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy019",
+    "model": "MiiHairAllLegacyHat019_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy019__MiiHairAllLegacyHat019_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy019",
+    "model": "MiiHairAllLegacyHat019_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy020__MiiHairAllLegacy020__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy020",
+    "model": "MiiHairAllLegacy020",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy020__MiiHairAllLegacyHat020__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy020",
+    "model": "MiiHairAllLegacyHat020",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy021__MiiHairAllLegacy021__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy021",
+    "model": "MiiHairAllLegacy021",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy021__MiiHairAllLegacyHat021__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy021",
+    "model": "MiiHairAllLegacyHat021",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy022__MiiHairAllLegacy022__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy022",
+    "model": "MiiHairAllLegacy022",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy022__MiiHairAllLegacyHat022__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy022",
+    "model": "MiiHairAllLegacyHat022",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy023__MiiHairAllLegacy023__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy023",
+    "model": "MiiHairAllLegacy023",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy023__MiiHairAllLegacyHat023__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy023",
+    "model": "MiiHairAllLegacyHat023",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy024__MiiHairAllLegacy024__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy024",
+    "model": "MiiHairAllLegacy024",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy024__MiiHairAllLegacyHat024__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy024",
+    "model": "MiiHairAllLegacyHat024",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy025__MiiHairAllLegacy025__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy025",
+    "model": "MiiHairAllLegacy025",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy025__MiiHairAllLegacyHat025__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy025",
+    "model": "MiiHairAllLegacyHat025",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy026__MiiHairAllLegacy026__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy026",
+    "model": "MiiHairAllLegacy026",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy026__MiiHairAllLegacy026__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy026",
+    "model": "MiiHairAllLegacy026",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy026__MiiHairAllLegacyHat026__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy026",
+    "model": "MiiHairAllLegacyHat026",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy027__MiiHairAllLegacy027__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy027",
+    "model": "MiiHairAllLegacy027",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy027__MiiHairAllLegacyHat027__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy027",
+    "model": "MiiHairAllLegacyHat027",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy028__MiiHairAllLegacy028__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy028",
+    "model": "MiiHairAllLegacy028",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy028__MiiHairAllLegacyHat028__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy028",
+    "model": "MiiHairAllLegacyHat028",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy029__MiiHairAllLegacy029__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy029",
+    "model": "MiiHairAllLegacy029",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy029__MiiHairAllLegacyHat029__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy029",
+    "model": "MiiHairAllLegacyHat029",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy031__MiiHairAllLegacy031__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy031",
+    "model": "MiiHairAllLegacy031",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy031__MiiHairAllLegacyHat031__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy031",
+    "model": "MiiHairAllLegacyHat031",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy032__MiiHairAllLegacy032__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy032",
+    "model": "MiiHairAllLegacy032",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy032__MiiHairAllLegacyHat032__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy032",
+    "model": "MiiHairAllLegacyHat032",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy033__MiiHairAllLegacy033__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy033",
+    "model": "MiiHairAllLegacy033",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy033__MiiHairAllLegacyHat033__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy033",
+    "model": "MiiHairAllLegacyHat033",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy035__MiiHairAllLegacy035__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy035",
+    "model": "MiiHairAllLegacy035",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy035__MiiHairAllLegacyHat035__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy035",
+    "model": "MiiHairAllLegacyHat035",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy036__MiiHairAllLegacy036__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy036",
+    "model": "MiiHairAllLegacy036",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy036__MiiHairAllLegacyHat036__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy036",
+    "model": "MiiHairAllLegacyHat036",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy037__MiiHairAllLegacy037__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy037",
+    "model": "MiiHairAllLegacy037",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy037__MiiHairAllLegacyHat037__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy037",
+    "model": "MiiHairAllLegacyHat037",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy038__MiiHairAllLegacy038__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy038",
+    "model": "MiiHairAllLegacy038",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy038__MiiHairAllLegacyHat038__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy038",
+    "model": "MiiHairAllLegacyHat038",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy039__MiiHairAllLegacy039__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy039",
+    "model": "MiiHairAllLegacy039",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy039__MiiHairAllLegacyHat039__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy039",
+    "model": "MiiHairAllLegacyHat039",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy040__MiiHairAllLegacy040__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy040",
+    "model": "MiiHairAllLegacy040",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy040__MiiHairAllLegacyHat040__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy040",
+    "model": "MiiHairAllLegacyHat040",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy041__MiiHairAllLegacy041__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy041",
+    "model": "MiiHairAllLegacy041",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy041__MiiHairAllLegacyHat041__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy041",
+    "model": "MiiHairAllLegacyHat041",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy042__MiiHairAllLegacy042__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy042",
+    "model": "MiiHairAllLegacy042",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy042__MiiHairAllLegacyHat042__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy042",
+    "model": "MiiHairAllLegacyHat042",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy043__MiiHairAllLegacyHat043__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy043",
+    "model": "MiiHairAllLegacyHat043",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy044__MiiHairAllLegacy044__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy044",
+    "model": "MiiHairAllLegacy044",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy044__MiiHairAllLegacyHat044__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy044",
+    "model": "MiiHairAllLegacyHat044",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy045__MiiHairAllLegacy045__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy045",
+    "model": "MiiHairAllLegacy045",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy045__MiiHairAllLegacyHat045__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy045",
+    "model": "MiiHairAllLegacyHat045",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy046__MiiHairAllLegacy046__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy046",
+    "model": "MiiHairAllLegacy046",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy046__MiiHairAllLegacy046__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy046",
+    "model": "MiiHairAllLegacy046",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy046__MiiHairAllLegacy046_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy046",
+    "model": "MiiHairAllLegacy046_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy046__MiiHairAllLegacy046_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy046",
+    "model": "MiiHairAllLegacy046_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy046__MiiHairAllLegacyHat046__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy046",
+    "model": "MiiHairAllLegacyHat046",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy047__MiiHairAllLegacy047__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy047",
+    "model": "MiiHairAllLegacy047",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy047__MiiHairAllLegacyHat047__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy047",
+    "model": "MiiHairAllLegacyHat047",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy048__MiiHairAllLegacy048__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy048",
+    "model": "MiiHairAllLegacy048",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy048__MiiHairAllLegacyHat048__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy048",
+    "model": "MiiHairAllLegacyHat048",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy049__MiiHairAllLegacy049__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy049",
+    "model": "MiiHairAllLegacy049",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy049__MiiHairAllLegacyHat049__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy049",
+    "model": "MiiHairAllLegacyHat049",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy050__MiiHairAllLegacy050__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy050",
+    "model": "MiiHairAllLegacy050",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy050__MiiHairAllLegacyHat050__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy050",
+    "model": "MiiHairAllLegacyHat050",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy051__MiiHairAllLegacyHat051__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy051",
+    "model": "MiiHairAllLegacyHat051",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy052__MiiHairAllLegacy052__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy052",
+    "model": "MiiHairAllLegacy052",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy052__MiiHairAllLegacyHat052__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy052",
+    "model": "MiiHairAllLegacyHat052",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy053__MiiHairAllLegacy053__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy053",
+    "model": "MiiHairAllLegacy053",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy053__MiiHairAllLegacyHat053__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy053",
+    "model": "MiiHairAllLegacyHat053",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy054__MiiHairAllLegacy054__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy054",
+    "model": "MiiHairAllLegacy054",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy054__MiiHairAllLegacyHat054__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy054",
+    "model": "MiiHairAllLegacyHat054",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy055__MiiHairAllLegacy055__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy055",
+    "model": "MiiHairAllLegacy055",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy055__MiiHairAllLegacyHat055__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy055",
+    "model": "MiiHairAllLegacyHat055",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy056__MiiHairAllLegacy056__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy056",
+    "model": "MiiHairAllLegacy056",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy056__MiiHairAllLegacyHat056__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy056",
+    "model": "MiiHairAllLegacyHat056",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy058__MiiHairAllLegacy058__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy058",
+    "model": "MiiHairAllLegacy058",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy058__MiiHairAllLegacyHat058__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy058",
+    "model": "MiiHairAllLegacyHat058",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy059__MiiHairAllLegacy059__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy059",
+    "model": "MiiHairAllLegacy059",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy059__MiiHairAllLegacyHat059__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy059",
+    "model": "MiiHairAllLegacyHat059",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy060__MiiHairAllLegacy060__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy060",
+    "model": "MiiHairAllLegacy060",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy060__MiiHairAllLegacyHat060__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy060",
+    "model": "MiiHairAllLegacyHat060",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy061__MiiHairAllLegacy061__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy061",
+    "model": "MiiHairAllLegacy061",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy061__MiiHairAllLegacy061__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy061",
+    "model": "MiiHairAllLegacy061",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy061__MiiHairAllLegacy061_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy061",
+    "model": "MiiHairAllLegacy061_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy061__MiiHairAllLegacy061_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy061",
+    "model": "MiiHairAllLegacy061_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy061__MiiHairAllLegacyHat061__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy061",
+    "model": "MiiHairAllLegacyHat061",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy061__MiiHairAllLegacyHat061_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy061",
+    "model": "MiiHairAllLegacyHat061_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy062__MiiHairAllLegacy062__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy062",
+    "model": "MiiHairAllLegacy062",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy062__MiiHairAllLegacyHat062__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy062",
+    "model": "MiiHairAllLegacyHat062",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy063__MiiHairAllLegacy063__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy063",
+    "model": "MiiHairAllLegacy063",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy063__MiiHairAllLegacyHat063__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy063",
+    "model": "MiiHairAllLegacyHat063",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy064__MiiHairAllLegacy064__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy064",
+    "model": "MiiHairAllLegacy064",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy064__MiiHairAllLegacyHat064__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy064",
+    "model": "MiiHairAllLegacyHat064",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy065__MiiHairAllLegacy065__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy065",
+    "model": "MiiHairAllLegacy065",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy065__MiiHairAllLegacyHat065__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy065",
+    "model": "MiiHairAllLegacyHat065",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy066__MiiHairAllLegacy066__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy066",
+    "model": "MiiHairAllLegacy066",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy066__MiiHairAllLegacyHat066__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy066",
+    "model": "MiiHairAllLegacyHat066",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy067__MiiHairAllLegacy067__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy067",
+    "model": "MiiHairAllLegacy067",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy067__MiiHairAllLegacyHat067__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy067",
+    "model": "MiiHairAllLegacyHat067",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy068__MiiHairAllLegacyHat068__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy068",
+    "model": "MiiHairAllLegacyHat068",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy069__MiiHairAllLegacy069__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy069",
+    "model": "MiiHairAllLegacy069",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy069__MiiHairAllLegacyHat069__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy069",
+    "model": "MiiHairAllLegacyHat069",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy070__MiiHairAllLegacy070__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy070",
+    "model": "MiiHairAllLegacy070",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy070__MiiHairAllLegacyHat070__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy070",
+    "model": "MiiHairAllLegacyHat070",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy071__MiiHairAllLegacy071__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy071",
+    "model": "MiiHairAllLegacy071",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy071__MiiHairAllLegacy071_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy071",
+    "model": "MiiHairAllLegacy071_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy071__MiiHairAllLegacyHat071__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy071",
+    "model": "MiiHairAllLegacyHat071",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy071__MiiHairAllLegacyHat071_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy071",
+    "model": "MiiHairAllLegacyHat071_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy072__MiiHairAllLegacy072__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy072",
+    "model": "MiiHairAllLegacy072",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy072__MiiHairAllLegacyHat072__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy072",
+    "model": "MiiHairAllLegacyHat072",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy073__MiiHairAllLegacy073__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy073",
+    "model": "MiiHairAllLegacy073",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy073__MiiHairAllLegacyHat073__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy073",
+    "model": "MiiHairAllLegacyHat073",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy074__MiiHairAllLegacy074__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy074",
+    "model": "MiiHairAllLegacy074",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy074__MiiHairAllLegacyHat074__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy074",
+    "model": "MiiHairAllLegacyHat074",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy075__MiiHairAllLegacy075__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy075",
+    "model": "MiiHairAllLegacy075",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy075__MiiHairAllLegacyHat075__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy075",
+    "model": "MiiHairAllLegacyHat075",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy076__MiiHairAllLegacy076__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy076",
+    "model": "MiiHairAllLegacy076",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy076__MiiHairAllLegacyHat076__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy076",
+    "model": "MiiHairAllLegacyHat076",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy077__MiiHairAllLegacy077__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy077",
+    "model": "MiiHairAllLegacy077",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy077__MiiHairAllLegacy077__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy077",
+    "model": "MiiHairAllLegacy077",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy077__MiiHairAllLegacy077_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy077",
+    "model": "MiiHairAllLegacy077_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy077__MiiHairAllLegacy077_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy077",
+    "model": "MiiHairAllLegacy077_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy077__MiiHairAllLegacyHat077__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy077",
+    "model": "MiiHairAllLegacyHat077",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy078__MiiHairAllLegacy078__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy078",
+    "model": "MiiHairAllLegacy078",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy078__MiiHairAllLegacy078__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy078",
+    "model": "MiiHairAllLegacy078",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy078__MiiHairAllLegacy078_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy078",
+    "model": "MiiHairAllLegacy078_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy078__MiiHairAllLegacy078_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy078",
+    "model": "MiiHairAllLegacy078_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy078__MiiHairAllLegacyHat078__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy078",
+    "model": "MiiHairAllLegacyHat078",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy079__MiiHairAllLegacy079__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy079",
+    "model": "MiiHairAllLegacy079",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy079__MiiHairAllLegacyHat079__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy079",
+    "model": "MiiHairAllLegacyHat079",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy080__MiiHairAllLegacy080__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy080",
+    "model": "MiiHairAllLegacy080",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy080__MiiHairAllLegacyHat080__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy080",
+    "model": "MiiHairAllLegacyHat080",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy081__MiiHairAllLegacy081__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy081",
+    "model": "MiiHairAllLegacy081",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy081__MiiHairAllLegacyHat081__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy081",
+    "model": "MiiHairAllLegacyHat081",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy082__MiiHairAllLegacy082__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy082",
+    "model": "MiiHairAllLegacy082",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy082__MiiHairAllLegacyHat082__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy082",
+    "model": "MiiHairAllLegacyHat082",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy083__MiiHairAllLegacy083__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy083",
+    "model": "MiiHairAllLegacy083",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy083__MiiHairAllLegacyHat083__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy083",
+    "model": "MiiHairAllLegacyHat083",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy084__MiiHairAllLegacy084__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy084",
+    "model": "MiiHairAllLegacy084",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy084__MiiHairAllLegacy084__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy084",
+    "model": "MiiHairAllLegacy084",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy084__MiiHairAllLegacy084_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy084",
+    "model": "MiiHairAllLegacy084_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy084__MiiHairAllLegacy084_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy084",
+    "model": "MiiHairAllLegacy084_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy084__MiiHairAllLegacyHat084__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy084",
+    "model": "MiiHairAllLegacyHat084",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy084__MiiHairAllLegacyHat084__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy084",
+    "model": "MiiHairAllLegacyHat084",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy084__MiiHairAllLegacyHat084_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy084",
+    "model": "MiiHairAllLegacyHat084_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy084__MiiHairAllLegacyHat084_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy084",
+    "model": "MiiHairAllLegacyHat084_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy085__MiiHairAllLegacy085__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy085",
+    "model": "MiiHairAllLegacy085",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy085__MiiHairAllLegacy085_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy085",
+    "model": "MiiHairAllLegacy085_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy085__MiiHairAllLegacyHat085__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy085",
+    "model": "MiiHairAllLegacyHat085",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy085__MiiHairAllLegacyHat085_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy085",
+    "model": "MiiHairAllLegacyHat085_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy086__MiiHairAllLegacy086__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy086",
+    "model": "MiiHairAllLegacy086",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy086__MiiHairAllLegacyHat086__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy086",
+    "model": "MiiHairAllLegacyHat086",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy087__MiiHairAllLegacy087__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy087",
+    "model": "MiiHairAllLegacy087",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy087__MiiHairAllLegacyHat087__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy087",
+    "model": "MiiHairAllLegacyHat087",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy088__MiiHairAllLegacy088__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy088",
+    "model": "MiiHairAllLegacy088",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy088__MiiHairAllLegacyHat088__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy088",
+    "model": "MiiHairAllLegacyHat088",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy089__MiiHairAllLegacy089__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy089",
+    "model": "MiiHairAllLegacy089",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy089__MiiHairAllLegacyHat089__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy089",
+    "model": "MiiHairAllLegacyHat089",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy090__MiiHairAllLegacy090__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy090",
+    "model": "MiiHairAllLegacy090",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy090__MiiHairAllLegacyHat090__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy090",
+    "model": "MiiHairAllLegacyHat090",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy091__MiiHairAllLegacy091__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy091",
+    "model": "MiiHairAllLegacy091",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy091__MiiHairAllLegacyHat091__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy091",
+    "model": "MiiHairAllLegacyHat091",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy092__MiiHairAllLegacy092__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy092",
+    "model": "MiiHairAllLegacy092",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy092__MiiHairAllLegacyHat092__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy092",
+    "model": "MiiHairAllLegacyHat092",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy093__MiiHairAllLegacy093__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy093",
+    "model": "MiiHairAllLegacy093",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy093__MiiHairAllLegacy093_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy093",
+    "model": "MiiHairAllLegacy093_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy093__MiiHairAllLegacyHat093__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy093",
+    "model": "MiiHairAllLegacyHat093",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy093__MiiHairAllLegacyHat093_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy093",
+    "model": "MiiHairAllLegacyHat093_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy094__MiiHairAllLegacy094__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy094",
+    "model": "MiiHairAllLegacy094",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy094__MiiHairAllLegacyHat094__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy094",
+    "model": "MiiHairAllLegacyHat094",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy095__MiiHairAllLegacy095__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy095",
+    "model": "MiiHairAllLegacy095",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy095__MiiHairAllLegacyHat095__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy095",
+    "model": "MiiHairAllLegacyHat095",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy096__MiiHairAllLegacy096__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy096",
+    "model": "MiiHairAllLegacy096",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy096__MiiHairAllLegacy096_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy096",
+    "model": "MiiHairAllLegacy096_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy096__MiiHairAllLegacyHat096__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy096",
+    "model": "MiiHairAllLegacyHat096",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy096__MiiHairAllLegacyHat096_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy096",
+    "model": "MiiHairAllLegacyHat096_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy097__MiiHairAllLegacy097__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy097",
+    "model": "MiiHairAllLegacy097",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy097__MiiHairAllLegacy097__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy097",
+    "model": "MiiHairAllLegacy097",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy097__MiiHairAllLegacyHat097__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy097",
+    "model": "MiiHairAllLegacyHat097",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy097__MiiHairAllLegacyHat097__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy097",
+    "model": "MiiHairAllLegacyHat097",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy098__MiiHairAllLegacy098__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy098",
+    "model": "MiiHairAllLegacy098",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy098__MiiHairAllLegacyHat098__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy098",
+    "model": "MiiHairAllLegacyHat098",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy099__MiiHairAllLegacy099__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy099",
+    "model": "MiiHairAllLegacy099",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy099__MiiHairAllLegacyHat099__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy099",
+    "model": "MiiHairAllLegacyHat099",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy100__MiiHairAllLegacy100__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy100",
+    "model": "MiiHairAllLegacy100",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy100__MiiHairAllLegacyHat100__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy100",
+    "model": "MiiHairAllLegacyHat100",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy101__MiiHairAllLegacy101__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy101",
+    "model": "MiiHairAllLegacy101",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy101__MiiHairAllLegacy101_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy101",
+    "model": "MiiHairAllLegacy101_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy101__MiiHairAllLegacyHat101__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy101",
+    "model": "MiiHairAllLegacyHat101",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy101__MiiHairAllLegacyHat101_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy101",
+    "model": "MiiHairAllLegacyHat101_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy102__MiiHairAllLegacy102__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy102",
+    "model": "MiiHairAllLegacy102",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy102__MiiHairAllLegacyHat102__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy102",
+    "model": "MiiHairAllLegacyHat102",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy103__MiiHairAllLegacy103__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy103",
+    "model": "MiiHairAllLegacy103",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy103__MiiHairAllLegacyHat103__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy103",
+    "model": "MiiHairAllLegacyHat103",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy104__MiiHairAllLegacy104__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy104",
+    "model": "MiiHairAllLegacy104",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy104__MiiHairAllLegacy104__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy104",
+    "model": "MiiHairAllLegacy104",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy104__MiiHairAllLegacyHat104__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy104",
+    "model": "MiiHairAllLegacyHat104",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy104__MiiHairAllLegacyHat104__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy104",
+    "model": "MiiHairAllLegacyHat104",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy105__MiiHairAllLegacy105__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy105",
+    "model": "MiiHairAllLegacy105",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy105__MiiHairAllLegacyHat105__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy105",
+    "model": "MiiHairAllLegacyHat105",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy106__MiiHairAllLegacy106__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy106",
+    "model": "MiiHairAllLegacy106",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy106__MiiHairAllLegacyHat106__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy106",
+    "model": "MiiHairAllLegacyHat106",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy107__MiiHairAllLegacy107__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy107",
+    "model": "MiiHairAllLegacy107",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy107__MiiHairAllLegacyHat107__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy107",
+    "model": "MiiHairAllLegacyHat107",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy108__MiiHairAllLegacy108__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy108",
+    "model": "MiiHairAllLegacy108",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy108__MiiHairAllLegacyHat108__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy108",
+    "model": "MiiHairAllLegacyHat108",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy109__MiiHairAllLegacy109__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy109",
+    "model": "MiiHairAllLegacy109",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy109__MiiHairAllLegacy109__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy109",
+    "model": "MiiHairAllLegacy109",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy109__MiiHairAllLegacy109_Flip__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy109",
+    "model": "MiiHairAllLegacy109_Flip",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy109__MiiHairAllLegacy109_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy109",
+    "model": "MiiHairAllLegacy109_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy109__MiiHairAllLegacyHat109__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy109",
+    "model": "MiiHairAllLegacyHat109",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy110__MiiHairAllLegacy110__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy110",
+    "model": "MiiHairAllLegacy110",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy110__MiiHairAllLegacyHat110__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy110",
+    "model": "MiiHairAllLegacyHat110",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy111__MiiHairAllLegacy111__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy111",
+    "model": "MiiHairAllLegacy111",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy111__MiiHairAllLegacyHat111__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy111",
+    "model": "MiiHairAllLegacyHat111",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy112__MiiHairAllLegacy112__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy112",
+    "model": "MiiHairAllLegacy112",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy112__MiiHairAllLegacyHat112__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy112",
+    "model": "MiiHairAllLegacyHat112",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy113__MiiHairAllLegacy113__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy113",
+    "model": "MiiHairAllLegacy113",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy113__MiiHairAllLegacyHat113__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy113",
+    "model": "MiiHairAllLegacyHat113",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy114__MiiHairAllLegacy114__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy114",
+    "model": "MiiHairAllLegacy114",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy114__MiiHairAllLegacy114__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy114",
+    "model": "MiiHairAllLegacy114",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy114__MiiHairAllLegacyHat114__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy114",
+    "model": "MiiHairAllLegacyHat114",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy115__MiiHairAllLegacy115__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy115",
+    "model": "MiiHairAllLegacy115",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy115__MiiHairAllLegacyHat115__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy115",
+    "model": "MiiHairAllLegacyHat115",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy116__MiiHairAllLegacy116__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy116",
+    "model": "MiiHairAllLegacy116",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy116__MiiHairAllLegacyHat116__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy116",
+    "model": "MiiHairAllLegacyHat116",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy117__MiiHairAllLegacy117__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy117",
+    "model": "MiiHairAllLegacy117",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy117__MiiHairAllLegacyHat117__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy117",
+    "model": "MiiHairAllLegacyHat117",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy118__MiiHairAllLegacy118__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy118",
+    "model": "MiiHairAllLegacy118",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy118__MiiHairAllLegacyHat118__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy118",
+    "model": "MiiHairAllLegacyHat118",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy119__MiiHairAllLegacy119__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy119",
+    "model": "MiiHairAllLegacy119",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy119__MiiHairAllLegacyHat119__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy119",
+    "model": "MiiHairAllLegacyHat119",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy120__MiiHairAllLegacy120__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy120",
+    "model": "MiiHairAllLegacy120",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy120__MiiHairAllLegacyHat120__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy120",
+    "model": "MiiHairAllLegacyHat120",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy121__MiiHairAllLegacy121__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy121",
+    "model": "MiiHairAllLegacy121",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy121__MiiHairAllLegacyHat121__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy121",
+    "model": "MiiHairAllLegacyHat121",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy122__MiiHairAllLegacy122__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy122",
+    "model": "MiiHairAllLegacy122",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy122__MiiHairAllLegacyHat122__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy122",
+    "model": "MiiHairAllLegacyHat122",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy123__MiiHairAllLegacy123__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy123",
+    "model": "MiiHairAllLegacy123",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy123__MiiHairAllLegacy123_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy123",
+    "model": "MiiHairAllLegacy123_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy123__MiiHairAllLegacyHat123__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy123",
+    "model": "MiiHairAllLegacyHat123",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy123__MiiHairAllLegacyHat123_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy123",
+    "model": "MiiHairAllLegacyHat123_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy124__MiiHairAllLegacy124__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy124",
+    "model": "MiiHairAllLegacy124",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy124__MiiHairAllLegacyHat124__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy124",
+    "model": "MiiHairAllLegacyHat124",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy125__MiiHairAllLegacy125__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy125",
+    "model": "MiiHairAllLegacy125",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy125__MiiHairAllLegacyHat125__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy125",
+    "model": "MiiHairAllLegacyHat125",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy126__MiiHairAllLegacy126__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy126",
+    "model": "MiiHairAllLegacy126",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy126__MiiHairAllLegacy126__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy126",
+    "model": "MiiHairAllLegacy126",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy126__MiiHairAllLegacyHat126__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy126",
+    "model": "MiiHairAllLegacyHat126",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy127__MiiHairAllLegacy127__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy127",
+    "model": "MiiHairAllLegacy127",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy127__MiiHairAllLegacyHat127__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy127",
+    "model": "MiiHairAllLegacyHat127",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy128__MiiHairAllLegacy128__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy128",
+    "model": "MiiHairAllLegacy128",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy128__MiiHairAllLegacy128_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy128",
+    "model": "MiiHairAllLegacy128_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy128__MiiHairAllLegacyHat128__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy128",
+    "model": "MiiHairAllLegacyHat128",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy128__MiiHairAllLegacyHat128_Flip__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy128",
+    "model": "MiiHairAllLegacyHat128_Flip",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy129__MiiHairAllLegacy129__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy129",
+    "model": "MiiHairAllLegacy129",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy129__MiiHairAllLegacyHat129__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy129",
+    "model": "MiiHairAllLegacyHat129",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy130__MiiHairAllLegacy130__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy130",
+    "model": "MiiHairAllLegacy130",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy130__MiiHairAllLegacy130__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy130",
+    "model": "MiiHairAllLegacy130",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "decoration__MiiHairAllLegacy130__MiiHairAllLegacyHat130__Decoration__mt_Decoration__mt_Decoration",
+    "kind": "material",
+    "family": "decoration",
+    "resource": "MiiHairAllLegacy130",
+    "model": "MiiHairAllLegacyHat130",
+    "shape": "Decoration__mt_Decoration",
+    "material": "mt_Decoration"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy130__MiiHairAllLegacyHat130__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy130",
+    "model": "MiiHairAllLegacyHat130",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy131__MiiHairAllLegacy131__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy131",
+    "model": "MiiHairAllLegacy131",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairAllLegacy131__MiiHairAllLegacyHat131__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairAllLegacy131",
+    "model": "MiiHairAllLegacyHat131",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairBack000__MiiHairBack000__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairBack000",
+    "model": "MiiHairBack000",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairBack000__MiiHairBackHat000__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairBack000",
+    "model": "MiiHairBackHat000",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairFront000__MiiHairFront000__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairFront000",
+    "model": "MiiHairFront000",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairFront000__MiiHairFrontHat000__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairFront000",
+    "model": "MiiHairFrontHat000",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairFront029__MiiHairFront029__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairFront029",
+    "model": "MiiHairFront029",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "hair__MiiHairFront029__MiiHairFrontHat029__Hair__mt_Hair__mt_Hair",
+    "kind": "hair",
+    "family": "hair",
+    "resource": "MiiHairFront029",
+    "model": "MiiHairFrontHat029",
+    "shape": "Hair__mt_Hair",
+    "material": "mt_Hair"
+  },
+  {
+    "key": "head__MiiHead01__MiiHead01__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead01",
+    "model": "MiiHead01",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead01__MiiHead01__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead01",
+    "model": "MiiHead01",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead02__MiiHead02__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead02",
+    "model": "MiiHead02",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead02__MiiHead02__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead02",
+    "model": "MiiHead02",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead03__MiiHead03__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead03",
+    "model": "MiiHead03",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead03__MiiHead03__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead03",
+    "model": "MiiHead03",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead04__MiiHead04__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead04",
+    "model": "MiiHead04",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead04__MiiHead04__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead04",
+    "model": "MiiHead04",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead05__MiiHead05__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead05",
+    "model": "MiiHead05",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead05__MiiHead05__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead05",
+    "model": "MiiHead05",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead06__MiiHead06__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead06",
+    "model": "MiiHead06",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead06__MiiHead06__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead06",
+    "model": "MiiHead06",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead07__MiiHead07__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead07",
+    "model": "MiiHead07",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead07__MiiHead07__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead07",
+    "model": "MiiHead07",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead08__MiiHead08__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead08",
+    "model": "MiiHead08",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead08__MiiHead08__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead08",
+    "model": "MiiHead08",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead09__MiiHead09__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead09",
+    "model": "MiiHead09",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead09__MiiHead09__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead09",
+    "model": "MiiHead09",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead10__MiiHead10__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead10",
+    "model": "MiiHead10",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead10__MiiHead10__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead10",
+    "model": "MiiHead10",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead11__MiiHead11__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead11",
+    "model": "MiiHead11",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead11__MiiHead11__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead11",
+    "model": "MiiHead11",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "head__MiiHead14__MiiHead14__Head__mt_Head__mt_Head",
+    "kind": "material",
+    "family": "head",
+    "resource": "MiiHead14",
+    "model": "MiiHead14",
+    "shape": "Head__mt_Head",
+    "material": "mt_Head"
+  },
+  {
+    "key": "face_mask__MiiHead14__MiiHead14__Mask__mt_Mask__mt_Mask",
+    "kind": "material",
+    "family": "face_mask",
+    "resource": "MiiHead14",
+    "model": "MiiHead14",
+    "shape": "Mask__mt_Mask",
+    "material": "mt_Mask"
+  },
+  {
+    "key": "nose_line__MiiNose00__MiiNose00__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose00",
+    "model": "MiiNose00",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose_line__MiiNose02__MiiNose02__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose02",
+    "model": "MiiNose02",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose_line__MiiNose03__MiiNose03__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose03",
+    "model": "MiiNose03",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose03__MiiNose03__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose03",
+    "model": "MiiNose03",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose04__MiiNose04__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose04",
+    "model": "MiiNose04",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose04__MiiNose04__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose04",
+    "model": "MiiNose04",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose05__MiiNose05__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose05",
+    "model": "MiiNose05",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose05__MiiNose05__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose05",
+    "model": "MiiNose05",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose06__MiiNose06__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose06",
+    "model": "MiiNose06",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose06__MiiNose06__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose06",
+    "model": "MiiNose06",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose07__MiiNose07__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose07",
+    "model": "MiiNose07",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose07__MiiNose07__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose07",
+    "model": "MiiNose07",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose08__MiiNose08__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose08",
+    "model": "MiiNose08",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose08__MiiNose08__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose08",
+    "model": "MiiNose08",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose09__MiiNose09__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose09",
+    "model": "MiiNose09",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose09__MiiNose09__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose09",
+    "model": "MiiNose09",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose10__MiiNose10__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose10",
+    "model": "MiiNose10",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose10__MiiNose10__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose10",
+    "model": "MiiNose10",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose11__MiiNose11__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose11",
+    "model": "MiiNose11",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose11__MiiNose11__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose11",
+    "model": "MiiNose11",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose12__MiiNose12__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose12",
+    "model": "MiiNose12",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose12__MiiNose12__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose12",
+    "model": "MiiNose12",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose13__MiiNose13__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose13",
+    "model": "MiiNose13",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose13__MiiNose13__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose13",
+    "model": "MiiNose13",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose14__MiiNose14__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose14",
+    "model": "MiiNose14",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose14__MiiNose14__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose14",
+    "model": "MiiNose14",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose15__MiiNose15__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose15",
+    "model": "MiiNose15",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose15__MiiNose15__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose15",
+    "model": "MiiNose15",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose16__MiiNose16__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose16",
+    "model": "MiiNose16",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose16__MiiNose16__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose16",
+    "model": "MiiNose16",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  },
+  {
+    "key": "nose_line__MiiNose17__MiiNose17__NoseLine__mt_NoseLine__mt_NoseLine",
+    "kind": "material",
+    "family": "nose_line",
+    "resource": "MiiNose17",
+    "model": "MiiNose17",
+    "shape": "NoseLine__mt_NoseLine",
+    "material": "mt_NoseLine"
+  },
+  {
+    "key": "nose__MiiNose17__MiiNose17__Nose__mt_Nose__mt_Nose",
+    "kind": "material",
+    "family": "nose",
+    "resource": "MiiNose17",
+    "model": "MiiNose17",
+    "shape": "Nose__mt_Nose",
+    "material": "mt_Nose"
+  }
+]

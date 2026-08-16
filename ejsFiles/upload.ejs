@@ -3,7 +3,7 @@
     <head>
         <%
         const pageTitle = 'Upload Mii Character - InfiniMii';
-        const pageDesc = 'Share your custom Mii characters with the InfiniMii community. Upload Miis from Wii, 3DS, Wii U, or scan QR codes to contribute to our growing repository.';
+        const pageDesc = 'Upload an LTD file or another supported Mii format. Original LTD files stay unchanged; older formats are converted to LTD.';
         const canonicalUrl = `${baseUrl}/upload`;
         const keywords = 'upload mii, share mii, mii community, submit mii character';
         const pageRobots = 'noindex, nofollow, noarchive';
@@ -22,11 +22,11 @@
             <%- include('sidebar') %>
             <article class='upload utility-container'>
                 <fieldset>
-                    <legend>Upload a Mii to InfiniMii</legend>
+                    <legend>Upload a Mii</legend>
                     <% if (fromAmiibo) { %>
                         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin-bottom: 20px; color: white;">
                             <h4 style="margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px;">
-                                Uploading Mii Extracted from Amiibo
+                                Upload a Mii from Amiibo
                             </h4>
                             <div style="display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
                                 <img src="/miiImgs/<%= fromAmiibo.id %>.png" alt="<%= fromAmiibo.name %> extracted Mii preview" width="100" height="100" loading="eager" decoding="async" style="width: 100px; height: 100px; border-radius: 8px; border: 3px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
@@ -41,14 +41,15 @@
                         </div>
                     <% } %>
                     <div class="upload-instructions">
-                        <h3>Before You Upload:</h3>
+                        <h3>Before you upload</h3>
                         <ul>
-                            <li>Upload any supported Mii file format - InfiniMii will auto-detect it</li>
-                            <li>Provide a clear, descriptive name and description</li>
-                            <li>Be respectful and follow community guidelines</li>
-                            <li>Miis uploaded are private to start, you can publish them to the public <a href="/MyPrivateMiis">here</a>.</li>
+                            <li>Upload an LTD file or another supported Mii file. InfiniMii detects the format.</li>
+                            <li>Original <code>.ltd</code> files stay unchanged. Other supported files are converted to LTD.</li>
+                            <li>Add a clear name and description.</li>
+                            <li>Follow the community guidelines.</li>
+                            <li>New uploads are private. You can publish them from <a href="/MyPrivateMiis">your private Miis</a>.</li>
                             <% if (isResearcher) { %>
-                                <li>Official uploads are available in the dedicated Researcher form below.</li>
+                                <li>Use the researcher form below for official Miis.</li>
                             <% } %>
                         </ul>
                     </div>
@@ -68,7 +69,8 @@
                             <% if (!fromAmiibo) { %>
                                 <div class="format-hint">
                                     <strong>Supported file inputs:</strong><br>
-                                    &bull; Any Mii file format supported by MiiJS (Wii/DS/3DS/Wii U/Switch/etc.)<br>
+                                    &bull; Native Living the Dream ShareMii files (<code>.ltd</code>)<br>
+                                    &bull; Other Mii formats supported by MiiJS (Wii/DS/3DS/Wii U/Switch/etc.), converted to LTD<br>
                                     &bull; QR code images (.png, .jpg)
                                 </div>
 
@@ -117,9 +119,9 @@
                         <legend><%- include('icon', { name: 'flask', size: 18, class: 'icon-inline' }) %> Upload Official Mii</legend>
 
                         <div class="official-upload-intro">
-                            <p><strong>Researchers and Administrators only.</strong> Source-managed uploads are always published immediately. Company sources become Official Miis; Community stays Community while remaining researcher-managed.</p>
-                            <p>Choose an existing source or create a new one. If a new source name conflicts with an existing account, the upload will use Nintendo and admins will be notified.</p>
-                            <p>You can upload one source-managed Mii file at a time, or a single <code>.zip</code> containing multiple Mii files. The description, source, and categories below will be applied to every Mii in that zip.</p>
+                            <p><strong>For researchers and administrators.</strong> These uploads are published immediately. Company sources are listed as Official; the Community source remains Community.</p>
+                            <p>Choose an existing source or create one. If a new source name matches an account, InfiniMii assigns Nintendo as the source and alerts administrators.</p>
+                            <p>Upload one Mii file or one <code>.zip</code> containing several Mii files. The description, source, and categories apply to every Mii in the archive.</p>
                         </div>
 
                         <form action="/uploadMii" method="post" enctype="multipart/form-data" id="officialUploadForm" class="upload-form-panel official-upload-form">
@@ -195,7 +197,7 @@
                             <div class="official-upload-actions">
                                 <input type="submit" value="Upload Official Mii">
                                 <button type="submit" name="reuploadExistingMii" value="true" formnovalidate class="official-reupload-button">
-                                    Reupload Over Existing
+                                    Replace Existing Upload
                                 </button>
                             </div>
                         </form>

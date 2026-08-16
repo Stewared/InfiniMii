@@ -2,8 +2,15 @@
 <html lang="en">
     <head>
         <%
-        const pageTitle = 'About InfiniMii - The Ultimate Mii Character Platform';
-        const pageDesc = 'InfiniMii is the most comprehensive Mii character repository and toolkit. Convert, share, and download Miis for all Nintendo systems. Learn about our mission and features.';
+        const aboutExportValues = (Array.isArray(exportFormats) ? exportFormats : [])
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const aboutLegacyExportsEnabled = aboutExportValues.some((value) => value !== 'ltd');
+        const aboutQrExportsEnabled = aboutExportValues.includes('qr');
+        const pageTitle = 'About InfiniMii - Mii Archive and Tools';
+        const pageDesc = aboutLegacyExportsEnabled
+            ? 'InfiniMii is a Mii archive with sharing, rendering, file conversion, and transfer guides.'
+            : 'InfiniMii is a Mii archive with sharing, LTD previews, file conversion, and transfer guides.';
         const canonicalUrl = `${baseUrl}/about`;
         const keywords = 'about infinimii, mii platform, mii repository, mii community';
         const breadcrumbs = [
@@ -36,16 +43,18 @@
                 
                 <article class="intro-article">
                     <h1>About InfiniMii</h1>
-                    <p class="lead">InfiniMii is the most comprehensive platform for Mii characters, supporting every Nintendo system from the original Wii to the Nintendo Switch 2 and beyond. Convert to and from any format, generate and read QR codes, work with Miis stored on Amiibos, make Special Miis, store, share, and download Miis, and more! All without ever modding your console! InfiniMii is the number one tool for Miis.</p>
+                    <p class="lead"><%= aboutLegacyExportsEnabled
+                        ? 'InfiniMii archives Mii characters and provides tools for sharing, rendering, file conversion, and transfers between Nintendo systems.'
+                        : 'InfiniMii archives Mii characters and provides tools for sharing, rendering, and transfers. Original LTD files remain unchanged, while Miis from other systems can use compatible conversion options.' %></p>
                 </article>
                 
                 <article class="features-article">
-                    <h2>What Makes InfiniMii Special</h2>
+                    <h2>What InfiniMii does</h2>
                     
                     <div class="feature-grid">
                         <div class="feature-card">
-                            <h3><%- include('icon', { name: 'gamepad', size: 20, class: 'icon-inline icon-primary' }) %> Universal Compatibility</h3>
-                            <p>Works with Miis from <strong>all Nintendo systems</strong>:</p>
+                            <h3><%- include('icon', { name: 'gamepad', size: 20, class: 'icon-inline icon-primary' }) %> Supported systems</h3>
+                            <p>InfiniMii works with Miis from these Nintendo systems and services:</p>
                             <ul>
                                 <li>Nintendo DS</li>
                                 <li>Nintendo Wii</li>
@@ -58,12 +67,13 @@
                                 <li>Tomodachi Life</li>
                                 <li>Miitomo</li>
                             </ul>
-                            <a href="/transferInstructions">See our Transfer Guide to learn more!</a>
+                            <a href="/transferInstructions">Read the transfer guide</a>
                         </div>
                         
                         <div class="feature-card">
-                            <h3><%- include('icon', { name: 'refresh', size: 20, class: 'icon-inline icon-primary' }) %> Advanced Conversion</h3>
-                            <p>Convert Miis between <strong>any format</strong>, including:</p>
+                            <h3><%- include('icon', { name: 'refresh', size: 20, class: 'icon-inline icon-primary' }) %> File conversion</h3>
+                            <p><%= aboutLegacyExportsEnabled ? 'Available conversion tools include:' : 'Supported Mii files can be converted to LTD from:' %></p>
+                            <% if (aboutLegacyExportsEnabled) { %>
                             <ul>
                                 <li>Wii ↔ 3DS/Wii U backporting</li>
                                 <li>QR code generation</li>
@@ -72,11 +82,19 @@
                                 <li>Extract Miis from and insert Miis into Amiibo files</li>
                                 <li>Lossless conversion where possible</li>
                             </ul>
+                            <% } else { %>
+                                <ul>
+                                    <li>Wii, 3DS, Wii U, Switch, and related source formats</li>
+                                    <li>Binary Mii file conversion</li>
+                                    <li>Extract Miis from Amiibo files</li>
+                                    <li>Appearance data retained when the source format allows it</li>
+                                </ul>
+                            <% } %>
                         </div>
                         
                         <div class="feature-card">
-                            <h3><%- include('icon', { name: 'book-open', size: 20, class: 'icon-inline icon-primary' }) %> Massive Repository</h3>
-                            <p>Access thousands of Miis including:</p>
+                            <h3><%- include('icon', { name: 'book-open', size: 20, class: 'icon-inline icon-primary' }) %> Mii archive</h3>
+                            <p>Browse:</p>
                             <ul>
                                 <li>Official Nintendo Miis from games</li>
                                 <li>Community-created characters</li>
@@ -87,19 +105,23 @@
                         </div>
                         
                         <div class="feature-card">
-                            <h3><%- include('icon', { name: 'qr-code', size: 20, class: 'icon-inline icon-primary' }) %> QR Code Support</h3>
-                            <p>Full QR code functionality:</p>
+                            <h3><%- include('icon', { name: 'qr-code', size: 20, class: 'icon-inline icon-primary' }) %> QR code <%= aboutQrExportsEnabled ? 'tools' : 'input' %></h3>
+                            <p><%= aboutQrExportsEnabled ? 'Read and create compatible Mii QR codes:' : 'Start with a compatible Mii QR code:' %></p>
                             <ul>
                                 <li>Scan QR codes from images</li>
-                                <li>Generate QR codes for any Mii</li>
-                                <li>3DS/Wii U compatible</li>
-                                <li>Works with all official Mii QR formats</li>
+                                <% if (aboutQrExportsEnabled) { %>
+                                    <li>Generate compatible QR codes</li>
+                                    <li>3DS/Wii U workflows</li>
+                                <% } else { %>
+                                    <li>Convert decoded Miis to LTD</li>
+                                    <li>Upload decoded Miis to InfiniMii</li>
+                                <% } %>
                             </ul>
                         </div>
                         
                         <div class="feature-card">
-                            <h3><%- include('icon', { name: 'lock', size: 20, class: 'icon-inline icon-primary' }) %> Personal Mii Bank</h3>
-                            <p>Your private Mii collection:</p>
+                            <h3><%- include('icon', { name: 'lock', size: 20, class: 'icon-inline icon-primary' }) %> Private Mii collection</h3>
+                            <p>Keep Miis private until you choose to publish them:</p>
                             <ul>
                                 <li>Store Miis privately online</li>
                                 <li>Access from any device</li>
@@ -113,13 +135,13 @@
                 
                 <article class="average-mii-article">
                     <h2>The Average Mii</h2>
-                    <p>One of InfiniMii's unique features is <strong>The Average Mii</strong> - a statistically calculated Mii that represents the most common characteristics across all Miis in our database. This is the closest representation of "John Doe" or "Jane Doe" in Mii form, updated regularly as new Miis are added.</p>
+                    <p><strong>The Average Mii</strong> uses the most common feature choices and placements among Miis in the database. It is recalculated as the collection changes.</p>
                     <a href="/mii/average" class="btn-primary">View the Average Mii</a>
                 </article>
                 
                 <!--article class="community-article">
                     <h2>Join the Community</h2>
-                    <p>InfiniMii is more than just a tool - it's a community of Mii enthusiasts.</p>
+                    <p>InfiniMii is built by people who make, share, and document Miis.</p>
                     <ul>
                         <li><strong>Monthly Contests</strong> - Create Miis based on themes, with top submissions featured</li>
                         <li><strong>Official Mii Research</strong> - Apply here to help document official Miis</li>
@@ -131,14 +153,14 @@
                 
                 <article class="technology-article">
                     <h2>Built with MiiJS</h2>
-                    <p>InfiniMii is powered by <strong>MiiJS</strong>, an open-source JavaScript library for Mii manipulation by the same developers. MiiJS enables:</p>
+                    <p>InfiniMii uses <strong>MiiJS</strong>, an open-source JavaScript library for reading and writing Mii data, alongside a renderer based on recovered LTD source code. They support:</p>
                     <ul>
-                        <li>Reading and writing all Mii formats</li>
-                        <li>High-quality 3D rendering</li>
-                        <li>QR code generation and parsing</li>
-                        <li>Format conversion with maximum fidelity</li>
-                        <li>Generate recreation instructions</li>
-                        <li>Do everything InfiniMii does, from your own project!</li>
+                        <li>Reading and writing supported Mii formats, including LTD</li>
+                        <li>Transparent LTD previews for compatible Miis; files that use unverified data receive no generated preview</li>
+                        <li>Reading and creating QR codes</li>
+                        <li>Format conversion while retaining supported data</li>
+                        <li>Creating recreation instructions</li>
+                        <li>Using the same Mii tools in other projects</li>
                     </ul>
                     <p>MiiJS is available on GitHub and NPM for developers who want to build their own Mii applications.</p>
                     <a href="https://github.com/Stewared/MiiJS" class="btn-secondary" target="_blank" rel="noopener noreferrer">View MiiJS on GitHub</a>
@@ -146,7 +168,7 @@
 
                 <article class="open-source-article">
                     <h2>Open Source</h2>
-                    <p>InfiniMii and the library that powers it, MiiJS, are both fully free and open source! You can see how everything works and contribute changes! With no ads or premium tiers to unlock functionality, InfiniMii is the perfect tool and Social Miidia to add to your arsenal.</p>
+                    <p>InfiniMii and MiiJS are free and open source. Their code is available to inspect and contribute to. InfiniMii has no ads or paid feature tiers.</p>
                 </article>
                 
                 <article class="disclaimer-article">

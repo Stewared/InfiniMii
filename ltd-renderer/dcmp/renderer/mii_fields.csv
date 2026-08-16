@@ -1,0 +1,158 @@
+field_id,path,offset,offset_hex,length,storage_type,raw_hex,decoded_value,meaning
+field_000,header.version,0,0x000,1,u8,02,2,ShareMii schema version
+field_001,header.has_canvas,1,0x001,1,bool/u8,00,false,embedded canvas payload follows marker
+field_002,header.has_ugc_texture,2,0x002,1,bool/u8,00,false,embedded UGC texture follows marker
+field_003,header.reserved,3,0x003,1,u8,00,0,reserved v2 header byte
+field_004,header.legacy_padding,4,0x004,1,u8,00,0,legacy v2 compatibility padding
+field_005,header.char_info_length,5,0x005,4,u32le,98000000,152,CharInfoEx payload byte length
+field_006,char_info.uuid,9,0x009,16,uuid[16],f0bc12c0e4252d2d878306ddf63d9341,f0bc12c0-e425-2d2d-8783-06ddf63d9341,Mii creation identifier
+field_007,char_info.name,25,0x019,22,utf16le[11],6e006f0020006e0061006d0065000000000000000000,no name,internal CharInfoEx name
+field_008,char_info.font_region,47,0x02f,1,u8,00,0,named CharInfoEx appearance field
+field_009,char_info.gender,48,0x030,1,u8,00,0,named CharInfoEx appearance field
+field_010,char_info.height,49,0x031,1,u8,6b,107,named CharInfoEx appearance field
+field_011,char_info.build,50,0x032,1,u8,69,105,named CharInfoEx appearance field
+field_012,char_info.region_move,51,0x033,1,u8,00,0,named CharInfoEx appearance field
+field_013,char_info.face_flags_raw,52,0x034,1,u8,00,0,named CharInfoEx appearance field
+field_014,char_info.faceline_type,53,0x035,1,u8,00,0,named CharInfoEx appearance field
+field_015,char_info.faceline_color,54,0x036,1,u8,64,100,named CharInfoEx appearance field
+field_016,char_info.wrinkle_lower_type,55,0x037,1,u8,00,0,named CharInfoEx appearance field
+field_017,char_info.wrinkle_lower_scale,56,0x038,1,u8,05,5,named CharInfoEx appearance field
+field_018,char_info.wrinkle_lower_aspect,57,0x039,1,u8,03,3,named CharInfoEx appearance field
+field_019,char_info.wrinkle_lower_x,58,0x03a,1,u8,01,1,named CharInfoEx appearance field
+field_020,char_info.wrinkle_lower_y,59,0x03b,1,u8,0f,15,named CharInfoEx appearance field
+field_021,char_info.wrinkle_upper_type,60,0x03c,1,u8,00,0,named CharInfoEx appearance field
+field_022,char_info.wrinkle_upper_scale,61,0x03d,1,u8,06,6,named CharInfoEx appearance field
+field_023,char_info.wrinkle_upper_aspect,62,0x03e,1,u8,03,3,named CharInfoEx appearance field
+field_024,char_info.wrinkle_upper_x,63,0x03f,1,u8,07,7,named CharInfoEx appearance field
+field_025,char_info.wrinkle_upper_y,64,0x040,1,u8,17,23,named CharInfoEx appearance field
+field_026,char_info.makeup_upper_type,65,0x041,1,u8,00,0,named CharInfoEx appearance field
+field_027,char_info.makeup_upper_color,66,0x042,1,u8,59,89,named CharInfoEx appearance field
+field_028,char_info.makeup_upper_scale,67,0x043,1,u8,06,6,named CharInfoEx appearance field
+field_029,char_info.makeup_upper_aspect,68,0x044,1,u8,03,3,named CharInfoEx appearance field
+field_030,char_info.makeup_upper_x,69,0x045,1,u8,01,1,named CharInfoEx appearance field
+field_031,char_info.makeup_upper_y,70,0x046,1,u8,0c,12,named CharInfoEx appearance field
+field_032,char_info.makeup_lower_type,71,0x047,1,u8,00,0,named CharInfoEx appearance field
+field_033,char_info.makeup_lower_color,72,0x048,1,u8,19,25,named CharInfoEx appearance field
+field_034,char_info.makeup_lower_scale,73,0x049,1,u8,05,5,named CharInfoEx appearance field
+field_035,char_info.makeup_lower_aspect,74,0x04a,1,u8,03,3,named CharInfoEx appearance field
+field_036,char_info.makeup_lower_x,75,0x04b,1,u8,06,6,named CharInfoEx appearance field
+field_037,char_info.makeup_lower_y,76,0x04c,1,u8,13,19,named CharInfoEx appearance field
+field_038,char_info.hair_type,77,0x04d,2,u16le,7900,121,hair PartsIndex selector
+field_039,char_info.hair_color_primary,79,0x04f,1,u8,01,1,named CharInfoEx appearance field
+field_040,char_info.hair_color_secondary,80,0x050,1,u8,01,1,named CharInfoEx appearance field
+field_041,char_info.hair_front_type,81,0x051,1,u8,00,0,named CharInfoEx appearance field
+field_042,char_info.hair_back_type,82,0x052,1,u8,00,0,named CharInfoEx appearance field
+field_043,char_info.hair_style_flags_raw,83,0x053,1,u8,00,0,named CharInfoEx appearance field
+field_044,char_info.ear_type,84,0x054,1,u8,01,1,named CharInfoEx appearance field
+field_045,char_info.ear_scale,85,0x055,1,u8,02,2,named CharInfoEx appearance field
+field_046,char_info.ear_y,86,0x056,1,u8,04,4,named CharInfoEx appearance field
+field_047,char_info.eye_type,87,0x057,1,u8,02,2,named CharInfoEx appearance field
+field_048,char_info.eye_color,88,0x058,1,u8,32,50,named CharInfoEx appearance field
+field_049,char_info.eye_scale,89,0x059,1,u8,03,3,named CharInfoEx appearance field
+field_050,char_info.eye_aspect,90,0x05a,1,u8,02,2,named CharInfoEx appearance field
+field_051,char_info.eye_rotate,91,0x05b,1,u8,04,4,named CharInfoEx appearance field
+field_052,char_info.eye_x,92,0x05c,1,u8,02,2,named CharInfoEx appearance field
+field_053,char_info.eye_y,93,0x05d,1,u8,0c,12,named CharInfoEx appearance field
+field_054,char_info.eye_shadow_color,94,0x05e,1,u8,40,64,named CharInfoEx appearance field
+field_055,char_info.eye_highlight_type,95,0x05f,1,u8,00,0,named CharInfoEx appearance field
+field_056,char_info.eye_highlight_scale,96,0x060,1,u8,00,0,named CharInfoEx appearance field
+field_057,char_info.eye_highlight_aspect,97,0x061,1,u8,00,0,named CharInfoEx appearance field
+field_058,char_info.eye_highlight_rotate,98,0x062,1,u8,00,0,named CharInfoEx appearance field
+field_059,char_info.eye_highlight_x,99,0x063,1,u8,00,0,named CharInfoEx appearance field
+field_060,char_info.eye_highlight_y,100,0x064,1,u8,00,0,named CharInfoEx appearance field
+field_061,char_info.eyelash_upper_type,101,0x065,1,u8,00,0,named CharInfoEx appearance field
+field_062,char_info.eyelash_upper_scale,102,0x066,1,u8,00,0,named CharInfoEx appearance field
+field_063,char_info.eyelash_upper_aspect,103,0x067,1,u8,00,0,named CharInfoEx appearance field
+field_064,char_info.eyelash_upper_rotate,104,0x068,1,u8,00,0,named CharInfoEx appearance field
+field_065,char_info.eyelash_upper_x,105,0x069,1,u8,00,0,named CharInfoEx appearance field
+field_066,char_info.eyelash_upper_y,106,0x06a,1,u8,00,0,named CharInfoEx appearance field
+field_067,char_info.eyelash_lower_type,107,0x06b,1,u8,00,0,named CharInfoEx appearance field
+field_068,char_info.eyelash_lower_scale,108,0x06c,1,u8,00,0,named CharInfoEx appearance field
+field_069,char_info.eyelash_lower_aspect,109,0x06d,1,u8,00,0,named CharInfoEx appearance field
+field_070,char_info.eyelash_lower_rotate,110,0x06e,1,u8,00,0,named CharInfoEx appearance field
+field_071,char_info.eyelash_lower_x,111,0x06f,1,u8,00,0,named CharInfoEx appearance field
+field_072,char_info.eyelash_lower_y,112,0x070,1,u8,00,0,named CharInfoEx appearance field
+field_073,char_info.eyelid_upper_type,113,0x071,1,u8,00,0,named CharInfoEx appearance field
+field_074,char_info.eyelid_upper_scale,114,0x072,1,u8,00,0,named CharInfoEx appearance field
+field_075,char_info.eyelid_upper_aspect,115,0x073,1,u8,00,0,named CharInfoEx appearance field
+field_076,char_info.eyelid_upper_rotate,116,0x074,1,u8,00,0,named CharInfoEx appearance field
+field_077,char_info.eyelid_upper_x,117,0x075,1,u8,00,0,named CharInfoEx appearance field
+field_078,char_info.eyelid_upper_y,118,0x076,1,u8,00,0,named CharInfoEx appearance field
+field_079,char_info.eyelid_lower_type,119,0x077,1,u8,00,0,named CharInfoEx appearance field
+field_080,char_info.eyelid_lower_scale,120,0x078,1,u8,00,0,named CharInfoEx appearance field
+field_081,char_info.eyelid_lower_aspect,121,0x079,1,u8,00,0,named CharInfoEx appearance field
+field_082,char_info.eyelid_lower_rotate,122,0x07a,1,u8,00,0,named CharInfoEx appearance field
+field_083,char_info.eyelid_lower_x,123,0x07b,1,u8,00,0,named CharInfoEx appearance field
+field_084,char_info.eyelid_lower_y,124,0x07c,1,u8,00,0,named CharInfoEx appearance field
+field_085,char_info.eyebrow_type,125,0x07d,1,u8,13,19,named CharInfoEx appearance field
+field_086,char_info.eyebrow_color,126,0x07e,1,u8,01,1,named CharInfoEx appearance field
+field_087,char_info.eyebrow_scale,127,0x07f,1,u8,04,4,named CharInfoEx appearance field
+field_088,char_info.eyebrow_aspect,128,0x080,1,u8,03,3,named CharInfoEx appearance field
+field_089,char_info.eyebrow_rotate,129,0x081,1,u8,04,4,named CharInfoEx appearance field
+field_090,char_info.eyebrow_x,130,0x082,1,u8,04,4,named CharInfoEx appearance field
+field_091,char_info.eyebrow_y,131,0x083,1,u8,09,9,named CharInfoEx appearance field
+field_092,char_info.nose_type,132,0x084,1,u8,06,6,named CharInfoEx appearance field
+field_093,char_info.nose_scale,133,0x085,1,u8,03,3,named CharInfoEx appearance field
+field_094,char_info.nose_y,134,0x086,1,u8,09,9,named CharInfoEx appearance field
+field_095,char_info.mouth_type,135,0x087,1,u8,0f,15,named CharInfoEx appearance field
+field_096,char_info.mouth_color,136,0x088,1,u8,13,19,named CharInfoEx appearance field
+field_097,char_info.mouth_scale,137,0x089,1,u8,03,3,named CharInfoEx appearance field
+field_098,char_info.mouth_aspect,138,0x08a,1,u8,03,3,named CharInfoEx appearance field
+field_099,char_info.mouth_rotate,139,0x08b,1,u8,00,0,named CharInfoEx appearance field
+field_100,char_info.mouth_y,140,0x08c,1,u8,0d,13,named CharInfoEx appearance field
+field_101,char_info.beard_type,141,0x08d,1,u8,03,3,named CharInfoEx appearance field
+field_102,char_info.beard_color,142,0x08e,1,u8,01,1,named CharInfoEx appearance field
+field_103,char_info.stubble_type,143,0x08f,1,u8,00,0,named CharInfoEx appearance field
+field_104,char_info.stubble_color,144,0x090,1,u8,08,8,named CharInfoEx appearance field
+field_105,char_info.mustache_type,145,0x091,1,u8,04,4,named CharInfoEx appearance field
+field_106,char_info.mustache_color,146,0x092,1,u8,01,1,named CharInfoEx appearance field
+field_107,char_info.mustache_scale,147,0x093,1,u8,04,4,named CharInfoEx appearance field
+field_108,char_info.mustache_aspect,148,0x094,1,u8,03,3,named CharInfoEx appearance field
+field_109,char_info.mustache_y,149,0x095,1,u8,09,9,named CharInfoEx appearance field
+field_110,char_info.glass_primary_type,150,0x096,1,u8,00,0,named CharInfoEx appearance field
+field_111,char_info.glass_primary_color,151,0x097,1,u8,08,8,named CharInfoEx appearance field
+field_112,char_info.glass_scale,152,0x098,1,u8,03,3,named CharInfoEx appearance field
+field_113,char_info.glass_aspect,153,0x099,1,u8,03,3,named CharInfoEx appearance field
+field_114,char_info.glass_y,154,0x09a,1,u8,0b,11,named CharInfoEx appearance field
+field_115,char_info.glass_lens_material_mode,155,0x09b,1,u8,00,0,validated 0..2 lens material/blend mode; not a PartsIndex selector
+field_116,char_info.glass_lens_color,156,0x09c,1,u8,08,8,validated 0..99 lens common-color index; not a PartsIndex selector
+field_117,char_info.mole_scale,157,0x09d,1,u8,04,4,named CharInfoEx appearance field
+field_118,char_info.mole_x,158,0x09e,1,u8,02,2,named CharInfoEx appearance field
+field_119,char_info.mole_y,159,0x09f,1,u8,14,20,named CharInfoEx appearance field
+field_120,char_info.schema_version,160,0x0a0,1,u8,2d,45,CharInfoEx current schema revision and legacy-migration discriminator
+field_121,char_info.face_flags.special_mii,52,0x034,0,bit 0 of u8@0x34,,false,nn::mii::CharInfo.type == 1; enables special-origin Mii normalization
+field_122,char_info.face_flags.bangs_side,52,0x034,0,bit 1 of u8@0x34,,false,decoded face feature enable/orientation flag
+field_123,char_info.face_flags.back_dual_color,52,0x034,0,bit 2 of u8@0x34,,false,decoded face feature enable/orientation flag
+field_124,char_info.face_flags.bangs_dual_color,52,0x034,0,bit 3 of u8@0x34,,false,decoded face feature enable/orientation flag
+field_125,char_info.face_flags.eye_shadow_enabled,52,0x034,0,bit 4 of u8@0x34,,false,decoded face feature enable/orientation flag
+field_126,char_info.face_flags.mouth_inverted,52,0x034,0,bit 5 of u8@0x34,,false,decoded face feature enable/orientation flag
+field_127,char_info.face_flags.mustache_inverted,52,0x034,0,bit 6 of u8@0x34,,false,decoded face feature enable/orientation flag
+field_128,char_info.face_flags.mole_enabled,52,0x034,0,bit 7 of u8@0x34,,false,decoded face feature enable/orientation flag
+field_129,char_info.hair_style_flags.left_side,83,0x053,0,bits in u8@0x53,,false,decoded composite-hair orientation flag
+field_130,char_info.hair_style_flags.right_side,83,0x053,0,bits in u8@0x53,,false,decoded composite-hair orientation flag
+field_131,char_info.hair_style_flags.reserved,83,0x053,0,bits in u8@0x53,,0,decoded composite-hair orientation flag
+field_132,personality_and_voice.sociability,161,0x0a1,4,i32le,01000000,1,"personality, voice, identity, or birthday field"
+field_133,personality_and_voice.audaciousness,165,0x0a5,4,i32le,08000000,8,"personality, voice, identity, or birthday field"
+field_134,personality_and_voice.activeness,169,0x0a9,4,i32le,01000000,1,"personality, voice, identity, or birthday field"
+field_135,personality_and_voice.commonsense,173,0x0ad,4,i32le,08000000,8,"personality, voice, identity, or birthday field"
+field_136,personality_and_voice.gaiety,177,0x0b1,4,i32le,08000000,8,"personality, voice, identity, or birthday field"
+field_137,personality_and_voice.voice_formant,181,0x0b5,4,i32le,14000000,20,"personality, voice, identity, or birthday field"
+field_138,personality_and_voice.voice_speed,185,0x0b9,4,i32le,1c000000,28,"personality, voice, identity, or birthday field"
+field_139,personality_and_voice.voice_intonation,189,0x0bd,4,i32le,00000000,0,"personality, voice, identity, or birthday field"
+field_140,personality_and_voice.voice_pitch,193,0x0c1,4,i32le,10000000,16,"personality, voice, identity, or birthday field"
+field_141,personality_and_voice.voice_tension,197,0x0c5,4,i32le,05000000,5,"personality, voice, identity, or birthday field"
+field_142,personality_and_voice.voice_preset_type_hash,201,0x0c9,4,i32le,76bedc0d,232570486,"personality, voice, identity, or birthday field"
+field_143,personality_and_voice.face_gender_hash,205,0x0cd,4,i32le,76bedc0d,232570486,"personality, voice, identity, or birthday field"
+field_144,personality_and_voice.pronoun_type_hash,209,0x0d1,4,i32le,d4d8e53b,1004918996,"personality, voice, identity, or birthday field"
+field_145,personality_and_voice.cloth_style_hash,213,0x0d5,4,i32le,76bedc0d,232570486,"personality, voice, identity, or birthday field"
+field_146,personality_and_voice.birthday_year,217,0x0d9,4,i32le,d6070000,2006,"personality, voice, identity, or birthday field"
+field_147,personality_and_voice.birthday_day,221,0x0dd,4,i32le,10000000,16,"personality, voice, identity, or birthday field"
+field_148,personality_and_voice.birthday_direct_age,225,0x0e1,4,i32le,ffffffff,-1,"personality, voice, identity, or birthday field"
+field_149,personality_and_voice.birthday_month,229,0x0e5,4,i32le,06000000,6,"personality, voice, identity, or birthday field"
+field_150,display_name,233,0x0e9,64,utf16le[32],4b0065007300740072006f006e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,Kestron,ShareMii display name
+field_151,pronunciation,297,0x129,128,utf16le[64],500052004f004e004f0055004e00430049004100540049004f004e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,PRONOUNCIATION,ShareMii pronunciation string
+field_152,love_gender.male,425,0x1a9,1,bool/u8,00,false,romantic attraction flag
+field_153,love_gender.female,426,0x1aa,1,bool/u8,01,true,romantic attraction flag
+field_154,love_gender.third,427,0x1ab,1,bool/u8,00,false,romantic attraction flag
+field_155,canvas_marker,428,0x1ac,3,marker[3],a3a3a3,a3a3a3,A3 sentinel because has_canvas is false
+field_156,ugc_texture_marker,431,0x1af,3,marker[3],a3a3a3,a3a3a3,A3 sentinel because has_ugc_texture is false

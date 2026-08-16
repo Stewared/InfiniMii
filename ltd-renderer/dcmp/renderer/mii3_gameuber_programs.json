@@ -1,0 +1,3197 @@
+{
+  "schema_version": 1,
+  "description": "Checked Emma/mii3 GameAll selections. Head, Mask, HairAll073, Nose, and NoseLine are exact unique selections. The active mode-0 Glass08 Trs lens is exact GameAll60; the inactive Opa lens and frame retain their compatible sets and fail closed.",
+  "generator": "tools/build_mii3_gameuber_programs.py --write",
+  "target": {
+    "path": "mii3.ltd",
+    "byte_length": 434,
+    "sha256": "d3098f9156c7ec7a7fa99c38954f1c460b3e7031313fc4e6e5ab6031c4e18776",
+    "display_name": "Emma"
+  },
+  "inputs": {
+    "active_parts": {
+      "path": "renderer/mii3_active_parts.json",
+      "byte_length": 28171,
+      "sha256": "89958275a105cc3cbd709b6937a8b3abae324630bf81788bb22298184f21e4c5"
+    },
+    "material_state": {
+      "path": "renderer/mii3_material_state.json",
+      "byte_length": 469249,
+      "sha256": "f61c509a07b26e6016ac711ab8cb00bbe7e04ec12803378dd1a0f920db65d5c1"
+    },
+    "requests": {
+      "path": "renderer/mii3_gameuber_requests.json",
+      "byte_length": 1220,
+      "sha256": "9d745fb767224f8913b9f2aad5239a5cdf36d8b73f7438e8495679939071b100"
+    },
+    "gameuber_bfsha": {
+      "path": "../ltdDemo_converted_assets/decompressed/1/Shader/GameUber.Trial.100.product.Nin_NX_NVN.bfsha",
+      "byte_length": 12858712,
+      "sha256": "1423f4f8e63261c2f920794881ee9c48eda4932f33a5e61534cd6dbf46dc2ccb"
+    },
+    "inspector": {
+      "path": "tools/inspect_mii2_gameuber_programs.ps1",
+      "byte_length": 22609,
+      "sha256": "a8fd1554d45f195504300d08b76a4b724b13f8933123c1f7bdc91b4d7e2b8893"
+    }
+  },
+  "archive_name": "GameUber",
+  "shader_model": "GameAll",
+  "program_count": 1140,
+  "programs": [
+    {
+      "key": "head",
+      "resource": "MiiHead00",
+      "model": "MiiHead00",
+      "shape": "Head__mt_Head",
+      "material": "mt_Head",
+      "vertex_skin_count": 0,
+      "serialized_shader_options": [
+        {
+          "name": "gsys_geometry_culling",
+          "value": "True"
+        },
+        {
+          "name": "enable_parallax_mapping_light",
+          "value": "True"
+        },
+        {
+          "name": "enable_albedo",
+          "value": "True"
+        },
+        {
+          "name": "enable_normal_map",
+          "value": "True"
+        },
+        {
+          "name": "enable_expression0",
+          "value": "True"
+        },
+        {
+          "name": "clamp_albedo",
+          "value": "True"
+        },
+        {
+          "name": "replace_albedo",
+          "value": "True"
+        },
+        {
+          "name": "enable_specular",
+          "value": "False"
+        },
+        {
+          "name": "enable_dynamic_depth_shadow",
+          "value": "False"
+        },
+        {
+          "name": "enable_light_occlusion",
+          "value": "True"
+        },
+        {
+          "name": "enable_ssao",
+          "value": "False"
+        },
+        {
+          "name": "enable_world_ao",
+          "value": "False"
+        },
+        {
+          "name": "enable_area_env",
+          "value": "True"
+        },
+        {
+          "name": "enable_area_env_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_ground_gi_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_cheap_sss",
+          "value": "True"
+        },
+        {
+          "name": "enable_scatter_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_screenspace_face_shadow",
+          "value": "True"
+        },
+        {
+          "name": "is_mii_face",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_face_shade_offset",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_edge_light_toon",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_texture_user0",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_emission",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_ugc_emission",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_ugc_emission_pattern",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "tex_coord2_vtx",
+          "value": "2"
+        },
+        {
+          "name": "texcoord_select_normal",
+          "value": "2"
+        },
+        {
+          "name": "expression0",
+          "value": "1347083294"
+        },
+        {
+          "name": "map_albedo",
+          "value": "10"
+        },
+        {
+          "name": "map_normal",
+          "value": "100"
+        },
+        {
+          "name": "map_roughness",
+          "value": "1101"
+        },
+        {
+          "name": "map_edge_light_mask",
+          "value": "101"
+        },
+        {
+          "name": "tex_coord_user0_srt",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "texcoord_select_user0",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_alpha",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_channel_alpha",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_emission",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_ugc_emission",
+          "value": "<Default Value>"
+        }
+      ],
+      "omitted_default_options": [
+        "enable_edge_light_toon",
+        "enable_texture_user0",
+        "enable_emission",
+        "enable_ugc_emission",
+        "enable_ugc_emission_pattern",
+        "tex_coord_user0_srt",
+        "texcoord_select_user0",
+        "map_alpha",
+        "map_channel_alpha",
+        "map_emission",
+        "map_ugc_emission"
+      ],
+      "constrained_material_options": {
+        "clamp_albedo": "1",
+        "enable_albedo": "1",
+        "enable_area_env": "1",
+        "enable_area_env_blend": "1",
+        "enable_cheap_sss": "1",
+        "enable_dynamic_depth_shadow": "0",
+        "enable_expression0": "1",
+        "enable_ground_gi_blend": "1",
+        "enable_light_occlusion": "1",
+        "enable_mii_emission": "1",
+        "enable_mii_face_shade_offset": "1",
+        "enable_normal_map": "1",
+        "enable_parallax_mapping_light": "1",
+        "enable_scatter_emission": "1",
+        "enable_screenspace_face_shadow": "1",
+        "enable_specular": "0",
+        "enable_ssao": "0",
+        "enable_world_ao": "0",
+        "expression0": "1347083294",
+        "gsys_geometry_culling": "1",
+        "is_mii_face": "1",
+        "map_albedo": "10",
+        "map_edge_light_mask": "101",
+        "map_normal": "100",
+        "map_roughness": "1101",
+        "replace_albedo": "1",
+        "tex_coord2_vtx": "2",
+        "texcoord_select_normal": "2"
+      },
+      "resolver_system_options": {
+        "gsys_weight": "0",
+        "gsys_index_stream_format": "0",
+        "gsys_assign_type": "gsys_assign_material",
+        "system_id": "0"
+      },
+      "bfres_compatible_program_indices_without_archive_defaults": [
+        816
+      ],
+      "render_state_constraints": [],
+      "archive_default_constraints": [],
+      "resolver": "BfshaLibrary.ShaderModel.GetProgramIndex; unrelated BFRES <Default Value> entries remain unconstrained; proven Hair/Beard/Ear/Glass render-state keys and Headwear render/display-face keys come from exact BFRES RenderInfo; absent Hair/Beard map_shift and inherited Decoration map_specular_mask come from GameAll's stored defaultChoice; Glass frame normal-map defaults come from its exact missing normal binding",
+      "resolved_program_index": 816,
+      "compatible_program_count": 1,
+      "compatible_program_indices": [
+        816
+      ],
+      "texture_assignments": [
+        {
+          "index": 0,
+          "texture_ref": "Dummy_Alb",
+          "material_sampler": "_a0",
+          "sampler_state_index": 0,
+          "shader_samplers": [
+            "_a0"
+          ]
+        },
+        {
+          "index": 1,
+          "texture_ref": "MiiHead00_Head_Nmh",
+          "material_sampler": "_n0",
+          "sampler_state_index": 1,
+          "shader_samplers": [
+            "_n0"
+          ]
+        }
+      ],
+      "sampler_assignments": [
+        {
+          "shader_sampler": "_a0",
+          "material_sampler": "_a0",
+          "material_sampler_index": 0,
+          "texture_ref": "Dummy_Alb"
+        },
+        {
+          "shader_sampler": "_n0",
+          "material_sampler": "_n0",
+          "material_sampler_index": 1,
+          "texture_ref": "MiiHead00_Head_Nmh"
+        },
+        {
+          "shader_sampler": "_user0",
+          "material_sampler": "Default Value>",
+          "material_sampler_index": null,
+          "texture_ref": null
+        }
+      ],
+      "attributes": [
+        {
+          "shader_attribute": "_p0",
+          "bfres_vertex_attribute": "_p0",
+          "shader_model_index": 0,
+          "vertex_location": 0
+        },
+        {
+          "shader_attribute": "_n0",
+          "bfres_vertex_attribute": "_n0",
+          "shader_model_index": 1,
+          "vertex_location": 1
+        },
+        {
+          "shader_attribute": "_t0",
+          "bfres_vertex_attribute": "_t0",
+          "shader_model_index": 2,
+          "vertex_location": 2
+        },
+        {
+          "shader_attribute": "_b0",
+          "bfres_vertex_attribute": "_b0",
+          "shader_model_index": null,
+          "vertex_location": null
+        },
+        {
+          "shader_attribute": "_u0",
+          "bfres_vertex_attribute": "_u0",
+          "shader_model_index": 5,
+          "vertex_location": 8
+        },
+        {
+          "shader_attribute": "_u2",
+          "bfres_vertex_attribute": "_u2",
+          "shader_model_index": 6,
+          "vertex_location": 10
+        }
+      ],
+      "samplers": [
+        {
+          "name": "_a0",
+          "shader_model_index": 0,
+          "vertex_location": -1,
+          "fragment_location": 1
+        },
+        {
+          "name": "_n0",
+          "shader_model_index": 2,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_gbuffer_emission",
+          "shader_model_index": 13,
+          "vertex_location": 10,
+          "fragment_location": -1
+        },
+        {
+          "name": "gsys_user3",
+          "shader_model_index": 14,
+          "vertex_location": -1,
+          "fragment_location": 26
+        },
+        {
+          "name": "gsys_user2",
+          "shader_model_index": 16,
+          "vertex_location": -1,
+          "fragment_location": 25
+        },
+        {
+          "name": "gsys_user5",
+          "shader_model_index": 17,
+          "vertex_location": -1,
+          "fragment_location": 28
+        },
+        {
+          "name": "gsys_half_normalized_linear_depth",
+          "shader_model_index": 18,
+          "vertex_location": -1,
+          "fragment_location": 20
+        },
+        {
+          "name": "gsys_normalized_linear_depth",
+          "shader_model_index": 19,
+          "vertex_location": -1,
+          "fragment_location": 19
+        },
+        {
+          "name": "gsys_user4",
+          "shader_model_index": 20,
+          "vertex_location": -1,
+          "fragment_location": 27
+        },
+        {
+          "name": "gsys_projection0",
+          "shader_model_index": 21,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_static_depth_shadow",
+          "shader_model_index": 25,
+          "vertex_location": -1,
+          "fragment_location": 3
+        },
+        {
+          "name": "gsys_light_prepass",
+          "shader_model_index": 26,
+          "vertex_location": -1,
+          "fragment_location": 5
+        }
+      ],
+      "uniform_blocks": [
+        {
+          "name": "gsys_context",
+          "shader_model_dictionary_index": 0,
+          "block_index": 0,
+          "byte_size": 2496,
+          "vertex_location": 1,
+          "fragment_location": 1
+        },
+        {
+          "name": "gsys_shape",
+          "shader_model_dictionary_index": 1,
+          "block_index": 1,
+          "byte_size": 256,
+          "vertex_location": 4,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_environment",
+          "shader_model_dictionary_index": 2,
+          "block_index": 2,
+          "byte_size": 9024,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_material",
+          "shader_model_dictionary_index": 4,
+          "block_index": 4,
+          "byte_size": 1168,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_user1",
+          "shader_model_dictionary_index": 6,
+          "block_index": 6,
+          "byte_size": 3376,
+          "vertex_location": 12,
+          "fragment_location": 12
+        }
+      ],
+      "stages": {
+        "vertex": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "cc28f2653a936cb6a042e9b01345d18767ac86e9aa8e97f122ee404e514e89b2"
+          },
+          "container_stream": {
+            "byte_length": 2304,
+            "sha256": "9597125f4afdbd34e7fef93799ba70e2d1b57903fe80795f261906886bf3f691"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 2256,
+            "sha256": "008afaf484ae6c00c0200a1790611706a4b92610bb121bc9ec51f4d985793093"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 2176,
+            "sha256": "4b9980d95e686ad8ed6a31444e41ac5f1c58aff4d00597ad4b68a88c927e8ba9"
+          }
+        },
+        "fragment": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "65977e7ed57fe140270f7e4a16bb8ddd3123d5519e18dfdb91ef6595eab1d2ad"
+          },
+          "container_stream": {
+            "byte_length": 8192,
+            "sha256": "798f448b0d64a9de78b42f156ead9be90651cf6fc597fd25a3ee76ccf793be5e"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 8144,
+            "sha256": "4b6c4d00bbe99526b2bdf6eac58dd81dc4b111342aab6faf301ae1b17dd0fd04"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 8064,
+            "sha256": "36ccc24ef498712db813c74f3785b0c45f7b4433b6e0d45c27f5ded425b7b2f3"
+          }
+        }
+      },
+      "selection_status": "exact_unique"
+    },
+    {
+      "key": "face_mask",
+      "resource": "MiiHead00",
+      "model": "MiiHead00",
+      "shape": "Mask__mt_Mask",
+      "material": "mt_Mask",
+      "vertex_skin_count": 0,
+      "serialized_shader_options": [
+        {
+          "name": "gsys_geometry_culling",
+          "value": "True"
+        },
+        {
+          "name": "enable_parallax_mapping_light",
+          "value": "True"
+        },
+        {
+          "name": "enable_albedo",
+          "value": "True"
+        },
+        {
+          "name": "enable_normal_map",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_expression0",
+          "value": "True"
+        },
+        {
+          "name": "clamp_albedo",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "replace_albedo",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_specular",
+          "value": "False"
+        },
+        {
+          "name": "enable_dynamic_depth_shadow",
+          "value": "False"
+        },
+        {
+          "name": "enable_light_occlusion",
+          "value": "True"
+        },
+        {
+          "name": "enable_ssao",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_world_ao",
+          "value": "False"
+        },
+        {
+          "name": "enable_area_env",
+          "value": "True"
+        },
+        {
+          "name": "enable_area_env_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_ground_gi_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_cheap_sss",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_scatter_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_screenspace_face_shadow",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "is_mii_face",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_face_shade_offset",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_mii_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_edge_light_toon",
+          "value": "False"
+        },
+        {
+          "name": "enable_texture_user0",
+          "value": "True"
+        },
+        {
+          "name": "enable_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_ugc_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_ugc_emission_pattern",
+          "value": "False"
+        },
+        {
+          "name": "tex_coord2_vtx",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "texcoord_select_normal",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "expression0",
+          "value": "954874708"
+        },
+        {
+          "name": "map_albedo",
+          "value": "100"
+        },
+        {
+          "name": "map_normal",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_roughness",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_edge_light_mask",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "tex_coord_user0_srt",
+          "value": "1000"
+        },
+        {
+          "name": "texcoord_select_user0",
+          "value": "10"
+        },
+        {
+          "name": "map_alpha",
+          "value": "100"
+        },
+        {
+          "name": "map_channel_alpha",
+          "value": "4000"
+        },
+        {
+          "name": "map_emission",
+          "value": "102"
+        },
+        {
+          "name": "map_ugc_emission",
+          "value": "101"
+        }
+      ],
+      "omitted_default_options": [
+        "enable_normal_map",
+        "clamp_albedo",
+        "replace_albedo",
+        "enable_ssao",
+        "enable_cheap_sss",
+        "enable_screenspace_face_shadow",
+        "enable_mii_face_shade_offset",
+        "tex_coord2_vtx",
+        "texcoord_select_normal",
+        "map_normal",
+        "map_roughness",
+        "map_edge_light_mask"
+      ],
+      "constrained_material_options": {
+        "enable_albedo": "1",
+        "enable_area_env": "1",
+        "enable_area_env_blend": "1",
+        "enable_dynamic_depth_shadow": "0",
+        "enable_edge_light_toon": "0",
+        "enable_emission": "1",
+        "enable_expression0": "1",
+        "enable_ground_gi_blend": "1",
+        "enable_light_occlusion": "1",
+        "enable_mii_emission": "1",
+        "enable_parallax_mapping_light": "1",
+        "enable_scatter_emission": "1",
+        "enable_specular": "0",
+        "enable_texture_user0": "1",
+        "enable_ugc_emission": "1",
+        "enable_ugc_emission_pattern": "0",
+        "enable_world_ao": "0",
+        "expression0": "954874708",
+        "gsys_geometry_culling": "1",
+        "is_mii_face": "1",
+        "map_albedo": "100",
+        "map_alpha": "100",
+        "map_channel_alpha": "4000",
+        "map_emission": "102",
+        "map_ugc_emission": "101",
+        "tex_coord_user0_srt": "1000",
+        "texcoord_select_user0": "10"
+      },
+      "resolver_system_options": {
+        "gsys_weight": "0",
+        "gsys_index_stream_format": "0",
+        "gsys_assign_type": "gsys_assign_material",
+        "system_id": "0"
+      },
+      "bfres_compatible_program_indices_without_archive_defaults": [
+        0
+      ],
+      "render_state_constraints": [],
+      "archive_default_constraints": [],
+      "resolver": "BfshaLibrary.ShaderModel.GetProgramIndex; unrelated BFRES <Default Value> entries remain unconstrained; proven Hair/Beard/Ear/Glass render-state keys and Headwear render/display-face keys come from exact BFRES RenderInfo; absent Hair/Beard map_shift and inherited Decoration map_specular_mask come from GameAll's stored defaultChoice; Glass frame normal-map defaults come from its exact missing normal binding",
+      "resolved_program_index": 0,
+      "compatible_program_count": 1,
+      "compatible_program_indices": [
+        0
+      ],
+      "texture_assignments": [
+        {
+          "index": 0,
+          "texture_ref": "Dummy_Alb",
+          "material_sampler": "_a0",
+          "sampler_state_index": 0,
+          "shader_samplers": [
+            "_a0"
+          ]
+        },
+        {
+          "index": 1,
+          "texture_ref": "Dummy_Alb",
+          "material_sampler": "_a1",
+          "sampler_state_index": 1,
+          "shader_samplers": [
+            "_user0"
+          ]
+        }
+      ],
+      "sampler_assignments": [
+        {
+          "shader_sampler": "_a0",
+          "material_sampler": "_a0",
+          "material_sampler_index": 0,
+          "texture_ref": "Dummy_Alb"
+        },
+        {
+          "shader_sampler": "_n0",
+          "material_sampler": "Default Value>",
+          "material_sampler_index": null,
+          "texture_ref": null
+        },
+        {
+          "shader_sampler": "_user0",
+          "material_sampler": "_a1",
+          "material_sampler_index": 1,
+          "texture_ref": "Dummy_Alb"
+        }
+      ],
+      "attributes": [
+        {
+          "shader_attribute": "_p0",
+          "bfres_vertex_attribute": "_p0",
+          "shader_model_index": 0,
+          "vertex_location": 0
+        },
+        {
+          "shader_attribute": "_n0",
+          "bfres_vertex_attribute": "_n0",
+          "shader_model_index": 1,
+          "vertex_location": 1
+        },
+        {
+          "shader_attribute": "_t0",
+          "bfres_vertex_attribute": "<Default Value>",
+          "shader_model_index": 2,
+          "vertex_location": 2
+        },
+        {
+          "shader_attribute": "_b0",
+          "bfres_vertex_attribute": "<Default Value>",
+          "shader_model_index": null,
+          "vertex_location": null
+        },
+        {
+          "shader_attribute": "_u0",
+          "bfres_vertex_attribute": "_u0",
+          "shader_model_index": 5,
+          "vertex_location": 8
+        },
+        {
+          "shader_attribute": "_u2",
+          "bfres_vertex_attribute": "<Default Value>",
+          "shader_model_index": 6,
+          "vertex_location": 10
+        }
+      ],
+      "samplers": [
+        {
+          "name": "_a0",
+          "shader_model_index": 0,
+          "vertex_location": -1,
+          "fragment_location": 1
+        },
+        {
+          "name": "_user0",
+          "shader_model_index": 8,
+          "vertex_location": -1,
+          "fragment_location": 16
+        },
+        {
+          "name": "gsys_gbuffer_emission",
+          "shader_model_index": 13,
+          "vertex_location": 10,
+          "fragment_location": -1
+        },
+        {
+          "name": "gsys_user3",
+          "shader_model_index": 14,
+          "vertex_location": -1,
+          "fragment_location": 26
+        },
+        {
+          "name": "gsys_user2",
+          "shader_model_index": 16,
+          "vertex_location": -1,
+          "fragment_location": 25
+        },
+        {
+          "name": "gsys_user5",
+          "shader_model_index": 17,
+          "vertex_location": -1,
+          "fragment_location": 28
+        },
+        {
+          "name": "gsys_half_normalized_linear_depth",
+          "shader_model_index": 18,
+          "vertex_location": -1,
+          "fragment_location": 20
+        },
+        {
+          "name": "gsys_normalized_linear_depth",
+          "shader_model_index": 19,
+          "vertex_location": -1,
+          "fragment_location": 19
+        },
+        {
+          "name": "gsys_user4",
+          "shader_model_index": 20,
+          "vertex_location": -1,
+          "fragment_location": 27
+        },
+        {
+          "name": "gsys_projection0",
+          "shader_model_index": 21,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_shadow_prepass",
+          "shader_model_index": 22,
+          "vertex_location": -1,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_light_prepass",
+          "shader_model_index": 26,
+          "vertex_location": -1,
+          "fragment_location": 5
+        }
+      ],
+      "uniform_blocks": [
+        {
+          "name": "gsys_context",
+          "shader_model_dictionary_index": 0,
+          "block_index": 0,
+          "byte_size": 2496,
+          "vertex_location": 1,
+          "fragment_location": 1
+        },
+        {
+          "name": "gsys_shape",
+          "shader_model_dictionary_index": 1,
+          "block_index": 1,
+          "byte_size": 256,
+          "vertex_location": 4,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_environment",
+          "shader_model_dictionary_index": 2,
+          "block_index": 2,
+          "byte_size": 9024,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_material",
+          "shader_model_dictionary_index": 4,
+          "block_index": 4,
+          "byte_size": 1168,
+          "vertex_location": 8,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_user1",
+          "shader_model_dictionary_index": 6,
+          "block_index": 6,
+          "byte_size": 3376,
+          "vertex_location": 12,
+          "fragment_location": 12
+        }
+      ],
+      "stages": {
+        "vertex": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "d670d05b79de1a4cbe21dda1d21141b6e8303145282729daca74fd5e21472be5"
+          },
+          "container_stream": {
+            "byte_length": 1536,
+            "sha256": "134e909a94a5e705a636f93cac8e280e1cda086f429e2e07153c2070a24a1ae1"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 1488,
+            "sha256": "6c048790c43156b8d64cb4eec391888da8e1fdc9ea7c1c4cd60656af1b98ef6a"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 1408,
+            "sha256": "8e8db55d3b38c63c9041a15022f895d63257c507c2f08327bf16b2342ec5799d"
+          }
+        },
+        "fragment": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "6e97acf31a919b1d47b2657d4f59622e75658ce6903104f34a9fdebbdb4dc00e"
+          },
+          "container_stream": {
+            "byte_length": 6400,
+            "sha256": "53ef7b0b7a1178801c50a97c6f7398e874b8360799606ceb5cff6f0fad03fa03"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 6352,
+            "sha256": "b8ec965a32aa0ae795619e292641836c0b84a6a035c5b04da572101b400282ed"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 6272,
+            "sha256": "628a1382cca4c2418fedb56c713f33a19538b2ed0e0e19fbb04bf5f9a8f7bb77"
+          }
+        }
+      },
+      "selection_status": "exact_unique"
+    },
+    {
+      "key": "hair",
+      "resource": "MiiHairAll073",
+      "model": "MiiHairAll073",
+      "shape": "Hair__mt_Hair",
+      "material": "mt_Hair",
+      "vertex_skin_count": 2,
+      "serialized_shader_options": [
+        {
+          "name": "gsys_geometry_culling",
+          "value": "True"
+        },
+        {
+          "name": "enable_parallax_mapping_light",
+          "value": "True"
+        },
+        {
+          "name": "enable_alpha_tex",
+          "value": "True"
+        },
+        {
+          "name": "enable_normal_map",
+          "value": "True"
+        },
+        {
+          "name": "enable_occlusion_map",
+          "value": "True"
+        },
+        {
+          "name": "enable_texture_user1",
+          "value": "True"
+        },
+        {
+          "name": "enable_expression0",
+          "value": "True"
+        },
+        {
+          "name": "clamp_albedo",
+          "value": "True"
+        },
+        {
+          "name": "replace_albedo",
+          "value": "True"
+        },
+        {
+          "name": "flippable_horizontal",
+          "value": "True"
+        },
+        {
+          "name": "enable_aniso_specular",
+          "value": "True"
+        },
+        {
+          "name": "enable_world_ao",
+          "value": "False"
+        },
+        {
+          "name": "enable_area_env",
+          "value": "True"
+        },
+        {
+          "name": "enable_area_env_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_ground_gi_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_scatter_emission",
+          "value": "True"
+        },
+        {
+          "name": "is_mii_face",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_emission",
+          "value": "True"
+        },
+        {
+          "name": "expression0",
+          "value": "1893597200"
+        },
+        {
+          "name": "map_albedo",
+          "value": "100"
+        },
+        {
+          "name": "map_alpha",
+          "value": "11"
+        },
+        {
+          "name": "map_normal",
+          "value": "12"
+        },
+        {
+          "name": "map_roughness",
+          "value": "1101"
+        },
+        {
+          "name": "map_specular_mask",
+          "value": "18"
+        },
+        {
+          "name": "map_channel_specular_mask",
+          "value": "20"
+        },
+        {
+          "name": "map_edge_light_mask",
+          "value": "18"
+        },
+        {
+          "name": "map_occlusion",
+          "value": "18"
+        },
+        {
+          "name": "map_shadow",
+          "value": "18"
+        }
+      ],
+      "omitted_default_options": [],
+      "constrained_material_options": {
+        "clamp_albedo": "1",
+        "enable_alpha_tex": "1",
+        "enable_aniso_specular": "1",
+        "enable_area_env": "1",
+        "enable_area_env_blend": "1",
+        "enable_expression0": "1",
+        "enable_ground_gi_blend": "1",
+        "enable_mii_emission": "1",
+        "enable_normal_map": "1",
+        "enable_occlusion_map": "1",
+        "enable_parallax_mapping_light": "1",
+        "enable_scatter_emission": "1",
+        "enable_texture_user1": "1",
+        "enable_world_ao": "0",
+        "expression0": "1893597200",
+        "flippable_horizontal": "1",
+        "gsys_geometry_culling": "1",
+        "is_mii_face": "1",
+        "map_albedo": "100",
+        "map_alpha": "11",
+        "map_channel_specular_mask": "20",
+        "map_edge_light_mask": "18",
+        "map_normal": "12",
+        "map_occlusion": "18",
+        "map_roughness": "1101",
+        "map_shadow": "18",
+        "map_specular_mask": "18",
+        "replace_albedo": "1"
+      },
+      "resolver_system_options": {
+        "gsys_weight": "2",
+        "gsys_index_stream_format": "0",
+        "gsys_assign_type": "gsys_assign_material",
+        "system_id": "0"
+      },
+      "bfres_compatible_program_indices_without_archive_defaults": [
+        1056,
+        1080
+      ],
+      "render_state_constraints": [],
+      "archive_default_constraints": [
+        {
+          "name": "map_shift",
+          "value": "0",
+          "default_index": 0,
+          "choices": [
+            "0",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "18",
+            "80",
+            "81",
+            "82",
+            "83",
+            "100",
+            "101",
+            "102",
+            "103"
+          ],
+          "source": "GameAll StaticOptions.map_shift defaultChoice/defaultIndex"
+        }
+      ],
+      "resolver": "BfshaLibrary.ShaderModel.GetProgramIndex; unrelated BFRES <Default Value> entries remain unconstrained; proven Hair/Beard/Ear/Glass render-state keys and Headwear render/display-face keys come from exact BFRES RenderInfo; absent Hair/Beard map_shift and inherited Decoration map_specular_mask come from GameAll's stored defaultChoice; Glass frame normal-map defaults come from its exact missing normal binding",
+      "resolved_program_index": 1056,
+      "compatible_program_count": 1,
+      "compatible_program_indices": [
+        1056
+      ],
+      "texture_assignments": [
+        {
+          "index": 0,
+          "texture_ref": "MiiHairAll073_Msk",
+          "material_sampler": "_alp0",
+          "sampler_state_index": 0,
+          "shader_samplers": [
+            "_alp0"
+          ]
+        },
+        {
+          "index": 1,
+          "texture_ref": "MiiHairAll073_Nrm",
+          "material_sampler": "_n0",
+          "sampler_state_index": 1,
+          "shader_samplers": [
+            "_n0"
+          ]
+        },
+        {
+          "index": 2,
+          "texture_ref": "MiiHairAll073_Mim",
+          "material_sampler": "_o0",
+          "sampler_state_index": 2,
+          "shader_samplers": [
+            "_o0"
+          ]
+        },
+        {
+          "index": 3,
+          "texture_ref": "MiiHairAll073_Mgh",
+          "material_sampler": "user1",
+          "sampler_state_index": 3,
+          "shader_samplers": [
+            "_user1"
+          ]
+        }
+      ],
+      "sampler_assignments": [
+        {
+          "shader_sampler": "_alp0",
+          "material_sampler": "_alp0",
+          "material_sampler_index": 0,
+          "texture_ref": "MiiHairAll073_Msk"
+        },
+        {
+          "shader_sampler": "_n0",
+          "material_sampler": "_n0",
+          "material_sampler_index": 1,
+          "texture_ref": "MiiHairAll073_Nrm"
+        },
+        {
+          "shader_sampler": "_o0",
+          "material_sampler": "_o0",
+          "material_sampler_index": 2,
+          "texture_ref": "MiiHairAll073_Mim"
+        },
+        {
+          "shader_sampler": "_user1",
+          "material_sampler": "user1",
+          "material_sampler_index": 3,
+          "texture_ref": "MiiHairAll073_Mgh"
+        }
+      ],
+      "attributes": [
+        {
+          "shader_attribute": "_p0",
+          "bfres_vertex_attribute": "_p0",
+          "shader_model_index": 0,
+          "vertex_location": 0
+        },
+        {
+          "shader_attribute": "_n0",
+          "bfres_vertex_attribute": "_n0",
+          "shader_model_index": 1,
+          "vertex_location": 1
+        },
+        {
+          "shader_attribute": "_t0",
+          "bfres_vertex_attribute": "_t0",
+          "shader_model_index": 2,
+          "vertex_location": 2
+        },
+        {
+          "shader_attribute": "_b0",
+          "bfres_vertex_attribute": "_b0",
+          "shader_model_index": null,
+          "vertex_location": null
+        },
+        {
+          "shader_attribute": "_w0",
+          "bfres_vertex_attribute": "_w0",
+          "shader_model_index": 3,
+          "vertex_location": 4
+        },
+        {
+          "shader_attribute": "_i0",
+          "bfres_vertex_attribute": "_i0",
+          "shader_model_index": 4,
+          "vertex_location": 6
+        },
+        {
+          "shader_attribute": "_u0",
+          "bfres_vertex_attribute": "_u0",
+          "shader_model_index": 5,
+          "vertex_location": 8
+        }
+      ],
+      "samplers": [
+        {
+          "name": "_n0",
+          "shader_model_index": 2,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "_o0",
+          "shader_model_index": 7,
+          "vertex_location": -1,
+          "fragment_location": 15
+        },
+        {
+          "name": "_user1",
+          "shader_model_index": 9,
+          "vertex_location": -1,
+          "fragment_location": 17
+        },
+        {
+          "name": "gsys_user3",
+          "shader_model_index": 14,
+          "vertex_location": -1,
+          "fragment_location": 26
+        },
+        {
+          "name": "gsys_user2",
+          "shader_model_index": 16,
+          "vertex_location": -1,
+          "fragment_location": 25
+        },
+        {
+          "name": "gsys_user5",
+          "shader_model_index": 17,
+          "vertex_location": -1,
+          "fragment_location": 28
+        },
+        {
+          "name": "gsys_half_normalized_linear_depth",
+          "shader_model_index": 18,
+          "vertex_location": -1,
+          "fragment_location": 20
+        },
+        {
+          "name": "gsys_normalized_linear_depth",
+          "shader_model_index": 19,
+          "vertex_location": -1,
+          "fragment_location": 19
+        },
+        {
+          "name": "gsys_user4",
+          "shader_model_index": 20,
+          "vertex_location": -1,
+          "fragment_location": 27
+        },
+        {
+          "name": "gsys_projection0",
+          "shader_model_index": 21,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_shadow_prepass",
+          "shader_model_index": 22,
+          "vertex_location": -1,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_light_prepass",
+          "shader_model_index": 26,
+          "vertex_location": -1,
+          "fragment_location": 5
+        }
+      ],
+      "uniform_blocks": [
+        {
+          "name": "gsys_context",
+          "shader_model_dictionary_index": 0,
+          "block_index": 0,
+          "byte_size": 2496,
+          "vertex_location": 1,
+          "fragment_location": 1
+        },
+        {
+          "name": "gsys_shape",
+          "shader_model_dictionary_index": 1,
+          "block_index": 1,
+          "byte_size": 256,
+          "vertex_location": -1,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_environment",
+          "shader_model_dictionary_index": 2,
+          "block_index": 2,
+          "byte_size": 9024,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_material",
+          "shader_model_dictionary_index": 4,
+          "block_index": 4,
+          "byte_size": 1168,
+          "vertex_location": 8,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_user1",
+          "shader_model_dictionary_index": 6,
+          "block_index": 6,
+          "byte_size": 3376,
+          "vertex_location": 12,
+          "fragment_location": 12
+        },
+        {
+          "name": "gsys_skeleton",
+          "shader_model_dictionary_index": 7,
+          "block_index": 7,
+          "byte_size": 48,
+          "vertex_location": 2,
+          "fragment_location": -1
+        }
+      ],
+      "stages": {
+        "vertex": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "3bb5357da9aa6211302757eb5fbc6801288aa354e3e97abdc55af04ef5d62969"
+          },
+          "container_stream": {
+            "byte_length": 2560,
+            "sha256": "3df1ffb7a9f315f1bf1236ea0d628cfc38762caa130911b03b793795a7ab15a8"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 2512,
+            "sha256": "fbaa0298830ecbc11676d60b16d55ad8a5e427620c3072ecb1b911f0eb3979f0"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 2432,
+            "sha256": "2761496ae80818f82ea8eaf2a354611ddc1ad8960fa9824a7a05a1333dcda97d"
+          }
+        },
+        "fragment": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "01f86d326f337122e3e23a024906d414727396aad1050da9103aa663a6806e91"
+          },
+          "container_stream": {
+            "byte_length": 9472,
+            "sha256": "9d69b0e2c0f19e78b958518424eef482a10ef94cee6199fc80ff4402cc49be60"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 9424,
+            "sha256": "f8a88df4a1fe29864565e160e4de13cb924c2a647237a1708d742b1c63929b8a"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 9344,
+            "sha256": "a232d4a846a906d55fc33567dfd7e8620125542e7f6aa230351a6939c41101ab"
+          }
+        }
+      },
+      "selection_status": "exact_unique"
+    },
+    {
+      "key": "nose",
+      "resource": "MiiNose25",
+      "model": "MiiNose25",
+      "shape": "Nose__mt_Nose",
+      "material": "mt_Nose",
+      "vertex_skin_count": 0,
+      "serialized_shader_options": [
+        {
+          "name": "gsys_geometry_culling",
+          "value": "True"
+        },
+        {
+          "name": "enable_parallax_mapping_light",
+          "value": "True"
+        },
+        {
+          "name": "enable_specular_mask",
+          "value": "True"
+        },
+        {
+          "name": "enable_texture_user0",
+          "value": "True"
+        },
+        {
+          "name": "enable_expression0",
+          "value": "True"
+        },
+        {
+          "name": "clamp_albedo",
+          "value": "True"
+        },
+        {
+          "name": "replace_albedo",
+          "value": "True"
+        },
+        {
+          "name": "enable_dynamic_depth_shadow",
+          "value": "False"
+        },
+        {
+          "name": "enable_light_occlusion",
+          "value": "True"
+        },
+        {
+          "name": "enable_ssao",
+          "value": "False"
+        },
+        {
+          "name": "enable_world_ao",
+          "value": "False"
+        },
+        {
+          "name": "enable_area_env",
+          "value": "True"
+        },
+        {
+          "name": "enable_area_env_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_ground_gi_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_cheap_sss",
+          "value": "True"
+        },
+        {
+          "name": "enable_scatter_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_screenspace_face_shadow",
+          "value": "True"
+        },
+        {
+          "name": "is_mii_face",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_face_shade_offset",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_edge_light_toon",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_albedo",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_specular",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "texcoord_select_specular_mask",
+          "value": "20"
+        },
+        {
+          "name": "expression0",
+          "value": "93318806"
+        },
+        {
+          "name": "map_albedo",
+          "value": "100"
+        },
+        {
+          "name": "map_roughness",
+          "value": "1101"
+        },
+        {
+          "name": "map_specular_mask",
+          "value": "15"
+        },
+        {
+          "name": "map_channel_specular_mask",
+          "value": "20"
+        },
+        {
+          "name": "map_height",
+          "value": "80"
+        },
+        {
+          "name": "map_alpha",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_channel_alpha",
+          "value": "<Default Value>"
+        }
+      ],
+      "omitted_default_options": [
+        "enable_edge_light_toon",
+        "enable_albedo",
+        "enable_specular",
+        "map_alpha",
+        "map_channel_alpha"
+      ],
+      "constrained_material_options": {
+        "clamp_albedo": "1",
+        "enable_area_env": "1",
+        "enable_area_env_blend": "1",
+        "enable_cheap_sss": "1",
+        "enable_dynamic_depth_shadow": "0",
+        "enable_expression0": "1",
+        "enable_ground_gi_blend": "1",
+        "enable_light_occlusion": "1",
+        "enable_mii_emission": "1",
+        "enable_mii_face_shade_offset": "1",
+        "enable_parallax_mapping_light": "1",
+        "enable_scatter_emission": "1",
+        "enable_screenspace_face_shadow": "1",
+        "enable_specular_mask": "1",
+        "enable_ssao": "0",
+        "enable_texture_user0": "1",
+        "enable_world_ao": "0",
+        "expression0": "93318806",
+        "gsys_geometry_culling": "1",
+        "is_mii_face": "1",
+        "map_albedo": "100",
+        "map_channel_specular_mask": "20",
+        "map_height": "80",
+        "map_roughness": "1101",
+        "map_specular_mask": "15",
+        "replace_albedo": "1",
+        "texcoord_select_specular_mask": "20"
+      },
+      "resolver_system_options": {
+        "gsys_weight": "0",
+        "gsys_index_stream_format": "0",
+        "gsys_assign_type": "gsys_assign_material",
+        "system_id": "0"
+      },
+      "bfres_compatible_program_indices_without_archive_defaults": [
+        756
+      ],
+      "render_state_constraints": [],
+      "archive_default_constraints": [],
+      "resolver": "BfshaLibrary.ShaderModel.GetProgramIndex; unrelated BFRES <Default Value> entries remain unconstrained; proven Hair/Beard/Ear/Glass render-state keys and Headwear render/display-face keys come from exact BFRES RenderInfo; absent Hair/Beard map_shift and inherited Decoration map_specular_mask come from GameAll's stored defaultChoice; Glass frame normal-map defaults come from its exact missing normal binding",
+      "resolved_program_index": 756,
+      "compatible_program_count": 1,
+      "compatible_program_indices": [
+        756
+      ],
+      "texture_assignments": [
+        {
+          "index": 0,
+          "texture_ref": "MiiNose25_Mim",
+          "material_sampler": "_o0",
+          "sampler_state_index": 0,
+          "shader_samplers": [
+            "_s0"
+          ]
+        },
+        {
+          "index": 1,
+          "texture_ref": "MiiNose25_Hgt",
+          "material_sampler": "_h0",
+          "sampler_state_index": 1,
+          "shader_samplers": [
+            "_user0"
+          ]
+        }
+      ],
+      "sampler_assignments": [
+        {
+          "shader_sampler": "_s0",
+          "material_sampler": "_o0",
+          "material_sampler_index": 0,
+          "texture_ref": "MiiNose25_Mim"
+        },
+        {
+          "shader_sampler": "_user0",
+          "material_sampler": "_h0",
+          "material_sampler_index": 1,
+          "texture_ref": "MiiNose25_Hgt"
+        },
+        {
+          "shader_sampler": "_a0",
+          "material_sampler": "Default Value>",
+          "material_sampler_index": null,
+          "texture_ref": null
+        }
+      ],
+      "attributes": [
+        {
+          "shader_attribute": "_p0",
+          "bfres_vertex_attribute": "_p0",
+          "shader_model_index": 0,
+          "vertex_location": 0
+        },
+        {
+          "shader_attribute": "_n0",
+          "bfres_vertex_attribute": "_n0",
+          "shader_model_index": 1,
+          "vertex_location": 1
+        },
+        {
+          "shader_attribute": "_t0",
+          "bfres_vertex_attribute": "_t0",
+          "shader_model_index": 2,
+          "vertex_location": 2
+        },
+        {
+          "shader_attribute": "_b0",
+          "bfres_vertex_attribute": "_b0",
+          "shader_model_index": null,
+          "vertex_location": null
+        },
+        {
+          "shader_attribute": "_u0",
+          "bfres_vertex_attribute": "_u0",
+          "shader_model_index": 5,
+          "vertex_location": 8
+        }
+      ],
+      "samplers": [
+        {
+          "name": "_s0",
+          "shader_model_index": 5,
+          "vertex_location": -1,
+          "fragment_location": 12
+        },
+        {
+          "name": "_user0",
+          "shader_model_index": 8,
+          "vertex_location": -1,
+          "fragment_location": 16
+        },
+        {
+          "name": "gsys_gbuffer_emission",
+          "shader_model_index": 13,
+          "vertex_location": 10,
+          "fragment_location": -1
+        },
+        {
+          "name": "gsys_user3",
+          "shader_model_index": 14,
+          "vertex_location": -1,
+          "fragment_location": 26
+        },
+        {
+          "name": "gsys_user2",
+          "shader_model_index": 16,
+          "vertex_location": -1,
+          "fragment_location": 25
+        },
+        {
+          "name": "gsys_user5",
+          "shader_model_index": 17,
+          "vertex_location": -1,
+          "fragment_location": 28
+        },
+        {
+          "name": "gsys_half_normalized_linear_depth",
+          "shader_model_index": 18,
+          "vertex_location": -1,
+          "fragment_location": 20
+        },
+        {
+          "name": "gsys_normalized_linear_depth",
+          "shader_model_index": 19,
+          "vertex_location": -1,
+          "fragment_location": 19
+        },
+        {
+          "name": "gsys_user4",
+          "shader_model_index": 20,
+          "vertex_location": -1,
+          "fragment_location": 27
+        },
+        {
+          "name": "gsys_projection0",
+          "shader_model_index": 21,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_static_depth_shadow",
+          "shader_model_index": 25,
+          "vertex_location": -1,
+          "fragment_location": 3
+        },
+        {
+          "name": "gsys_light_prepass",
+          "shader_model_index": 26,
+          "vertex_location": -1,
+          "fragment_location": 5
+        }
+      ],
+      "uniform_blocks": [
+        {
+          "name": "gsys_context",
+          "shader_model_dictionary_index": 0,
+          "block_index": 0,
+          "byte_size": 2496,
+          "vertex_location": 1,
+          "fragment_location": 1
+        },
+        {
+          "name": "gsys_shape",
+          "shader_model_dictionary_index": 1,
+          "block_index": 1,
+          "byte_size": 256,
+          "vertex_location": 4,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_environment",
+          "shader_model_dictionary_index": 2,
+          "block_index": 2,
+          "byte_size": 9024,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_material",
+          "shader_model_dictionary_index": 4,
+          "block_index": 4,
+          "byte_size": 1168,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_user1",
+          "shader_model_dictionary_index": 6,
+          "block_index": 6,
+          "byte_size": 3376,
+          "vertex_location": 12,
+          "fragment_location": 12
+        }
+      ],
+      "stages": {
+        "vertex": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "b78482804ef5480145bbb41825f73605179bf10544c6eded1b2c8b26ca9789de"
+          },
+          "container_stream": {
+            "byte_length": 2304,
+            "sha256": "977d5e3b8955c854149b504425f7cdee7772fb2427574d8314c3de74b5e0bddf"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 2256,
+            "sha256": "24625ec24970dbfd645cfb90378a5c2f5e65d9e18bc6bfc4c0719fe199940320"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 2176,
+            "sha256": "8e9d90cd3540aaa4db7762bf6a56c3feaa98f06bd551791685e56f8e4cf8380e"
+          }
+        },
+        "fragment": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "f0ad76a3e600ae618dcc2a141ff404d52a9b7ec12a2b497238ff637a708b84e3"
+          },
+          "container_stream": {
+            "byte_length": 9216,
+            "sha256": "edb2d8ed946e7165e216a4f0b67a95d6dd6793912477e89d24150fb304c1f44c"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 9168,
+            "sha256": "85c4d7f266c433447fd4c40b00c215fb3dcd1e3a8fbedf8a7d76d2faf303b595"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 9088,
+            "sha256": "0094679d985b1fc7afc47938d731bbc1d76509f4464ee14424f7c8006fa26e6f"
+          }
+        }
+      },
+      "selection_status": "exact_unique"
+    },
+    {
+      "key": "nose_line",
+      "resource": "MiiNose25",
+      "model": "MiiNose25",
+      "shape": "NoseLine__mt_NoseLine",
+      "material": "mt_NoseLine",
+      "vertex_skin_count": 0,
+      "serialized_shader_options": [
+        {
+          "name": "gsys_geometry_culling",
+          "value": "True"
+        },
+        {
+          "name": "enable_parallax_mapping_light",
+          "value": "True"
+        },
+        {
+          "name": "enable_specular_mask",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_texture_user0",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_expression0",
+          "value": "True"
+        },
+        {
+          "name": "clamp_albedo",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "replace_albedo",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_dynamic_depth_shadow",
+          "value": "False"
+        },
+        {
+          "name": "enable_light_occlusion",
+          "value": "True"
+        },
+        {
+          "name": "enable_ssao",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_world_ao",
+          "value": "False"
+        },
+        {
+          "name": "enable_area_env",
+          "value": "True"
+        },
+        {
+          "name": "enable_area_env_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_ground_gi_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_cheap_sss",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_scatter_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_screenspace_face_shadow",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "is_mii_face",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_face_shade_offset",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_mii_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_edge_light_toon",
+          "value": "False"
+        },
+        {
+          "name": "enable_albedo",
+          "value": "True"
+        },
+        {
+          "name": "enable_specular",
+          "value": "False"
+        },
+        {
+          "name": "texcoord_select_specular_mask",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "expression0",
+          "value": "929391388"
+        },
+        {
+          "name": "map_albedo",
+          "value": "100"
+        },
+        {
+          "name": "map_roughness",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_specular_mask",
+          "value": "1103"
+        },
+        {
+          "name": "map_channel_specular_mask",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_height",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_alpha",
+          "value": "100"
+        },
+        {
+          "name": "map_channel_alpha",
+          "value": "4000"
+        }
+      ],
+      "omitted_default_options": [
+        "enable_specular_mask",
+        "enable_texture_user0",
+        "clamp_albedo",
+        "replace_albedo",
+        "enable_ssao",
+        "enable_cheap_sss",
+        "enable_screenspace_face_shadow",
+        "enable_mii_face_shade_offset",
+        "texcoord_select_specular_mask",
+        "map_roughness",
+        "map_channel_specular_mask",
+        "map_height"
+      ],
+      "constrained_material_options": {
+        "enable_albedo": "1",
+        "enable_area_env": "1",
+        "enable_area_env_blend": "1",
+        "enable_dynamic_depth_shadow": "0",
+        "enable_edge_light_toon": "0",
+        "enable_expression0": "1",
+        "enable_ground_gi_blend": "1",
+        "enable_light_occlusion": "1",
+        "enable_mii_emission": "1",
+        "enable_parallax_mapping_light": "1",
+        "enable_scatter_emission": "1",
+        "enable_specular": "0",
+        "enable_world_ao": "0",
+        "expression0": "929391388",
+        "gsys_geometry_culling": "1",
+        "is_mii_face": "1",
+        "map_albedo": "100",
+        "map_alpha": "100",
+        "map_channel_alpha": "4000",
+        "map_specular_mask": "1103"
+      },
+      "resolver_system_options": {
+        "gsys_weight": "0",
+        "gsys_index_stream_format": "0",
+        "gsys_assign_type": "gsys_assign_material",
+        "system_id": "0"
+      },
+      "bfres_compatible_program_indices_without_archive_defaults": [
+        12
+      ],
+      "render_state_constraints": [],
+      "archive_default_constraints": [],
+      "resolver": "BfshaLibrary.ShaderModel.GetProgramIndex; unrelated BFRES <Default Value> entries remain unconstrained; proven Hair/Beard/Ear/Glass render-state keys and Headwear render/display-face keys come from exact BFRES RenderInfo; absent Hair/Beard map_shift and inherited Decoration map_specular_mask come from GameAll's stored defaultChoice; Glass frame normal-map defaults come from its exact missing normal binding",
+      "resolved_program_index": 12,
+      "compatible_program_count": 1,
+      "compatible_program_indices": [
+        12
+      ],
+      "texture_assignments": [
+        {
+          "index": 0,
+          "texture_ref": "MiiNose25_NoseLine_Msk",
+          "material_sampler": "_a0",
+          "sampler_state_index": 0,
+          "shader_samplers": [
+            "_a0"
+          ]
+        }
+      ],
+      "sampler_assignments": [
+        {
+          "shader_sampler": "_s0",
+          "material_sampler": "Default Value>",
+          "material_sampler_index": null,
+          "texture_ref": null
+        },
+        {
+          "shader_sampler": "_user0",
+          "material_sampler": "Default Value>",
+          "material_sampler_index": null,
+          "texture_ref": null
+        },
+        {
+          "shader_sampler": "_a0",
+          "material_sampler": "_a0",
+          "material_sampler_index": 0,
+          "texture_ref": "MiiNose25_NoseLine_Msk"
+        }
+      ],
+      "attributes": [
+        {
+          "shader_attribute": "_p0",
+          "bfres_vertex_attribute": "_p0",
+          "shader_model_index": 0,
+          "vertex_location": 0
+        },
+        {
+          "shader_attribute": "_n0",
+          "bfres_vertex_attribute": "_n0",
+          "shader_model_index": 1,
+          "vertex_location": 1
+        },
+        {
+          "shader_attribute": "_t0",
+          "bfres_vertex_attribute": "<Default Value>",
+          "shader_model_index": 2,
+          "vertex_location": 2
+        },
+        {
+          "shader_attribute": "_b0",
+          "bfres_vertex_attribute": "<Default Value>",
+          "shader_model_index": null,
+          "vertex_location": null
+        },
+        {
+          "shader_attribute": "_u0",
+          "bfres_vertex_attribute": "_u0",
+          "shader_model_index": 5,
+          "vertex_location": 8
+        }
+      ],
+      "samplers": [
+        {
+          "name": "gsys_gbuffer_emission",
+          "shader_model_index": 13,
+          "vertex_location": 10,
+          "fragment_location": -1
+        },
+        {
+          "name": "gsys_user3",
+          "shader_model_index": 14,
+          "vertex_location": -1,
+          "fragment_location": 26
+        },
+        {
+          "name": "gsys_user2",
+          "shader_model_index": 16,
+          "vertex_location": -1,
+          "fragment_location": 25
+        },
+        {
+          "name": "gsys_user5",
+          "shader_model_index": 17,
+          "vertex_location": -1,
+          "fragment_location": 28
+        },
+        {
+          "name": "gsys_half_normalized_linear_depth",
+          "shader_model_index": 18,
+          "vertex_location": -1,
+          "fragment_location": 20
+        },
+        {
+          "name": "gsys_normalized_linear_depth",
+          "shader_model_index": 19,
+          "vertex_location": -1,
+          "fragment_location": 19
+        },
+        {
+          "name": "gsys_user4",
+          "shader_model_index": 20,
+          "vertex_location": -1,
+          "fragment_location": 27
+        },
+        {
+          "name": "gsys_projection0",
+          "shader_model_index": 21,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_shadow_prepass",
+          "shader_model_index": 22,
+          "vertex_location": -1,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_light_prepass",
+          "shader_model_index": 26,
+          "vertex_location": -1,
+          "fragment_location": 5
+        }
+      ],
+      "uniform_blocks": [
+        {
+          "name": "gsys_context",
+          "shader_model_dictionary_index": 0,
+          "block_index": 0,
+          "byte_size": 2496,
+          "vertex_location": 1,
+          "fragment_location": 1
+        },
+        {
+          "name": "gsys_shape",
+          "shader_model_dictionary_index": 1,
+          "block_index": 1,
+          "byte_size": 256,
+          "vertex_location": 4,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_environment",
+          "shader_model_dictionary_index": 2,
+          "block_index": 2,
+          "byte_size": 9024,
+          "vertex_location": -1,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_material",
+          "shader_model_dictionary_index": 4,
+          "block_index": 4,
+          "byte_size": 1168,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_user1",
+          "shader_model_dictionary_index": 6,
+          "block_index": 6,
+          "byte_size": 3376,
+          "vertex_location": 12,
+          "fragment_location": 12
+        }
+      ],
+      "stages": {
+        "vertex": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "79dd7378423a3ff964fe54f9889ee33bff117c8d3dee1f7a9b741255e00d1e34"
+          },
+          "container_stream": {
+            "byte_length": 1536,
+            "sha256": "89b197ae3c432eb41b1e08b4d53d728b7f001c9f27552296e8fa2f4c3862a9e6"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 1488,
+            "sha256": "e2e7e2dec2f66822c15a4f8a11cce113514c6fa058ffd4159cb1cc926584f826"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 1408,
+            "sha256": "9563dcca64f5cefc7cc860b27d61e0d3a05cf7854a679c9b0a7337c52616f663"
+          }
+        },
+        "fragment": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "e103e7d3f407e23cd42ba0dee06a77ffedc4150ed648af512b5155eda9e8774f"
+          },
+          "container_stream": {
+            "byte_length": 5632,
+            "sha256": "7af275e3bbdeaf2281c6f0593e0766f04aeb29e1f1ca336e8a26f8e035e25382"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 5584,
+            "sha256": "16a4b950b62d02b8397225519d1ad231af9a692d5207586d47582781aaad1dd1"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 5504,
+            "sha256": "398f849e76c76ea7225b7c3de1313d6b5b1a9887e398cf1ec72a8883ee7c61b7"
+          }
+        }
+      },
+      "selection_status": "exact_unique"
+    },
+    {
+      "key": "glass_frame",
+      "resource": "MiiGlass08",
+      "model": "MiiGlass08",
+      "shape": "Flame__mt_Body",
+      "material": "mt_Body",
+      "vertex_skin_count": 0,
+      "serialized_shader_options": [
+        {
+          "name": "gsys_geometry_culling",
+          "value": "True"
+        },
+        {
+          "name": "enable_parallax_mapping_light",
+          "value": "True"
+        },
+        {
+          "name": "clamp_albedo",
+          "value": "True"
+        },
+        {
+          "name": "replace_albedo",
+          "value": "True"
+        },
+        {
+          "name": "enable_dynamic_depth_shadow",
+          "value": "False"
+        },
+        {
+          "name": "enable_light_occlusion",
+          "value": "True"
+        },
+        {
+          "name": "enable_world_ao",
+          "value": "False"
+        },
+        {
+          "name": "enable_area_env",
+          "value": "True"
+        },
+        {
+          "name": "enable_area_env_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_ground_gi_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_scatter_emission",
+          "value": "True"
+        },
+        {
+          "name": "is_mii_face",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_normal_map",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_edge_light_toon",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_glass",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_glass_lens",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_albedo",
+          "value": "1000"
+        },
+        {
+          "name": "map_normal",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_alpha",
+          "value": "<Default Value>"
+        }
+      ],
+      "omitted_default_options": [
+        "enable_normal_map",
+        "enable_edge_light_toon",
+        "enable_glass",
+        "enable_glass_lens",
+        "map_normal",
+        "map_alpha"
+      ],
+      "constrained_material_options": {
+        "clamp_albedo": "1",
+        "enable_area_env": "1",
+        "enable_area_env_blend": "1",
+        "enable_dynamic_depth_shadow": "0",
+        "enable_ground_gi_blend": "1",
+        "enable_light_occlusion": "1",
+        "enable_mii_emission": "1",
+        "enable_parallax_mapping_light": "1",
+        "enable_scatter_emission": "1",
+        "enable_world_ao": "0",
+        "gsys_geometry_culling": "1",
+        "is_mii_face": "1",
+        "map_albedo": "1000",
+        "replace_albedo": "1"
+      },
+      "resolver_system_options": {
+        "gsys_weight": "0",
+        "gsys_index_stream_format": "0",
+        "gsys_assign_type": "gsys_assign_material",
+        "system_id": "0"
+      },
+      "bfres_compatible_program_indices_without_archive_defaults": [
+        60,
+        360,
+        768
+      ],
+      "render_state_constraints": [],
+      "archive_default_constraints": [],
+      "resolver": "BfshaLibrary.ShaderModel.GetProgramIndex; unrelated BFRES <Default Value> entries remain unconstrained; proven Hair/Beard/Ear/Glass render-state keys and Headwear render/display-face keys come from exact BFRES RenderInfo; absent Hair/Beard map_shift and inherited Decoration map_specular_mask come from GameAll's stored defaultChoice; Glass frame normal-map defaults come from its exact missing normal binding",
+      "compatible_program_count": 3,
+      "compatible_program_indices": [
+        60,
+        360,
+        768
+      ],
+      "texture_assignments": [],
+      "sampler_assignments": [
+        {
+          "shader_sampler": "_n0",
+          "material_sampler": "Default Value>",
+          "material_sampler_index": null,
+          "texture_ref": null
+        }
+      ],
+      "attributes": [
+        {
+          "shader_attribute": "_p0",
+          "bfres_vertex_attribute": "_p0",
+          "shader_model_index": 0,
+          "vertex_location": 0
+        },
+        {
+          "shader_attribute": "_n0",
+          "bfres_vertex_attribute": "_n0",
+          "shader_model_index": 1,
+          "vertex_location": 1
+        },
+        {
+          "shader_attribute": "_t0",
+          "bfres_vertex_attribute": "<Default Value>",
+          "shader_model_index": 2,
+          "vertex_location": 2
+        },
+        {
+          "shader_attribute": "_b0",
+          "bfres_vertex_attribute": "<Default Value>",
+          "shader_model_index": null,
+          "vertex_location": null
+        },
+        {
+          "shader_attribute": "_u0",
+          "bfres_vertex_attribute": "<Default Value>",
+          "shader_model_index": 5,
+          "vertex_location": 8
+        }
+      ],
+      "samplers": [
+        {
+          "name": "_n0",
+          "shader_model_index": 2,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_gbuffer_emission",
+          "shader_model_index": 13,
+          "vertex_location": 10,
+          "fragment_location": -1
+        },
+        {
+          "name": "gsys_user3",
+          "shader_model_index": 14,
+          "vertex_location": -1,
+          "fragment_location": 26
+        },
+        {
+          "name": "gsys_user2",
+          "shader_model_index": 16,
+          "vertex_location": -1,
+          "fragment_location": 25
+        },
+        {
+          "name": "gsys_user5",
+          "shader_model_index": 17,
+          "vertex_location": -1,
+          "fragment_location": 28
+        },
+        {
+          "name": "gsys_normalized_linear_depth",
+          "shader_model_index": 19,
+          "vertex_location": -1,
+          "fragment_location": 19
+        },
+        {
+          "name": "gsys_projection0",
+          "shader_model_index": 21,
+          "vertex_location": -1,
+          "fragment_location": 6
+        }
+      ],
+      "uniform_blocks": [
+        {
+          "name": "gsys_context",
+          "shader_model_dictionary_index": 0,
+          "block_index": 0,
+          "byte_size": 2496,
+          "vertex_location": 1,
+          "fragment_location": 1
+        },
+        {
+          "name": "gsys_shape",
+          "shader_model_dictionary_index": 1,
+          "block_index": 1,
+          "byte_size": 256,
+          "vertex_location": 4,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_environment",
+          "shader_model_dictionary_index": 2,
+          "block_index": 2,
+          "byte_size": 9024,
+          "vertex_location": 6,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_material",
+          "shader_model_dictionary_index": 4,
+          "block_index": 4,
+          "byte_size": 1168,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_user1",
+          "shader_model_dictionary_index": 6,
+          "block_index": 6,
+          "byte_size": 3376,
+          "vertex_location": 12,
+          "fragment_location": 12
+        }
+      ],
+      "stages": {
+        "vertex": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "1c508b8c481745414e95b344080be9dfbeb23dccb252aa199596dcdccfab693a"
+          },
+          "container_stream": {
+            "byte_length": 1792,
+            "sha256": "d0fc7bcf52f2a6522eebeb180ce8e0847fae3b0dd57dd7cf6dbc26ddb734ad10"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 1744,
+            "sha256": "6b4fcd082a7803560c3227a86184c7b1eca427231af83b336690f3a5eb625ad8"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 1664,
+            "sha256": "9863df2bbefbae036a39333a94acae9b95838c160567b4a9eefaa48e2ca1596a"
+          }
+        },
+        "fragment": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "9a9654bdc4c0fc20869c9c4e7fff41286c4ba35acd271ff575ef73e806b4daf9"
+          },
+          "container_stream": {
+            "byte_length": 6912,
+            "sha256": "ab874a15cf86a7cdd9b524a0a6a7f697f03f92764bf7c23997bba21fdcee9f77"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 6864,
+            "sha256": "6c9e05bf62f93a01585efe5386fb853f1ae794e1011c4235d608d81ff2b3d25b"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 6784,
+            "sha256": "a62c75fe0b789862367f7b3d673b7fc15e0b332d6ec900eef6f87a1598d5bd2f"
+          }
+        }
+      },
+      "resolver_candidate_program_index": 60,
+      "resolved_program_index": null,
+      "selection_status": "unresolved_multiple_binary_compatible_programs",
+      "unresolved_reason": "BFRES serializes inherited <Default Value> options; no traced live title option state fixes one compatible program, so the resolver's first candidate is not selected"
+    },
+    {
+      "key": "glass_lens_translucent",
+      "resource": "MiiGlass08",
+      "model": "MiiGlass08",
+      "shape": "Trs__mt_LensTrs",
+      "material": "mt_LensTrs",
+      "vertex_skin_count": 0,
+      "serialized_shader_options": [
+        {
+          "name": "gsys_geometry_culling",
+          "value": "True"
+        },
+        {
+          "name": "enable_parallax_mapping_light",
+          "value": "True"
+        },
+        {
+          "name": "clamp_albedo",
+          "value": "True"
+        },
+        {
+          "name": "replace_albedo",
+          "value": "True"
+        },
+        {
+          "name": "enable_dynamic_depth_shadow",
+          "value": "False"
+        },
+        {
+          "name": "enable_light_occlusion",
+          "value": "True"
+        },
+        {
+          "name": "enable_world_ao",
+          "value": "False"
+        },
+        {
+          "name": "enable_area_env",
+          "value": "True"
+        },
+        {
+          "name": "enable_area_env_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_ground_gi_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_scatter_emission",
+          "value": "True"
+        },
+        {
+          "name": "is_mii_face",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_normal_map",
+          "value": "True"
+        },
+        {
+          "name": "enable_edge_light_toon",
+          "value": "False"
+        },
+        {
+          "name": "enable_glass",
+          "value": "True"
+        },
+        {
+          "name": "enable_glass_lens",
+          "value": "True"
+        },
+        {
+          "name": "map_albedo",
+          "value": "1000"
+        },
+        {
+          "name": "map_normal",
+          "value": "12"
+        },
+        {
+          "name": "map_alpha",
+          "value": "1100"
+        }
+      ],
+      "omitted_default_options": [],
+      "constrained_material_options": {
+        "clamp_albedo": "1",
+        "enable_area_env": "1",
+        "enable_area_env_blend": "1",
+        "enable_dynamic_depth_shadow": "0",
+        "enable_edge_light_toon": "0",
+        "enable_glass": "1",
+        "enable_glass_lens": "1",
+        "enable_ground_gi_blend": "1",
+        "enable_light_occlusion": "1",
+        "enable_mii_emission": "1",
+        "enable_normal_map": "1",
+        "enable_parallax_mapping_light": "1",
+        "enable_scatter_emission": "1",
+        "enable_world_ao": "0",
+        "gsys_geometry_culling": "1",
+        "is_mii_face": "1",
+        "map_albedo": "1000",
+        "map_alpha": "1100",
+        "map_normal": "12",
+        "replace_albedo": "1"
+      },
+      "resolver_system_options": {
+        "gsys_weight": "0",
+        "gsys_index_stream_format": "0",
+        "gsys_assign_type": "gsys_assign_material",
+        "system_id": "0"
+      },
+      "bfres_compatible_program_indices_without_archive_defaults": [
+        60
+      ],
+      "render_state_constraints": [],
+      "archive_default_constraints": [],
+      "resolver": "BfshaLibrary.ShaderModel.GetProgramIndex; unrelated BFRES <Default Value> entries remain unconstrained; proven Hair/Beard/Ear/Glass render-state keys and Headwear render/display-face keys come from exact BFRES RenderInfo; absent Hair/Beard map_shift and inherited Decoration map_specular_mask come from GameAll's stored defaultChoice; Glass frame normal-map defaults come from its exact missing normal binding",
+      "resolved_program_index": 60,
+      "compatible_program_count": 1,
+      "compatible_program_indices": [
+        60
+      ],
+      "texture_assignments": [
+        {
+          "index": 0,
+          "texture_ref": "MiiGlass08_Nrm",
+          "material_sampler": "_n0",
+          "sampler_state_index": 0,
+          "shader_samplers": [
+            "_n0"
+          ]
+        }
+      ],
+      "sampler_assignments": [
+        {
+          "shader_sampler": "_n0",
+          "material_sampler": "_n0",
+          "material_sampler_index": 0,
+          "texture_ref": "MiiGlass08_Nrm"
+        }
+      ],
+      "attributes": [
+        {
+          "shader_attribute": "_p0",
+          "bfres_vertex_attribute": "_p0",
+          "shader_model_index": 0,
+          "vertex_location": 0
+        },
+        {
+          "shader_attribute": "_n0",
+          "bfres_vertex_attribute": "_n0",
+          "shader_model_index": 1,
+          "vertex_location": 1
+        },
+        {
+          "shader_attribute": "_t0",
+          "bfres_vertex_attribute": "_t0",
+          "shader_model_index": 2,
+          "vertex_location": 2
+        },
+        {
+          "shader_attribute": "_b0",
+          "bfres_vertex_attribute": "_b0",
+          "shader_model_index": null,
+          "vertex_location": null
+        },
+        {
+          "shader_attribute": "_u0",
+          "bfres_vertex_attribute": "_u0",
+          "shader_model_index": 5,
+          "vertex_location": 8
+        }
+      ],
+      "samplers": [
+        {
+          "name": "_n0",
+          "shader_model_index": 2,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_gbuffer_emission",
+          "shader_model_index": 13,
+          "vertex_location": 10,
+          "fragment_location": -1
+        },
+        {
+          "name": "gsys_user3",
+          "shader_model_index": 14,
+          "vertex_location": -1,
+          "fragment_location": 26
+        },
+        {
+          "name": "gsys_user2",
+          "shader_model_index": 16,
+          "vertex_location": -1,
+          "fragment_location": 25
+        },
+        {
+          "name": "gsys_user5",
+          "shader_model_index": 17,
+          "vertex_location": -1,
+          "fragment_location": 28
+        },
+        {
+          "name": "gsys_normalized_linear_depth",
+          "shader_model_index": 19,
+          "vertex_location": -1,
+          "fragment_location": 19
+        },
+        {
+          "name": "gsys_projection0",
+          "shader_model_index": 21,
+          "vertex_location": -1,
+          "fragment_location": 6
+        }
+      ],
+      "uniform_blocks": [
+        {
+          "name": "gsys_context",
+          "shader_model_dictionary_index": 0,
+          "block_index": 0,
+          "byte_size": 2496,
+          "vertex_location": 1,
+          "fragment_location": 1
+        },
+        {
+          "name": "gsys_shape",
+          "shader_model_dictionary_index": 1,
+          "block_index": 1,
+          "byte_size": 256,
+          "vertex_location": 4,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_environment",
+          "shader_model_dictionary_index": 2,
+          "block_index": 2,
+          "byte_size": 9024,
+          "vertex_location": 6,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_material",
+          "shader_model_dictionary_index": 4,
+          "block_index": 4,
+          "byte_size": 1168,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_user1",
+          "shader_model_dictionary_index": 6,
+          "block_index": 6,
+          "byte_size": 3376,
+          "vertex_location": 12,
+          "fragment_location": 12
+        }
+      ],
+      "stages": {
+        "vertex": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "1c508b8c481745414e95b344080be9dfbeb23dccb252aa199596dcdccfab693a"
+          },
+          "container_stream": {
+            "byte_length": 1792,
+            "sha256": "d0fc7bcf52f2a6522eebeb180ce8e0847fae3b0dd57dd7cf6dbc26ddb734ad10"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 1744,
+            "sha256": "6b4fcd082a7803560c3227a86184c7b1eca427231af83b336690f3a5eb625ad8"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 1664,
+            "sha256": "9863df2bbefbae036a39333a94acae9b95838c160567b4a9eefaa48e2ca1596a"
+          }
+        },
+        "fragment": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "9a9654bdc4c0fc20869c9c4e7fff41286c4ba35acd271ff575ef73e806b4daf9"
+          },
+          "container_stream": {
+            "byte_length": 6912,
+            "sha256": "ab874a15cf86a7cdd9b524a0a6a7f697f03f92764bf7c23997bba21fdcee9f77"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 6864,
+            "sha256": "6c9e05bf62f93a01585efe5386fb853f1ae794e1011c4235d608d81ff2b3d25b"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 6784,
+            "sha256": "a62c75fe0b789862367f7b3d673b7fc15e0b332d6ec900eef6f87a1598d5bd2f"
+          }
+        }
+      },
+      "selection_status": "exact_unique"
+    },
+    {
+      "key": "glass_lens_opaque",
+      "resource": "MiiGlass08",
+      "model": "MiiGlass08",
+      "shape": "Opa__mt_LensOpa",
+      "material": "mt_LensOpa",
+      "vertex_skin_count": 0,
+      "serialized_shader_options": [
+        {
+          "name": "gsys_geometry_culling",
+          "value": "True"
+        },
+        {
+          "name": "enable_parallax_mapping_light",
+          "value": "True"
+        },
+        {
+          "name": "clamp_albedo",
+          "value": "True"
+        },
+        {
+          "name": "replace_albedo",
+          "value": "True"
+        },
+        {
+          "name": "enable_dynamic_depth_shadow",
+          "value": "False"
+        },
+        {
+          "name": "enable_light_occlusion",
+          "value": "True"
+        },
+        {
+          "name": "enable_world_ao",
+          "value": "False"
+        },
+        {
+          "name": "enable_area_env",
+          "value": "True"
+        },
+        {
+          "name": "enable_area_env_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_ground_gi_blend",
+          "value": "True"
+        },
+        {
+          "name": "enable_scatter_emission",
+          "value": "True"
+        },
+        {
+          "name": "is_mii_face",
+          "value": "True"
+        },
+        {
+          "name": "enable_mii_emission",
+          "value": "True"
+        },
+        {
+          "name": "enable_normal_map",
+          "value": "True"
+        },
+        {
+          "name": "enable_edge_light_toon",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_glass",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "enable_glass_lens",
+          "value": "<Default Value>"
+        },
+        {
+          "name": "map_albedo",
+          "value": "1000"
+        },
+        {
+          "name": "map_normal",
+          "value": "12"
+        },
+        {
+          "name": "map_alpha",
+          "value": "<Default Value>"
+        }
+      ],
+      "omitted_default_options": [
+        "enable_edge_light_toon",
+        "enable_glass",
+        "enable_glass_lens",
+        "map_alpha"
+      ],
+      "constrained_material_options": {
+        "clamp_albedo": "1",
+        "enable_area_env": "1",
+        "enable_area_env_blend": "1",
+        "enable_dynamic_depth_shadow": "0",
+        "enable_ground_gi_blend": "1",
+        "enable_light_occlusion": "1",
+        "enable_mii_emission": "1",
+        "enable_normal_map": "1",
+        "enable_parallax_mapping_light": "1",
+        "enable_scatter_emission": "1",
+        "enable_world_ao": "0",
+        "gsys_geometry_culling": "1",
+        "is_mii_face": "1",
+        "map_albedo": "1000",
+        "map_normal": "12",
+        "replace_albedo": "1"
+      },
+      "resolver_system_options": {
+        "gsys_weight": "0",
+        "gsys_index_stream_format": "0",
+        "gsys_assign_type": "gsys_assign_material",
+        "system_id": "0"
+      },
+      "bfres_compatible_program_indices_without_archive_defaults": [
+        60,
+        768
+      ],
+      "render_state_constraints": [],
+      "archive_default_constraints": [],
+      "resolver": "BfshaLibrary.ShaderModel.GetProgramIndex; unrelated BFRES <Default Value> entries remain unconstrained; proven Hair/Beard/Ear/Glass render-state keys and Headwear render/display-face keys come from exact BFRES RenderInfo; absent Hair/Beard map_shift and inherited Decoration map_specular_mask come from GameAll's stored defaultChoice; Glass frame normal-map defaults come from its exact missing normal binding",
+      "compatible_program_count": 2,
+      "compatible_program_indices": [
+        60,
+        768
+      ],
+      "texture_assignments": [
+        {
+          "index": 0,
+          "texture_ref": "MiiGlass08_Nrm",
+          "material_sampler": "_n0",
+          "sampler_state_index": 0,
+          "shader_samplers": [
+            "_n0"
+          ]
+        }
+      ],
+      "sampler_assignments": [
+        {
+          "shader_sampler": "_n0",
+          "material_sampler": "_n0",
+          "material_sampler_index": 0,
+          "texture_ref": "MiiGlass08_Nrm"
+        }
+      ],
+      "attributes": [
+        {
+          "shader_attribute": "_p0",
+          "bfres_vertex_attribute": "_p0",
+          "shader_model_index": 0,
+          "vertex_location": 0
+        },
+        {
+          "shader_attribute": "_n0",
+          "bfres_vertex_attribute": "_n0",
+          "shader_model_index": 1,
+          "vertex_location": 1
+        },
+        {
+          "shader_attribute": "_t0",
+          "bfres_vertex_attribute": "_t0",
+          "shader_model_index": 2,
+          "vertex_location": 2
+        },
+        {
+          "shader_attribute": "_b0",
+          "bfres_vertex_attribute": "_b0",
+          "shader_model_index": null,
+          "vertex_location": null
+        },
+        {
+          "shader_attribute": "_u0",
+          "bfres_vertex_attribute": "_u0",
+          "shader_model_index": 5,
+          "vertex_location": 8
+        }
+      ],
+      "samplers": [
+        {
+          "name": "_n0",
+          "shader_model_index": 2,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_gbuffer_emission",
+          "shader_model_index": 13,
+          "vertex_location": 10,
+          "fragment_location": -1
+        },
+        {
+          "name": "gsys_user3",
+          "shader_model_index": 14,
+          "vertex_location": -1,
+          "fragment_location": 26
+        },
+        {
+          "name": "gsys_user2",
+          "shader_model_index": 16,
+          "vertex_location": -1,
+          "fragment_location": 25
+        },
+        {
+          "name": "gsys_user5",
+          "shader_model_index": 17,
+          "vertex_location": -1,
+          "fragment_location": 28
+        },
+        {
+          "name": "gsys_normalized_linear_depth",
+          "shader_model_index": 19,
+          "vertex_location": -1,
+          "fragment_location": 19
+        },
+        {
+          "name": "gsys_projection0",
+          "shader_model_index": 21,
+          "vertex_location": -1,
+          "fragment_location": 6
+        }
+      ],
+      "uniform_blocks": [
+        {
+          "name": "gsys_context",
+          "shader_model_dictionary_index": 0,
+          "block_index": 0,
+          "byte_size": 2496,
+          "vertex_location": 1,
+          "fragment_location": 1
+        },
+        {
+          "name": "gsys_shape",
+          "shader_model_dictionary_index": 1,
+          "block_index": 1,
+          "byte_size": 256,
+          "vertex_location": 4,
+          "fragment_location": 4
+        },
+        {
+          "name": "gsys_environment",
+          "shader_model_dictionary_index": 2,
+          "block_index": 2,
+          "byte_size": 9024,
+          "vertex_location": 6,
+          "fragment_location": 6
+        },
+        {
+          "name": "gsys_material",
+          "shader_model_dictionary_index": 4,
+          "block_index": 4,
+          "byte_size": 1168,
+          "vertex_location": -1,
+          "fragment_location": 8
+        },
+        {
+          "name": "gsys_user1",
+          "shader_model_dictionary_index": 6,
+          "block_index": 6,
+          "byte_size": 3376,
+          "vertex_location": 12,
+          "fragment_location": 12
+        }
+      ],
+      "stages": {
+        "vertex": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "1c508b8c481745414e95b344080be9dfbeb23dccb252aa199596dcdccfab693a"
+          },
+          "container_stream": {
+            "byte_length": 1792,
+            "sha256": "d0fc7bcf52f2a6522eebeb180ce8e0847fae3b0dd57dd7cf6dbc26ddb734ad10"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 1744,
+            "sha256": "6b4fcd082a7803560c3227a86184c7b1eca427231af83b336690f3a5eb625ad8"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 1664,
+            "sha256": "9863df2bbefbae036a39333a94acae9b95838c160567b4a9eefaa48e2ca1596a"
+          }
+        },
+        "fragment": {
+          "control_stream": {
+            "byte_length": 2176,
+            "sha256": "9a9654bdc4c0fc20869c9c4e7fff41286c4ba35acd271ff575ef73e806b4daf9"
+          },
+          "container_stream": {
+            "byte_length": 6912,
+            "sha256": "ab874a15cf86a7cdd9b524a0a6a7f697f03f92764bf7c23997bba21fdcee9f77"
+          },
+          "maxwell_offset": 48,
+          "maxwell": {
+            "byte_length": 6864,
+            "sha256": "6c9e05bf62f93a01585efe5386fb853f1ae794e1011c4235d608d81ff2b3d25b"
+          },
+          "instruction_offset": 128,
+          "instructions": {
+            "byte_length": 6784,
+            "sha256": "a62c75fe0b789862367f7b3d673b7fc15e0b332d6ec900eef6f87a1598d5bd2f"
+          }
+        }
+      },
+      "resolver_candidate_program_index": 60,
+      "resolved_program_index": null,
+      "selection_status": "unresolved_multiple_binary_compatible_programs",
+      "unresolved_reason": "BFRES serializes inherited <Default Value> options; no traced live title option state fixes one compatible program, so the resolver's first candidate is not selected"
+    }
+  ],
+  "scope_limit": "Program identity and binary stages only; live title uniform buffers, environment, prepasses, final Glass08 environment/reflection radiance, and unresolved frame/Opa inherited static-option state are not claimed."
+}

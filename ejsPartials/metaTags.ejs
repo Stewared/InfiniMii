@@ -208,11 +208,12 @@ const rssFeedUrl = `${resolvedBaseUrl}/feed.xml`;
 <% if (resolvedTwitterSite) { %><meta name="twitter:site" content="<%= resolvedTwitterSite %>"><% } %>
 
 <!-- Additional SEO Tags -->
-<meta name="theme-color" content="#ff0000">
+<meta name="theme-color" content="#171315">
 <link rel="icon" href="/assets/favicon.ico" type="image/png" sizes="any">
 <link rel="apple-touch-icon" href="/assets/favicon.ico">
 
 <!-- Preload critical resources -->
-<link rel="preload" as="font" href="/fonts/poppins-v20-latin-regular.woff2" type="font/woff2" crossorigin>
-<link rel="preload" as="font" href="/fonts/poppins-v20-latin-500.woff2" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="/banner.png">
+
+<!-- Shared visual theme. Page styles load later, so this file uses deliberate component specificity. -->
+<link rel="stylesheet" href="/archive.css?v=<%= encodeURIComponent(assetVersion || '20260815-archive') %>">

@@ -1,0 +1,878 @@
+/* Settings is deliberately self-contained so utility pages keep their existing layout. */
+html body.settings-page .settings-container.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2vw, 1.75rem);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 980px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0 0 clamp(1rem, 2vw, 1.5rem);
+  border-radius: 0;
+  background: transparent;
+}
+
+html body.settings-page .settings-heading {
+  padding: clamp(1.5rem, 3vw, 2.15rem);
+  border: 1px solid var(--archive-line-strong, var(--layer-3-um));
+  border-radius: var(--archive-radius-lg, 14px);
+  background-color: color-mix(
+    in oklab,
+    var(--layer-2-um) 92%,
+    var(--user-pfp-mii-color, var(--brand-color)) 8%
+  );
+}
+
+html body.settings-page .settings-heading h1 {
+  margin: 0;
+  color: var(--text-1);
+  font-size: clamp(1.75rem, 4vw, 2.45rem);
+  line-height: 1.05;
+}
+
+html body.settings-page .settings-heading p {
+  max-width: 45rem;
+  margin: 0.75rem 0 0;
+  color: var(--text-2);
+  line-height: 1.55;
+}
+
+html body.settings-page .settings-section-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding: 0.65rem;
+  border: 1px solid var(--archive-line, var(--layer-3-um));
+  border-radius: var(--archive-radius, 10px);
+  background-color: var(--archive-panel, var(--layer-2-um));
+}
+
+html body.settings-page .settings-section-nav a {
+  display: flex;
+  min-height: 2.85rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--archive-radius-sm, 6px);
+  color: var(--text-2);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+html body.settings-page .settings-section-nav a:hover,
+html body.settings-page .settings-section-nav a:focus-visible {
+  background-color: var(--archive-hover, var(--layer-3-um));
+  color: var(--text-1);
+}
+
+html body.settings-page .settings-section-nav a:focus-visible,
+html
+  body.settings-page
+  .settings-panel
+  :is(button, input, summary, a):focus-visible {
+  outline: 2px solid var(--archive-focus, var(--brand-color));
+  outline-offset: 2px;
+}
+
+html body.settings-page .settings-message.settings-message {
+  margin: 0;
+  padding: 1rem 1.2rem;
+  border-radius: var(--archive-radius, 10px);
+}
+
+html body.settings-page .settings-panel.settings-panel {
+  min-width: 0;
+  margin: 0;
+  padding: clamp(1.4rem, 3vw, 1.9rem);
+  scroll-margin-top: 1rem;
+  border: 1px solid var(--archive-line-strong, var(--layer-3-um));
+  border-radius: var(--archive-radius-lg, 14px);
+  background-color: var(--archive-panel, var(--layer-2-um));
+}
+
+html body.settings-page .settings-panel.settings-panel > legend {
+  max-width: calc(100% - 1rem);
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--archive-panel, var(--layer-2-um));
+  color: var(--text-1);
+  font-size: clamp(1.2rem, 3vw, 1.45rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: none;
+}
+
+html body.settings-page .settings-panel-copy {
+  margin: 0 0 1.35rem;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+html body.settings-page .settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+html body.settings-page .setting-group.setting-group {
+  display: flex;
+  min-width: 0;
+  min-height: 100%;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--archive-line, var(--layer-3-um));
+  border-radius: var(--archive-radius, 10px);
+  background-color: var(--archive-inset, var(--layer-1-um));
+}
+
+html body.settings-page .setting-group.setting-group:last-child {
+  margin: 0;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--archive-line, var(--layer-3-um));
+}
+
+html body.settings-page .setting-group-wide {
+  grid-column: 1 / -1;
+}
+
+html body.settings-page .setting-group-header h2 {
+  margin: 0;
+  color: var(--text-1);
+  font-size: 1.02rem;
+  line-height: 1.3;
+}
+
+html body.settings-page .setting-group-header p {
+  margin: 0.4rem 0 0;
+  color: var(--text-2);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+html body.settings-page .setting-current {
+  min-width: 0;
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: color-mix(
+    in oklab,
+    var(--archive-panel, var(--layer-2-um)) 82%,
+    #ffffff 3%
+  );
+  color: var(--text-2);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+html body.settings-page .setting-current :is(strong, code) {
+  color: var(--text-1);
+}
+
+html body.settings-page .setting-current code {
+  padding: 0.08rem 0.28rem;
+  border-radius: 4px;
+  background-color: var(--archive-page, var(--layer-1-um));
+  font-size: 0.9em;
+}
+
+html body.settings-page .settings-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+html body.settings-page .settings-field label,
+html body.settings-page .preference-search-field > span {
+  display: block;
+  margin: 0;
+  color: var(--text-1);
+  font-size: 0.83rem;
+  font-weight: 750;
+}
+
+html body.settings-page .settings-field input,
+html body.settings-page .preference-search-field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.75rem;
+  margin: 0;
+  padding: 0.68rem 0.75rem;
+  border: 1px solid var(--archive-line-strong, var(--layer-3-um));
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: var(--archive-page, var(--layer-1-um));
+  color: var(--text-1);
+  font: inherit;
+}
+
+html body.settings-page .settings-field input::placeholder,
+html body.settings-page .preference-search-field input::placeholder {
+  color: color-mix(in oklab, var(--text-2) 74%, transparent);
+}
+
+html body.settings-page .settings-field input:focus,
+html body.settings-page .preference-search-field input:focus {
+  outline: 2px solid var(--archive-focus, var(--brand-color));
+  outline-offset: 1px;
+  border-color: var(--archive-focus, var(--brand-color));
+}
+
+html body.settings-page .setting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+  margin-top: auto;
+}
+
+html body.settings-page .setting-group button,
+html body.settings-page .content-preference-actions button {
+  display: inline-flex;
+  min-height: 2.55rem;
+  width: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.62rem 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--brand-color) 74%, #ffffff 10%);
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: var(--brand-color);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+html body.settings-page .setting-group button:hover,
+html body.settings-page .content-preference-actions button:hover {
+  border-color: color-mix(in oklab, var(--brand-color) 62%, #ffffff 38%);
+  background-color: color-mix(in oklab, var(--brand-color) 86%, #ffffff 14%);
+  transform: none;
+}
+
+html
+  body.settings-page
+  :is(.setting-group, .content-preference-actions)
+  button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+html body.settings-page .linked-oauth-list {
+  gap: 0.65rem;
+  margin: 0;
+}
+
+html body.settings-page .linked-oauth-item.linked-oauth-item {
+  padding: 0.8rem 0.9rem;
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: var(--archive-panel, var(--layer-2-um));
+  box-shadow: none;
+}
+
+html body.settings-page .linked-oauth-status {
+  padding: 0.2rem 0.42rem;
+  border: 1px solid var(--archive-line, var(--layer-3-um));
+  border-radius: var(--archive-radius-sm, 6px);
+  font-size: 0.75rem;
+}
+
+html
+  body.settings-page
+  .setting-group
+  .oauth-unlink-button.oauth-unlink-button {
+  min-height: 2.1rem;
+  padding: 0.42rem 0.65rem;
+  border-color: var(--archive-line-strong, var(--layer-3-um));
+  background-color: var(--archive-inset, var(--layer-1-um));
+  color: var(--text-1);
+}
+
+html
+  body.settings-page
+  .setting-group
+  .oauth-unlink-button.oauth-unlink-button:hover {
+  border-color: #c8707a;
+  background-color: color-mix(
+    in oklab,
+    #8e343e 28%,
+    var(--archive-inset, var(--layer-1-um))
+  );
+}
+
+html body.settings-page .oauth-options-link {
+  margin-top: 1.15rem;
+}
+
+html body.settings-page .oauth-options-title {
+  margin: 0 0 0.75rem;
+  color: var(--text-2);
+  font-size: 0.84rem;
+}
+
+html body.settings-page .oauth-provider-grid {
+  gap: 0.65rem;
+}
+
+html body.settings-page .oauth-provider-button.oauth-provider-button {
+  min-height: 2.7rem;
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: var(--archive-panel, var(--layer-2-um));
+}
+
+html body.settings-page .content-preference-group {
+  margin-bottom: 1.2rem;
+}
+
+html body.settings-page .preference-selector-list.preference-selector-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.65rem;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+html body.settings-page .preference-radio-list.preference-radio-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+html body.settings-page .preference-selector-option.preference-selector-option {
+  display: flex !important;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.95rem;
+  align-items: center;
+  gap: 0.65rem;
+  box-sizing: border-box;
+  margin: 0 !important;
+  padding: 0.72rem 0.82rem;
+  border: 1px solid var(--archive-line, var(--layer-3-um));
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: var(--archive-panel, var(--layer-2-um));
+  color: var(--text-1) !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+html
+  body.settings-page
+  .preference-selector-option.preference-selector-option:hover {
+  border-color: var(--archive-line-strong, #75676d);
+  background-color: var(--archive-hover, var(--layer-3-um));
+}
+
+html
+  body.settings-page
+  .preference-selector-option.preference-selector-option:has(input:checked) {
+  border-color: color-mix(
+    in oklab,
+    var(--brand-color) 62%,
+    var(--archive-line-strong, #75676d)
+  );
+  background-color: color-mix(
+    in oklab,
+    var(--brand-color) 16%,
+    var(--archive-panel, var(--layer-2-um))
+  );
+}
+
+html body.settings-page .preference-selector-option input {
+  flex: 0 0 auto;
+  width: 1rem !important;
+  height: 1rem;
+  margin: 0 !important;
+  padding: 0;
+  accent-color: var(--brand-color);
+}
+
+html body.settings-page .preference-selector-option > span {
+  min-width: 0;
+}
+
+html body.settings-page .preference-radio-list .preference-selector-option {
+  align-items: flex-start;
+  min-height: 4.25rem;
+}
+
+html
+  body.settings-page
+  .preference-radio-list
+  .preference-selector-option
+  input {
+  margin-top: 0.12rem !important;
+}
+
+html body.settings-page .preference-radio-list :is(strong, small) {
+  display: block;
+}
+
+html body.settings-page .preference-radio-list small {
+  margin-top: 0.2rem;
+  color: var(--text-2);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+html body.settings-page .settings-preference-block {
+  margin-top: 0.85rem;
+  overflow: clip;
+  border: 1px solid var(--archive-line, var(--layer-3-um));
+  border-radius: var(--archive-radius, 10px);
+  background-color: var(--archive-inset, var(--layer-1-um));
+}
+
+html body.settings-page .settings-preference-block > summary {
+  display: flex;
+  min-height: 4.1rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1.1rem;
+  color: var(--text-1);
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+html body.settings-page .settings-preference-block > summary:hover {
+  background-color: var(--archive-hover, var(--layer-3-um));
+}
+
+html body.settings-page .settings-preference-block[open] > summary {
+  border-bottom: 1px solid var(--archive-line, var(--layer-3-um));
+}
+
+html
+  body.settings-page
+  .settings-preference-block
+  > summary
+  > span:first-child {
+  min-width: 0;
+}
+
+html
+  body.settings-page
+  .settings-preference-block
+  > summary
+  :is(strong, small) {
+  display: block;
+}
+
+html body.settings-page .settings-preference-block > summary strong {
+  font-size: 0.98rem;
+}
+
+html body.settings-page .settings-preference-block > summary small {
+  margin-top: 0.18rem;
+  color: var(--text-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+html body.settings-page .preference-selection-count {
+  flex: 0 0 auto;
+  padding: 0.25rem 0.48rem;
+  border: 1px solid var(--archive-line, var(--layer-3-um));
+  border-radius: var(--archive-radius-sm, 6px);
+  color: var(--text-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+html body.settings-page .preference-selection-count.has-selection {
+  border-color: color-mix(
+    in oklab,
+    var(--brand-color) 55%,
+    var(--archive-line, #75676d)
+  );
+  color: var(--text-1);
+}
+
+html body.settings-page .settings-preference-body {
+  padding: 1.1rem;
+}
+
+html body.settings-page .preference-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+html body.settings-page .preference-toolbar p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+html body.settings-page .preference-toolbar-search {
+  align-items: end;
+}
+
+html body.settings-page .preference-search-field {
+  display: grid;
+  width: min(100%, 22rem);
+  gap: 0.35rem;
+  margin: 0;
+}
+
+html body.settings-page .preference-search-field input {
+  min-height: 2.35rem;
+  padding: 0.48rem 0.62rem;
+  font-size: 0.88rem;
+}
+
+html body.settings-page .settings-text-button.settings-text-button {
+  flex: 0 0 auto;
+  min-height: 2.1rem;
+  width: auto;
+  margin: 0;
+  padding: 0.4rem 0.58rem;
+  border: 1px solid var(--archive-line, var(--layer-3-um));
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: transparent;
+  color: var(--text-2);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+html body.settings-page .settings-text-button.settings-text-button:hover {
+  border-color: var(--archive-line-strong, #75676d);
+  background-color: var(--archive-hover, var(--layer-3-um));
+  color: var(--text-1);
+}
+
+html
+  body.settings-page
+  .preference-selector-list-scroll.preference-selector-list-scroll,
+html
+  body.settings-page
+  .preference-category-selector.preference-category-selector {
+  max-height: 18rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.7rem;
+  scrollbar-gutter: stable;
+  border: 1px solid var(--archive-line, var(--layer-3-um));
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: var(--archive-page, var(--layer-1-um));
+}
+
+html
+  body.settings-page
+  .preference-category-selector.preference-category-selector {
+  display: block;
+  max-height: 22rem;
+}
+
+html body.settings-page .preference-category-group.preference-category-group {
+  border-bottom: 1px solid var(--archive-line, var(--layer-3-um));
+}
+
+html
+  body.settings-page
+  .preference-category-group.preference-category-group:last-child {
+  border-bottom: 0;
+}
+
+html body.settings-page .preference-category-group > summary {
+  padding: 0.8rem 0.7rem;
+  color: var(--text-1);
+  cursor: pointer;
+}
+
+html body.settings-page .preference-category-group > summary:hover {
+  background-color: var(--archive-hover, var(--layer-3-um));
+}
+
+html
+  body.settings-page
+  .preference-category-group
+  [data-category-selection-count][hidden],
+html body.settings-page .preference-selector-option[hidden],
+html body.settings-page .preference-no-results[hidden] {
+  display: none !important;
+}
+
+html
+  body.settings-page
+  .preference-category-group
+  .category-filter-group-count {
+  min-width: 1.55rem;
+  padding: 0.18rem 0.35rem;
+  border: 1px solid
+    color-mix(in oklab, var(--brand-color) 48%, var(--archive-line, #75676d));
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: color-mix(
+    in oklab,
+    var(--brand-color) 14%,
+    var(--archive-panel, var(--layer-2-um))
+  );
+  color: var(--text-1);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+html
+  body.settings-page
+  .preference-category-options.preference-category-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.55rem;
+  padding: 0.2rem 0.65rem 0.85rem;
+}
+
+html body.settings-page .preference-category-option.preference-category-option {
+  border-left-width: 1px;
+  border-left-color: var(--archive-line, var(--layer-3-um));
+}
+
+html
+  body.settings-page
+  .preference-category-option-top-level.preference-category-option-top-level {
+  grid-column: 1 / -1;
+  border-color: color-mix(
+    in oklab,
+    var(--category-color, var(--brand-color)) 48%,
+    var(--archive-line, #75676d)
+  );
+  background-color: color-mix(
+    in oklab,
+    var(--category-color, var(--brand-color)) 10%,
+    var(--archive-panel, var(--layer-2-um))
+  );
+}
+
+html body.settings-page .preference-no-results,
+html body.settings-page .preference-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.8rem;
+  color: var(--text-2);
+  text-align: center;
+}
+
+html body.settings-page .content-preference-actions.content-preference-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.15rem;
+  padding: 1.1rem;
+  border: 1px solid var(--archive-line-strong, var(--layer-3-um));
+  border-radius: var(--archive-radius, 10px);
+  background-color: color-mix(
+    in oklab,
+    var(--archive-panel, var(--layer-2-um)) 88%,
+    var(--user-pfp-mii-color, var(--brand-color)) 12%
+  );
+}
+
+html body.settings-page .preference-save-copy :is(strong, span) {
+  display: block;
+}
+
+html body.settings-page .preference-save-copy strong {
+  color: var(--text-1);
+  font-size: 0.9rem;
+}
+
+html body.settings-page .preference-save-copy strong.is-dirty {
+  color: #f0b56c;
+}
+
+html body.settings-page .preference-save-copy span {
+  margin-top: 0.18rem;
+  color: var(--text-2);
+  font-size: 0.78rem;
+}
+
+html
+  body.settings-page
+  .content-preference-actions
+  .secondary-settings-button.secondary-settings-button {
+  border-color: var(--archive-line-strong, var(--layer-3-um));
+  background-color: var(--archive-inset, var(--layer-1-um));
+  color: var(--text-1);
+}
+
+html body.settings-page .danger-zone.danger-zone {
+  border-color: color-mix(
+    in oklab,
+    #c35d67 58%,
+    var(--archive-line-strong, #75676d)
+  );
+  background: var(--archive-panel, var(--layer-2-um));
+}
+
+html body.settings-page .danger-zone.danger-zone > legend {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #ef9ba4;
+}
+
+html body.settings-page .danger-setting.danger-setting {
+  border-color: color-mix(in oklab, #a94a55 44%, var(--archive-line, #5b4e53));
+}
+
+html body.settings-page .setting-group .danger-btn.danger-btn {
+  border-color: #b9525d;
+  background-color: #9e3e49 !important;
+}
+
+html body.settings-page .setting-group .danger-btn.danger-btn:hover {
+  border-color: #e2858e;
+  background-color: #b34b57 !important;
+}
+
+html body.settings-page .hidden-miis-modal.hidden-miis-modal {
+  width: min(92vw, 620px);
+  max-height: min(82vh, 44rem);
+}
+
+html body.settings-page .hidden-miis-modal .custom-modal-header {
+  align-items: flex-start;
+}
+
+html body.settings-page .hidden-miis-modal .custom-modal-header h3 {
+  margin: 0;
+}
+
+html body.settings-page .hidden-miis-modal .custom-modal-header p {
+  margin: 0.25rem 0 0;
+  color: var(--text-2);
+  font-size: 0.85rem;
+}
+
+html body.settings-page #hiddenMiisStatus {
+  margin-bottom: 0.75rem;
+}
+
+html body.settings-page .hidden-mii-row.hidden-mii-row {
+  border-radius: var(--archive-radius-sm, 6px);
+  background-color: var(--archive-inset, var(--layer-1-um));
+}
+
+html body.settings-page .hidden-mii-unhide.hidden-mii-unhide {
+  min-height: 2.15rem;
+}
+
+@media (max-width: 720px) {
+  html body.settings-page .settings-grid,
+  html body.settings-page .preference-radio-list.preference-radio-list {
+    grid-template-columns: 1fr;
+  }
+
+  html body.settings-page .settings-section-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html body.settings-page .content-preference-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  html body.settings-page .content-preference-actions .setting-actions {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  html body.settings-page .settings-panel.settings-panel {
+    padding: 1rem;
+  }
+
+  html body.settings-page .settings-panel.settings-panel > legend {
+    padding-inline: 0.3rem;
+  }
+
+  html body.settings-page .setting-group.setting-group,
+  html body.settings-page .setting-group.setting-group:last-child {
+    padding: 1rem;
+  }
+
+  html body.settings-page .preference-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  html body.settings-page .preference-search-field {
+    width: 100%;
+  }
+
+  html body.settings-page .settings-text-button.settings-text-button {
+    align-self: flex-start;
+  }
+
+  html body.settings-page .setting-actions,
+  html body.settings-page .content-preference-actions .setting-actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  html body.settings-page .setting-group button,
+  html body.settings-page .content-preference-actions button {
+    width: 100%;
+  }
+
+  html body.settings-page .linked-oauth-item.linked-oauth-item {
+    align-items: stretch;
+  }
+
+  html
+    body.settings-page
+    .setting-group
+    .oauth-unlink-button.oauth-unlink-button {
+    width: 100%;
+  }
+
+  html body.settings-page .settings-preference-block > summary {
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.85rem;
+  }
+
+  html body.settings-page .settings-preference-body {
+    padding: 0.85rem;
+  }
+
+  html body.settings-page .hidden-mii-row.hidden-mii-row {
+    grid-template-columns: 1fr;
+  }
+
+  html body.settings-page .hidden-mii-unhide.hidden-mii-unhide {
+    width: 100% !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body.settings-page *,
+  html body.settings-page *::before,
+  html body.settings-page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

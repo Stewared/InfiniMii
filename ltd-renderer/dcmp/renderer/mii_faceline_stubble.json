@@ -1,0 +1,1448 @@
+{
+  "schema_version": 1,
+  "status": "GENERIC_CASES_1_TO_4_AND_LOCAL_FIXTURES_EXACT",
+  "purpose": "Exact generic MakeLower/MakeUpper/WrinkleUpper/WrinkleLower affine cases plus generated-faceline BeardShort07 and WrinkleUpper00 local target fixtures; no reference-image fitting.",
+  "generator": "tools/build_mii_faceline_stubble.py --write",
+  "verifier": "tools/verify_mii_faceline_stubble.py",
+  "sources": {
+    "main_elf": {
+      "path": "../ltdDemo_filesystem/program/0/main.elf",
+      "byte_length": 65253956,
+      "sha256": "bdab0d1a340854c584589c2017747a6949d55b95a7626ec78520eff7bd99873a"
+    },
+    "mii_mask_bnsh": {
+      "path": "../ltdDemo_filesystem/program/1/Shader/MiiMask.bnsh",
+      "byte_length": 12696,
+      "sha256": "4e2cc870a9d447992ce2b5e930597e1c5aacab8d892eab58b6d385a2bb3d77b0"
+    },
+    "mii_mask_fragment_translation_non_authoritative_cross_check": {
+      "path": "tools/_title_shader_work/title_passes/mii_mask.fragment.glsl",
+      "byte_length": 75008,
+      "sha256": "93ad079cc4a20c36ccfb6983a59ce9f6551f2318f0e8eb82e957cdc7f37c482e"
+    },
+    "title_shader_execution": {
+      "path": "renderer/title_shader_execution.json",
+      "byte_length": 877701,
+      "sha256": "c71572151972e619bde550c7b6a02a361bf3a81ee396c068ff518cc77b655c33"
+    },
+    "head816_vertex_translation": {
+      "path": "tools/_title_shader_work/gameuber_translated/head.vertex.glsl",
+      "byte_length": 13792,
+      "sha256": "c4003196784d01ba2770ace6af7d383a8d029861d686d429ff47bc5c211b8d33"
+    },
+    "head816_fragment_translation": {
+      "path": "tools/_shader_work/translated/head.glsl",
+      "byte_length": 54088,
+      "sha256": "c3805bb86b6c9b6add749d146457a2dbaa7ec56a443652912cf2ff5160e15e95"
+    },
+    "mii_head00_named_texcoords": {
+      "path": "renderer/assets/models/MiiHead00/MiiHead00.texcoords.json",
+      "byte_length": 59266,
+      "sha256": "03f0f2132251a0a05d20a0357f8576b51497d62184a66c4f21f28acb81df44ff"
+    },
+    "mii_head14_named_texcoords": {
+      "path": "renderer/assets/models/MiiHead14/MiiHead14.texcoords.json",
+      "byte_length": 64383,
+      "sha256": "d4e1d450403a4ac6dd7a2fb8ab0ac33c5084eaaba61e165faa8be0b88514b72a"
+    },
+    "mii_mask_semantics": {
+      "path": "renderer/mii_mask_semantics.json",
+      "byte_length": 27104,
+      "sha256": "8a5712bf86fac844b86f70be2d52c91ebb0490ce21357fdd87debf2298103413"
+    },
+    "mii_icon_draw_orchestration": {
+      "path": "renderer/mii_icon_draw_orchestration.json",
+      "byte_length": 21489,
+      "sha256": "3f218e858f1f42c1008eed53335ba3ae79ec8d7baa7a6aacd1400ac8952c9c74"
+    },
+    "mii_system_param": {
+      "path": "../ltdDemo_filesystem/program/1/Parameter/MiiSystem/System.mii__SystemParam.bgyml",
+      "byte_length": 2300,
+      "sha256": "5e3d89add124d149f195c12fd7b341e413c282b649c99964387180c742317fd8"
+    },
+    "face_sprite_mips": {
+      "path": "renderer/face_sprite_mips.json",
+      "byte_length": 68095,
+      "sha256": "3d381ac282cf8331acc200d62428a292942e2623cae5fb5b5e32857aa78b87c2"
+    },
+    "color_table": {
+      "path": "renderer/assets/color_tables.json",
+      "byte_length": 16702,
+      "sha256": "bfd3e98b88443275c30d7ceb0f526a9cfe62e345c496a36dc4795aefb295ec29"
+    },
+    "mii2_gameuber_programs": {
+      "path": "renderer/mii2_gameuber_programs.json",
+      "byte_length": 50360,
+      "sha256": "293ccaeec0771567fb7abc04bc6f00cdf1bfb49d54b560b5725a7c280789b5e9"
+    },
+    "source_ranges": [
+      {
+        "role": "faceline layer resource-category order",
+        "virtual_address_start": "0x71032bb64c",
+        "virtual_address_end_exclusive": "0x71032bb668",
+        "file_offset": 53198620,
+        "byte_length": 28,
+        "sha256": "93df2a89e9b5b08c5b9c2755dd6346dbf3040c66bd1ad7ce83d59786df5bb4e2"
+      },
+      {
+        "role": "faceline fullscreen texcoords",
+        "virtual_address_start": "0x71032bb698",
+        "virtual_address_end_exclusive": "0x71032bb6b8",
+        "file_offset": 53198696,
+        "byte_length": 32,
+        "sha256": "854534a8dbc2aa431a189d2543383318e75ecbc71895e1bba07e62dcef498d09"
+      },
+      {
+        "role": "faceline fullscreen indices",
+        "virtual_address_start": "0x71032bb6b8",
+        "virtual_address_end_exclusive": "0x71032bb6c4",
+        "file_offset": 53198728,
+        "byte_length": 12,
+        "sha256": "4a16b824acb5d55f3f9fcaca42323d856db13089fdde0166ae1699c89a2710b0"
+      },
+      {
+        "role": "faceline shader selectors",
+        "virtual_address_start": "0x71032bb6c4",
+        "virtual_address_end_exclusive": "0x71032bb6e0",
+        "file_offset": 53198740,
+        "byte_length": 28,
+        "sha256": "6d6fd8af351a40cbbd291898e0490223fa46c6106a6676ccc887c65a8a3c9a4b"
+      },
+      {
+        "role": "base overwrite pipeline descriptor",
+        "virtual_address_start": "0x71032bb8a0",
+        "virtual_address_end_exclusive": "0x71032bb8c0",
+        "file_offset": 53199216,
+        "byte_length": 32,
+        "sha256": "fbe9d2f96f38857d308dbcee8b6f51e24e74948939bdda19910746281c842f0e"
+      },
+      {
+        "role": "WrinkleUpper straight-alpha pipeline descriptor",
+        "virtual_address_start": "0x71032bb8c0",
+        "virtual_address_end_exclusive": "0x71032bb8e0",
+        "file_offset": 53199248,
+        "byte_length": 32,
+        "sha256": "8b13a743af654b3d7834e17881add6a17572b8ecd388006fc3b7b82017d1393a"
+      },
+      {
+        "role": "BeardShort source-over pipeline descriptor",
+        "virtual_address_start": "0x71032bb8e0",
+        "virtual_address_end_exclusive": "0x71032bb900",
+        "file_offset": 53199280,
+        "byte_length": 32,
+        "sha256": "075b0591365a5c947f84aded5b04d073c707546ed144c540e4c89aa9f35a5d65"
+      },
+      {
+        "role": "face manager format/blend constructor slice",
+        "virtual_address_start": "0x7101b7a0d4",
+        "virtual_address_end_exclusive": "0x7101b7a148",
+        "file_offset": 28815572,
+        "byte_length": 116,
+        "sha256": "4dec53843de4200c830cf83b11362af62f14bbfe44d7b65339c4919c61a1e297"
+      },
+      {
+        "role": "blend flag setter",
+        "virtual_address_start": "0x7100ba6ea4",
+        "virtual_address_end_exclusive": "0x7100ba6eac",
+        "file_offset": 12222116,
+        "byte_length": 8,
+        "sha256": "cc464c963b4b29de8076ec7e1a22457bc7fd7268377deb59242909a789ccd53d"
+      },
+      {
+        "role": "built-in faceline 128x256 descriptor slice",
+        "virtual_address_start": "0x7101b7a8f4",
+        "virtual_address_end_exclusive": "0x7101b7a94c",
+        "file_offset": 28817652,
+        "byte_length": 88,
+        "sha256": "6298271bd0ff839e1d726fb75af5c21e2820550172ce1530b2497b8eb028384b"
+      },
+      {
+        "role": "renderer-global wrinkle-color defaults",
+        "virtual_address_start": "0x7101d5f8c8",
+        "virtual_address_end_exclusive": "0x7101d5fa50",
+        "file_offset": 30804168,
+        "byte_length": 392,
+        "sha256": "25592149028649ace0db6ed609e2f853ac0fa460922954d51091f24fca80e86a"
+      },
+      {
+        "role": "WrinkleUpper descriptor case-3 affine instruction slice",
+        "virtual_address_start": "0x7101d705dc",
+        "virtual_address_end_exclusive": "0x7101d706dc",
+        "file_offset": 30873052,
+        "byte_length": 256,
+        "sha256": "bdbc2ce109b8a5240c06431ff87df7c1fec76c0414cdca64f16d9f1ce8021f69"
+      },
+      {
+        "role": "WrinkleColor resource-accessor helper",
+        "virtual_address_start": "0x7101d86290",
+        "virtual_address_end_exclusive": "0x7101d864c0",
+        "file_offset": 30962320,
+        "byte_length": 560,
+        "sha256": "ac0aa7ed6f3e2d6514e7ed85d75a4001f553954eb26d0c529101510b1ba1a618"
+      },
+      {
+        "role": "WrinkleColor vtable forwarding wrapper",
+        "virtual_address_start": "0x7101d88258",
+        "virtual_address_end_exclusive": "0x7101d88268",
+        "file_offset": 30970456,
+        "byte_length": 16,
+        "sha256": "764518e1ed89138e6c7a271425266364ae561a8de390b4e51165413b2cc231a3"
+      },
+      {
+        "role": "generic cases 1/2/4 affine globals",
+        "virtual_address_start": "0x7103e386c4",
+        "virtual_address_end_exclusive": "0x7103e386f4",
+        "file_offset": 65241532,
+        "byte_length": 48,
+        "sha256": "55da22078cc4d6fd6792e5c9e25991430e48cd8117a065d90d4b3e512f0501c4"
+      },
+      {
+        "role": "WrinkleUpper affine globals",
+        "virtual_address_start": "0x7103e386f4",
+        "virtual_address_end_exclusive": "0x7103e38704",
+        "file_offset": 65241580,
+        "byte_length": 16,
+        "sha256": "db0c5e12d0bdbbbbe554fadca5651071dd86afbf705c8f5a797f901a8db004fc"
+      },
+      {
+        "role": "WrinkleLower and WrinkleUpper scale-pointer records",
+        "virtual_address_start": "0x7103a67610",
+        "virtual_address_end_exclusive": "0x7103a67630",
+        "file_offset": 61239560,
+        "byte_length": 32,
+        "sha256": "3ba01a5f1514fa9d7a7f81f4b862cd335b43f4669fb923a39bd463f2896dd1ec"
+      }
+    ]
+  },
+  "targets": {
+    "johnny_thunder": {
+      "share_mii": {
+        "path": "mii2.ltd",
+        "byte_length": 964,
+        "sha256": "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d"
+      },
+      "active_parts": {
+        "path": "renderer/mii2_active_parts.json",
+        "byte_length": 33632,
+        "sha256": "644182dfec5bad6b16325f984a4fca03c4e42e4f6560edd80f631e02b343dab0"
+      },
+      "serialized_fields": {
+        "faceline_type": 20,
+        "faceline_color": 85,
+        "makeup_lower_type": 0,
+        "makeup_upper_type": 0,
+        "wrinkle_upper_type": 12,
+        "wrinkle_lower_type": 0,
+        "stubble_type": 8,
+        "stubble_color": 8,
+        "beard_type": 0,
+        "beard_color": 8
+      },
+      "skin_namespace": "CommonColor[85] because faceline_color is in 0..99",
+      "skin_rgba8": [
+        254,
+        226,
+        74,
+        255
+      ],
+      "active_stubble": {
+        "selector": 8,
+        "category": "BeardShort",
+        "record": "BeardShort07",
+        "texture_name": "BeardShort07",
+        "resolved": true,
+        "enabled": true
+      },
+      "active_faceline_layers_in_draw_order": [
+        "Faceline14",
+        "BeardShort07"
+      ]
+    },
+    "spider_man_noir": {
+      "share_mii": {
+        "path": "mii0.ltd",
+        "byte_length": 10307,
+        "sha256": "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef"
+      },
+      "active_parts": {
+        "path": "renderer/mii0_active_parts.json",
+        "byte_length": 27498,
+        "sha256": "26f190a935e3275e026ab47dda52dfc2fd7438e116bd74855e3aa57bebe420cd"
+      },
+      "serialized_fields": {
+        "faceline_type": 0,
+        "faceline_color": 95,
+        "wrinkle_lower_type": 0,
+        "wrinkle_upper_type": 1,
+        "wrinkle_upper_scale": 6,
+        "wrinkle_upper_aspect": 2,
+        "wrinkle_upper_x": 10,
+        "wrinkle_upper_y": 23,
+        "makeup_upper_type": 0,
+        "makeup_lower_type": 0,
+        "stubble_type": 0,
+        "beard_type": 0
+      },
+      "skin_namespace": "CommonColor[95] because faceline_color is in 0..99",
+      "skin_rgba8": [
+        65,
+        65,
+        65,
+        255
+      ],
+      "selected_faceline_layer": "WrinkleUpper00",
+      "status": "EXACT_LOCAL_FACELINE_TARGET",
+      "contract": {
+        "slot": 3,
+        "resource_category": 22,
+        "shader_selector": 3,
+        "order": "after MakeUpper, before WrinkleLower and BeardShort",
+        "color": "renderer-global WrinkleColor; constructor default black because the checked SystemParam omits both wrinkle-color override keys",
+        "transform": "FUN_7101d7025c case 3 using exact upper x/y/scale/aspect bytes and checked float constants",
+        "native_mip_level": 2,
+        "blend": "straight-alpha RGB source-over plus ONE/ONE_MINUS_SRC_ALPHA alpha"
+      },
+      "active_faceline_layers_in_draw_order": [
+        "Faceline00",
+        "WrinkleUpper00"
+      ],
+      "forbidden_substitution": "do not use the converted mip-0 PNG, identity transform, CommonColor guess, or Mask0 overlay"
+    }
+  },
+  "composition_contract": {
+    "target": {
+      "dimensions": [
+        128,
+        256
+      ],
+      "base_storage_format": "RGBA8_SRGB (0x0b06)",
+      "color_target_view_format": "RGBA8_UNORM (0x0b01)",
+      "framebuffer_srgb_conversion": false,
+      "stored_numeric_domain": "shader numeric output, no extra sRGB encode",
+      "later_consumer": "Head GameAll816 samples the same bytes through an sRGB view"
+    },
+    "generic_affine_cases": {
+      "MakeLower": {
+        "descriptor_case": 1,
+        "serialized_offsets": [
+          "0xf2:x",
+          "0xf3:y",
+          "0xf4:scale",
+          "0xf5:aspect"
+        ],
+        "pointer_address": null,
+        "relative_pointer": null,
+        "constant_address": "0x7103e386d4",
+        "constant_float_bits": {
+          "base_scale_x": "0x3e23d70a",
+          "aspect_scale": "0x3f666666",
+          "translation_origin_x": "0x3f800000",
+          "translation_origin_y": "0x3f3851ec"
+        },
+        "single_precision_operation_order": "scaleX=baseScale*fma(scale,0.4,1); scaleY=0.5*aspectScale*scaleX*fma(aspect,0.12,0.64); tx=(1+x*1.29*-0.0625)-scaleX; ty=fma(scaleY,-0.0,0.72+y*1.29*-0.03125)"
+      },
+      "MakeUpper": {
+        "descriptor_case": 2,
+        "serialized_offsets": [
+          "0xee:x",
+          "0xef:y",
+          "0xf0:scale",
+          "0xf1:aspect"
+        ],
+        "pointer_address": null,
+        "relative_pointer": null,
+        "constant_address": "0x7103e386c4",
+        "constant_float_bits": {
+          "base_scale_x": "0x3e3851ec",
+          "aspect_scale": "0x3f4ccccd",
+          "translation_origin_x": "0x3f800000",
+          "translation_origin_y": "0x3f3851ec"
+        },
+        "single_precision_operation_order": "scaleX=baseScale*fma(scale,0.4,1); scaleY=0.5*aspectScale*scaleX*fma(aspect,0.12,0.64); tx=(1+x*1.29*-0.0625)-scaleX; ty=fma(scaleY,-0.0,0.72+y*1.29*-0.03125)"
+      },
+      "WrinkleUpper": {
+        "descriptor_case": 3,
+        "serialized_offsets": [
+          "0xfa:x",
+          "0xfb:y",
+          "0xfc:scale",
+          "0xfd:aspect"
+        ],
+        "pointer_address": "0x7103a67628",
+        "relative_pointer": "0x03e386f4",
+        "constant_address": "0x7103e386f4",
+        "constant_float_bits": {
+          "base_scale_x": "0x3e23d70a",
+          "aspect_scale": "0x3f666666",
+          "translation_origin_x": "0x3f800000",
+          "translation_origin_y": "0x3f3851ec"
+        },
+        "single_precision_operation_order": "scaleX=baseScale*fma(scale,0.4,1); scaleY=0.5*aspectScale*scaleX*fma(aspect,0.12,0.64); tx=(1+x*1.29*-0.0625)-scaleX; ty=fma(scaleY,-0.0,0.72+y*1.29*-0.03125)"
+      },
+      "WrinkleLower": {
+        "descriptor_case": 4,
+        "serialized_offsets": [
+          "0xf6:x",
+          "0xf7:y",
+          "0xf8:scale",
+          "0xf9:aspect"
+        ],
+        "pointer_address": "0x7103a67610",
+        "relative_pointer": "0x03e386e4",
+        "constant_address": "0x7103e386e4",
+        "constant_float_bits": {
+          "base_scale_x": "0x3e23d70a",
+          "aspect_scale": "0x3f4ccccd",
+          "translation_origin_x": "0x3f800000",
+          "translation_origin_y": "0x3f3851ec"
+        },
+        "single_precision_operation_order": "scaleX=baseScale*fma(scale,0.4,1); scaleY=0.5*aspectScale*scaleX*fma(aspect,0.12,0.64); tx=(1+x*1.29*-0.0625)-scaleX; ty=fma(scaleY,-0.0,0.72+y*1.29*-0.03125)"
+      }
+    },
+    "layer_order": [
+      {
+        "slot": 0,
+        "resource_category": 0,
+        "name": "Faceline",
+        "shader_selector": 0
+      },
+      {
+        "slot": 1,
+        "resource_category": 19,
+        "name": "MakeLower",
+        "shader_selector": 6
+      },
+      {
+        "slot": 2,
+        "resource_category": 18,
+        "name": "MakeUpper",
+        "shader_selector": 3
+      },
+      {
+        "slot": 3,
+        "resource_category": 22,
+        "name": "WrinkleUpper",
+        "shader_selector": 3
+      },
+      {
+        "slot": 4,
+        "resource_category": 21,
+        "name": "WrinkleLower",
+        "shader_selector": 3
+      },
+      {
+        "slot": 5,
+        "resource_category": 20,
+        "name": "BeardShort",
+        "shader_selector": 6
+      },
+      {
+        "slot": 6,
+        "resource_category": 6,
+        "name": "Beard",
+        "shader_selector": 3
+      }
+    ],
+    "base_faceline": {
+      "slot": 0,
+      "shader_selector": 0,
+      "effect": "MiiMask selector 0 emits C1 directly; pipeline 3 overwrites target with opaque resolved skin color",
+      "portable_specialization": "initialize the RGBA8 target to the resolved, quantized skin RGBA",
+      "pipeline_descriptor": [
+        0,
+        4,
+        15,
+        0,
+        0,
+        0,
+        1,
+        0
+      ]
+    },
+    "beard_short07": {
+      "slot": 5,
+      "resource_category": 20,
+      "shader_selector": 6,
+      "source_texture": {
+        "path": "renderer/assets/face_sprite_mips/BeardShort07/mip_00.png",
+        "byte_length": 6815,
+        "sha256": "8463bfd5693972e0e34eee604b7e71dc56806c77b77f7a1f7ee15c58881bd7b8",
+        "dimensions": [
+          256,
+          512
+        ],
+        "native_format": "ASTC_4x4_UNORM",
+        "native_mip_count": 10,
+        "decoded_rgba_sha256": "10874d02257b567a45db3dabd1847f733ecff79611f24da524ffa9b420d9dd4a",
+        "channel_contract": "R=0, B=0, A=255; G is the coverage mask"
+      },
+      "shader_archive_sha256": "4e2cc870a9d447992ce2b5e930597e1c5aacab8d892eab58b6d385a2bb3d77b0",
+      "selector_6_sass": {
+        "sass_target": "0x200",
+        "file_range": [
+          "0x2450",
+          "0x2508"
+        ],
+        "byte_length": 184,
+        "sha256": "e3d698ae08af16fad552932f91d432c5f79c25d18c8a17e582d273b5a1626630",
+        "formula": "out = sample.r*C1 + sample.g*(C2 - sample.r*C1)",
+        "shared_epilogue": "discard when out.a==0 and mode!=9"
+      },
+      "shader_constants": {
+        "c1_float_bits": [
+          "0x3eaaaa9f",
+          "0x3ecccccd",
+          "0x3ecccccd",
+          "0x3f800000"
+        ],
+        "c1_rgba": [
+          0.33333298563957214,
+          0.4000000059604645,
+          0.4000000059604645,
+          1.0
+        ],
+        "c2_namespace": "CommonColor[stubble_color=8]",
+        "c2_rgba": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "transform": "identity slot transform",
+        "johnny_simplification": "because R=0 and C2.rgb=0, selector 6 emits premultiplied black with alpha=sample.g"
+      },
+      "geometry": {
+        "positions_before_constructor_y_flip": [
+          [
+            1.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "constructor_y_flip": true,
+        "positions_submitted": [
+          [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "texcoords": [
+          [
+            1.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "indices": [
+          0,
+          1,
+          2,
+          0,
+          2,
+          3
+        ],
+        "window_origin": "UPPER_LEFT",
+        "row_contract": "target top row samples checked PNG row 0; no reference-derived flip"
+      },
+      "sampler": {
+        "descriptor_bytes": "01 01 01 00 00 01 29 00",
+        "minification": "linear",
+        "magnification": "linear",
+        "mipmap_filter": "point",
+        "lod_bias": -0.7,
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "max_anisotropy": 1,
+        "address_mode_uvw": "mirror",
+        "rho": 2.0,
+        "unbiased_lod": 1.0,
+        "biased_lod": 0.30000000000000004,
+        "point_mip_rule": "floor(clamped_lod+0.5)",
+        "selected_native_mip": 0,
+        "pixel_center_specialization": "each 128x256 target pixel is the bilinear average of its centered 2x2 mip-0 footprint"
+      },
+      "pipeline": {
+        "manager_blend_flag": 1,
+        "selected_pipeline_index": 5,
+        "descriptor": [
+          2,
+          3,
+          15,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "rgb": "ONE*source + ONE_MINUS_SRC_ALPHA*destination, ADD",
+        "alpha": "ONE*source + ONE_MINUS_SRC_ALPHA*destination, ADD",
+        "operation": "premultiplied source-over",
+        "johnny_opaque_base_result": "stored.rgb = quantize(skin.rgb*(1-sample.g)); stored.a=255"
+      }
+    },
+    "wrinkle_upper00": {
+      "slot": 3,
+      "resource_category": 22,
+      "shader_selector": 3,
+      "source_texture": {
+        "path": "renderer/assets/face_sprite_mips/WrinkleUpper00/mip_02.png",
+        "byte_length": 596,
+        "sha256": "752e2b7bff47094d92f962f0d7f1f3f329e0333195236e2d5e547ef0ee13ba69",
+        "dimensions": [
+          64,
+          64
+        ],
+        "native_container": {
+          "path": "../ltdDemo_converted_assets/decompressed/1/Tex/Pack/MiiParts.bntx",
+          "byte_length": 11194648,
+          "sha256": "531848fc8485f86fa703a652b5fc0c51d0d70c1f13aec13e244a22ee6c5e3f97"
+        },
+        "native_dimensions": [
+          256,
+          256
+        ],
+        "native_format": "BC4_UNORM",
+        "native_mip_count": 9,
+        "selected_native_mip": 2,
+        "decoded_rgba_sha256": "b3db1f5020bf021e7d15ba766828c1452efb56440940e0dadf43c4f619c530ff",
+        "channel_contract": "R=G=B from BC4_UNORM; A=255; selector 3 consumes sample.r as alpha",
+        "converted_mip0_used": false
+      },
+      "selector_3_sass": {
+        "sass_target": "0x140",
+        "file_range": [
+          "0x2390",
+          "0x23c8"
+        ],
+        "byte_length": 56,
+        "sha256": "6a9d6a10c2ced919920e2494bd0d3e0143189670a22b657969d47dcaaf9fecb8",
+        "formula": "out.rgb=C1.rgb; out.a=sample.r",
+        "shared_epilogue": "discard when out.a==0 and mode!=9"
+      },
+      "shader_constants": {
+        "c1_namespace": "Mii renderer-global WrinkleColor",
+        "faceline_color_selector": 95,
+        "dark_skin_selector_value": 8,
+        "selected_variant": "WrinkleColor (not WrinkleColorWhenBlackSkin)",
+        "system_param_override_keys_present": [],
+        "constructor_default_rgb": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "gamma_argument": 1,
+        "gamma_result": "black remains exact black",
+        "c2_rgb": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "c3_rgb": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "transform": {
+        "serialized_fields": {
+          "wrinkle_upper_scale": 6,
+          "wrinkle_upper_aspect": 2,
+          "wrinkle_upper_x": 10,
+          "wrinkle_upper_y": 23
+        },
+        "constant_float_bits": {
+          "base_scale_x": "0x3e23d70a",
+          "aspect_scale": "0x3f666666",
+          "translation_origin_x": "0x3f800000",
+          "translation_origin_y": "0x3f3851ec",
+          "scale_step": "0x3ecccccd",
+          "scale_origin": "0x3f800000",
+          "aspect_step": "0x3df5c28f",
+          "aspect_origin": "0x3f23d70a",
+          "half": "0x3f000000",
+          "position_step": "0x3fa51eb8",
+          "translation_step_x": "0xbd800000",
+          "translation_step_y": "0xbd000000",
+          "translation_height_coefficient": "0x80000000"
+        },
+        "single_precision_operation_order": "scaleX=0.16*fma(scale,0.4,1); scaleY=0.5*0.9*scaleX*fma(aspect,0.12,0.64); tx=(1+x*1.29*-0.0625)-scaleX; ty=fma(scaleY,-0.0,0.72+y*1.29*-0.03125)",
+        "scale_x": 0.5440000295639038,
+        "scale_y": 0.21542400121688843,
+        "translation_x": -0.3502500057220459,
+        "translation_y": -0.20718741416931152,
+        "float_bits": {
+          "scale_x": "0x3f0b4396",
+          "scale_y": "0x3e5c981c",
+          "translation_x": "0xbeb353f8",
+          "translation_y": "0xbe5428f0"
+        },
+        "matrix_row_major": [
+          0.5440000295639038,
+          0.0,
+          0.0,
+          -0.3502500057220459,
+          0.0,
+          0.21542400121688843,
+          0.0,
+          -0.20718741416931152,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "constant_buffer_serialization": "FUN_7101d6f8a0 transposes the descriptor affine into MiiMask vertex cbuf3"
+      },
+      "geometry": {
+        "positions_before_constructor_y_flip": [
+          [
+            1.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            -1.0,
+            0.0
+          ],
+          [
+            1.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "constructor_y_flip": true,
+        "positions_submitted": [
+          [
+            1.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            -1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            1.0,
+            0.0
+          ],
+          [
+            1.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "texcoords": [
+          [
+            1.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "indices": [
+          0,
+          1,
+          2,
+          0,
+          2,
+          3
+        ],
+        "window_origin": "UPPER_LEFT",
+        "affine_application": "MiiMask vertex shader applies the transposed row-major scale/translation matrix",
+        "raster_specialization": {
+          "clip_bounds_float_bits": {
+            "left": "0xbf64ed92",
+            "right": "0x3e466668",
+            "bottom": "0xbed86086",
+            "top": "0x3c06f2c0"
+          },
+          "covered_pixel_count": 3795,
+          "covered_row_range_inclusive": [
+            127,
+            181
+          ],
+          "covered_column_range_inclusive": [
+            7,
+            75
+          ],
+          "pixel_center_rule": "upper-left target rows; NDC centers; closed transformed quad"
+        }
+      },
+      "sampler": {
+        "descriptor_bytes": "01 01 01 00 00 01 29 00",
+        "minification": "linear",
+        "magnification": "linear",
+        "mipmap_filter": "point",
+        "lod_bias": -0.7,
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "max_anisotropy": 1,
+        "address_mode_uvw": "mirror",
+        "rho_x": 3.676470388435998,
+        "rho_y": 4.642008292257102,
+        "rho": 4.642008292257102,
+        "unbiased_lod": 2.2147490998447203,
+        "clamped_lod": 1.5147490998447204,
+        "point_mip_rule": "floor(clamped_lod+0.5)",
+        "selected_level": 2,
+        "selected_native_mip": 2,
+        "selected_dimensions": [
+          64,
+          64
+        ],
+        "filtering": "normalized bilinear within selected native mip",
+        "address_specialization": "quad UV is closed [0,1]; linear mirror duplicates the same edge texels as clamp-to-edge"
+      },
+      "pipeline": {
+        "manager_blend_flag": 1,
+        "selected_pipeline_index": 4,
+        "descriptor": [
+          1,
+          3,
+          15,
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "rgb": "SRC_ALPHA*source + ONE_MINUS_SRC_ALPHA*destination, ADD",
+        "alpha": "ONE*source + ONE_MINUS_SRC_ALPHA*destination, ADD",
+        "operation": "straight-alpha RGB source-over with source-over alpha",
+        "opaque_base_black_result": "stored.rgb = quantize(skin.rgb*(1-sample.r)); stored.a=255"
+      }
+    }
+  },
+  "target_and_order_contract": {
+    "faceline_attachment": "FUN_7101d7e4ac stores RT at +0x3c0/internal +0x5d0",
+    "faceline_binding": "slot-0 FUN_7101d7c220 -> FUN_7101d7dc20 -> mt_Head (fallback mt_faceline) _a0",
+    "mask_attachment": "FUN_7101d7e568 stores mask RT at +0x3d0/internal +0x23b0",
+    "mask_binding": "mt_Mask (fallback mt_mask) _a0",
+    "ugc_binding": "after both generated-target bindings, optional owner+0xf70/+0xf78/+0xf84 through FUN_7101c92ce0 supplies Mask GameAll0 _user0; disabled +0xf86 path uses no optional texture",
+    "mask_local_order": "GameAll0 local albedo is mix(U.rgb,A.rgb,A.a), so UGC _user0 U is under generated MiiMask _a0 A",
+    "faceline_layer_rule": "BeardShort and WrinkleUpper belong only in Head _a0 upstream; never a Mask _user0 input or separate overlay",
+    "final_model_submission_order": "UNPROVEN; do not claim global Head-vs-Mask order from this resource bridge"
+  },
+  "head_consumer_contract": {
+    "resources_by_target": {
+      "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": "MiiHead14",
+      "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": "MiiHead00"
+    },
+    "shape": "Head__mt_Head",
+    "material": "mt_Head",
+    "gameall_program": 816,
+    "generated_sampler": "_a0",
+    "texcoord_attribute": "_u0",
+    "normal_sampler": "_n0",
+    "normal_texcoord_attribute": "_u2",
+    "texcoord_route_evidence": {
+      "vertex": "_u0 location 8 -> out_attr0; _u2 location 10 -> out_attr1",
+      "fragment": "_a0 decoder sampler 3 samples in_attr0.xy; _n0 decoder sampler 0 samples in_attr1.xy",
+      "head14_options": {
+        "tex_coord2_vtx": "2",
+        "texcoord_select_normal": "2",
+        "map_albedo": "10"
+      },
+      "prepared_obj_channel": "_u2 retained as the legacy OBJ stream; named sidecar supplies independent _u0"
+    },
+    "bfres_sampler": {
+      "minification": "linear",
+      "magnification": "linear",
+      "mipmap_filter": "point",
+      "wrap_u": "Mirror",
+      "wrap_v": "Repeat",
+      "min_lod": 0.0,
+      "max_lod": 13.0,
+      "lod_bias": 0.0
+    },
+    "strict_boundary": "this ledger resolves generated _a0 content/binding, not missing Head816 frame/environment buffers or final title lighting"
+  },
+  "portable_runtime_contract": {
+    "implementation": "renderer/faceline_compositor.py",
+    "entry_point": "compose_faceline_target",
+    "generic_contract_key": "classic_make_lower_make_upper_wrinkle_upper_wrinkle_lower_beard_short_ordered_v2",
+    "generic_affine_cases_exact": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "filter_quantization_boundary": "shader equation, draw state, transform, native mip, and sampler mode are source-backed; the CPU bilinear subtexel precision and RGBA8 conversion are deterministic portable arithmetic because the NVN filter quantization has not been recovered",
+    "supported_share_mii_sha256": [
+      "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d",
+      "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef"
+    ],
+    "targets": {
+      "aa2f64e520163873f488e67e9092b979c9fda2638f169221e43e04112e76cc0d": {
+        "entry_point": "compose_johnny_faceline_target",
+        "deterministic_portable_stored_rgba_sha256": "c3e5f51671b3f9757cf8f7e1b60bb2c238904d0a2adf5826eeb68e59c4b96b9c",
+        "expected_alpha_values": [
+          255
+        ]
+      },
+      "1c3e3ad9207f6fb92bb48628803157b54fbf45f3bf472090d2d44b7f5e222aef": {
+        "entry_point": "compose_spider_man_noir_faceline_target",
+        "deterministic_portable_stored_rgba_sha256": "a57a7beb0dbf4c69f3fbe7b6dbd011921df99e16ef213fda58a2e3c7a423783a",
+        "expected_alpha_values": [
+          255
+        ],
+        "covered_pixel_count": 3795
+      }
+    },
+    "no_reference_image_inputs": true,
+    "all_other_targets": "fail closed"
+  },
+  "fail_closed_boundaries": [
+    {
+      "code": "unsupported_enabled_faceline_layer",
+      "scope": "any layer set other than the two exact target contracts"
+    },
+    {
+      "code": "final_head_mask_submission_order_unproven",
+      "scope": "global model/shape ordering only; resource target/bind order is exact"
+    },
+    {
+      "code": "head816_final_lighting_unresolved",
+      "scope": "title frame/environment/prepass buffers; generated faceline equation, binding, transform, and mip remain source-backed, while stored bytes retain the portable filter-quantization boundary"
+    }
+  ],
+  "decomp_symbols": {
+    "status": "source_checked_semantic_names_for_renderer_coverage",
+    "functions": [
+      {
+        "kind": "function",
+        "address": "0x71005fd45c",
+        "raw_name": "FUN_71005fd45c",
+        "canonical_name": "bind_mii_texture_and_sampler_for_draw",
+        "category": "rendering/mii_faceline/sampler_binding",
+        "evidence": "record command combines each layer texture view with the passed MiiSampler"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba6e00",
+        "raw_name": "FUN_7100ba6e00",
+        "canonical_name": "initialize_mii_sampler_texture_state_descriptor",
+        "category": "rendering/mii_faceline/sampler",
+        "evidence": "writes the eight checked MiiSampler descriptor bytes"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba6e40",
+        "raw_name": "FUN_7100ba6e40",
+        "canonical_name": "force_unorm_image_format_for_color_target_view",
+        "category": "rendering/mii_faceline/render_target",
+        "evidence": "maps 0x0b06 sample storage to 0x0b01 write view"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba6e84",
+        "raw_name": "FUN_7100ba6e84",
+        "canonical_name": "initialize_mii_face_target_format_pair",
+        "category": "rendering/mii_face_target/descriptor",
+        "evidence": "zeros both formats and blend flag"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba6e94",
+        "raw_name": "FUN_7100ba6e94",
+        "canonical_name": "set_mii_faceline_image_format",
+        "category": "rendering/mii_face_target/descriptor",
+        "evidence": "writes faceline format at +0"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba6e9c",
+        "raw_name": "FUN_7100ba6e9c",
+        "canonical_name": "set_mii_mask_image_format",
+        "category": "rendering/mii_face_target/descriptor",
+        "evidence": "writes mask format at +4"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba6ea4",
+        "raw_name": "FUN_7100ba6ea4",
+        "canonical_name": "set_mii_face_target_premultiplied_blend_flag",
+        "category": "rendering/mii_face_target/descriptor",
+        "evidence": "binary-only STRB W1,[X0,#8] setter"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba6ebc",
+        "raw_name": "FUN_7100ba6ebc",
+        "canonical_name": "get_mii_face_target_premultiplied_blend_flag",
+        "category": "rendering/mii_face_target/descriptor",
+        "evidence": "returns descriptor byte +8"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba7164",
+        "raw_name": "FUN_7100ba7164",
+        "canonical_name": "flip_mii_fullscreen_quad_y",
+        "category": "rendering/mii_faceline/geometry",
+        "evidence": "negates Y in all four fullscreen positions"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba71f4",
+        "raw_name": "FUN_7100ba71f4",
+        "canonical_name": "create_mii_sprite_position_vertex_buffer",
+        "category": "rendering/mii_faceline/geometry",
+        "evidence": "uploads four half4 positions"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba729c",
+        "raw_name": "FUN_7100ba729c",
+        "canonical_name": "create_mii_sprite_texcoord_vertex_buffer",
+        "category": "rendering/mii_faceline/geometry",
+        "evidence": "uploads four half2 UVs"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba7358",
+        "raw_name": "FUN_7100ba7358",
+        "canonical_name": "create_mii_sprite_index_buffer",
+        "category": "rendering/mii_faceline/geometry",
+        "evidence": "uploads six uint16 indices"
+      },
+      {
+        "kind": "function",
+        "address": "0x7100ba7ee0",
+        "raw_name": "FUN_7100ba7ee0",
+        "canonical_name": "construct_mii_mask_graphics_pipeline_state",
+        "category": "rendering/mii_faceline/pipeline",
+        "evidence": "decodes the selected fixed-function descriptor and blend lookup tables"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101b79ff0",
+        "raw_name": "FUN_7101b79ff0",
+        "canonical_name": "initialize_mii_face_texture_manager_resources",
+        "category": "rendering/mii_face_target/manager",
+        "evidence": "binary-only manager constructor initializes formats and enables premultiplied faceline blending"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101b7e10c",
+        "raw_name": "FUN_7101b7e10c",
+        "canonical_name": "bind_mii_generated_face_textures_for_models",
+        "category": "rendering/mii_face_target/model_routing",
+        "evidence": "invokes slot binder for model slots 0..11"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101c92ce0",
+        "raw_name": "FUN_7101c92ce0",
+        "canonical_name": "bind_mii_face_mask_material_parameters",
+        "category": "rendering/mii_mask/user_texture",
+        "evidence": "binds the separate optional owner+0xf70 Mask _user0 path"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d5f8c8",
+        "raw_name": "FUN_7101d5f8c8",
+        "canonical_name": "initialize_mii_renderer_global_settings_defaults",
+        "category": "rendering/mii_renderer/settings",
+        "evidence": "initializes WrinkleColor and WrinkleColorWhenBlackSkin RGB fields to zero"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d608a0",
+        "raw_name": "FUN_7101d608a0",
+        "canonical_name": "deserialize_mii_renderer_global_settings",
+        "category": "rendering/mii_renderer/settings",
+        "evidence": "parses optional WrinkleColor and WrinkleColorWhenBlackSkin keys from SystemParam"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d615e0",
+        "raw_name": "FUN_7101d615e0",
+        "canonical_name": "resolve_wrinkle_color_begin_field",
+        "category": "rendering/mii_renderer/settings",
+        "evidence": "resolves the first WrinkleColor serializer bound"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d616b0",
+        "raw_name": "FUN_7101d616b0",
+        "canonical_name": "resolve_wrinkle_color_end_field",
+        "category": "rendering/mii_renderer/settings",
+        "evidence": "resolves the second WrinkleColor serializer bound"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d61780",
+        "raw_name": "FUN_7101d61780",
+        "canonical_name": "resolve_dark_skin_wrinkle_color_begin_field",
+        "category": "rendering/mii_renderer/settings",
+        "evidence": "resolves the first WrinkleColorWhenBlackSkin serializer bound"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d61850",
+        "raw_name": "FUN_7101d61850",
+        "canonical_name": "resolve_dark_skin_wrinkle_color_end_field",
+        "category": "rendering/mii_renderer/settings",
+        "evidence": "resolves the second WrinkleColorWhenBlackSkin serializer bound"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d6f8a0",
+        "raw_name": "FUN_7101d6f8a0",
+        "canonical_name": "serialize_mii_faceline_constant_buffers",
+        "category": "rendering/mii_faceline/constants",
+        "evidence": "serializes all seven descriptors and transposes each affine into the MiiMask vertex cbuf"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d6fe68",
+        "raw_name": "FUN_7101d6fe68",
+        "canonical_name": "initialize_mii_faceline_texture_state",
+        "category": "rendering/mii_faceline/state",
+        "evidence": "selects seven resources/colors and creates fullscreen geometry"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d7025c",
+        "raw_name": "FUN_7101d7025c",
+        "canonical_name": "build_mii_faceline_layer_descriptor",
+        "category": "rendering/mii_faceline/constants",
+        "evidence": "cases 1/2/3/4 emit distinct MakeLower/MakeUpper/WrinkleUpper/WrinkleLower byte quartets and affine constants; case 5 emits BeardShort constants and identity"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d77614",
+        "raw_name": "FUN_7101d77614",
+        "canonical_name": "build_mii_face_compositor_gpu_state",
+        "category": "rendering/mii_faceline/pipeline",
+        "evidence": "creates six faceline pipelines and stores descriptor byte +8 at state +100"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d78440",
+        "raw_name": "FUN_7101d78440",
+        "canonical_name": "record_mii_faceline_texture_commands",
+        "category": "rendering/mii_faceline/commands",
+        "evidence": "loops seven slots in order, chooses pipeline, texture, and MiiSampler"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d7c220",
+        "raw_name": "FUN_7101d7c220",
+        "canonical_name": "bind_mii_head_and_mask_generated_textures",
+        "category": "rendering/mii_face_target/model_routing",
+        "evidence": "slot 0 binds mask RT, faceline RT, then optional UGC path"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d7dc20",
+        "raw_name": "FUN_7101d7dc20",
+        "canonical_name": "bind_generated_texture_to_mii_material_a0",
+        "category": "rendering/mii_face_target/model_routing",
+        "evidence": "looks up named material _a0 and installs the passed generated texture"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d7e4ac",
+        "raw_name": "FUN_7101d7e4ac",
+        "canonical_name": "attach_mii_faceline_render_target_gpu_resources",
+        "category": "rendering/mii_faceline/render_target",
+        "evidence": "stores faceline RT at draw state +0x3c0/internal +0x5d0"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d7e568",
+        "raw_name": "FUN_7101d7e568",
+        "canonical_name": "attach_mii_mask_render_target_gpu_resources",
+        "category": "rendering/mii_mask/render_target",
+        "evidence": "stores mask RT at draw state +0x3d0/internal +0x23b0"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d86290",
+        "raw_name": "FUN_7101d86290",
+        "canonical_name": "write_mii_wrinkle_color_for_faceline",
+        "category": "rendering/mii_faceline/color",
+        "evidence": "binary-only helper selects renderer-global WrinkleColor, using the dark-skin variant only for faceline color 8, and writes gamma-selected RGB"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d87014",
+        "raw_name": "FUN_7101d87014",
+        "canonical_name": "read_mii_char_info_part_index_by_resource_category",
+        "category": "rendering/mii_part_selection",
+        "evidence": "case 0x14 reads CharInfoEx stubble_type at +0x86"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d88258",
+        "raw_name": "FUN_7101d88258",
+        "canonical_name": "forward_mii_wrinkle_color_for_faceline",
+        "category": "rendering/mii_faceline/color",
+        "evidence": "resource-accessor vtable +0xd8 forwards to the binary wrinkle-color helper"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d88640",
+        "raw_name": "FUN_7101d88640",
+        "canonical_name": "create_mii_face_render_target_resource",
+        "category": "rendering/mii_face_target/resource",
+        "evidence": "creates either named faceline or mask GPU target from its checked descriptor"
+      },
+      {
+        "kind": "function",
+        "address": "0x7101d88f98",
+        "raw_name": "FUN_7101d88f98",
+        "canonical_name": "initialize_mii_sampler_and_dummy_albedo",
+        "category": "rendering/mii_faceline/sampler",
+        "evidence": "constructs MiiSampler with -0.7 bias and stores its handle at +0x80"
+      }
+    ],
+    "globals": [
+      {
+        "kind": "global",
+        "address": "0x71032a8c54",
+        "raw_name": "DAT_71032a8c54",
+        "canonical_name": "mii_mask_rgb_blend_mode_table",
+        "category": "rendering/mii_faceline/pipeline",
+        "evidence": "maps color mode 2 to ONE/ONE_MINUS_SRC_ALPHA ADD"
+      },
+      {
+        "kind": "global",
+        "address": "0x71032a8c80",
+        "raw_name": "DAT_71032a8c80",
+        "canonical_name": "mii_mask_alpha_blend_mode_table",
+        "category": "rendering/mii_faceline/pipeline",
+        "evidence": "maps alpha mode 3 to ONE/ONE_MINUS_SRC_ALPHA ADD"
+      },
+      {
+        "kind": "global",
+        "address": "0x71032bb64c",
+        "raw_name": "DAT_71032bb64c",
+        "canonical_name": "mii_faceline_layer_resource_category_order",
+        "category": "rendering/mii_faceline/order",
+        "evidence": "seven exact category IDs"
+      },
+      {
+        "kind": "global",
+        "address": "0x71032bb698",
+        "raw_name": "DAT_71032bb698",
+        "canonical_name": "mii_faceline_fullscreen_texcoords",
+        "category": "rendering/mii_faceline/geometry",
+        "evidence": "four exact float2 UVs"
+      },
+      {
+        "kind": "global",
+        "address": "0x71032bb6b8",
+        "raw_name": "DAT_71032bb6b8",
+        "canonical_name": "mii_faceline_fullscreen_indices",
+        "category": "rendering/mii_faceline/geometry",
+        "evidence": "six exact uint16 indices"
+      },
+      {
+        "kind": "global",
+        "address": "0x71032bb6c4",
+        "raw_name": "DAT_71032bb6c4",
+        "canonical_name": "mii_faceline_layer_shader_mode_selectors",
+        "category": "rendering/mii_faceline/shader",
+        "evidence": "seven exact MiiMask selector values"
+      },
+      {
+        "kind": "global",
+        "address": "0x71032bb8a0",
+        "raw_name": "DAT_71032bb8a0",
+        "canonical_name": "mii_faceline_overwrite_pipeline_descriptor",
+        "category": "rendering/mii_faceline/pipeline",
+        "evidence": "slot-0 base overwrite descriptor"
+      },
+      {
+        "kind": "global",
+        "address": "0x71032bb8c0",
+        "raw_name": "DAT_71032bb8c0",
+        "canonical_name": "mii_faceline_straight_alpha_source_over_pipeline_descriptor",
+        "category": "rendering/mii_faceline/pipeline",
+        "evidence": "slot-3 WrinkleUpper SRC_ALPHA RGB and ONE alpha descriptor"
+      },
+      {
+        "kind": "global",
+        "address": "0x71032bb8e0",
+        "raw_name": "DAT_71032bb8e0",
+        "canonical_name": "mii_faceline_premultiplied_source_over_pipeline_descriptor",
+        "category": "rendering/mii_faceline/pipeline",
+        "evidence": "slot-5 BeardShort source-over descriptor"
+      },
+      {
+        "kind": "global",
+        "address": "0x71039a6350",
+        "raw_name": "DAT_71039a6350",
+        "canonical_name": "mii_render_resource_accessor_vtable",
+        "category": "rendering/mii_part_resource/accessor",
+        "evidence": "slot +0xd8 forwards the renderer-global wrinkle color into faceline selector constants"
+      },
+      {
+        "kind": "global",
+        "address": "0x7103a67628",
+        "raw_name": "DAT_7103a67628",
+        "canonical_name": "mii_wrinkle_upper_scale_x_pointer",
+        "category": "rendering/mii_faceline/transform",
+        "evidence": "relative relocation points to checked float 0.16 at 0x7103e386f4"
+      },
+      {
+        "kind": "global",
+        "address": "0x7103e386f8",
+        "raw_name": "DAT_7103e386f8",
+        "canonical_name": "mii_wrinkle_upper_aspect_scale",
+        "category": "rendering/mii_faceline/transform",
+        "evidence": "checked float 0.9"
+      },
+      {
+        "kind": "global",
+        "address": "0x7103e386fc",
+        "raw_name": "DAT_7103e386fc",
+        "canonical_name": "mii_wrinkle_upper_translation_origin_x",
+        "category": "rendering/mii_faceline/transform",
+        "evidence": "checked float 1.0"
+      },
+      {
+        "kind": "global",
+        "address": "0x7103e38700",
+        "raw_name": "DAT_7103e38700",
+        "canonical_name": "mii_wrinkle_upper_translation_origin_y",
+        "category": "rendering/mii_faceline/transform",
+        "evidence": "checked float 0.72"
+      }
+    ],
+    "data_types": [
+      {
+        "kind": "data_type",
+        "name": "MiiRenderResourceCategory",
+        "category": "rendering/mii_part_selection",
+        "role": "uint32 enum with BeardShort=20"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiFacelineLayerSlot",
+        "category": "rendering/mii_faceline/order",
+        "role": "seven-slot ordered faceline compositor enum"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiFacelineLayerConstants",
+        "category": "rendering/mii_faceline/constants",
+        "role": "selector plus C1/C2/C3 and affine transform records"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiFacelineTextureState",
+        "category": "rendering/mii_faceline/state",
+        "role": "0x120 generated-faceline resource state"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiFaceTargetFormatPair",
+        "category": "rendering/mii_face_target/descriptor",
+        "role": "two uint32 formats plus byte +8 premultiplied-blend flag"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiSamplerState",
+        "category": "rendering/mii_faceline/sampler",
+        "role": "checked eight-byte sampler descriptor plus LOD range/bias"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiRendererGlobalSettings",
+        "category": "rendering/mii_renderer/settings",
+        "role": "SystemParam-backed settings with normal/dark-skin wrinkle RGB defaults"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiWrinkleLayerTransform",
+        "category": "rendering/mii_faceline/transform",
+        "role": "single-precision scale/translation affine emitted by descriptor case 3"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiFacelineRenderTarget",
+        "category": "rendering/mii_faceline/render_target",
+        "role": "128x256 RGBA8_SRGB storage with RGBA8_UNORM write view"
+      },
+      {
+        "kind": "data_type",
+        "name": "MiiGeneratedFaceTextureBindings",
+        "category": "rendering/mii_face_target/model_routing",
+        "role": "faceline +0x3c0, mask +0x3d0, optional UGC +0xf70 routing state"
+      }
+    ]
+  },
+  "guardrails": {
+    "reference_images_consulted": false,
+    "reference_image_offsets_or_defaults": [],
+    "main_c_must_be_empty": true,
+    "separate_stubble_overlay_forbidden": true,
+    "mask_user0_stubble_binding_forbidden": true
+  }
+}

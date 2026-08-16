@@ -2,10 +2,19 @@
 <html lang="en">
     <head>
         <%
-        const pageTitle = 'InfiniMii - Browse, Convert, and Share Nintendo Mii Characters';
-        const pageDesc = 'Browse official and community-made Mii characters, convert Mii files between Nintendo formats, generate QR codes, and follow transfer guides for Wii, 3DS, Wii U, Switch, and more.';
+        const homeExportValues = (Array.isArray(exportFormats) ? exportFormats : [])
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const homeLegacyExportsEnabled = homeExportValues.some((value) => value !== 'ltd');
+        const homeQrExportsEnabled = homeExportValues.includes('qr');
+        const pageTitle = 'InfiniMii - Mii Character Archive and Tools';
+        const pageDesc = homeLegacyExportsEnabled
+            ? 'Browse official and community-made Miis, convert supported files, and read transfer guides for Nintendo systems.'
+            : 'Browse official and community-made Miis, convert supported files to LTD, and read transfer guides for Nintendo systems.';
         const canonicalUrl = `${baseUrl}/`;
-        const keywords = 'mii characters, nintendo miis, download miis, mii converter, mii qr codes, official miis';
+        const keywords = homeQrExportsEnabled
+            ? 'mii characters, nintendo miis, download miis, mii converter, mii qr codes, official miis'
+            : 'mii characters, nintendo miis, download miis, ltd mii converter, ltd mii downloads, official miis';
         const schemaType = 'CollectionPage';
         const schemaGraphs = [{
             "@context": "https://schema.org",
@@ -32,9 +41,9 @@
             <%- include('sidebar') %>
             <div class="main-content">
                 <section class="home-hero" aria-labelledby="home-heading" hidden>
-                    <p class="home-kicker">Mii Database + Tools</p>
-                    <h1 id="home-heading">Browse, preserve, and convert Nintendo Mii characters</h1>
-                    <p class="home-lede">InfiniMii is a searchable Mii character repository and toolkit for Wii, DS, 3DS, Wii U, Switch, Switch 2, Miitomo, Tomodachi Life, and Nintendo Mii Studio. Use it to discover official Miis, share your own creations, generate QR codes, and move Miis between formats.</p>
+                    <p class="home-kicker">Mii archive and tools</p>
+                    <h1 id="home-heading">Browse and convert Nintendo Mii characters</h1>
+                    <p class="home-lede">InfiniMii archives Miis from Wii, DS, 3DS, Wii U, Switch, Switch 2, Miitomo, Tomodachi Life, and Nintendo Mii Studio. <%= homeLegacyExportsEnabled ? 'Browse official Miis, publish your own, or convert a supported Mii file.' : 'Browse official Miis, publish your own, or convert a supported Mii file to LTD.' %></p>
                     <p class="home-links">
                         <a href="/trending">Browse trending Miis</a>
                         <span aria-hidden="true"> | </span>
@@ -45,17 +54,17 @@
                 </section>
 
                 <section class="home-highlights" aria-labelledby="highlights-heading" hidden>
-                    <h2 id="highlights-heading">What You Can Do on InfiniMii</h2>
+                    <h2 id="highlights-heading">What InfiniMii does</h2>
                     <ul>
                         <li>Browse official Nintendo Miis and community recreations.</li>
-                        <li>Convert Mii data between classic and modern Nintendo systems.</li>
-                        <li>Generate and scan QR codes for compatible Mii formats.</li>
-                        <li>Use transfer guides for Wii, 3DS, Wii U, Switch, and Amiibo workflows.</li>
+                        <li><%= homeLegacyExportsEnabled ? 'Convert between the Mii formats listed in the dashboard.' : 'Convert supported Mii files to LTD.' %></li>
+                        <li><%= homeQrExportsEnabled ? 'Generate and scan QR codes for compatible Mii formats.' : 'Scan compatible QR codes and download the resulting LTD files.' %></li>
+                        <li>Follow transfer guides for Wii, 3DS, Wii U, Switch, and Amiibo.</li>
                     </ul>
                 </section>
 
                 <section aria-labelledby="browse-sections-heading">
-                    <h2 id="browse-sections-heading">Browse Popular Mii Collections</h2>
+                    <h2 id="browse-sections-heading">Browse Mii collections</h2>
                     <div id="browse-miis" class="homepage-preview-grid">
                         <% Object.keys(miiCategories).forEach(cat=>{ %>
                             <section class="miiCategory" data-home-preview-row aria-labelledby="section-<%= cat.toLowerCase() %>">

@@ -1,0 +1,2626 @@
+{
+  "schema_version": 1,
+  "native_backend_available": true,
+  "size": 128,
+  "runs": [
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "exit_code": 0,
+      "elapsed_ms": 2454.97
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "exit_code": 0,
+      "elapsed_ms": 970.203
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "exit_code": 0,
+      "elapsed_ms": 811.006
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "exit_code": 0,
+      "elapsed_ms": 859.823
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "exit_code": 0,
+      "elapsed_ms": 896.977
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "exit_code": 0,
+      "elapsed_ms": 999.051
+    }
+  ],
+  "draw_aggregate": [
+    {
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "calls": 6,
+      "triangles": 6624,
+      "elapsed_ms": 279.641,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 1356,
+      "elapsed_ms": 175.768,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "calls": 6,
+      "triangles": 4644,
+      "elapsed_ms": 130.952,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "hair_endpoint",
+      "program_index": 672,
+      "group": "Hair__mt_Hair",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 4,
+      "triangles": 4000,
+      "elapsed_ms": 125.572,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "calls": 6,
+      "triangles": 6084,
+      "elapsed_ms": 87.894,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "calls": 6,
+      "triangles": 3048,
+      "elapsed_ms": 85.419,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 1272,
+      "elapsed_ms": 70.291,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 1440,
+      "elapsed_ms": 65.032,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 1980,
+      "elapsed_ms": 61.968,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "calls": 6,
+      "triangles": 1728,
+      "elapsed_ms": 51.499,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 2352,
+      "elapsed_ms": 46.888,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 480,
+      "elapsed_ms": 33.565,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 744,
+      "elapsed_ms": 29.57,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "hair_endpoint",
+      "program_index": 564,
+      "group": "Hair__mt_Hair",
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair564EqualEndpoint",
+      "calls": 2,
+      "triangles": 1020,
+      "elapsed_ms": 24.688,
+      "fixtures": [
+        "QWvah.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 576,
+      "elapsed_ms": 24.557,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 1608,
+      "elapsed_ms": 24.543,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "glass_frame",
+      "program_index": 360,
+      "group": "Flame__mt_Body",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 2,
+      "triangles": 2736,
+      "elapsed_ms": 22.027,
+      "fixtures": [
+        "1SEg1.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "glass_lens_translucent",
+      "program_index": 60,
+      "group": "Trs__mt_LensTrs",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 2,
+      "triangles": 224,
+      "elapsed_ms": 21.293,
+      "fixtures": [
+        "1SEg1.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 72,
+      "elapsed_ms": 4.778,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    },
+    {
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "calls": 6,
+      "triangles": 12,
+      "elapsed_ms": 3.742,
+      "fixtures": [
+        "1SEg1.converted.ltd",
+        "QWvah.converted.ltd",
+        "ek6JD.converted.ltd"
+      ],
+      "views": [
+        "full-body",
+        "portrait"
+      ]
+    }
+  ],
+  "stage_aggregate": [
+    {
+      "stage": "face_atlas_composition",
+      "calls": 12,
+      "elapsed_ms": 993.598,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "stage": "faceline_target_composition",
+      "calls": 6,
+      "elapsed_ms": 5.407,
+      "pixel_backend": "python-numpy-pillow"
+    }
+  ],
+  "draws": [
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 11.417,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 0.709,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 0.622,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.498,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 0.416,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 0.474,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 37.929,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 0.473,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 0.414,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 51.765,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 16.902,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 10.802,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 8.131,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "triangles": 2,
+      "elapsed_ms": 0.632,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "alpha_texture",
+        "depth_write",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 14.03,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "hair_endpoint",
+      "program_index": 672,
+      "group": "Hair__mt_Hair",
+      "triangles": 1000,
+      "elapsed_ms": 41.707,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "triangles": 330,
+      "elapsed_ms": 15.815,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "parallax_texture",
+        "specular_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "glass_frame",
+      "program_index": 360,
+      "group": "Flame__mt_Body",
+      "triangles": 1368,
+      "elapsed_ms": 16.64,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "family": "glass_lens_translucent",
+      "program_index": 60,
+      "group": "Trs__mt_LensTrs",
+      "triangles": 112,
+      "elapsed_ms": 14.156,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "lit",
+        "blend",
+        "premultiplied_rgb_blend",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 11.457,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 8.202,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 16.285,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 1.457,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 9.879,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 23.89,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 17.693,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 8.533,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 12.208,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 49.655,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 33.88,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 22.379,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 7.907,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "triangles": 2,
+      "elapsed_ms": 0.537,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "alpha_texture",
+        "depth_write",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 13.487,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "hair_endpoint",
+      "program_index": 672,
+      "group": "Hair__mt_Hair",
+      "triangles": 1000,
+      "elapsed_ms": 19.903,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "triangles": 330,
+      "elapsed_ms": 4.127,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "parallax_texture",
+        "specular_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "glass_frame",
+      "program_index": 360,
+      "group": "Flame__mt_Body",
+      "triangles": 1368,
+      "elapsed_ms": 5.387,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "family": "glass_lens_translucent",
+      "program_index": 60,
+      "group": "Trs__mt_LensTrs",
+      "triangles": 112,
+      "elapsed_ms": 7.137,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "lit",
+        "blend",
+        "premultiplied_rgb_blend",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 16.442,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 0.654,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 0.678,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.521,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 0.416,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 0.458,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 31.106,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 0.471,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 0.429,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 32.502,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 2.678,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 1.956,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 8.384,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "triangles": 2,
+      "elapsed_ms": 0.587,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "alpha_texture",
+        "depth_write",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 14.326,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "hair_endpoint",
+      "program_index": 672,
+      "group": "Hair__mt_Hair",
+      "triangles": 1000,
+      "elapsed_ms": 42.045,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "clockwise_front_face",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "triangles": 330,
+      "elapsed_ms": 14.872,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "parallax_texture",
+        "specular_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 7.978,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 6.25,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 12.169,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.612,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 8.475,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 14.9,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 13.71,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 5.894,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 8.046,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 50.878,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 35.169,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 23.063,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 7.666,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "triangles": 2,
+      "elapsed_ms": 0.684,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "alpha_texture",
+        "depth_write",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 13.78,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "hair_endpoint",
+      "program_index": 672,
+      "group": "Hair__mt_Hair",
+      "triangles": 1000,
+      "elapsed_ms": 21.916,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "clockwise_front_face",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "triangles": 330,
+      "elapsed_ms": 3.866,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "parallax_texture",
+        "specular_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 11.219,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 0.552,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 0.524,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 0.476,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 0.402,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 0.45,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 57.408,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 0.658,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 0.735,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 42.659,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 4.468,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 3.81,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 11.392,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "triangles": 2,
+      "elapsed_ms": 0.722,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "alpha_texture",
+        "depth_write",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 18.342,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "hair_endpoint",
+      "program_index": 564,
+      "group": "Hair__mt_Hair",
+      "triangles": 510,
+      "elapsed_ms": 13.987,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair564EqualEndpoint",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "triangles": 330,
+      "elapsed_ms": 18.61,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "parallax_texture",
+        "specular_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyElbow__mt_Tops",
+      "triangles": 212,
+      "elapsed_ms": 11.777,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyFoot__mt_Socks",
+      "triangles": 268,
+      "elapsed_ms": 8.175,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyHand__mt_Tops",
+      "triangles": 392,
+      "elapsed_ms": 16.61,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyHip__mt_Socks",
+      "triangles": 12,
+      "elapsed_ms": 1.214,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyKnee__mt_Socks",
+      "triangles": 124,
+      "elapsed_ms": 9.983,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 324,
+      "group": "BodyLeg__mt_Socks",
+      "triangles": 240,
+      "elapsed_ms": 24.86,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 348,
+      "group": "BodyShoulder__mt_Tops",
+      "triangles": 226,
+      "elapsed_ms": 17.922,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyThigh__mt_Socks",
+      "triangles": 96,
+      "elapsed_ms": 8.528,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "body",
+      "program_index": 336,
+      "group": "BodyWaist__mt_Tops",
+      "triangles": 80,
+      "elapsed_ms": 11.733,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "normal_texture",
+        "gameuber_body348",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_tops",
+      "program_index": 984,
+      "group": "Tops__mt_Body",
+      "triangles": 1104,
+      "elapsed_ms": 52.182,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitTops984",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_bottoms",
+      "program_index": 936,
+      "group": "Bottoms__mt_Body",
+      "triangles": 774,
+      "elapsed_ms": 37.856,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitBottoms936",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "outfit_shoes",
+      "program_index": 912,
+      "group": "Shoes__mt_Body",
+      "triangles": 508,
+      "elapsed_ms": 23.409,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "OutfitShoes912",
+      "features": [
+        "texture",
+        "normal_texture",
+        "roughness_texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "mask",
+      "program_index": 0,
+      "group": "Mask__mt_Mask",
+      "triangles": 288,
+      "elapsed_ms": 8.02,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Mask0",
+      "features": [
+        "texture",
+        "lit",
+        "depth_write",
+        "linear_lighting"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "nose_line",
+      "program_index": 12,
+      "group": "NoseLine__mt_NoseLine",
+      "triangles": 2,
+      "elapsed_ms": 0.581,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "alpha_texture",
+        "depth_write",
+        "cull_back_faces"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "head",
+      "program_index": 816,
+      "group": "Head__mt_Head",
+      "triangles": 1014,
+      "elapsed_ms": 13.93,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Head816",
+      "features": [
+        "normal_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "hair_endpoint",
+      "program_index": 564,
+      "group": "Hair__mt_Hair",
+      "triangles": 510,
+      "elapsed_ms": 10.701,
+      "pixel_backend": "compiled-specialized",
+      "native_kind": "Hair564EqualEndpoint",
+      "features": [
+        "occlusion_texture",
+        "specular_texture",
+        "gradient_texture",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "gamma_correct_lighting",
+        "casts_face_shadow"
+      ]
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "family": "nose",
+      "program_index": 756,
+      "group": "Nose__mt_Nose",
+      "triangles": 330,
+      "elapsed_ms": 4.677,
+      "pixel_backend": "python-generic",
+      "native_kind": null,
+      "features": [
+        "parallax_texture",
+        "specular_texture",
+        "cheap_sss_proxy",
+        "lit",
+        "depth_write",
+        "cull_back_faces",
+        "linear_lighting",
+        "receives_screenspace_face_shadow"
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 149.227,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 70.117,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "portrait",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.829,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 75.546,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 71.801,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\1SEg1.converted.ltd",
+      "view": "full-body",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.908,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 74.224,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 69.874,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "portrait",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.857,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 73.523,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 71.384,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\ek6JD.converted.ltd",
+      "view": "full-body",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.865,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 93.362,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 76.413,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "portrait",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 1.035,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 94.156,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "stage": "face_atlas_composition",
+      "elapsed_ms": 73.97,
+      "pixel_backend": "python-numpy-pillow"
+    },
+    {
+      "input": "C:\\Users\\kestr\\Coding\\LtDRender\\dcmp\\renderer\\infinimii_output\\source_bundle\\QWvah.converted.ltd",
+      "view": "full-body",
+      "stage": "faceline_target_composition",
+      "elapsed_ms": 0.913,
+      "pixel_backend": "python-numpy-pillow"
+    }
+  ]
+}

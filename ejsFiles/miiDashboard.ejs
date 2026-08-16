@@ -4,23 +4,41 @@
         <%
         const dashboardPath = '/miiDashboard';
         const dashboardUrl = `${baseUrl}${dashboardPath}`;
-        const pageTitle = 'Mii Converter, QR Generator & Renderer - InfiniMii';
-        const pageDesc = 'Convert Mii files and QR images, generate 3DS, Wii U, and Tomodachi Life QR codes, edit decoded JSON, and render Mii previews in your browser.';
+        const dashboardExportFormats = Array.isArray(exportFormats) ? exportFormats : [];
+        const dashboardExportValues = dashboardExportFormats
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const legacyDashboardExportsEnabled = dashboardExportValues.some((value) => value !== 'ltd');
+        const dashboardQrExportsEnabled = dashboardExportValues.includes('qr');
+        const defaultDashboardExportFormat = dashboardExportValues[0] || '';
+        const pageTitle = dashboardQrExportsEnabled
+            ? 'Mii Converter, QR Generator & Renderer - InfiniMii'
+            : 'Mii Converter & LTD Renderer - InfiniMii';
+        const pageDesc = dashboardQrExportsEnabled
+            ? 'Convert Mii files and QR images, generate compatible QR codes, edit decoded data, and render Mii previews in your browser.'
+            : 'Inspect Mii files and QR images, edit decoded data, render Mii previews, and export the result as an LTD file.';
         const canonicalUrl = `${baseUrl}${dashboardPath}`;
-        const ogImageAlt = 'InfiniMii Mii converter, QR generator, and renderer dashboard';
+        const ogImageAlt = dashboardQrExportsEnabled
+            ? 'InfiniMii Mii converter, QR generator, and renderer dashboard'
+            : 'InfiniMii Mii converter and LTD renderer dashboard';
         const dashboardKeywordSeeds = [
             'mii converter',
-            'mii qr generator',
-            'mii qr code generator',
             'mii qr scanner',
             'mii file converter',
             'mii format converter',
             'convert mii file',
             'convert mii qr',
-            '3ds mii qr code',
-            'wii u mii qr code',
-            'tomodachi life mii qr code',
-            'mii qr png',
+            ...(dashboardQrExportsEnabled ? [
+                'mii qr generator',
+                'mii qr code generator',
+                '3ds mii qr code',
+                'wii u mii qr code',
+                'tomodachi life mii qr code',
+                'mii qr png'
+            ] : [
+                'ltd mii converter',
+                'ltd mii download'
+            ]),
             'mii renderer',
             'render mii',
             'mii json editor',
@@ -41,13 +59,19 @@
             { name: 'Mii Dashboard', url: dashboardPath }
         ];
         const dashboardFeatureList = [
-            'Decode uploaded Mii files, QR images, raw Mii data, and InfiniMii Mii IDs',
-            'Convert Mii data between Wii, 3DS, Wii U, Switch, Miitomo, Tomodachi Life, Mii Studio, charinfo, and QR formats',
-            'Generate 3DS, Wii U, and Tomodachi Life Mii QR codes',
-            'Export QR PNG, binary Mii files, hex data, and base64 data',
+            legacyDashboardExportsEnabled
+                ? 'Decode uploaded Mii files, QR images, raw Mii data, and InfiniMii Mii IDs'
+                : 'Decode uploaded Mii files, QR images, and raw Mii data',
+            dashboardQrExportsEnabled
+                ? 'Convert Mii data to the formats listed by InfiniMii'
+                : 'Convert supported Mii inputs to the LTD format',
+            ...(dashboardQrExportsEnabled ? ['Generate compatible Mii QR codes'] : []),
+            dashboardQrExportsEnabled
+                ? 'Download the formats listed by InfiniMii'
+                : 'Download LTD files',
             'Render head and full body Mii previews',
             'Edit decoded MiiJS JSON before exporting',
-            'Create Special Mii exports',
+            ...(legacyDashboardExportsEnabled ? ['Create Special Mii exports'] : []),
             'View recreation instructions',
             'Run Kidomatic child and life-stage generation'
         ];
@@ -55,14 +79,12 @@
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
             "@id": `${dashboardUrl}#mii-converter-app`,
-            "name": "InfiniMii Mii Converter and QR Generator",
-            "alternateName": [
-                "InfiniMii Mii Dashboard",
-                "InfiniMii Mii QR Generator",
-                "InfiniMii Mii Renderer"
-            ],
+            "name": dashboardQrExportsEnabled ? "InfiniMii Mii Converter and QR Generator" : "InfiniMii Mii Converter and LTD Renderer",
+            "alternateName": dashboardQrExportsEnabled
+                ? ["InfiniMii Mii Dashboard", "InfiniMii Mii QR Generator", "InfiniMii Mii Renderer"]
+                : ["InfiniMii Mii Dashboard", "InfiniMii LTD Converter", "InfiniMii Mii Renderer"],
             "applicationCategory": "UtilitiesApplication",
-            "applicationSubCategory": "Mii converter and QR generator",
+            "applicationSubCategory": dashboardQrExportsEnabled ? "Mii converter and QR generator" : "Mii converter and LTD renderer",
             "operatingSystem": "Web Browser",
             "url": dashboardUrl,
             "description": pageDesc,
@@ -87,7 +109,7 @@
             },
             "about": [
                 { "@type": "Thing", "name": "Mii format conversion" },
-                { "@type": "Thing", "name": "Mii QR codes" },
+                ...(dashboardQrExportsEnabled ? [{ "@type": "Thing", "name": "Mii QR codes" }] : []),
                 { "@type": "Thing", "name": "Nintendo Mii characters" }
             ],
             "offers": {
@@ -100,10 +122,10 @@
         <%- include('metaTags', { title: pageTitle, description: pageDesc, canonicalUrl, ogImageAlt, keywords }) %>
         <%- include('structuredData', { title: pageTitle, description: pageDesc, canonicalUrl, ogImageAlt, keywords, breadcrumbs, schemaGraphs }) %>
 
-        <link rel="stylesheet" href="/global.css">
-        <link rel="stylesheet" href="/utilityPages.css">
-        <link rel="stylesheet" href="/miiChild.css">
-        <link rel="stylesheet" href="/miiDashboard.css">
+        <link rel="stylesheet" href="/global.css?v=<%= encodeURIComponent(assetVersion || '1') %>">
+        <link rel="stylesheet" href="/utilityPages.css?v=<%= encodeURIComponent(assetVersion || '1') %>">
+        <link rel="stylesheet" href="/miiChild.css?v=<%= encodeURIComponent(assetVersion || '1') %>">
+        <link rel="stylesheet" href="/miiDashboard.css?v=<%= encodeURIComponent(assetVersion || '1') %>">
     </head>
     <body>
         <%- include('globalStyle') %>
@@ -116,7 +138,7 @@
             <section class="utility-container child-maker-container mii-dashboard-container">
                 <header class="child-maker-intro mii-dashboard-intro">
                     <h1>Mii Dashboard</h1>
-                    <p>Render, edit, convert, scan, upload, recreate, and run Kidomatic from one decoded Mii workspace.</p>
+                    <p>Inspect one Mii, edit its data, create previews, convert formats, or generate child stages.</p>
                 </header>
 
                 <form id="miiDashboardForm" method="POST" enctype="multipart/form-data" action="/miiDashboard/analyze">
@@ -124,7 +146,7 @@
                         <legend>Inspect a Mii</legend>
 
                         <p class="note">
-                            Upload any supported Mii file or QR image, and get detailed info and renders, convert it to another format, or see what it would look like as a kid.
+                            Choose one input: a supported Mii file or QR image, raw Mii data, or an InfiniMii ID.
                         </p>
 
                         <div class="dashboard-input-grid">
@@ -156,6 +178,13 @@
                         <div class="dashboard-primary-actions">
                             <button type="button" id="dashboardDownloadBtn"><%- include('icon', { name: 'download', size: 16, class: 'icon-inline' }) %> Download</button>
                             <button type="button" id="dashboardUploadBtn" class="btn-secondary"><%- include('icon', { name: 'upload', size: 16, class: 'icon-inline' }) %> Upload</button>
+                            <button type="button" id="dashboardRenderAsBtn" class="btn-secondary" aria-haspopup="true" aria-expanded="false">Render As</button>
+                            <div id="dashboardRenderAsMenu" class="dashboard-render-as-menu" hidden>
+                                <span class="dashboard-render-as-label">Renderer:</span>
+                                <button type="button" class="btn-secondary" data-renderer-profile="TL">TL</button>
+                                <button type="button" class="btn-secondary" data-renderer-profile="LTD">LTD</button>
+                                <span id="dashboardRendererStatus" class="note"></span>
+                            </div>
                             <button type="button" id="dashboardInstructionsBtn" class="btn-secondary"><%- include('icon', { name: 'scroll', size: 16, class: 'icon-inline' }) %> Recreation Instructions</button>
                             <button type="button" id="dashboardKidomaticBtn" class="btn-secondary"><%- include('icon', { name: 'sparkles', size: 16, class: 'icon-inline' }) %> Kidomatic</button>
                             <div id="dashboardActionMessage" class="form-message dashboard-local-message" style="display: none;"></div>
@@ -164,38 +193,40 @@
 
                     <div class="dashboard-preview-grid">
                         <article class="dashboard-preview-card">
-                            <h3>Render</h3>
+                            <h3>Face preview</h3>
                             <img id="dashboardRender" class="dashboard-preview-image" src="" alt="Decoded Mii render" width="512" height="512" loading="lazy" decoding="async">
                         </article>
 
                         <article class="dashboard-preview-card">
-                            <h3>Full Body Render</h3>
+                            <h3>Full-body preview</h3>
                             <img id="dashboardFullBodyRender" class="dashboard-preview-image dashboard-full-body-image" src="" alt="Decoded Mii full body render" width="512" height="512" loading="lazy" decoding="async">
                         </article>
 
-                        <article class="dashboard-preview-card">
-                            <h3>QR Code</h3>
-                            <div id="dashboardQrPreview" class="qr-preview-window is-qr-3ds" data-qr-preview data-qr3ds-src="" data-qr-wiiu-src="" data-qr-tomodachi-src="" data-qr-miitopia-src="">
-                                <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
-                                    <button type="button" class="qr-console-tab is-active" data-qr-tab="3DS" role="tab" aria-selected="true">3DS</button>
-                                    <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false">Wii U</button>
-                                    <button type="button" class="qr-console-tab" data-qr-tab="TOMODACHI" role="tab" aria-selected="false" aria-label="Tomodachi Life 3DS QR" title="Tomodachi Life 3DS QR" hidden>TL</button>
-                                    <% /* MT QR tab temporarily disabled on the InfiniMii site. */ %>
-                                    <!-- <button type="button" class="qr-console-tab" data-qr-tab="MIITOPIA" role="tab" aria-selected="false" aria-label="Miitopia 3DS QR" title="Miitopia 3DS QR" hidden>MT</button> -->
+                        <% if (dashboardQrExportsEnabled) { %>
+                            <article id="dashboardQrCard" class="dashboard-preview-card" hidden>
+                                <h3>QR Code</h3>
+                                <div id="dashboardQrPreview" class="qr-preview-window is-qr-3ds" data-qr-preview data-qr3ds-src="" data-qr-wiiu-src="" data-qr-tomodachi-src="" data-qr-miitopia-src="">
+                                    <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
+                                        <button type="button" class="qr-console-tab is-active" data-qr-tab="3DS" role="tab" aria-selected="true">3DS</button>
+                                        <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false">Wii U</button>
+                                        <button type="button" class="qr-console-tab" data-qr-tab="TOMODACHI" role="tab" aria-selected="false" aria-label="Tomodachi Life 3DS QR" title="Tomodachi Life 3DS QR" hidden>TL</button>
+                                        <% /* MT QR tab temporarily disabled on the InfiniMii site. */ %>
+                                        <!-- <button type="button" class="qr-console-tab" data-qr-tab="MIITOPIA" role="tab" aria-selected="false" aria-label="Miitopia 3DS QR" title="Miitopia 3DS QR" hidden>MT</button> -->
+                                    </div>
+                                    <a id="dashboardQrLink" class="qr-preview-link" href="#" target="_blank" rel="noopener noreferrer" data-qr-link>
+                                        <img id="dashboardQr" class="qr-code-image" src="" alt="Decoded Mii QR code" width="150" height="150" loading="lazy" decoding="async" data-qr-image data-qr-console="3DS">
+                                    </a>
                                 </div>
-                                <a id="dashboardQrLink" class="qr-preview-link" href="#" target="_blank" rel="noopener noreferrer" data-qr-link>
-                                    <img id="dashboardQr" class="qr-code-image" src="" alt="Decoded Mii QR code" width="150" height="150" loading="lazy" decoding="async" data-qr-image data-qr-console="3DS">
-                                </a>
-                            </div>
-                        </article>
+                            </article>
+                        <% } %>
 
                         <article class="dashboard-info-card">
-                            <h3>Mii Fields</h3>
+                            <h3>Mii data</h3>
                             <div id="dashboardInfoGrid" class="dashboard-info-grid"></div>
                         </article>
 
                         <article id="dashboardTomodachiCard" class="dashboard-info-card" hidden>
-                            <h3>Tomodachi Fields</h3>
+                            <h3>Tomodachi data</h3>
                             <div id="dashboardTomodachiGrid" class="dashboard-info-grid"></div>
                         </article>
                     </div>
@@ -205,10 +236,14 @@
                             <legend>Upload a Mii to the Website</legend>
                             <div id="dashboardUploadMessage" class="form-message" style="display: none;"></div>
                             <% if (user) { %>
+                                <input type="hidden" name="dashboardUpload" value="true">
                                 <input type="hidden" name="miiData" id="dashboardUploadMiiData">
+                                <input type="hidden" name="sourceMiiId" id="dashboardUploadSourceMiiId">
+                                <input type="hidden" name="downloadPolicyToken" id="dashboardUploadDownloadPolicyToken">
+                                <input type="hidden" name="downloadPolicyMiiData" id="dashboardUploadDownloadPolicyMiiData">
                                 <label for="dashboardUploadDesc">Description (max <%= miiDescriptionMaxLength %> characters)</label>
                                 <input id="dashboardUploadDesc" size="50" placeholder="Description..." name="desc" type="text" maxlength="<%= miiDescriptionMaxLength %>" required aria-required="true">
-                                <input type="submit" value="Upload">
+                                <input id="dashboardUploadSubmit" type="submit" value="Upload">
                             <% } else { %>
                                 <p class="note">Log in to upload this Mii to your private collection.</p>
                                 <a class="btn btn-primary" href="/login?next=%2FmiiDashboard">Log In</a>
@@ -227,14 +262,14 @@
                                 <button type="button" id="dashboardSaveJsonBtn" class="btn-secondary" hidden>Save</button>
                             <% } %>
                             <div id="dashboardJsonMessage" class="form-message dashboard-local-message" style="display: none;"></div>
-                            <p class="note">Downloads, QR exports, recreation instructions, uploads, and Kidomatic use the last applied JSON. Save checks the current editor text first.</p>
+                            <p class="note">Apply JSON edits before downloading, creating a QR code or instructions, uploading, or running Kidomatic. If Save is available, it checks the editor before saving.</p>
                         </div>
                     </details>
                 </section>
 
                 <section id="dashboardKidomaticResults" class="child-results" hidden>
                     <h3>Kidomatic Stages</h3>
-                    <p class="note">Kidomatic returns the same six life-stage cards used by the Mii Child Generator.</p>
+                    <p class="note">The same six life stages shown in the Mii Child Generator.</p>
                     <div id="dashboardKidomaticGrid" class="child-results-grid"></div>
                 </section>
 
@@ -249,26 +284,32 @@
                             <p id="dashboardExportLabel" class="note child-download-stage-label"></p>
 
                             <label for="dashboardExportFormat">Export format</label>
-                            <input type="text" id="dashboardExportFormat" name="format" list="dashboardExportFormatOptions" placeholder="QR by default, or search formats...">
+                            <input type="text" id="dashboardExportFormat" name="format" list="dashboardExportFormatOptions" value="<%= defaultDashboardExportFormat %>" placeholder="Choose an export format..." required<%- legacyDashboardExportsEnabled ? '' : ' readonly aria-readonly="true"' %>>
 
-                            <div class="child-download-options-row">
-                                <label class="child-download-inline-label">
-                                    <input type="checkbox" id="dashboardExportSpecial" name="special">
-                                    Download as Special Mii
-                                </label>
-                                <label for="dashboardExportQrConsole" class="child-download-inline-label">
-                                    QR Console:
-                                    <select id="dashboardExportQrConsole" name="qrConsole">
-                                        <option value="3DS">3DS</option>
-                                        <option value="WIIU">Wii U</option>
-                                        <option value="TOMODACHI">Tomodachi Life (TL 3DS)</option>
-                                        <% /* MT QR export temporarily disabled on the InfiniMii site. */ %>
-                                        <!-- <option value="MIITOPIA">Miitopia (MT 3DS)</option> -->
-                                    </select>
-                                </label>
-                            </div>
+                            <% if (legacyDashboardExportsEnabled || dashboardQrExportsEnabled) { %>
+                                <div class="child-download-options-row">
+                                    <% if (legacyDashboardExportsEnabled) { %>
+                                        <label id="dashboardExportSpecialOption" class="child-download-inline-label">
+                                            <input type="checkbox" id="dashboardExportSpecial" name="special">
+                                            Download as Special Mii
+                                        </label>
+                                    <% } %>
+                                    <% if (dashboardQrExportsEnabled) { %>
+                                        <label id="dashboardExportQrOption" for="dashboardExportQrConsole" class="child-download-inline-label">
+                                            QR Console:
+                                            <select id="dashboardExportQrConsole" name="qrConsole">
+                                                <option value="3DS">3DS</option>
+                                                <option value="WIIU">Wii U</option>
+                                                <option value="TOMODACHI">Tomodachi Life (TL 3DS)</option>
+                                                <% /* MT QR export temporarily disabled on the InfiniMii site. */ %>
+                                                <!-- <option value="MIITOPIA">Miitopia (MT 3DS)</option> -->
+                                            </select>
+                                        </label>
+                                    <% } %>
+                                </div>
+                            <% } %>
 
-                            <p class="note child-download-note">Uses the same MiiJS export formats as Mii pages. The 3DS option exports CFED; TL exports game-specific 3DS data.</p>
+                            <p id="dashboardExportNote" class="note child-download-note">Available formats match the Mii download pages.</p>
                             <div id="dashboardExportMessage" class="form-message" style="display: none;"></div>
                         </div>
 
@@ -281,8 +322,8 @@
                 </div>
 
                 <datalist id="dashboardExportFormatOptions">
-                    <% exportFormats.forEach(fmt => { %>
-                        <option value="<%= fmt.value %>" label="<%= fmt.label %>"></option>
+                    <% dashboardExportFormats.forEach(fmt => { %>
+                        <option value="<%= fmt.value %>" label="<%= fmt.label %>" data-dashboard-export-format></option>
                     <% }) %>
                 </datalist>
             </section>
@@ -294,9 +335,14 @@
         <script>
             window.miiDashboardConfig = {
                 downloadIconSvg: <%- toScriptJson(include('icon', { name: 'download', size: 18, class: 'child-stage-download-icon' })) %>,
-                isAdmin: <%= isAdmin ? 'true' : 'false' %>
+                isAdmin: <%= isAdmin ? 'true' : 'false' %>,
+                allowedExportFormats: <%- toScriptJson(dashboardExportValues) %>,
+                defaultExportFormat: <%- toScriptJson(defaultDashboardExportFormat) %>,
+                legacyExportsEnabled: <%= legacyDashboardExportsEnabled ? 'true' : 'false' %>,
+                qrExportsEnabled: <%= dashboardQrExportsEnabled ? 'true' : 'false' %>
             };
         </script>
+        <script src="/miiDashboardFormatPolicy.js?v=<%= encodeURIComponent(assetVersion || '1') %>"></script>
         <script src="/miiDashboard.js?v=<%= encodeURIComponent(assetVersion || '1') %>"></script>
     </body>
 </html>

@@ -1,5 +1,4 @@
 node_modules
-package-lock.json
 storage.json
 test.js
 uploads/*
@@ -31,3 +30,35 @@ native/tomodachi/local-audit/
 
 nonGitIgnoredTestFile
 deprecatedStorage.json
+
+# LTD renderer asset drop. Runtime source under ltd-renderer/dcmp remains
+# visible to Git; game-derived/prepared payloads and host build products do not.
+/ltd-renderer/ltdDemo_converted_assets/
+/ltd-renderer/ltdDemo_filesystem/
+/ltd-renderer/dcmp/renderer/assets/
+/ltd-renderer/dcmp/renderer/title_geometry/
+/ltd-renderer/dcmp/tools/_shader_work/
+/ltd-renderer/dcmp/tools/_title_shader_work/
+/ltd-renderer/dcmp/tools/_light_prepass_work/
+/ltd-renderer/dcmp/tools/_kestron_models/
+/ltd-renderer/dcmp/tools/bfres-exporter/bin/
+/ltd-renderer/dcmp/tools/byml-dump/bin/
+/ltd-renderer/tools/Switch-Toolbox/
+/ltd-renderer/dcmp/reference*.png
+/ltd-renderer/dcmp/default.baglenvset
+/ltd-renderer/dcmp/renderer/__pycache__/
+/ltd-renderer/dcmp/renderer/_depth_delta/
+/ltd-renderer/dcmp/renderer/output/
+/ltd-renderer/dcmp/renderer/infinimii_output/
+/ltd-renderer/dcmp/native_runtime/build/
+/ltd-renderer/dcmp/native_runtime/__pycache__/
+/ltd-renderer/dcmp/**/*.py[cod]
+/ltd-renderer/dcmp/renderer/*.pyd
+/ltd-renderer/dcmp/renderer/*.so
+/ltd-renderer/dcmp/renderer/*.dylib
+/ltd-renderer/dcmp/native_runtime/*.obj
+/ltd-renderer/dcmp/native_runtime/*.lib
+/ltd-renderer/dcmp/native_runtime/*.exp
+/ltd-renderer/dcmp/native_runtime/*.pdb
+/ltd-renderer/dcmp/*.ltd
+/ltd-renderer/dcmp/*.obj

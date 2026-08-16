@@ -735,10 +735,8 @@ static int headwear_render(
     tomodachi_direct_headwear_variant = resolved_metadata_variant;
     tomodachi_direct_headwear_draw_hook = headwear_direct_draw_hook;
     tomodachi_direct_headwear_enabled = 1;
-    /* Mask-class headwear replaces ordinary hair.  Variant selection above
-       must use the subject's true hair, while the portrait draw uses FFL's
-       empty-hair part (30) to prevent covered geometry poking through. */
-    if (headwear_type == 2) params.hair_type = 30;
+    /* Preserve the selected Mii hair.  CGFX HeadType chooses the native
+       normal, cap-cut, or headgear/face-only head model during composition. */
     if (!render_portrait_sized(&resource, &params, body_dir, headwear_dir,
             head_model_path, width, height, &portrait)) {
         fprintf(stderr, "Could not render fixed Mii portrait.\n");

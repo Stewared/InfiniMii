@@ -1,0 +1,1984 @@
+/*
+ * InfiniMii archive theme
+ *
+ * This stylesheet intentionally loads before the existing page styles. Its
+ * selectors are therefore a little more specific than usual: that lets the
+ * visual system stay centralized without changing page structure or relying
+ * on !important for ordinary theming.
+ */
+
+html:root {
+  color-scheme: dark;
+  --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --archive-heading-font: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+  --layer-1: #171315;
+  --layer-2: #211b1e;
+  --layer-3: #514248;
+  --brand-color: #de4362;
+  --text-1: #f8f3f5;
+  --text-2: #beb2b7;
+  --archive-canvas: #171315;
+  --archive-panel: #211b1e;
+  --archive-panel-raised: #282024;
+  --archive-inset: #120f10;
+  --archive-hover: #30252a;
+  --archive-line: #493a40;
+  --archive-line-strong: #715961;
+  --archive-accent-soft: #48242d;
+  --archive-focus: #ff91a7;
+  --archive-danger: #cf4b4b;
+  --archive-warning: #d09a42;
+  --archive-success: #4b9a68;
+  --archive-radius-sm: 6px;
+  --archive-radius: 10px;
+  --archive-radius-lg: 14px;
+  --archive-space-xs: 0.5rem;
+  --archive-space-sm: 0.75rem;
+  --archive-space-md: 1rem;
+  --archive-space-lg: 1.5rem;
+  --archive-space-xl: 2rem;
+  --archive-space-2xl: 3rem;
+  --derivative-mii-color: color-mix(
+    in oklab,
+    var(--user-pfp-mii-color, #ffffff) 13%,
+    #171315 87%
+  );
+  --layer-1-um: color-mix(
+    in oklab,
+    var(--archive-canvas) 93%,
+    var(--user-pfp-mii-color, #ffffff) 7%
+  );
+  --layer-2-um: color-mix(
+    in oklab,
+    var(--archive-panel) 95%,
+    var(--user-pfp-mii-color, #ffffff) 5%
+  );
+  --layer-3-um: color-mix(
+    in oklab,
+    var(--archive-line-strong) 96%,
+    var(--user-pfp-mii-color, #ffffff) 4%
+  );
+}
+
+html body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: var(--archive-canvas);
+  background-image: none;
+  color: var(--text-1);
+  font-family: var(--system-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+html body h1,
+html body h2,
+html body h3,
+html body h4,
+html body h5,
+html body h6,
+html body legend {
+  color: var(--text-1);
+  font-family: var(--archive-heading-font);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+html body p,
+html body li,
+html body dd {
+  color: var(--text-2);
+}
+
+html body a {
+  color: #ed738b;
+  text-underline-offset: 0.16em;
+}
+
+html body a:hover {
+  color: #ff9aad;
+}
+
+html body :focus-visible,
+html body input:focus-visible,
+html body select:focus-visible,
+html body textarea:focus-visible,
+html body button:focus-visible,
+html body a:focus-visible {
+  outline: 2px solid var(--archive-focus);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+html body ::selection {
+  background-color: var(--brand-color);
+  color: #ffffff;
+}
+
+/* Named decorative surfaces only: icons, loaders, and state affordances are excluded. */
+html
+  body
+  :is(
+    .site-header.site-header,
+    .accDropdown.accDropdown,
+    .sidebar-list.sidebar-list,
+    .mii-card.mii-card,
+    .miiCategory.miiCategory,
+    .browse-page-intro.browse-page-intro,
+    .search-control-panel.search-control-panel,
+    .advanced-search-dropdown.advanced-search-dropdown,
+    .advanced-search-panel.advanced-search-panel,
+    .search-fields-panel.search-fields-panel,
+    .search-tags-panel.search-tags-panel,
+    .search-categories-panel.search-categories-panel,
+    .tag-management-panel.tag-management-panel,
+    .pagination.pagination,
+    .site-footer.site-footer,
+    .utility-container.utility-container,
+    .settings-container.settings-container,
+    .guide-container.guide-container,
+    .faq-article.faq-article,
+    .faq-nav.faq-nav,
+    .faq-item.faq-item,
+    .still-have-questions.still-have-questions,
+    .mods-article.mods-article,
+    .mods-card.mods-card,
+    .auth-shell.auth-shell,
+    .auth-copy.auth-copy,
+    .auth-fieldset.auth-fieldset,
+    .oauth-provider-button.oauth-provider-button,
+    .linked-oauth-item.linked-oauth-item,
+    .profile-container.profile-container,
+    .profile-header.profile-header,
+    .profile-stats.profile-stats,
+    .profile-panel.profile-panel,
+    .profile-featured-card.profile-featured-card,
+    .mii-id-card.mii-id-card,
+    .id-card-header.id-card-header,
+    .id-card-body.id-card-body,
+    .id-card-description.id-card-description,
+    .mii-tags-section.mii-tags-section,
+    .mii-seo-panel.mii-seo-panel,
+    .private-mii-panel.private-mii-panel,
+    .tomodachi-life-panel.tomodachi-life-panel,
+    .dashboard-preview-card.dashboard-preview-card,
+    .dashboard-info-card.dashboard-info-card,
+    .dashboard-json-details.dashboard-json-details,
+    .official-fields-card.official-fields-card,
+    .official-upload-fieldset.official-upload-fieldset,
+    .official-source-card.official-source-card,
+    .official-upload-input-card.official-upload-input-card,
+    .official-header.official-header,
+    .category-filter.category-filter,
+    .child-options.child-options,
+    .child-stage-card.child-stage-card,
+    .island-address-intro.island-address-intro,
+    .island-address-tool.island-address-tool,
+    .island-address-upload-box.island-address-upload-box,
+    .island-address-metric.island-address-metric,
+    .island-address-found-address.island-address-found-address,
+    .island-address-id-box.island-address-id-box,
+    .contact-intro-card.contact-intro-card,
+    .contact-support-card.contact-support-card,
+    .contact-form-panel.contact-form-panel,
+    .category-management.category-management,
+    .management-section.management-section,
+    .private-header.private-header,
+    .private-mii-card.private-mii-card,
+    .custom-modal.custom-modal,
+    .instructions-modal-content.instructions-modal-content,
+    .category-modal-panel.category-modal-panel,
+    .child-download-modal.child-download-modal
+  ) {
+  background-image: none;
+  box-shadow: none;
+}
+
+/* Header and account controls */
+html body .site-header.site-header {
+  min-height: 94px;
+  padding: 12px clamp(18px, 3vw, 42px);
+  border-bottom: 1px solid var(--archive-line);
+  background-color: #120f10;
+}
+
+html body .site-banner-link.site-banner-link {
+  display: flex;
+  align-items: center;
+  width: min(300px, 42vw);
+  height: 78px;
+  overflow: hidden;
+  transform: translateX(var(--banner-shift-x, 0px));
+  transition: transform 180ms ease;
+}
+
+html body .site-banner-image.site-banner-image,
+html body #banner {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  transform-origin: center;
+  transition: transform 360ms cubic-bezier(0.2, 0.9, 0.25, 1.25);
+}
+
+html body .site-banner-link.site-banner-link:hover .site-banner-image,
+html body .site-banner-link.site-banner-link:focus-visible .site-banner-image,
+html body .site-banner-link.site-banner-link:hover #banner,
+html body .site-banner-link.site-banner-link:focus-visible #banner {
+  transform: translateY(-1px) scale(1.018);
+}
+
+html body .account.account {
+  top: 17px;
+  right: clamp(18px, 3vw, 42px);
+  padding: 6px 9px;
+  border: 1px solid #b63b54;
+  border-radius: var(--archive-radius);
+  background-color: #8f2e43;
+}
+
+html body .account.account:hover {
+  background-color: #a6374e;
+  transform: none;
+}
+
+html body .account.account img,
+html body .account-image-small.account-image-small {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: var(--archive-panel);
+}
+
+html body .account-login-link.account-login-link,
+html body .mobile-auth-link.mobile-auth-link {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--archive-radius-sm);
+  background-color: #742538;
+  font-size: 0.88rem;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+html body .account-login-link.account-login-link:hover,
+html body .mobile-auth-link.mobile-auth-link:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background-color: #5d1e2d;
+  transform: none;
+}
+
+html body .accDropdown.accDropdown {
+  top: calc(100% - 1px);
+  min-width: 180px;
+  overflow: hidden;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-panel);
+}
+
+html body .accDropdown.accDropdown a {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--archive-line);
+  color: var(--text-1);
+  font-size: 0.9rem;
+}
+
+html body .accDropdown.accDropdown a:last-child {
+  border-bottom: 0;
+}
+
+html body .accDropdown.accDropdown a:hover {
+  background-color: var(--archive-hover);
+  color: #ffffff;
+}
+
+/* Three-column archive shell */
+html body .content.content {
+  grid-template-columns: clamp(210px, 15vw, 260px) minmax(0, 1fr) clamp(
+      210px,
+      15vw,
+      260px
+    );
+  gap: clamp(24px, 2.5vw, 40px);
+  width: auto;
+  max-width: 1680px;
+  margin: clamp(30px, 3vw, 42px) auto 0;
+  padding-inline: clamp(20px, 3vw, 56px);
+  align-items: start;
+}
+
+html body .left-sidebar.left-sidebar,
+html body .right-sidebar.right-sidebar,
+html body .browse-featured-miis.browse-featured-miis {
+  min-width: 0;
+}
+
+html body .sidebar-list.sidebar-list {
+  gap: 5px;
+  margin: 0 0 22px;
+  padding: 12px;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: color-mix(
+    in oklab,
+    var(--archive-panel) 94%,
+    var(--user-pfp-mii-color, #ffffff) 6%
+  );
+}
+
+html body .sidebar-list.sidebar-list li {
+  min-height: 42px;
+  padding: 9px 10px;
+  border-radius: var(--archive-radius-sm);
+  transition: background-color 100ms ease;
+}
+
+html body .sidebar-list.sidebar-list li:hover,
+html body .sidebar-list.sidebar-list li:focus-within {
+  background-color: var(--archive-hover);
+  transform: none;
+}
+
+html body .sidebar-list.sidebar-list a {
+  color: var(--text-1);
+  font-size: 0.93rem;
+  text-decoration: none;
+}
+
+html body .sidebar-icon.sidebar-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 0.5rem;
+  color: #a99ca2;
+  transform-origin: center;
+  transition: color 150ms ease,
+    transform 320ms cubic-bezier(0.2, 0.9, 0.25, 1.3);
+}
+
+html body .sidebar-list.sidebar-list li:hover .sidebar-icon,
+html body .sidebar-list.sidebar-list li:focus-within .sidebar-icon {
+  color: #f08aa0;
+  transform: translateY(-1px) rotate(-3deg);
+}
+
+html body .browse-featured-miis.browse-featured-miis {
+  gap: 18px;
+}
+
+html body .browse-featured-miis.browse-featured-miis > h2,
+html body .browse-featured-miis.browse-featured-miis > h3 {
+  margin: 0 0 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--archive-line);
+  color: #d9cdd2;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Cards retain a pronounced, stationary favorite-color stage behind the Mii. */
+html body .mii-card.mii-card,
+html body #browse-miis .mii-card.mii-card,
+html body .browse-featured-miis .mii-card.mii-card,
+html body .miiCategory .mii-card.mii-card {
+  --mii-card-radius: 12px;
+  --mii-card-inner-radius: calc(var(--mii-card-radius) - 2px);
+  padding: 0;
+  overflow: visible;
+  border: 2px solid
+    color-mix(
+      in oklab,
+      var(--archive-line) 72%,
+      var(--favorite-color, #777777) 28%
+    );
+  border-radius: var(--mii-card-radius);
+  background-color: var(--archive-panel);
+  box-shadow: none;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+html body .mii-card.mii-card:hover,
+html body #browse-miis .mii-card.mii-card:hover,
+html body .browse-featured-miis .mii-card.mii-card:hover,
+html body .miiCategory .mii-card.mii-card:hover {
+  border-color: color-mix(
+    in oklab,
+    var(--archive-line-strong) 48%,
+    var(--favorite-color, #777777) 52%
+  );
+  background-color: var(--archive-panel-raised);
+  box-shadow: none;
+  transform: none;
+}
+
+html body .mii-card.mii-card > a,
+html body .mii-card.mii-card > a:has(img) {
+  overflow: visible;
+  border-bottom: 1px solid var(--archive-line);
+  border-radius: var(--mii-card-inner-radius) var(--mii-card-inner-radius) 0 0;
+  background-color: color-mix(
+    in oklab,
+    var(--archive-inset) 62%,
+    var(--favorite-color, #777777) 38%
+  );
+}
+
+html body .mii-card.mii-card > a::before,
+html body .mii-card.mii-card > a:has(img)::before {
+  background-color: color-mix(
+    in oklab,
+    var(--archive-inset) 62%,
+    var(--favorite-color, #777777) 38%
+  );
+  background-image: none;
+  opacity: 1;
+}
+
+html body .mii-card.mii-card > a::after,
+html body .mii-card.mii-card > a:has(img)::after,
+html body .private-mii-card.private-mii-card a::after {
+  border-color: var(--archive-line-strong);
+  border-top-color: var(--brand-color);
+  box-shadow: none;
+}
+
+html body .mii-card.mii-card img,
+html body #browse-miis .mii-card.mii-card img {
+  position: relative;
+  z-index: 1;
+  border-radius: inherit;
+  background: transparent;
+  pointer-events: none;
+  filter: none;
+  transform: none;
+  transform-origin: bottom center;
+  transition: opacity 120ms ease, transform 585ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html body .mii-card.mii-card > a:hover img,
+  html body .mii-card.mii-card > a:focus-visible img,
+  html body #browse-miis .mii-card.mii-card > a:hover img,
+  html body #browse-miis .mii-card.mii-card > a:focus-visible img {
+    cursor: pointer;
+    transition: transform 750ms cubic-bezier(0.46, 0.22, 0.14, 1.34);
+    transform: scale(1.25);
+  }
+}
+
+html body .mii-card.mii-card .mii-card-content,
+html body #browse-miis .mii-card.mii-card .mii-card-content {
+  gap: 8px;
+  padding: 15px 16px 16px;
+}
+
+html body .mii-card.mii-card h3,
+html body .mii-card.mii-card .mii-card-title-link {
+  color: var(--text-1);
+  font-family: var(--archive-heading-font);
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+html body .mii-card.mii-card .mii-card-title-link:hover,
+html body .mii-card-byline.mii-card-byline a:hover {
+  color: #ff9aad;
+  transform: none;
+}
+
+html body .mii-card.mii-card p,
+html body .mii-card.mii-card .mii-card-description,
+html body .mii-card-byline.mii-card-byline {
+  color: var(--text-2);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+html body .mii-card-like-button.mii-card-like-button,
+html body .browse-featured-miis .like-button.like-button {
+  border: 1px solid transparent;
+  border-radius: var(--archive-radius-sm);
+  background-color: transparent;
+  color: #c7bac0;
+  transition: color 100ms ease, background-color 100ms ease,
+    border-color 100ms ease;
+}
+
+html body .mii-card-like-button.mii-card-like-button:hover,
+html body .mii-card-like-button.mii-card-like-button:focus-visible,
+html body .browse-featured-miis .like-button.like-button:hover,
+html body .browse-featured-miis .like-button.like-button:focus-visible {
+  border-color: var(--archive-line);
+  background-color: var(--archive-inset);
+  color: #ff8fa5;
+  transform: scale(1.04);
+}
+
+html body .mii-card-like-button.mii-card-like-button.is-liked,
+html body .browse-featured-miis .like-button.like-button.is-liked {
+  border-color: #8f2e43;
+  background-color: var(--archive-accent-soft);
+  color: #ff91a7;
+}
+
+html body .mii-card-like-button.mii-card-like-button .like-icon,
+html body .browse-featured-miis .like-button.like-button .like-icon {
+  transform-origin: center;
+  transition: transform 300ms cubic-bezier(0.18, 0.9, 0.25, 1.4);
+}
+
+html body .mii-card-like-button.mii-card-like-button:hover .like-icon,
+html body .mii-card-like-button.mii-card-like-button:focus-visible .like-icon,
+html body .browse-featured-miis .like-button.like-button:hover .like-icon,
+html
+  body
+  .browse-featured-miis
+  .like-button.like-button:focus-visible
+  .like-icon {
+  transform: scale(1.14) rotate(-5deg);
+}
+
+html body .mii-card-tag.mii-card-tag,
+html body .category-tag.category-tag,
+html body .mii-tag-badge.mii-tag-badge,
+html body .category-badge.category-badge,
+html body .mii-chip.mii-chip,
+html body .profile-chip.profile-chip,
+html body .official-badge.official-badge {
+  min-height: 22px;
+  padding: 3px 7px;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius-sm);
+  background-color: #2a2225;
+  color: #d8cdd1;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  line-height: 1.2;
+  text-transform: none;
+}
+
+html body .mii-card-tag.mii-card-tag:hover,
+html body .category-tag.category-tag:hover,
+html body .mii-tag-badge.mii-tag-badge:hover,
+html body .category-badge.category-badge:hover,
+html body .mii-chip.mii-chip:hover,
+html body .profile-chip.profile-chip:hover {
+  border-color: #a13b50;
+  background-color: var(--archive-accent-soft);
+  color: #f7e9ed;
+  transform: none;
+}
+
+html body .mii-card-tag.mii-card-tag.official-badge,
+html body .official-badge.official-badge {
+  border-color: #a67a30;
+  background-color: #382d1d;
+  color: #ebc36f;
+}
+
+html body .mii-card-tags.mii-card-tags,
+html body .mii-tags-list.mii-tags-list,
+html body .profile-chip-list.profile-chip-list {
+  gap: 7px;
+}
+
+/* Buttons and forms */
+html body button,
+html body input,
+html body select,
+html body textarea {
+  font: inherit;
+}
+
+html body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html body select,
+html body textarea {
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-inset);
+  background-image: none;
+  color: var(--text-1);
+  box-shadow: none;
+}
+
+html body input::placeholder,
+html body textarea::placeholder {
+  color: #877a80;
+  opacity: 1;
+}
+
+html
+  body
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+html body select:focus,
+html body textarea:focus {
+  border-color: var(--archive-focus);
+  outline: 2px solid color-mix(in oklab, var(--archive-focus) 35%, transparent);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+html body fieldset,
+html body .utility-container.utility-container,
+html body form.upload.upload,
+html body form.convert.convert,
+html body .qr.qr {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+  background-image: none;
+  box-shadow: none;
+}
+
+html body legend {
+  padding-inline: 6px;
+}
+
+html
+  body
+  button:not(
+    :is(
+        .qr-console-tab,
+        .custom-modal-close,
+        .copy-link-btn,
+        .inline-edit-icon-button,
+        .close-modal,
+        .child-download-modal-close
+      )
+  ),
+html body input[type="button"],
+html body input[type="submit"],
+html body .btn.btn,
+html body .btn-primary.btn-primary,
+html body .btn-secondary.btn-secondary,
+html body .upload-button.upload-button,
+html body .category-modal-btn.category-modal-btn {
+  min-height: 42px;
+  padding: 9px 15px;
+}
+
+html body button,
+html body input[type="button"],
+html body input[type="submit"],
+html body .btn.btn,
+html body .btn-primary.btn-primary,
+html body .btn-secondary.btn-secondary,
+html body .upload-button.upload-button,
+html body .category-modal-btn.category-modal-btn {
+  border: 1px solid #a3374e;
+  border-radius: var(--archive-radius);
+  background-color: #a3374e;
+  background-image: none;
+  color: #ffffff;
+  font-weight: 650;
+  line-height: 1.2;
+  box-shadow: none;
+  transition: background-color 100ms ease, border-color 100ms ease,
+    color 100ms ease;
+}
+
+html body button:hover,
+html body input[type="button"]:hover,
+html body input[type="submit"]:hover,
+html body .btn.btn:hover,
+html body .btn-primary.btn-primary:hover,
+html body .upload-button.upload-button:hover,
+html body .category-modal-btn.category-modal-btn:hover {
+  border-color: #c84a63;
+  background-color: #b93e56;
+  box-shadow: none;
+  transform: none;
+}
+
+html body button:active,
+html body input[type="button"]:active,
+html body input[type="submit"]:active,
+html body .btn.btn:active,
+html body .btn-primary.btn-primary:active,
+html body .btn-secondary.btn-secondary:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+html body .btn-secondary.btn-secondary,
+html body button.secondary,
+html body .secondary-settings-button.secondary-settings-button,
+html body .category-modal-btn-cancel.category-modal-btn-cancel {
+  border-color: var(--archive-line-strong);
+  background-color: #2a2225;
+  color: var(--text-1);
+}
+
+html body .btn-secondary.btn-secondary:hover,
+html body button.secondary:hover,
+html body .secondary-settings-button.secondary-settings-button:hover,
+html body .category-modal-btn-cancel.category-modal-btn-cancel:hover {
+  border-color: #8a6d77;
+  background-color: var(--archive-hover);
+}
+
+html body .danger-btn.danger-btn,
+html body .btn-danger.btn-danger,
+html body button[formaction*="delete"],
+html body .tag-admin-delete.tag-admin-delete {
+  border-color: #9e3f3f;
+  background-color: #7e3030;
+}
+
+html body button:disabled,
+html body input:disabled,
+html body select:disabled,
+html body [aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
+html body input[type="checkbox"],
+html body input[type="radio"] {
+  accent-color: var(--brand-color);
+}
+
+html body .note.note,
+html body .format-hint.format-hint,
+html body .auth-note.auth-note,
+html body .contact-field-note.contact-field-note,
+html body .contact-form-note.contact-form-note {
+  padding: 12px 14px;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius-sm);
+  background-color: var(--archive-inset);
+  color: var(--text-2);
+}
+
+/* Home, browse, and search */
+html body .miiCategory.miiCategory,
+html body .browse-page-intro.browse-page-intro,
+html body .search-control-panel.search-control-panel,
+html body .advanced-search-dropdown.advanced-search-dropdown,
+html body .advanced-search-panel.advanced-search-panel {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+}
+
+html body .miiCategory.miiCategory {
+  gap: clamp(18px, 2vw, 24px);
+  padding: clamp(20px, 2.4vw, 32px);
+  border: 0;
+  background-color: transparent;
+}
+
+html body .miiCategory.miiCategory > h1,
+html body .miiCategory.miiCategory > h3 {
+  margin-bottom: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--archive-line);
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+}
+
+html body .miiCategory.miiCategory > h1 > a,
+html body .miiCategory.miiCategory > h3 > a {
+  color: var(--text-1);
+  text-decoration: none;
+}
+
+html body .browse-page-intro.browse-page-intro {
+  margin-bottom: 26px;
+  padding: 22px 24px;
+  border-left-width: 1px;
+  border-left-color: var(--archive-line);
+}
+
+html body .browse-page-intro.browse-page-intro h1,
+html body .official-header.official-header h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  line-height: 1.15;
+}
+
+html body .search-control-panel.search-control-panel,
+html body .advanced-search-panel.advanced-search-panel {
+  padding: clamp(18px, 2.2vw, 26px);
+}
+
+html body .advanced-search-dropdown.advanced-search-dropdown > summary,
+html body .advanced-search-summary.advanced-search-summary,
+html body .category-dropdown.category-dropdown > summary {
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-inset);
+  color: var(--text-1);
+}
+
+html body .advanced-search-body.advanced-search-body,
+html body .search-fields-panel.search-fields-panel,
+html body .search-tags-panel.search-tags-panel,
+html body .search-categories-panel.search-categories-panel,
+html body .tag-management-panel.tag-management-panel {
+  border-color: var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: #1b1618;
+}
+
+html body .tag-filter-option.tag-filter-option,
+html body .category-filter-option.category-filter-option,
+html body .advanced-search-check.advanced-search-check,
+html body .preference-selector-option.preference-selector-option {
+  border: 1px solid transparent;
+  border-radius: var(--archive-radius-sm);
+  background-color: transparent;
+}
+
+html body .tag-filter-option.tag-filter-option:hover,
+html body .category-filter-option.category-filter-option:hover,
+html body .advanced-search-check.advanced-search-check:hover,
+html body .preference-selector-option.preference-selector-option:hover {
+  border-color: var(--archive-line);
+  background-color: var(--archive-hover);
+  transform: none;
+}
+
+html body .tag-filter-option.tag-filter-option.is-include,
+html body .category-filter-option.category-filter-option.is-include {
+  border-color: #467657;
+  background-color: #203328;
+}
+
+html body .tag-filter-option.tag-filter-option.is-exclude,
+html body .category-filter-option.category-filter-option.is-exclude {
+  border-color: #8b4141;
+  background-color: #382020;
+}
+
+html body .search-results-summary.search-results-summary {
+  padding: 16px 18px;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-panel);
+}
+
+html body .browse-empty-state.browse-empty-state,
+html body .empty-state.empty-state {
+  padding: clamp(36px, 6vw, 64px) clamp(22px, 4vw, 38px);
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-panel);
+}
+
+html body .pagination.pagination {
+  gap: 8px;
+  margin-top: 32px;
+  padding: 12px;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-panel);
+}
+
+html body .pagination-btn.pagination-btn,
+html body .pagination-current-page.pagination-current-page,
+html body .pagination-page-input.pagination-page-input {
+  min-width: 36px;
+  min-height: 34px;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius-sm);
+  background-color: var(--archive-inset);
+  color: var(--text-1);
+}
+
+html body .pagination-current-page.pagination-current-page {
+  border-color: #a3374e;
+  background-color: #8f2e43;
+}
+
+/* Footer */
+html body footer.site-footer,
+html body .site-footer.site-footer {
+  margin-top: clamp(52px, 6vw, 72px);
+  padding: 42px clamp(24px, 5vw, 64px) 24px;
+  border-top: 1px solid var(--archive-line);
+  background-color: #120f10;
+}
+
+html body .site-footer.site-footer .footer-content {
+  gap: clamp(28px, 4vw, 48px);
+  max-width: 1200px;
+}
+
+html body .site-footer.site-footer .footer-section h3 {
+  margin-bottom: 12px;
+  color: #d7cbd0;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html body .site-footer.site-footer .footer-section a {
+  color: var(--text-2);
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+html body .site-footer.site-footer .footer-section a:hover {
+  color: #ff91a7;
+  text-decoration: underline;
+}
+
+html body .site-footer.site-footer .footer-bottom {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--archive-line);
+}
+
+/* Utility, authentication, FAQ, guides, and staff */
+html body .utility-container.utility-container,
+html body .settings-container.settings-container,
+html body .guide-container.guide-container,
+html body .faq-article.faq-article,
+html body .mods-article.mods-article {
+  max-width: 980px;
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+}
+
+html body .guide-container.guide-container article,
+html body .faq-article.faq-article,
+html body .mods-article.mods-article {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+  box-shadow: none;
+}
+
+html body .guide-container.guide-container article h2,
+html body .faq-section.faq-section > h2,
+html body .mods-section-heading.mods-section-heading h2 {
+  color: #eb7088;
+}
+
+html body .auth-shell.auth-shell {
+  max-width: 620px;
+  overflow: hidden;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+}
+
+html body .auth-panel.auth-panel {
+  display: block;
+}
+
+html body .auth-copy.auth-copy {
+  padding: clamp(28px, 4vw, 38px);
+  border-right: 0;
+  border-bottom: 1px solid var(--archive-line);
+  background-color: #281b20;
+}
+
+html body .auth-copy.auth-copy::after {
+  display: none;
+}
+
+html body .auth-copy.auth-copy h1,
+html body .faq-article.faq-article h1 {
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+}
+
+html body .auth-kicker.auth-kicker {
+  color: #e8798f;
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html body .auth-form.auth-form {
+  padding: clamp(28px, 4vw, 38px);
+}
+
+html body .auth-fieldset.auth-fieldset {
+  gap: 16px;
+  border: 0;
+  background-color: transparent;
+}
+
+html body .auth-fieldset.auth-fieldset legend {
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html body .oauth-options-title.oauth-options-title {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html body .auth-fieldset.auth-fieldset input[type="submit"] {
+  border-radius: var(--archive-radius);
+}
+
+html body .oauth-provider-button.oauth-provider-button,
+html body .linked-oauth-item.linked-oauth-item {
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-inset);
+}
+
+html body .oauth-provider-button.oauth-provider-button::before {
+  display: none;
+}
+
+html body .oauth-provider-button.oauth-provider-button:hover,
+html body .oauth-provider-button.oauth-provider-button:focus-visible {
+  border-color: var(--oauth-provider-accent, var(--archive-focus));
+  background-color: var(--archive-hover);
+  transform: none;
+}
+
+html body .oauth-provider-mark.oauth-provider-mark {
+  border-radius: var(--archive-radius-sm);
+  box-shadow: none;
+}
+
+html body .faq-nav.faq-nav,
+html body .faq-item.faq-item,
+html body .still-have-questions.still-have-questions,
+html body .mods-card.mods-card {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-inset);
+}
+
+html body .faq-nav-list.faq-nav-list a {
+  padding: 12px 14px;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-sm);
+  background-color: var(--archive-panel);
+}
+
+html body .faq-nav-list.faq-nav-list a:hover,
+html body .mods-card.mods-card:hover {
+  border-color: var(--archive-line-strong);
+  background-color: var(--archive-hover);
+  transform: none;
+}
+
+html body .faq-item.faq-item {
+  padding: 22px 24px;
+}
+
+html body .mods-section-icon.mods-section-icon {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius);
+  background-color: #4a2932;
+}
+
+html body .mods-section-icon-mods.mods-section-icon-mods {
+  background-color: #33324b;
+}
+
+html body .mods-section-icon-research.mods-section-icon-research {
+  background-color: #203d3e;
+}
+
+/* Profiles */
+html body .profile-container.profile-container {
+  overflow: hidden;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+}
+
+html body .profile-header.profile-header {
+  padding: clamp(26px, 3vw, 34px);
+  border-bottom: 1px solid var(--archive-line);
+  background-color: color-mix(
+    in oklab,
+    #281b20 86%,
+    var(--user-pfp-mii-color, #ffffff) 14%
+  );
+}
+
+html body .profile-avatar-link.profile-avatar-link {
+  width: 150px;
+  height: 150px;
+  overflow: visible;
+  border: 2px solid var(--archive-line-strong);
+  border-radius: 50%;
+  background-color: color-mix(
+    in oklab,
+    var(--archive-inset) 58%,
+    var(--user-pfp-mii-color, #777777) 42%
+  );
+  box-shadow: none;
+}
+
+html body .profile-avatar.profile-avatar {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  pointer-events: none;
+  transform: none;
+  transform-origin: bottom center;
+  transition: transform 300ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html body .profile-avatar-link.profile-avatar-link:hover .profile-avatar,
+  html
+    body
+    .profile-avatar-link.profile-avatar-link:focus-visible
+    .profile-avatar {
+    transform: scale(1.05);
+  }
+}
+
+html body .profile-stats.profile-stats,
+html body .profile-panel.profile-panel,
+html body .profile-featured-card.profile-featured-card,
+html body .profile-faq-item.profile-faq-item {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-inset);
+}
+
+html body .profile-stats.profile-stats {
+  padding: 16px 18px;
+}
+
+html body .profile-featured-card.profile-featured-card {
+  --portrait-card-radius: var(--archive-radius);
+  position: relative;
+  overflow: visible;
+}
+
+html body .profile-section-title.profile-section-title::after {
+  display: none;
+}
+
+html
+  body
+  :is(
+    .mod-badge.mod-badge,
+    .admin-badge.admin-badge,
+    .supporter-badge.supporter-badge,
+    .researcher-badge.researcher-badge,
+    .banned-badge.banned-badge
+  ) {
+  border: 1px solid currentColor;
+  border-radius: var(--archive-radius-sm);
+  background-color: #30252a;
+  background-image: none;
+  box-shadow: none;
+}
+
+html body .moderator-tools.moderator-tools {
+  margin: 24px 0;
+  overflow: hidden;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+}
+
+html body .mod-tools-header.mod-tools-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 62px;
+  padding: 16px 18px;
+  border: 0;
+  border-radius: 0;
+  background-color: var(--archive-inset);
+  color: var(--text-1);
+  cursor: pointer;
+  list-style: none;
+}
+
+html body .mod-tools-header.mod-tools-header::-webkit-details-marker {
+  display: none;
+}
+
+html body .mod-tools-header.mod-tools-header::after {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-right: 2px solid #b7aab0;
+  border-bottom: 2px solid #b7aab0;
+  content: "";
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+html body .moderator-tools.moderator-tools[open] > .mod-tools-header::after {
+  transform: rotate(225deg);
+}
+
+html body .moderator-tools.moderator-tools[open] > .mod-tools-header {
+  border-bottom: 1px solid var(--archive-line);
+}
+
+html body .mod-tools-header.mod-tools-header:hover {
+  background-color: var(--archive-hover);
+}
+
+html body .mod-tools-header.mod-tools-header:focus-visible {
+  outline: 2px solid var(--brand-color);
+  outline-offset: -3px;
+}
+
+html body .mod-tools-heading.mod-tools-heading {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+html body .mod-tools-title.mod-tools-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #f4e9ed;
+  font-family: var(--archive-heading-font);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+html body .mod-tools-summary-copy.mod-tools-summary-copy {
+  color: var(--text-2);
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+html body .mod-tools-content.mod-tools-content,
+html body .mod-tools-content.mod-tools-content.expanded {
+  max-height: none;
+  padding: 18px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background-color: var(--archive-panel);
+  transition: none;
+}
+
+html body .mod-tool-grid.mod-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  align-items: start;
+  gap: 14px;
+}
+
+html body .mod-tool-item.mod-tool-item {
+  display: flex;
+  min-width: 0;
+  padding: 16px;
+  gap: 10px;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-inset);
+}
+
+html
+  body
+  :is(.mod-tool-item.external-source-editor, .mod-tool-item.mod-tool-roles) {
+  grid-column: 1 / -1;
+}
+
+html body .mod-tool-item.mod-tool-item > label,
+html body .mod-tool-label.mod-tool-label {
+  margin: 0;
+  color: #eee2e7;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+html body .mod-tool-help.mod-tool-help,
+html body .mod-tag-hint.mod-tag-hint {
+  margin: 0 0 2px;
+  color: var(--text-2);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+html body .mod-tool-status.mod-tool-status:not(:empty) {
+  padding: 7px 8px;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-sm);
+  background-color: #171315;
+  color: var(--text-2);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+html body .mod-tool-item.mod-tool-item :is(input, select, textarea) {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+html body .mod-tool-item.mod-tool-item textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+html body .mod-tool-item.mod-tool-item > button {
+  align-self: flex-start;
+  min-height: 36px;
+  margin: 2px 0 0;
+  transform: none;
+}
+
+html body .mod-tool-item.mod-tool-item > button:hover,
+html body .mod-tool-item.mod-tool-item > button:active {
+  transform: none;
+}
+
+html body .mod-tool-item.mod-tool-danger {
+  border-color: #75414b;
+  background-color: #29191d;
+}
+
+html body .toggle-container.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-sm);
+  background-color: #171315;
+}
+
+html body .toggle-container.toggle-container > label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  cursor: pointer;
+}
+
+html body .role-checkboxes.role-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 9px;
+  padding: 0;
+  background-color: transparent;
+}
+
+html body .role-checkbox.role-checkbox {
+  min-height: 38px;
+  margin: 0;
+  padding: 10px 11px;
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-sm);
+  background-color: #171315;
+}
+
+html body .role-checkbox.role-checkbox:hover {
+  border-color: var(--archive-line-strong);
+  background-color: var(--archive-hover);
+}
+
+/* Mii detail and dashboard */
+html body .mii-id-card.mii-id-card {
+  --mii-id-card-radius: var(--archive-radius-lg);
+  --mii-id-card-inner-radius: var(--archive-radius);
+  overflow: hidden;
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+  box-shadow: none;
+}
+
+html body .id-card-header.id-card-header {
+  min-height: 62px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #b13b52;
+  border-radius: var(--archive-radius) var(--archive-radius) 0 0;
+  background-color: color-mix(
+    in oklab,
+    #742538 72%,
+    var(--favorite-color, #777777) 28%
+  );
+}
+
+html body .id-card-body.id-card-body {
+  background-color: var(--archive-panel);
+}
+
+html body .id-card-photo.id-card-photo {
+  --id-card-photo-size: 250px;
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+html body .id-card-photo.id-card-photo::before {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 50%;
+  box-sizing: border-box;
+  width: var(--id-card-photo-size);
+  height: var(--id-card-photo-size);
+  border: 4px solid var(--brand-color);
+  border-radius: 15px;
+  background-color: color-mix(
+    in oklab,
+    var(--archive-inset) 56%,
+    var(--favorite-color, #777777) 44%
+  );
+  content: "";
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+html body .id-card-photo.id-card-photo > img {
+  position: relative;
+  z-index: 1;
+  border: 4px solid transparent;
+  border-radius: 15px;
+  filter: none;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  transform-origin: bottom center;
+  transition: none;
+}
+
+html body .id-card-photo.id-card-photo.has-ltd-download::before,
+html body .id-card-photo.id-card-photo.has-ltd-download > img {
+  border-radius: 15px 15px 0 0;
+}
+
+html body .ltd-photo-download.ltd-photo-download {
+  position: relative;
+  z-index: 2;
+  border-color: var(--brand-color);
+  background-color: color-mix(
+    in oklab,
+    var(--archive-inset) 84%,
+    var(--favorite-color, #777777) 16%
+  );
+}
+
+html body .mii-name.mii-name {
+  font-family: var(--archive-heading-font);
+  letter-spacing: -0.015em;
+}
+
+html body .info-label.info-label,
+html body .dashboard-info-label.dashboard-info-label {
+  color: #9e9096;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html body .id-card-footer.id-card-footer,
+html body .id-card-description.id-card-description,
+html body .mii-tags-section.mii-tags-section,
+html body .mii-seo-panel.mii-seo-panel,
+html body .private-mii-panel.private-mii-panel,
+html body .tomodachi-life-panel.tomodachi-life-panel {
+  border-color: var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-inset);
+}
+
+html body .mii-tags-section.mii-tags-section {
+  padding: 14px 18px;
+}
+
+html body .private-mii-panel.private-mii-panel::before,
+html body .private-mii-panel.private-mii-panel::after {
+  display: none;
+}
+
+html body .related-mii-card.related-mii-card {
+  --portrait-card-radius: 15px;
+}
+
+html body .profile-featured-image.profile-featured-image,
+html body .related-mii-image.related-mii-image {
+  position: relative;
+  z-index: 0;
+  overflow: visible;
+  border-radius: calc(var(--portrait-card-radius) - 1px)
+    calc(var(--portrait-card-radius) - 1px) 0 0;
+  background-color: color-mix(
+    in oklab,
+    var(--archive-inset) 60%,
+    var(--favorite-color, #777777) 40%
+  );
+  isolation: isolate;
+}
+
+html body .profile-featured-image.profile-featured-image img,
+html body .related-mii-image.related-mii-image img {
+  position: relative;
+  z-index: 1;
+  border-radius: inherit;
+  background: transparent;
+  pointer-events: none;
+  transform: none;
+  transform-origin: bottom center;
+  transition: transform 400ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html body .profile-featured-image.profile-featured-image:hover img,
+  html body .profile-featured-image.profile-featured-image:focus-visible img,
+  html body .related-mii-image.related-mii-image:hover img,
+  html body .related-mii-image.related-mii-image:focus-visible img {
+    transform: scale(1.05);
+  }
+}
+
+/* Category colors use the whole row, never a decorative side tick. */
+html body .category-filter-option.category-filter-option,
+html body .preference-category-option.preference-category-option,
+html body #categoryTree .node-content.node-content,
+html body .category-tree-upload.category-tree-upload .node-line,
+html body .modal-category-line.modal-category-line {
+  border-left-width: 1px;
+  border-color: color-mix(
+    in oklab,
+    var(--archive-line) 72%,
+    var(--category-color, var(--node-color, var(--brand-color))) 28%
+  );
+  background-color: color-mix(
+    in oklab,
+    var(--archive-inset) 92%,
+    var(--category-color, var(--node-color, var(--brand-color))) 8%
+  );
+}
+
+html body .warning-text.warning-text,
+html body .island-address-found-address.island-address-found-address,
+html body .instructions.instructions {
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius);
+}
+
+html body .qr-console-tab.qr-console-tab,
+html body .export-format-option.export-format-option,
+html body .download-item.download-item,
+html body .tag-modal-option.tag-modal-option {
+  border-radius: var(--archive-radius-sm);
+  background-color: transparent;
+}
+
+html body .qr-console-tab.qr-console-tab:hover,
+html body .qr-console-tab.qr-console-tab.is-active,
+html body .export-format-option.export-format-option:hover,
+html body .download-item.download-item:hover,
+html body .tag-modal-option.tag-modal-option:hover {
+  background-color: var(--archive-hover);
+  transform: none;
+}
+
+html body .mii-dashboard-container.mii-dashboard-container,
+html body .dashboard-results.dashboard-results,
+html body .dashboard-preview-card.dashboard-preview-card,
+html body .dashboard-info-card.dashboard-info-card,
+html body .dashboard-json-details.dashboard-json-details,
+html body .dashboard-upload-panel.dashboard-upload-panel fieldset {
+  border-color: var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-panel);
+}
+
+html body .dashboard-preview-image.dashboard-preview-image,
+html body .dashboard-info-item.dashboard-info-item,
+html body .dashboard-json-output.dashboard-json-output,
+html body .qr-preview-window.qr-preview-window {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-sm);
+  background-color: var(--archive-inset);
+}
+
+/* Upload, official archive, child maker, address tool, contact, and admin */
+html body .upload-tabs.upload-tabs,
+html body .official-fields-card.official-fields-card,
+html body .official-upload-fieldset.official-upload-fieldset,
+html body .official-source-card.official-source-card,
+html body .official-upload-input-card.official-upload-input-card,
+html body .category-tree-upload.category-tree-upload,
+html body .official-header.official-header,
+html body .category-filter.category-filter,
+html body .child-options.child-options,
+html body .child-stage-card.child-stage-card,
+html body .island-address-intro.island-address-intro,
+html body .island-address-tool.island-address-tool,
+html body .island-address-upload-box.island-address-upload-box,
+html body .island-address-metric.island-address-metric,
+html body .island-address-found-address.island-address-found-address,
+html body .island-address-id-box.island-address-id-box,
+html body .island-address-qr-preview.island-address-qr-preview,
+html body .island-address-qr-details.island-address-qr-details,
+html body .contact-intro-card.contact-intro-card,
+html body .contact-support-card.contact-support-card,
+html body .contact-form-panel.contact-form-panel,
+html body .category-management.category-management,
+html body .management-section.management-section,
+html body .private-header.private-header,
+html body .private-mii-card.private-mii-card {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius);
+  background-color: var(--archive-panel);
+  box-shadow: none;
+}
+
+html body .private-mii-card.private-mii-card {
+  --mii-card-radius: var(--archive-radius);
+  --mii-card-inner-radius: calc(var(--mii-card-radius) - 1px);
+}
+
+html body .tab-button.tab-button,
+html body .filter-btn.filter-btn {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background-color: transparent;
+  color: var(--text-2);
+}
+
+html body .tab-button.tab-button:hover,
+html body .tab-button.tab-button.active,
+html body .filter-btn.filter-btn:hover,
+html body .filter-btn.filter-btn.active {
+  border-bottom-color: var(--brand-color);
+  background-color: var(--archive-hover);
+  color: var(--text-1);
+  transform: none;
+}
+
+html body .category-tree-upload.category-tree-upload .node-line,
+html body #categoryTree .node-content.node-content,
+html body .modal-category-line.modal-category-line,
+html body .tag-admin-item.tag-admin-item,
+html body .private-mii-actions.private-mii-actions {
+  border-color: var(--archive-line);
+  border-radius: var(--archive-radius-sm);
+  background-color: var(--archive-inset);
+}
+
+html body .category-tree-upload.category-tree-upload .node-line:hover,
+html body #categoryTree .node-content.node-content:hover,
+html body .modal-category-line.modal-category-line:hover,
+html body .contact-support-card.contact-support-card:hover {
+  border-color: var(--archive-line-strong);
+  background-color: var(--archive-hover);
+  transform: none;
+}
+
+html body .child-stage-card.child-stage-card img,
+html body .island-address-qr-preview.island-address-qr-preview img {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-sm);
+  background-color: #f4f0f1;
+}
+
+html body .child-stage-stat.child-stage-stat,
+html body .island-compat-alert.island-compat-alert,
+html body .blocked-notice.blocked-notice {
+  border: 1px solid var(--archive-line);
+  border-radius: var(--archive-radius-sm);
+  background-color: var(--archive-inset);
+}
+
+/* The Amiibo helper card has an inline decorative gradient in legacy markup. */
+html body .upload.upload > fieldset > div[style*="#667eea"] {
+  border: 1px solid var(--archive-line-strong) !important;
+  background: var(--archive-inset) !important;
+  box-shadow: none !important;
+}
+
+/* Dialog surfaces; visibility and transform state remain owned by page CSS/JS. */
+html
+  body
+  :is(
+    .custom-modal-overlay.custom-modal-overlay,
+    .instructions-modal.instructions-modal,
+    .category-modal-overlay.category-modal-overlay,
+    .child-download-modal-overlay.child-download-modal-overlay
+  ) {
+  background-color: rgba(8, 6, 7, 0.82);
+  backdrop-filter: none;
+}
+
+html
+  body
+  :is(
+    .custom-modal.custom-modal,
+    .instructions-modal-content.instructions-modal-content,
+    .category-modal-panel.category-modal-panel,
+    .child-download-modal.child-download-modal
+  ) {
+  border: 1px solid var(--archive-line-strong);
+  border-radius: var(--archive-radius-lg);
+  background-color: var(--archive-panel);
+  box-shadow: none;
+}
+
+html
+  body
+  :is(
+    .custom-modal-header.custom-modal-header,
+    .instructions-modal-header.instructions-modal-header,
+    .child-download-modal-header.child-download-modal-header
+  ),
+html
+  body
+  :is(
+    .custom-modal-footer.custom-modal-footer,
+    .instructions-modal-footer.instructions-modal-footer
+  ) {
+  border-color: var(--archive-line);
+  background-color: var(--archive-inset);
+}
+
+/* Mobile drawers share the desktop visual language; motion still signals state. */
+@media (max-width: 992px) {
+  html body .site-header.site-header {
+    min-height: 74px;
+    padding: 10px 54px;
+  }
+
+  html body .site-banner-image.site-banner-image,
+  html body #banner {
+    width: 100%;
+  }
+
+  html body .site-banner-link.site-banner-link {
+    width: min(250px, 58vw);
+    height: 64px;
+  }
+
+  html body .content.content {
+    display: block;
+    max-width: 980px;
+    margin-top: 24px;
+    padding-inline: 20px;
+  }
+
+  html body .mobile-drawer-toggle.mobile-drawer-toggle {
+    border: 1px solid var(--archive-line-strong);
+    border-radius: var(--archive-radius);
+    background-color: var(--archive-panel);
+    color: var(--text-1);
+  }
+
+  html body .mobile-drawer.mobile-drawer {
+    border-color: var(--archive-line);
+    background-color: var(--archive-canvas);
+    box-shadow: none;
+  }
+
+  html body .mobile-drawer-header.mobile-drawer-header {
+    border-bottom: 1px solid var(--archive-line);
+    background-color: var(--archive-panel);
+  }
+
+  html body .mobile-drawer-overlay.mobile-drawer-overlay {
+    background-color: rgba(8, 6, 7, 0.72);
+    backdrop-filter: none;
+  }
+
+  html body .auth-panel.auth-panel {
+    grid-template-columns: 1fr;
+  }
+
+  html body .auth-copy.auth-copy {
+    padding: 28px;
+    border-right: 0;
+    border-bottom: 1px solid var(--archive-line);
+  }
+
+  html body .profile-header.profile-header,
+  html body .id-card-body.id-card-body {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  html body .profile-avatar-link.profile-avatar-link {
+    width: 120px;
+    height: 120px;
+  }
+
+  html body .id-card-photo.id-card-photo {
+    --id-card-photo-size: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  html body {
+    font-size: 15px;
+  }
+
+  html body .site-header.site-header {
+    min-height: 62px;
+    padding: 8px 48px;
+  }
+
+  html body .site-banner-image.site-banner-image,
+  html body #banner {
+    width: 100%;
+  }
+
+  html body .site-banner-link.site-banner-link {
+    width: min(185px, 55vw);
+    height: 48px;
+  }
+
+  html body .account.account {
+    top: 10px;
+    right: 8px;
+    padding: 5px 7px;
+  }
+
+  html body .content.content {
+    margin-top: 18px;
+    padding-inline: 14px;
+  }
+
+  html body .miiCategory.miiCategory,
+  html body .browse-page-intro.browse-page-intro,
+  html body .faq-article.faq-article,
+  html body .guide-container.guide-container article,
+  html body .profile-header.profile-header,
+  html body .auth-copy.auth-copy,
+  html body .auth-form.auth-form {
+    padding: 18px;
+  }
+
+  html body #browse-miis.browse-miis-balanced,
+  html body .official-miis-page #browse-miis.browse-miis-balanced {
+    gap: 14px;
+  }
+
+  html body .mii-card.mii-card .mii-card-content,
+  html body #browse-miis .mii-card.mii-card .mii-card-content,
+  html
+    body
+    .official-miis-page
+    #browse-miis.browse-miis-balanced
+    .mii-card.mii-card
+    .mii-card-content {
+    padding: 12px;
+  }
+
+  html body .pagination.pagination {
+    padding: 10px;
+  }
+
+  html body .site-footer.site-footer {
+    margin-top: 40px;
+    padding: 30px 18px 18px;
+  }
+
+  html body .profile-header.profile-header,
+  html body .dashboard-results-header.dashboard-results-header,
+  html body .official-fields-header.official-fields-header,
+  html body .island-address-actions.island-address-actions {
+    align-items: stretch;
+  }
+
+  html body .profile-stats.profile-stats {
+    padding: 14px 16px;
+  }
+
+  html body .id-card-body.id-card-body,
+  html body .dashboard-preview-grid.dashboard-preview-grid,
+  html body .dashboard-info-grid.dashboard-info-grid,
+  html body .child-results-grid.child-results-grid,
+  html body .contact-support-grid.contact-support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html body .custom-modal-footer.custom-modal-footer,
+  html body .instructions-modal-footer.instructions-modal-footer,
+  html body .child-download-modal-actions.child-download-modal-actions {
+    gap: 7px;
+  }
+
+  html body .mod-tools-header.mod-tools-header {
+    min-height: 56px;
+    padding: 13px 14px;
+  }
+
+  html body .mod-tools-content.mod-tools-content,
+  html body .mod-tools-content.mod-tools-content.expanded {
+    padding: 12px;
+  }
+
+  html body .mod-tool-grid.mod-tool-grid,
+  html body .role-checkboxes.role-checkboxes {
+    grid-template-columns: 1fr;
+  }
+
+  html
+    body
+    :is(.mod-tool-item.external-source-editor, .mod-tool-item.mod-tool-roles) {
+    grid-column: auto;
+  }
+
+  html body .mod-tool-item.mod-tool-item > button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body .site-banner-image.site-banner-image,
+  html body #banner,
+  html body .sidebar-icon.sidebar-icon,
+  html body .mii-card.mii-card img,
+  html body #browse-miis .mii-card.mii-card img,
+  html body .profile-avatar.profile-avatar,
+  html body .profile-featured-image.profile-featured-image img,
+  html body .related-mii-image.related-mii-image img,
+  html body .id-card-photo.id-card-photo > img,
+  html body .mii-card-like-button.mii-card-like-button,
+  html body .mii-card-like-button.mii-card-like-button .like-icon,
+  html body .browse-featured-miis .like-button.like-button,
+  html body .browse-featured-miis .like-button.like-button .like-icon,
+  html body button,
+  html body input[type="button"],
+  html body input[type="submit"] {
+    filter: none;
+    transform: none;
+  }
+
+  html body .mii-card.mii-card > a:hover img,
+  html body .mii-card.mii-card > a:focus-visible img,
+  html body #browse-miis .mii-card.mii-card > a:hover img,
+  html body #browse-miis .mii-card.mii-card > a:focus-visible img,
+  html body .profile-avatar-link.profile-avatar-link:hover .profile-avatar,
+  html
+    body
+    .profile-avatar-link.profile-avatar-link:focus-visible
+    .profile-avatar,
+  html body .profile-featured-image.profile-featured-image:hover img,
+  html body .profile-featured-image.profile-featured-image:focus-visible img,
+  html body .related-mii-image.related-mii-image:hover img,
+  html body .related-mii-image.related-mii-image:focus-visible img {
+    transform: none !important;
+    transition: none !important;
+  }
+}

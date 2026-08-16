@@ -4,6 +4,19 @@
         <%
         const rawMiiName = (mii?.meta?.name ?? mii?.name ?? '').toString().trim();
         const miiName = rawMiiName || 'Unknown Mii';
+        const showMiiWorkspaceTools = typeof miiWorkspaceToolsEnabled === 'undefined'
+            ? true
+            : Boolean(miiWorkspaceToolsEnabled);
+        const miiPageExportFormats = Array.isArray(exportFormats) ? exportFormats : [];
+        const miiPageExportValues = miiPageExportFormats
+            .map((format) => String(format?.value || '').trim().toLowerCase())
+            .filter(Boolean);
+        const miiPageLegacyExportsEnabled = miiPageExportValues.some((value) => value !== 'ltd');
+        const miiPageLtdConversionPending = miiPageExportValues.length > 0
+            && miiPageExportValues.every((value) => value === 'ltd');
+        const miiPageLtdConversionTooltip = 'LTD Mii Conversion is coming soon!';
+        const miiPageQrExportsEnabled = miiPageExportValues.includes('qr');
+        const miiPageMnmsExportsEnabled = miiPageExportValues.includes('mnms');
         const seo = miiSeo || {};
         const externalSource = (typeof externalMiiSource !== 'undefined' && externalMiiSource)
             ? externalMiiSource
@@ -26,20 +39,18 @@
         const tomodachiCatchphraseForMiitopia = (mii?.tl?.catchphrase ?? '').toString().replace(/\s+/g, ' ').trim();
         // MT QR UI is temporarily disabled on the InfiniMii site.
         const enableMiitopiaQrs = false;
-        const hasMiitopiaQr = enableMiitopiaQrs && Boolean(miitopiaWarCry || tomodachiCatchphraseForMiitopia);
+        const hasMiitopiaQr = miiPageQrExportsEnabled && enableMiitopiaQrs && Boolean(miitopiaWarCry || tomodachiCatchphraseForMiitopia);
         const defaultQrConsole = hasTomodachiLifeData ? 'TOMODACHI' : (hasMiitopiaQr ? 'MIITOPIA' : '3DS');
-        const searchTopics = Array.isArray(seo.searchTopicPhrases) ? seo.searchTopicPhrases : [];
         const creatorName = seo.creatorName || '';
         const consoleLabel = seo.consoleLabel || '';
         const favoriteColorName = seo.favoriteColorName || '';
-        const genderLabel = seo.genderLabel || '';
         const birthdayLabel = seo.birthdayLabel || '';
         const archiveTypeLabel = seo.archiveTypeLabel || (mii.official ? 'Official Mii' : (isPrivate ? 'Private Mii' : 'Community Mii'));
         const typeLabel = seo.typeLabel || 'Standard Mii';
         const keywordList = Array.isArray(seo.keywordList) ? seo.keywordList : [];
         const pageSourceLabel = isExternalMii ? externalSource.title : (mii.official ? officialSourceLabel : '');
-        const pageTitle = `${miiName} Mii QR Code & Download${pageSourceLabel ? ` | ${pageSourceLabel}` : ''} - InfiniMii`;
-        const pageDesc = seo.metaDescription || mii.desc || `Download ${miiName} Mii character${pageSourceLabel ? ` from ${pageSourceLabel}` : ''} for Wii, 3DS, Wii U, and Switch. Get QR code access and convert to supported formats.`;
+        const pageTitle = `${miiName}${pageSourceLabel ? ` | ${pageSourceLabel}` : ''} | InfiniMii`;
+        const pageDesc = seo.metaDescription || mii.desc || `View ${miiName}${pageSourceLabel ? ` from ${pageSourceLabel}` : ''} on InfiniMii. Download it in any available format.`;
         const canonicalUrl = `${baseUrl}/mii/${mii.id}`;
         const imgPath = isPrivate ? 'privateMiiImgs' : 'miiImgs';
         const qr3dsPath = isPrivate ? 'privateMiiQRs' : 'miiQRs';
@@ -55,9 +66,9 @@
             : Date.now();
         const previewImageCanonicalPath = `/${imgPath}/${mii.id}.png`;
         const previewImagePath = `${previewImageCanonicalPath}?v=${encodeURIComponent(previewAssetVersion)}`;
-        const previewQr3dsPath = `/${qr3dsPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
-        const previewQrWiiPath = `/${qrWiiPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`;
-        const previewQrTomodachiPath = hasTomodachiLifeData
+        const previewQr3dsPath = miiPageQrExportsEnabled ? `/${qr3dsPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}` : '';
+        const previewQrWiiPath = miiPageQrExportsEnabled ? `/${qrWiiPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}` : '';
+        const previewQrTomodachiPath = miiPageQrExportsEnabled && hasTomodachiLifeData
             ? `/${qrTomodachiPath}/${mii.id}.png?v=${encodeURIComponent(previewAssetVersion)}`
             : '';
         const previewQrMiitopiaPath = '';
@@ -74,7 +85,7 @@
         const ogType = 'article';
         const keywords = keywordList.length > 0
             ? keywordList.join(', ')
-            : `${miiName}, ${mii.official ? 'official ' : ''}mii character, download mii, mii qr code`;
+            : miiName;
         const miiDateMetadata = getMiiDateMetadata(mii, pageUpdatedAt);
         const publishedTime = miiDateMetadata.publishedIso;
         const modifiedTime = miiDateMetadata.modifiedIso;
@@ -104,17 +115,11 @@
             { name: miiName, url: `/mii/${mii.id}` }
         ];
         const archiveOwnerLabel = mii.official ? officialSourceLabel : (seo.uploaderName || mii.uploader || 'InfiniMii User');
-        const archiveOwnerStatsLabel = archiveOwnerStats?.totalMiis
-            ? `${archiveOwnerLabel} has ${archiveOwnerStats.totalMiis} public Mii${archiveOwnerStats.totalMiis === 1 ? '' : 's'} on InfiniMii${archiveOwnerStats.totalLikes ? ` with ${archiveOwnerStats.totalLikes} total likes` : ''}.`
-            : '';
         const archiveIntro = isExternalMii
-            ? `${miiName} is preserved on InfiniMii from ${externalSource.title}${externalSource.user ? `, where it was uploaded by ${externalSource.user}` : ''}${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`
+            ? `${miiName} came from ${externalSource.title}${externalSource.user ? `, where ${externalSource.user} uploaded it` : ''}${creatorName ? `. Creator name: ${creatorName}` : ''}.`
             : (mii.official
-                ? `${miiName} is preserved on InfiniMii as an official ${officialSourceLabel} Mii${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`
-                : `${miiName} is a community Mii uploaded by ${mii.uploader}${creatorName ? ` with creator name ${creatorName}` : ''}. This page combines the character preview, QR code, export tools, and archive metadata in one place.`);
-        const archiveSearchIntro = searchTopics.length > 0
-            ? `People often search for this entry using phrases like ${searchTopics.slice(0, 8).join(', ')}.`
-            : '';
+                ? `${miiName} is an official Mii from ${officialSourceLabel}${creatorName ? `. Creator name: ${creatorName}` : ''}.`
+                : `${miiName} was uploaded by ${mii.uploader}${creatorName ? `. Creator name: ${creatorName}` : ''}.`);
         const nameSearchUrl = `/searchResults?q=${encodeURIComponent(miiName)}&searchFieldsConfigured=1&searchIn=name&searchIn=creatorName`;
         const creatorSearchUrl = creatorName
             ? `/searchResults?q=${encodeURIComponent(creatorName)}&searchFieldsConfigured=1&searchIn=creatorName`
@@ -124,19 +129,19 @@
         const faqEntries = [
             {
                 question: `How do I download ${miiName}?`,
-                answer: `Use the download controls on this page to export ${miiName} as a QR code or another supported Mii format such as charinfo, studio, and other converter-friendly outputs.`
+                answer: `Use the Download section on this page. It lists the formats available for this Mii.`
             },
             {
                 question: `Who made ${miiName}?`,
                 answer: isExternalMii
-                    ? `${miiName} is archived on InfiniMii from ${externalSource.title}${externalSource.user ? ` and is attributed there to ${externalSource.user}` : ''}${creatorName ? ` with creator name ${creatorName}` : ''}.`
+                    ? `${miiName} came from ${externalSource.title}${externalSource.user ? `, where ${externalSource.user} uploaded it` : ''}${creatorName ? `. Its creator name is ${creatorName}` : ''}.`
                     : (mii.official
-                        ? `${miiName} is archived here as an official ${officialSourceLabel} Mii${creatorName ? ` with creator name ${creatorName}` : ''}${mii.contributor ? `, contributed to InfiniMii by ${mii.contributor}` : ''}.`
-                        : `${miiName} was uploaded to InfiniMii by ${mii.uploader}${creatorName ? ` and carries the creator name ${creatorName}` : ''}.`)
+                        ? `${miiName} is an official Mii from ${officialSourceLabel}${mii.contributor ? `, contributed by ${mii.contributor}` : ''}${creatorName ? `. Its creator name is ${creatorName}` : ''}.`
+                        : `${miiName} was uploaded by ${mii.uploader}${creatorName ? `. Its creator name is ${creatorName}` : ''}.`)
             },
             {
-                question: `Where can I use ${miiName}?`,
-                answer: `The QR code and converter tools on this page are designed for common Nintendo Mii workflows including 3DS and Wii U QR importing plus compatible export paths for Wii, Switch, and related formats.`
+                question: `Which formats are available for ${miiName}?`,
+                answer: `The Download section shows every format available for this Mii.`
             }
         ];
         const schemaGraphs = !pageRobots
@@ -176,7 +181,7 @@
             <article class="mii-id-card" style="--favorite-color: <%= decodeColor(mii.general?.favoriteColor) || decodeColor(0) %>;" itemscope itemtype="https://schema.org/CreativeWork">
                 <!-- Card Header -->
                 <header class="id-card-header">
-                    <h2 itemprop="name">Mii ID Card</h2>
+                    <h2 itemprop="name">Mii Information</h2>
                     <div class="id-card-header-tools">
                         <% if (canChangeMiiId) { %>
                             <button
@@ -198,7 +203,7 @@
                 <!-- Main Card Body -->
                 <div class="id-card-body">
                     <!-- Left side: Mii Image -->
-                    <figure class="id-card-photo">
+                    <figure class="id-card-photo<%= miiPageLtdConversionPending ? ' has-ltd-download' : '' %>">
                         <img src="<%= previewImagePath %>" 
                             onerror="this.src='<%= previewImagePath %>'"
                             alt="<%= ogImageAlt %>"
@@ -208,42 +213,57 @@
                             loading="eager"
                             decoding="async"
                             fetchpriority="high">
-                        <figcaption class="qr-code">
-                            <div class="qr-preview-window <%= defaultQrConsole === 'TOMODACHI' ? 'is-qr-tomodachi' : (defaultQrConsole === 'MIITOPIA' ? 'is-qr-miitopia' : 'is-qr-3ds') %> <%= hasTomodachiLifeData ? 'has-tomodachi-qr' : '' %> <%= hasMiitopiaQr ? 'has-miitopia-qr' : '' %>" data-qr-preview data-default-qr-console="<%= defaultQrConsole %>" data-qr3ds-src="<%= previewQr3dsPath %>" data-qr-wii-src="<%= previewQrWiiPath %>" data-qr-wiiu-src="<%= previewQrWiiPath %>" data-qr-tomodachi-src="<%= previewQrTomodachiPath %>" data-qr-miitopia-src="<%= previewQrMiitopiaPath %>">
-                                <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
-                                    <button type="button" class="qr-console-tab <%= defaultQrConsole === '3DS' ? 'is-active' : '' %>" data-qr-tab="3DS" role="tab" aria-selected="<%= defaultQrConsole === '3DS' ? 'true' : 'false' %>" onclick="setQrPreviewConsole(this)">3DS</button>
-                                    <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false" onclick="setQrPreviewConsole(this)">Wii U</button>
-                                    <% if(hasTomodachiLifeData) { %>
-                                        <button type="button" class="qr-console-tab <%= defaultQrConsole === 'TOMODACHI' ? 'is-active' : '' %>" data-qr-tab="TOMODACHI" role="tab" aria-selected="<%= defaultQrConsole === 'TOMODACHI' ? 'true' : 'false' %>" onclick="setQrPreviewConsole(this)" aria-label="Tomodachi Life 3DS QR" title="Tomodachi Life 3DS QR">TL</button>
-                                    <% } %>
-                                    <% /* MT QR tab temporarily disabled. Re-enable with enableMiitopiaQrs above. */ %>
-                                    <% if(hasMiitopiaQr) { %>
-                                        <button type="button" class="qr-console-tab <%= defaultQrConsole === 'MIITOPIA' ? 'is-active' : '' %>" data-qr-tab="MIITOPIA" role="tab" aria-selected="<%= defaultQrConsole === 'MIITOPIA' ? 'true' : 'false' %>" onclick="setQrPreviewConsole(this)" aria-label="Miitopia 3DS QR" title="Miitopia 3DS QR">MT</button>
-                                    <% } %>
+                        <% if (miiPageQrExportsEnabled) { %>
+                            <figcaption class="qr-code">
+                                <div class="qr-preview-window <%= defaultQrConsole === 'TOMODACHI' ? 'is-qr-tomodachi' : (defaultQrConsole === 'MIITOPIA' ? 'is-qr-miitopia' : 'is-qr-3ds') %> <%= hasTomodachiLifeData ? 'has-tomodachi-qr' : '' %> <%= hasMiitopiaQr ? 'has-miitopia-qr' : '' %>" data-qr-preview data-default-qr-console="<%= defaultQrConsole %>" data-qr3ds-src="<%= previewQr3dsPath %>" data-qr-wii-src="<%= previewQrWiiPath %>" data-qr-wiiu-src="<%= previewQrWiiPath %>" data-qr-tomodachi-src="<%= previewQrTomodachiPath %>" data-qr-miitopia-src="<%= previewQrMiitopiaPath %>">
+                                    <div class="qr-console-tabs" role="tablist" aria-label="QR console type">
+                                        <button type="button" class="qr-console-tab <%= defaultQrConsole === '3DS' ? 'is-active' : '' %>" data-qr-tab="3DS" role="tab" aria-selected="<%= defaultQrConsole === '3DS' ? 'true' : 'false' %>" onclick="setQrPreviewConsole(this)">3DS</button>
+                                        <button type="button" class="qr-console-tab" data-qr-tab="WIIU" role="tab" aria-selected="false" onclick="setQrPreviewConsole(this)">Wii U</button>
+                                        <% if(hasTomodachiLifeData) { %>
+                                            <button type="button" class="qr-console-tab <%= defaultQrConsole === 'TOMODACHI' ? 'is-active' : '' %>" data-qr-tab="TOMODACHI" role="tab" aria-selected="<%= defaultQrConsole === 'TOMODACHI' ? 'true' : 'false' %>" onclick="setQrPreviewConsole(this)" aria-label="Tomodachi Life 3DS QR" title="Tomodachi Life 3DS QR">TL</button>
+                                        <% } %>
+                                        <% /* MT QR tab temporarily disabled. Re-enable with enableMiitopiaQrs above. */ %>
+                                        <% if(hasMiitopiaQr) { %>
+                                            <button type="button" class="qr-console-tab <%= defaultQrConsole === 'MIITOPIA' ? 'is-active' : '' %>" data-qr-tab="MIITOPIA" role="tab" aria-selected="<%= defaultQrConsole === 'MIITOPIA' ? 'true' : 'false' %>" onclick="setQrPreviewConsole(this)" aria-label="Miitopia 3DS QR" title="Miitopia 3DS QR">MT</button>
+                                        <% } %>
+                                    </div>
+                                    <a class="qr-preview-link" href="<%= defaultQrPreviewPath %>" target="_blank" rel="noopener noreferrer" data-qr-link>
+                                        <img
+                                            class="qr-code-image"
+                                            src="<%= defaultQrPreviewPath %>"
+                                            alt="QR Code for <%= miiName %> - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo"
+                                            width="200"
+                                            height="200"
+                                            loading="lazy"
+                                            decoding="async"
+                                            fetchpriority="low"
+                                            data-qr-image
+                                            data-qr-console="<%= defaultQrConsole %>"
+                                        >
+                                    </a>
                                 </div>
-                                <a class="qr-preview-link" href="<%= defaultQrPreviewPath %>" target="_blank" rel="noopener noreferrer" data-qr-link>
-                                    <img
-                                        class="qr-code-image"
-                                        src="<%= defaultQrPreviewPath %>"
-                                        alt="QR Code for <%= miiName %> - Scan with 3DS, Wii U, Tomodachi Life, or Miitomo"
-                                        width="200"
-                                        height="200"
-                                        loading="lazy"
-                                        decoding="async"
-                                        fetchpriority="low"
-                                        data-qr-image
-                                        data-qr-console="<%= defaultQrConsole %>"
-                                    >
+                                <% if (miiPageMnmsExportsEnabled) { %>
+                                    <form id="miiQrExportForm" method="GET" action="/exportMii" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center;">
+                                        <input type="hidden" name="id" value="<%= mii.id %>">
+                                        <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center;">
+                                            <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyQrPreviewMnmsText('hex')">Copy Hex</button>
+                                            <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyQrPreviewMnmsText('base64')">Copy Base64</button>
+                                        </div>
+                                    </form>
+                                <% } %>
+                            </figcaption>
+                        <% } else if (miiPageLtdConversionPending) { %>
+                            <figcaption class="ltd-photo-download">
+                                <a
+                                    class="btn-primary ltd-photo-download-button"
+                                    href="/exportMii?id=<%= encodeURIComponent(mii.id) %>&amp;format=ltd"
+                                    aria-label="Download <%= miiName %> as an LTD file"
+                                >
+                                    <%- include('icon', { name: 'download', size: 18, class: 'icon-inline' }) %>
+                                    <span>Download LTD</span>
                                 </a>
-                            </div>
-                            <form id="miiQrExportForm" method="GET" action="/exportMii" style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px; align-items: center;">
-                                <input type="hidden" name="id" value="<%= mii.id %>">
-                                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center;">
-                                    <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyQrPreviewMnmsText('hex')">Copy Hex</button>
-                                    <button type="button" class="btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="copyQrPreviewMnmsText('base64')">Copy Base64</button>
-                                </div>
-                            </form>
-                        </figcaption>
+                            </figcaption>
+                        <% } %>
                     </figure>
 
                     <!-- Right side: Information -->
@@ -301,13 +321,6 @@
                             </div>
                             <% } %>
 
-                            <% if(genderLabel) { %>
-                            <div class="info-item">
-                                <span class="info-label">Gender</span>
-                                <span class="info-value"><%= genderLabel %></span>
-                            </div>
-                            <% } %>
-                            
                             <div class="info-item">
                                 <span class="info-label">Birthday</span>
                                 <span class="info-value" data-mii-birthday-display><%= birthdayLabel || 'Not Set' %></span>
@@ -462,12 +475,8 @@
 
                                 function updateOfficialCheckboxLabel() {
                                     const checkbox = document.getElementById('officialCheckbox');
-                                    const icon = document.getElementById('officialCheckboxIcon');
                                     const label = document.getElementById('officialCheckboxLabel');
                                     if (!checkbox || !label) return;
-                                    if (icon) {
-                                        icon.textContent = checkbox.checked ? '✅' : '❌';
-                                    }
                                     label.textContent = checkbox.checked
                                         ? 'This is an Official Mii'
                                         : 'Not an Official Mii';
@@ -989,7 +998,7 @@
                             </button>
                         <% } %>
                     </div>
-                    <p itemprop="description" data-inline-edit-display="desc"><%= (mii.desc && mii.desc.length > 0) ? mii.desc : `${archiveIntro} ${archiveOwnerStatsLabel}`.trim() %></p>
+                    <p itemprop="description" data-inline-edit-display="desc"><%= (mii.desc && mii.desc.length > 0) ? mii.desc : archiveIntro %></p>
                     <% if(canInlineEditMiiMetadata) { %>
                         <div class="inline-edit-controls inline-edit-controls-wide" data-inline-edit-controls="desc" hidden>
                             <textarea id="inlineEditDesc" class="inline-edit-input inline-edit-textarea" data-inline-edit-input="desc" rows="4" maxlength="<%= miiDescriptionMaxLength %>"><%= mii.desc || '' %></textarea>
@@ -1057,8 +1066,7 @@
                 <!-- Actions -->
                 <div class="id-card-actions">
                     <%
-                        const availableExportFormats = Array.isArray(exportFormats) ? exportFormats : [];
-                        const normalizedExportFormats = availableExportFormats
+                        const normalizedExportFormats = miiPageExportFormats
                             .map((fmt) => ({
                                 value: String(fmt?.value || '').trim(),
                                 label: String(fmt?.label || fmt?.value || '').trim()
@@ -1130,6 +1138,7 @@
                         addQuickFormat(exportFormatByValue.get('mnms'));
                         addQuickFormat(exportFormatByValue.get('rcd'));
                         addQuickFormat(exportFormatByValue.get('charinfo'));
+                        addQuickFormat(exportFormatByValue.get('ltd'));
 
                         normalizedExportFormats.forEach((fmt) => {
                             if (quickExportFormats.length >= 5) return;
@@ -1147,26 +1156,50 @@
                                 qrConsole: ''
                             }));
                     %>
-                    <h3 class="info-label export-section-title">Download / Convert / Export Mii</h3>
-                    <form id="miiExportForm" class="export-form" method="GET" action="/exportMii">
+                    <h3 class="info-label export-section-title">Download this Mii</h3>
+                    <form id="miiExportForm" class="export-form<%= miiPageLtdConversionPending ? ' has-export-format' : '' %>" method="GET" action="/exportMii">
                         <input type="hidden" name="id" value="<%= mii.id %>">
-                        <input type="hidden" id="export-format-<%= mii.id %>" name="format" value="">
-                        <input type="hidden" name="qrConsole" value="<%= defaultQrConsole %>" data-export-qr-console-input data-default-qr-console="<%= defaultQrConsole %>">
-                        <input type="hidden" value="" data-export-selection-key>
+                        <input type="hidden" id="export-format-<%= mii.id %>" name="format" value="<%= miiPageLtdConversionPending ? 'ltd' : '' %>">
+                        <% if (miiPageQrExportsEnabled) { %>
+                            <input type="hidden" name="qrConsole" value="<%= defaultQrConsole %>" data-export-qr-console-input data-default-qr-console="<%= defaultQrConsole %>">
+                        <% } %>
+                        <input type="hidden" value="<%= miiPageLtdConversionPending ? 'ltd' : '' %>" data-export-selection-key>
 
                         <div class="export-top-row">
-                            <div class="export-format-picker" data-export-picker>
-                                <button
-                                    type="button"
-                                    class="export-format-trigger"
-                                    data-export-picker-toggle
-                                    aria-haspopup="true"
-                                    aria-expanded="false"
-                                    aria-controls="export-format-menu-<%= mii.id %>"
+                            <div
+                                class="export-format-picker<%= miiPageLtdConversionPending ? ' is-conversion-locked' : '' %>"
+                                data-export-picker
+                                data-export-picker-disabled="<%= miiPageLtdConversionPending ? 'true' : 'false' %>"
+                            >
+                                <div
+                                    class="export-format-control<%= miiPageLtdConversionPending ? ' is-disabled' : '' %>"
+                                    <% if (miiPageLtdConversionPending) { %>
+                                        role="group"
+                                        tabindex="0"
+                                        aria-label="Export format unavailable"
+                                        aria-describedby="ltd-conversion-tooltip"
+                                    <% } %>
                                 >
-                                    <span class="export-format-selected" data-export-selected-label>Select format</span>
-                                    <span class="export-format-trigger-caret" aria-hidden="true">▼</span>
-                                </button>
+                                    <button
+                                        type="button"
+                                        class="export-format-trigger"
+                                        data-export-picker-toggle
+                                        aria-haspopup="true"
+                                        aria-expanded="false"
+                                        aria-controls="export-format-menu-<%= mii.id %>"
+                                        <% if (miiPageLtdConversionPending) { %>
+                                            disabled
+                                            aria-disabled="true"
+                                            aria-describedby="ltd-conversion-tooltip"
+                                        <% } %>
+                                    >
+                                        <span class="export-format-selected" data-export-selected-label><%= miiPageLtdConversionPending ? 'LTD file (.ltd)' : 'Select format' %></span>
+                                        <span class="export-format-trigger-caret" aria-hidden="true">▼</span>
+                                    </button>
+                                    <% if (miiPageLtdConversionPending) { %>
+                                        <span id="ltd-conversion-tooltip" class="export-format-tooltip" role="tooltip"><%= miiPageLtdConversionTooltip %></span>
+                                    <% } %>
+                                </div>
                                 <div class="export-format-menu" id="export-format-menu-<%= mii.id %>" hidden>
                                     <div class="export-format-search-wrap">
                                         <input
@@ -1248,19 +1281,23 @@
                                 </div>
                             </div>
 
-                            <button type="button" class="btn-secondary export-instructions-btn" onclick="openMiiInstructions(event)">Recreation Instructions</button>
-                            <a class="btn-secondary export-instructions-btn" href="/miiDashboard?id=<%= encodeURIComponent(mii.id) %>">Open Dashboard</a>
-                            <a class="btn-secondary export-instructions-btn" href="/miiDashboard?id=<%= encodeURIComponent(mii.id) %>&amp;kidomatic=1">Kidomatic</a>
+                            <% if (showMiiWorkspaceTools) { %>
+                                <button type="button" class="btn-secondary export-instructions-btn" onclick="openMiiInstructions(event)">Recreation Instructions</button>
+                                <a class="btn-secondary export-instructions-btn" href="/miiDashboard?id=<%= encodeURIComponent(mii.id) %>">Open Dashboard</a>
+                                <a class="btn-secondary export-instructions-btn" href="/miiDashboard?id=<%= encodeURIComponent(mii.id) %>&amp;kidomatic=1">Kidomatic</a>
+                            <% } %>
                         </div>
 
                         <div class="export-action-reveal" data-export-action-reveal aria-live="polite">
-                            <label class="export-inline-toggle export-inline-toggle-reveal">
-                                <input type="checkbox" name="special">
-                                <span>Special Mii</span>
-                            </label>
-                            <button type="submit" class="btn-primary export-main-action" data-export-action disabled>Download</button>
-                            <button type="button" class="btn-secondary export-main-action" data-export-action disabled onclick="copyMiiExportText('miiExportForm', 'hex')">Copy Hex</button>
-                            <button type="button" class="btn-secondary export-main-action" data-export-action disabled onclick="copyMiiExportText('miiExportForm', 'base64')">Copy Base64</button>
+                            <% if (miiPageLegacyExportsEnabled) { %>
+                                <label class="export-inline-toggle export-inline-toggle-reveal">
+                                    <input type="checkbox" name="special">
+                                    <span>Special Mii</span>
+                                </label>
+                            <% } %>
+                            <button type="submit" class="btn-primary export-main-action" data-export-action <% if (!miiPageLtdConversionPending) { %>disabled<% } %>><%= miiPageLtdConversionPending ? 'Download LTD' : 'Download' %></button>
+                            <button type="button" class="btn-secondary export-main-action" data-export-action <% if (!miiPageLtdConversionPending) { %>disabled<% } %> onclick="copyMiiExportText('miiExportForm', 'hex')">Copy Hex</button>
+                            <button type="button" class="btn-secondary export-main-action" data-export-action <% if (!miiPageLtdConversionPending) { %>disabled<% } %> onclick="copyMiiExportText('miiExportForm', 'base64')">Copy Base64</button>
                         </div>
                     </form>
                 </div>
@@ -1330,16 +1367,10 @@
                     <section class="mii-seo-panel" aria-labelledby="mii-archive-heading" hidden>
                         <h2 id="mii-archive-heading">About This <%= miiName %> Mii</h2>
                         <p><%= archiveIntro %></p>
-                        <% if(archiveOwnerStatsLabel) { %>
-                            <p><%= archiveOwnerStatsLabel %></p>
-                        <% } %>
-                        <% if(archiveSearchIntro) { %>
-                            <p><%= archiveSearchIntro %></p>
-                        <% } %>
                     </section>
 
                     <section class="mii-seo-panel" aria-labelledby="mii-facts-heading" hidden>
-                        <h2 id="mii-facts-heading">Searchable Archive Details</h2>
+                        <h2 id="mii-facts-heading">Details</h2>
                         <dl class="mii-fact-list">
                             <div class="mii-fact">
                                 <dt>Name</dt>
@@ -1389,12 +1420,6 @@
                                     <dd><%= mii.contributor %></dd>
                                 </div>
                             <% } %>
-                            <% if(genderLabel) { %>
-                                <div class="mii-fact">
-                                    <dt>Gender</dt>
-                                    <dd><%= genderLabel %></dd>
-                                </div>
-                            <% } %>
                             <% if(birthdayLabel) { %>
                                 <div class="mii-fact">
                                     <dt>Birthday</dt>
@@ -1423,15 +1448,15 @@
                     </section>
 
                     <section class="mii-seo-panel" aria-labelledby="mii-links-heading" hidden>
-                        <h2 id="mii-links-heading">Search Topics And Related Links</h2>
-                        <p>Browse by character name, creator name, uploader, tags, and official categories related to <%= miiName %>.</p>
+                        <h2 id="mii-links-heading">Related</h2>
+                        <p>Browse related names, uploaders, tags, and official categories.</p>
                         <div class="mii-chip-list">
-                            <a class="mii-chip mii-chip-link" href="<%= nameSearchUrl %>"><span class="tag-marquee-content"><%= miiName %> search</span></a>
+                            <a class="mii-chip mii-chip-link" href="<%= nameSearchUrl %>"><span class="tag-marquee-content"><%= miiName %></span></a>
                             <% if(creatorSearchUrl) { %>
-                                <a class="mii-chip mii-chip-link" href="<%= creatorSearchUrl %>"><span class="tag-marquee-content"><%= creatorName %> creator search</span></a>
+                                <a class="mii-chip mii-chip-link" href="<%= creatorSearchUrl %>"><span class="tag-marquee-content">Creator: <%= creatorName %></span></a>
                             <% } %>
                             <a class="mii-chip mii-chip-link" href="<%= archiveOwnerProfileUrl %>"><span class="tag-marquee-content"><%= archiveOwnerLabel %> profile</span></a>
-                            <a class="mii-chip mii-chip-link" href="<%= uploaderSearchUrl %>"><span class="tag-marquee-content"><%= mii.uploader %> uploader search</span></a>
+                            <a class="mii-chip mii-chip-link" href="<%= uploaderSearchUrl %>"><span class="tag-marquee-content"><%= mii.uploader %> uploads</span></a>
                             <% categoryDetails.forEach(category => { %>
                                 <a class="mii-chip mii-chip-link" href="<%= category.url %>"><span class="tag-marquee-content"><%= category.name %></span></a>
                             <% }) %>
@@ -1439,18 +1464,15 @@
                                 <a class="mii-chip mii-chip-link" href="/searchResults?tags=<%= encodeURIComponent(tag) %>"><span class="tag-marquee-content"><%= tag %></span></a>
                             <% }) %>
                         </div>
-                        <% if(searchTopics.length > 0) { %>
-                            <p class="mii-search-topic-copy">Common search phrases: <%= searchTopics.join(', ') %>.</p>
-                        <% } %>
                     </section>
 
                     <section class="mii-seo-panel" aria-labelledby="mii-download-heading" hidden>
-                        <h2 id="mii-download-heading">Download And Compatibility</h2>
-                        <p>This page includes the preview image, QR code, and export tools for <%= miiName %>. If you are trying to find <%= miiName %> for 3DS, Wii U, Wii, Switch, or another supported Mii format, use the export controls above to download the format you need.</p>
+                        <h2 id="mii-download-heading">Downloads</h2>
+                        <p>Use the Download section to see the formats available for <%= miiName %>.</p>
                     </section>
 
                     <section class="mii-seo-panel" aria-labelledby="mii-faq-heading" hidden>
-                        <h2 id="mii-faq-heading">Questions About This Mii</h2>
+                        <h2 id="mii-faq-heading">About this Mii</h2>
                         <div class="mii-faq-list">
                             <% faqEntries.forEach((entry) => { %>
                                 <article class="mii-faq-item">
@@ -1504,22 +1526,24 @@
 
                 <!-- Moderator Tools -->
                 <% if(isModerator){ %>
-                    <div class="moderator-tools">
-                        <div class="mod-tools-header" onclick="toggleModTools()">
-                            <h3><%- include('icon', { name: 'settings', size: 18, class: 'icon-inline' }) %> Moderator Tools</h3>
-                            <span class="dropdown-arrow" id="modToolsArrow">▼</span>
-                        </div>
+                    <details class="moderator-tools">
+                        <summary class="mod-tools-header">
+                            <span class="mod-tools-heading">
+                                <span class="mod-tools-title"><%- include('icon', { name: 'settings', size: 18, class: 'icon-inline' }) %> Moderator tools</span>
+                                <span class="mod-tools-summary-copy">Metadata, classification, assets, and safety actions</span>
+                            </span>
+                        </summary>
                         
                         <div class="mod-tools-content" id="modToolsContent">
                             <div class="mod-tool-grid">
                                 <!-- Switch Uploader -->
                                 <div class="mod-tool-item">
-                                    <label>Change Uploader:</label>
+                                    <label for="editUploader">Uploader username</label>
                                     <input type="text" id="editUploader" value="<%= mii.uploader %>" placeholder="Username">
                                 </div>
 
                                 <div class="mod-tool-item">
-                                    <label>Uploader Editing:</label>
+                                    <span class="mod-tool-label">Uploader editing</span>
                                     <div class="toggle-container">
                                         <input type="checkbox" id="userEditLockCheckbox" <%= mii.lockedFromUserEdits ? 'checked' : '' %>>
                                         <label for="userEditLockCheckbox">
@@ -1531,7 +1555,7 @@
 
                                 <% if(canEditExternalMiiSource) { %>
                                 <div class="mod-tool-item external-source-editor">
-                                    <label>External Source:</label>
+                                    <span class="mod-tool-label">External source</span>
                                     <p class="mod-tag-hint">A URL and title mark this Mii as external. The external uploader fields are optional, but must be provided together. Clear all four fields to remove external attribution.</p>
                                     <label for="externalSourceTitle">Source title</label>
                                     <input type="text" id="externalSourceTitle" value="<%= mii.extTitle || '' %>" maxlength="160" placeholder="Source title" autocomplete="off">
@@ -1547,7 +1571,7 @@
 
                                 <% if (canSetMiiIdDirectly) { %>
                                 <div class="mod-tool-item">
-                                    <label>Set Mii ID Directly:</label>
+                                    <label for="directMiiIdInput">Mii ID</label>
                                     <input type="text" id="directMiiIdInput" value="<%= mii.id %>" placeholder="New Mii ID" maxlength="10" inputmode="text" autocomplete="off" spellcheck="false">
                                     <p class="mod-tag-hint mod-id-hint">Admins only. Use 10 alphanumeric characters or fewer.</p>
                                     <button type="button" id="setMiiIdButton" onclick="setMiiIdDirectly()"><%- include('icon', { name: 'check', size: 16 }) %> Set Mii ID</button>
@@ -1556,14 +1580,14 @@
 
                                 <!-- Edit Tags -->
                                 <div class="mod-tool-item mod-tag-selector">
-                                    <label>Mii Tags:</label>
+                                    <span class="mod-tool-label">Mii tags</span>
                                     <button type="button" class="tag-editor-trigger" onclick="openMiiTagEditor()">Edit Tags <span class="tag-trigger-summary"></span></button>
                                     <p class="mod-tag-hint">Only existing tags can be assigned. Create or delete tags from the Search page.</p>
                                 </div>
 
                                 <% if(canEditMiiCategories) { %>
                                 <div class="mod-tool-item">
-                                    <label>Official Categories:</label>
+                                    <span class="mod-tool-label">Official categories</span>
                                     <p class="mod-tag-hint">Assign and update categories for this research-managed entry.</p>
                                     <button type="button" class="category-editor-trigger" onclick="openCategoryEditor()">Edit Categories <span class="category-trigger-summary"></span></button>
                                 </div>
@@ -1571,26 +1595,25 @@
 
                                 <!-- Toggle Official Status -->
                                 <div class="mod-tool-item">
-                                    <label>Official Mii Status:</label>
+                                    <span class="mod-tool-label">Official Mii status</span>
                                     <div class="toggle-container">
                                         <input type="checkbox" id="officialCheckbox" <%= mii.official ? 'checked' : '' %>>
                                         <label for="officialCheckbox">
-                                            <span id="officialCheckboxIcon" aria-hidden="true"><%= mii.official ? '✅' : '❌' %></span>
                                             <span id="officialCheckboxLabel"><%= mii.official ? 'This is an Official Mii' : 'Not an Official Mii' %></span>
                                         </label>
                                     </div>
                                 </div>
 
                                 <div class="mod-tool-item">
-                                    <label>Save Changes:</label>
-                                    <button id="saveModeratorEditsButton" class="btn-primary" onclick="saveModeratorEdits()"><%- include('icon', { name: 'check', size: 16 }) %> Save Changes</button>
+                                    <span class="mod-tool-label">Save metadata changes</span>
+                                    <p class="mod-tool-help">Saves the uploader, editing lock, and official status above.</p>
+                                    <button type="button" id="saveModeratorEditsButton" class="btn-primary" onclick="saveModeratorEdits()"><%- include('icon', { name: 'check', size: 16 }) %> Save changes</button>
                                 </div>
 
-                                <!-- Regenerate QR Code -->
                                 <div class="mod-tool-item">
-                                    <label>Regenerate QR Code:</label>
-                                    <label for="regenQrConsole" style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                                        QR Console:
+                                    <% if (miiPageQrExportsEnabled) { %>
+                                        <span class="mod-tool-label">Regenerate assets</span>
+                                        <label for="regenQrConsole">QR console</label>
                                         <select id="regenQrConsole">
                                             <option value="3DS">3DS</option>
                                             <option value="WIIU">Wii U</option>
@@ -1602,16 +1625,16 @@
                                                 <option value="MIITOPIA">Miitopia</option>
                                             <% } %>
                                         </select>
-                                    </label>
-                                    <button onclick="regenerateQR()"><%- include('icon', { name: 'refresh', size: 16 }) %> Regenerate QR</button>
-                                    <button onclick="regenerateRender()"><%- include('icon', { name: 'refresh', size: 16 }) %> Regenerate Render</button>
-                                    <span id="qrStatus"></span>
-                                    <span id="renderStatus"></span>
+                                        <button type="button" onclick="regenerateQR()"><%- include('icon', { name: 'refresh', size: 16 }) %> Regenerate QR</button>
+                                        <span id="qrStatus" class="mod-tool-status" role="status" aria-live="polite"></span>
+                                    <% } %>
+                                    <button type="button" onclick="regenerateRender()"><%- include('icon', { name: 'refresh', size: 16 }) %> Regenerate render</button>
+                                    <span id="renderStatus" class="mod-tool-status" role="status" aria-live="polite"></span>
                                 </div>
 
                                 <% if(canClearTomodachiLifeData) { %>
                                 <div class="mod-tool-item mod-tool-danger">
-                                    <label>Tomodachi Life Data:</label>
+                                    <span class="mod-tool-label">Tomodachi Life data</span>
                                     <p class="mod-tag-hint">Admins only. Removes stored TL metadata if present, removes the Tomodachi Life tag, and regenerates QR previews.</p>
                                     <button type="button" id="clearTlDataButton" class="danger-btn" onclick="clearMiiTlData()"><%- include('icon', { name: 'trash', size: 16 }) %> Clear TL Data</button>
                                 </div>
@@ -1619,40 +1642,43 @@
 
                                 <!-- Delete Mii -->
                                 <div class="mod-tool-item mod-tool-danger">
-                                    <label>Delete Mii:</label>
-                                    <button class="danger-btn" onclick="confirmDeleteMii()"><%- include('icon', { name: 'trash', size: 16 }) %> Delete Mii</button>
+                                    <span class="mod-tool-label">Delete Mii</span>
+                                    <p class="mod-tool-help">Permanently removes this Mii and its generated assets.</p>
+                                    <button type="button" class="danger-btn" onclick="confirmDeleteMii()"><%- include('icon', { name: 'trash', size: 16 }) %> Delete Mii</button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </details>
                 <% } %>
                 <% if(!isModerator && canEditOfficialMii) { %>
-                    <div class="moderator-tools">
-                        <div class="mod-tools-header" onclick="toggleOfficialEditorTools()">
-                            <h3><%- include('icon', { name: 'flask', size: 18, class: 'icon-inline' }) %> <%= mii.official ? 'Official' : 'Researcher' %> Editor Tools</h3>
-                            <span class="dropdown-arrow" id="officialEditorToolsArrow">▼</span>
-                        </div>
+                    <details class="moderator-tools">
+                        <summary class="mod-tools-header">
+                            <span class="mod-tools-heading">
+                                <span class="mod-tools-title"><%- include('icon', { name: 'flask', size: 18, class: 'icon-inline' }) %> <%= mii.official ? 'Official' : 'Researcher' %> editor tools</span>
+                                <span class="mod-tools-summary-copy">Description, source, and category details</span>
+                            </span>
+                        </summary>
 
                         <div class="mod-tools-content" id="officialEditorToolsContent">
                             <div class="mod-tool-grid">
                                 <div class="mod-tool-item">
-                                    <label>Mii Name:</label>
+                                    <label for="researcherEditMiiName">Mii name</label>
                                     <input type="text" id="researcherEditMiiName" value="<%= mii.meta.name %>" placeholder="Mii Name" maxlength="10">
                                 </div>
 
                                 <div class="mod-tool-item">
-                                    <label>Description:</label>
+                                    <label for="researcherEditDesc">Description</label>
                                     <textarea id="researcherEditDesc" rows="3" placeholder="Description" maxlength="<%= miiDescriptionMaxLength %>"><%= mii.desc %></textarea>
                                 </div>
 
                                 <div class="mod-tool-item">
-                                    <label>Creator Name (in Mii file):</label>
+                                    <label for="researcherEditCreatorName">Creator name in Mii file</label>
                                     <input type="text" id="researcherEditCreatorName" value="<%= mii.meta.creatorName || '' %>" placeholder="Creator Name" maxlength="10">
                                 </div>
 
                                 <% if(canEditExternalMiiSource) { %>
                                 <div class="mod-tool-item external-source-editor">
-                                    <label>External Source:</label>
+                                    <span class="mod-tool-label">External source</span>
                                     <p class="mod-tag-hint">A URL and title mark this Mii as external. The external uploader fields are optional, but must be provided together. Clear all four fields to remove external attribution.</p>
                                     <label for="externalSourceTitle">Source title</label>
                                     <input type="text" id="externalSourceTitle" value="<%= mii.extTitle || '' %>" maxlength="160" placeholder="Source title" autocomplete="off">
@@ -1667,18 +1693,18 @@
                                 <% } %>
 
                                 <div class="mod-tool-item">
-                                    <label>Official Categories:</label>
+                                    <span class="mod-tool-label">Official categories</span>
                                     <p class="mod-tag-hint">Assign and update categories for this research-managed entry.</p>
                                     <button type="button" class="category-editor-trigger" onclick="openCategoryEditor()">Edit Categories <span class="category-trigger-summary"></span></button>
                                 </div>
 
                                 <div class="mod-tool-item">
-                                    <label>Save Changes:</label>
-                                    <button id="saveOfficialEditorButton" class="btn-primary" onclick="saveOfficialEditorChanges()"><%- include('icon', { name: 'check', size: 16 }) %> Save Changes</button>
+                                    <span class="mod-tool-label">Save editor changes</span>
+                                    <button type="button" id="saveOfficialEditorButton" class="btn-primary" onclick="saveOfficialEditorChanges()"><%- include('icon', { name: 'check', size: 16 }) %> Save changes</button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </details>
                 <% } %>
             </article>
             <%- include('featuredMiis') %>
@@ -2433,6 +2459,7 @@
                 setQrPreviewConsole(preview, preview.dataset.defaultQrConsole || '3DS');
             }
 
+            <% if (miiPageQrExportsEnabled && miiPageMnmsExportsEnabled) { %>
             function buildQrPreviewMnmsCopyForm() {
                 const sourceForm = document.getElementById('miiQrExportForm');
                 if (!sourceForm) return null;
@@ -2466,15 +2493,7 @@
                 }
                 await copyExportHexFromForm(form);
             }
-
-            function toggleOfficialEditorTools() {
-                const content = document.getElementById('officialEditorToolsContent');
-                const arrow = document.getElementById('officialEditorToolsArrow');
-                if (!content || !arrow) return;
-
-                content.classList.toggle('expanded');
-                arrow.classList.toggle('rotated');
-            }
+            <% } %>
 
             async function submitMiiFieldUpdate(field, value) {
                 const response = await fetch('/updateMiiField', {
@@ -2555,7 +2574,7 @@
                         label: 'description',
                         maxLength: <%= miiDescriptionMaxLength %>,
                         required: true,
-                        fallback: <%- toScriptJson(`${archiveIntro} ${archiveOwnerStatsLabel}`.trim()) %>
+                        fallback: <%- toScriptJson(archiveIntro) %>
                     },
                     creatorName: {
                         endpointField: 'creatorName',
@@ -3386,14 +3405,7 @@
                         }
                     }, null, { title: 'Unblock Mii', confirmText: 'Unblock' });
                 }
-                function toggleModTools() {
-                    const content = document.getElementById('modToolsContent');
-                    const arrow = document.getElementById('modToolsArrow');
-                    
-                    content.classList.toggle('expanded');
-                    arrow.classList.toggle('rotated');
-                }
-
+                <% if (miiPageQrExportsEnabled) { %>
                 async function regenerateQR() {
                     showConfirm('Are you sure you want to regenerate the QR code?', async () => {
                         const statusEl = document.getElementById('qrStatus');
@@ -3434,6 +3446,7 @@
                         }
                     }, null, { title: 'Regenerate QR Code', confirmText: 'Regenerate' });
                 }
+                <% } %>
 
                 async function regenerateRender() {
                     showConfirm('Are you sure you want to regenerate the render image?', async () => {

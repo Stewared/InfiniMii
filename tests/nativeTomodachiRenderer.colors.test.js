@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { planNativeTomodachiRender } from "../nativeTomodachiRenderer.js";
+import { INFINIMII_FAVORITE_SHIRT_RGB } from "../ltdPresentationContext.js";
 
 function minimalMii(overrides = {}) {
     return {
@@ -46,4 +47,12 @@ test("native plan preserves low and extended Switch common-color indices", async
     assert.equal(plan.canonical.beard_color, 99);
     assert.equal(plan.canonical.glasses_color, 2);
     assert.equal(plan.canonical.face_color, 9);
+});
+
+test("native Tomodachi preview still reuses the established 12-color palette", async () => {
+    for (let favoriteColor = 0; favoriteColor < INFINIMII_FAVORITE_SHIRT_RGB.length; favoriteColor += 1) {
+        const plan = await planNativeTomodachiRender(minimalMii({ general: { favoriteColor } }));
+        assert.equal(plan.body.itemIndex, 0);
+        assert.equal(plan.body.rgb, INFINIMII_FAVORITE_SHIRT_RGB[favoriteColor]);
+    }
 });

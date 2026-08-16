@@ -1,0 +1,3909 @@
+{
+  "schema_version": 1,
+  "description": "Exact native BNTX mip levels for all 17 authored default-shirt albedo variations plus the checked title presentation pants, shoes, socks, normal, mask, and material-information surfaces. Outfit state remains external to ShareMii.",
+  "generator": "tools/build_reference_outfit_texture_mip_cache.py",
+  "decoder": "Switch-Toolbox FirstPlugin.TextureData.GetBitmap",
+  "evidence_sources": [
+    {
+      "path": "renderer/reference_capture_outfit.json",
+      "byte_length": 7176,
+      "sha256": "1724ae0c7f3d3991231e092ac190ad3f921a05fb215fcc031d9c82c24cd79daf"
+    },
+    {
+      "path": "renderer/reference_outfit_material_state.json",
+      "byte_length": 390006,
+      "sha256": "ea97a36f6074e12ad44f7307c91f1ba4a11237e9c147bb44b3e8fdd7cd0f3d6c"
+    },
+    {
+      "path": "renderer/body_material_state.json",
+      "byte_length": 170770,
+      "sha256": "05921e090c85a0d3a741ef5a8b227fbe33415477651b7bb9cce49e651d58882e"
+    }
+  ],
+  "texture_count": 33,
+  "mip_level_count": 292,
+  "textures": [
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.00",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.00.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "c2ed4aac0d0972d38355fadba9c15359400d29776e3a5907ca7f217f00089a2d",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.00",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_00.png",
+          "byte_length": 65566,
+          "sha256": "21679d1b4798f1dbd6d578cd310394b5592450e886b5dca7c8c8a2b39ee2c366"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_01.png",
+          "byte_length": 21909,
+          "sha256": "655319740771172d2278ba16de4b925f04b07d997485feed6e15362523e89356"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_02.png",
+          "byte_length": 7350,
+          "sha256": "c71fcf25e9de89f95a374d5cbb102d8128ade7d49f2d1206b532bf9aee369018"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_03.png",
+          "byte_length": 2390,
+          "sha256": "a80962515a564e5342b84eaeec0d285b8c1327cdef7737e360c915b212575bc9"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_04.png",
+          "byte_length": 938,
+          "sha256": "35c08cb090009fac065f6ede0da4c3809846a6a8dc2270c0dde879ebd2bdf930"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_05.png",
+          "byte_length": 372,
+          "sha256": "d9aca422c6cf88099f81ded815133a4e92afa8de2c6ee0dd863357bf689bfec1"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_06.png",
+          "byte_length": 175,
+          "sha256": "e360918f286bd16790895ea168959bfda2b39c6a3c63c7c15f685290b236c675"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_07.png",
+          "byte_length": 135,
+          "sha256": "fd90b755a5461e9d8f3867653f0c1e654dfd4c965f4a51a5fd31a1f27aab262f"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.00/mip_08.png",
+          "byte_length": 120,
+          "sha256": "d388059bc04f4b7dd388a2aa2fa5e863ef168ec5beb5451fe1ffc478c02d08c2"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.01",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.01.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "cf4cc1ae2acb5a7c9f50e818acb0a6c006484aad27951ea798227498a1714763",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.01",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_00.png",
+          "byte_length": 104359,
+          "sha256": "cd1064d8b4836636e9606924bf2734ee60d3fc9488d93f1d5d32148af5c309e5"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_01.png",
+          "byte_length": 28069,
+          "sha256": "c367fdd4a5834997044b792d98830ce25fed9d74322080cee6f12fe826e1c74b"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_02.png",
+          "byte_length": 8844,
+          "sha256": "b482c59edd7bad04b6cf6f85010623968b63e92b9ab5ea95b32ecdc6fadeb122"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_03.png",
+          "byte_length": 3073,
+          "sha256": "cab664f53acba2aed4274b7e949528e74dddc4e017d596465861fbb8d37217bd"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_04.png",
+          "byte_length": 945,
+          "sha256": "81f9561ad340f15a2d1882b1588c39e6686653af330a3d0111dd3e8779b4f536"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_05.png",
+          "byte_length": 471,
+          "sha256": "c8daee2fcca2dd6ca48eec43633b63e1f2a501384eac96fd8b8bc04a6d4234c1"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_06.png",
+          "byte_length": 171,
+          "sha256": "8be74bd2db195ad03eb251ca82e028f0c5b3b3c488482c69d43f5f57992534f7"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_07.png",
+          "byte_length": 140,
+          "sha256": "073f3b6c71b4c9801fddf2f44cd2f128797e6e9b4ccc23bbba8a980073c14ed9"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.01/mip_08.png",
+          "byte_length": 120,
+          "sha256": "7cd883a279196f8418359c6756474f7ad5246158ca569ce7c2ba637a7edd0e86"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.02",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.02.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "4f685b12832a90c65e3734cdc05ed942ffdd661e9bcff3e22e846c87183b28fc",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.02",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_00.png",
+          "byte_length": 101303,
+          "sha256": "d969ee6305a003bb8199c0120f7a111bf613da822b2341a2fe13ca49b0181dce"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_01.png",
+          "byte_length": 29284,
+          "sha256": "74ddda509a4399fead51951acaac72e282d3e104ac7089c2e8266b810481b6f4"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_02.png",
+          "byte_length": 9546,
+          "sha256": "930a52b800589563ddbef1a0bca3fb7ca2e0c80ce2829c8f73d11163d42dfa17"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_03.png",
+          "byte_length": 3092,
+          "sha256": "144b9a9ca287794465d1321b37c13a9bd97b31e521541a8bcb93d9c855300753"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_04.png",
+          "byte_length": 1083,
+          "sha256": "9078c6e17d5025567dabd11fa973cbeb18d37c33350d0adebd28137897988977"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_05.png",
+          "byte_length": 372,
+          "sha256": "f6af2a478fdf367ef97f2016a80b72b749f0566caed1ba7f55d083a37d6e057b"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_06.png",
+          "byte_length": 174,
+          "sha256": "6744bf264503404ff51992fb259cfa0d3e3ac0bde45348027fcbe93e03af4dfb"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_07.png",
+          "byte_length": 151,
+          "sha256": "1f5b5710da1e2a63aab414b0cfa8c438e38379dd98e11a3c1cd6877c31ba3d4a"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.02/mip_08.png",
+          "byte_length": 120,
+          "sha256": "0473fd8b9babf83b2c62813314f5917776e80544ee715aac5cc531b9d9724913"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.03",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.03.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "f0358240b1289669695f0072fef71c4e10d7ac3d7513ac1b96937a7d6f28a187",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.03",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_00.png",
+          "byte_length": 104945,
+          "sha256": "d7de2e188f967cd6d10b531bb6f568b8fe295453f99b893bd4134550358c858e"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_01.png",
+          "byte_length": 30872,
+          "sha256": "75d711aea6be8fa67f73ebc0c77c296ee7ad08c4677ef7654ec995e7c6c04107"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_02.png",
+          "byte_length": 9412,
+          "sha256": "0af4889666e0d003f0e3dde6b683159d8507f9670decedc90edf8fc36dc760a6"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_03.png",
+          "byte_length": 3172,
+          "sha256": "6b3eba7988d299782f66b6175fa9fa4244cb67aa2c7d887396945e2c337731bf"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_04.png",
+          "byte_length": 1222,
+          "sha256": "b4c37dec04ed981d46593a72f211941985c08f5ba050e5bf9c694f1f338882ae"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_05.png",
+          "byte_length": 373,
+          "sha256": "f14baf3e4f840f799172b952312cf5d53115f8ccd0288fc62e672bdceffe793e"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_06.png",
+          "byte_length": 170,
+          "sha256": "21f6e892fb5fac82867302c0bd1dd6c39e1fe7c7bdda396b22fae4293b2ae05f"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_07.png",
+          "byte_length": 145,
+          "sha256": "2414eb6f3dcec2e21b00450f24d18184c74a94353c50d5349a3b2b7a81f118fa"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.03/mip_08.png",
+          "byte_length": 120,
+          "sha256": "435f95dee17f013efb2b7a674f1a96be9fca0d7c374f89c642ddd9578ff3e093"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.04",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.04.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "4b36a8555b9c6530030e267ba518a19e23785c499c946a2689520ad7bd1cae2a",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.04",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_00.png",
+          "byte_length": 99752,
+          "sha256": "46b5e4b9b2a623c407d53e26109c0f4944a1f8d1ab88295c9f453d42089258b3"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_01.png",
+          "byte_length": 26911,
+          "sha256": "e0fa04509d259be10ec18de416652fd6a0f6dd54d8f5f5f49f6287064d20980c"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_02.png",
+          "byte_length": 8381,
+          "sha256": "3ac9caf5e93d61d6c604abed738e41292ad87cdd8c74ceb2a2aceb12915a08f9"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_03.png",
+          "byte_length": 2908,
+          "sha256": "4fd3f41c7fdb2e4f09201b15fd1192320e85b119cbf69ab3371ce7802fb5c044"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_04.png",
+          "byte_length": 961,
+          "sha256": "bff840abebe6c11e6b9eb800acb752adee25285c8890f86d61e7745cd75ea881"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_05.png",
+          "byte_length": 415,
+          "sha256": "f94778e4acc1c12e4d529f96be4f8e43bbf319abbb0d25d7d9f92ea08c988153"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_06.png",
+          "byte_length": 171,
+          "sha256": "4a2e80f42f292689b22d39f5c1883726dbc785f4df2e5616f3cb081c0aaf707f"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_07.png",
+          "byte_length": 148,
+          "sha256": "27b13a954c7a6772bc98589d7265047c779af24fdcb5b7347eebb63be8e64732"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.04/mip_08.png",
+          "byte_length": 120,
+          "sha256": "1d3320e9e2829b7261e5b36b4eca825d7d7b7bf9c36b406972a8a3b2c78a1af7"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.05",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.05.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "bb54fcfc2da30887aa46eb470f0b6a31b78234fe0d98c59fdfb8685332d7a625",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.05",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_00.png",
+          "byte_length": 91260,
+          "sha256": "1004436e8b5a8ec731c8a1918a59cec4496400db0df4bc3b6ecaad8e15a8a09c"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_01.png",
+          "byte_length": 26730,
+          "sha256": "b913acb30034bddd6a4a6e2088fe872c8b2f0355815b8113f7efebc1b5163553"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_02.png",
+          "byte_length": 8307,
+          "sha256": "87da17ab43e03c743469e89cbfc17ef5de23e32e91b303deee51c3f4d298ec02"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_03.png",
+          "byte_length": 2590,
+          "sha256": "e192033fe81b1734b1024c31d69622cde2e249091c3885e7cbaf01dc6fc4cf07"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_04.png",
+          "byte_length": 1155,
+          "sha256": "5d6e072fce0e5e72a21ff275f37227c7d2e831708eafb4d006c542a99cfdf6b2"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_05.png",
+          "byte_length": 381,
+          "sha256": "6b6fae8803208d5877414875b01e61e960b56595182c3ee8a74f70a1eab5276f"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_06.png",
+          "byte_length": 196,
+          "sha256": "21ff091076fcd97f00741e4020c40669e3ce0822ad5d13584fdb6918d8ad13ee"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_07.png",
+          "byte_length": 139,
+          "sha256": "b39b44e29dfa9eb5879c069c22a782a0135473179d51169fae2cdb3a10e10783"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.05/mip_08.png",
+          "byte_length": 120,
+          "sha256": "bb3a2ce92c0eb50fa707e0cdb8811a018eca7b748b02560a9b9643e0d246507d"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.06",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.06.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "0264bc00e2d1bdde38aa4db4f190079412eb9fa8be6f51a4eb3c357a8cc4b513",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.06",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_00.png",
+          "byte_length": 88864,
+          "sha256": "465b734daa1a01debef5ef2e3098aa82f7b943b58c01d3f7259f32a572876da9"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_01.png",
+          "byte_length": 25776,
+          "sha256": "371ee2656f01213dfdfc8b05fe090dd61f6c6d1de3b1cd7ed18a16f32db50001"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_02.png",
+          "byte_length": 8252,
+          "sha256": "599454170f82de6758e7f5b896c0074d77826d4754f458569b750fdff4c2be66"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_03.png",
+          "byte_length": 2725,
+          "sha256": "bb2e99db14efd9293d5cb3c4dc18714b282864a566f78c26e85b45c78d5b0fb6"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_04.png",
+          "byte_length": 1024,
+          "sha256": "37efbb9d167647607a4a8123f724d4e45d37a18aa13bba16c6eeb8cd01d2b5d2"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_05.png",
+          "byte_length": 423,
+          "sha256": "c87cfc304d6370ae2773f7481d416b666c0c159419fee833567dda650f060d88"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_06.png",
+          "byte_length": 177,
+          "sha256": "49ee6caf56664a1a81b47cc1c6d6de13008f116ee5c122837422b132d611c44c"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_07.png",
+          "byte_length": 140,
+          "sha256": "9653ffcff47d400940ea8e92184d95d8570412003f42253b95b2e0dd35189023"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.06/mip_08.png",
+          "byte_length": 120,
+          "sha256": "932d9c2c3f109a5f27b426539b9593049f02f0eee51eed1e488f7328eb02a9f4"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.07",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.07.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "a59b571ded674196b11be0f23bd9669d43400e1933a363b4180f13408b55e81a",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.07",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_00.png",
+          "byte_length": 90922,
+          "sha256": "8d0344b8eed6a6cd8c398895cfb5ad2cd56a72015f26edbe4e2d93d2216892af"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_01.png",
+          "byte_length": 26173,
+          "sha256": "38fa79c3ad30658f2200d1bee7f3e1d53a00cc4708af9d42e1afdeb5dd20f2ed"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_02.png",
+          "byte_length": 8584,
+          "sha256": "0d08e5bac6bd6b8010b6843c008f3e822acaa19f85ddaf7e78e9d7b57308980c"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_03.png",
+          "byte_length": 2670,
+          "sha256": "f932b30f5b8f4622253c19f2c94dad58aaa509d7313e1be1a8b9ad6a2d5fcfd9"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_04.png",
+          "byte_length": 904,
+          "sha256": "b93de2491dafcb403c17d66b8afe09b5992a99d8355b0d006c8721356ff44640"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_05.png",
+          "byte_length": 368,
+          "sha256": "44d936eab3697a7724223e72264d1872d90ed0555a9d8fcc9f43c13652165859"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_06.png",
+          "byte_length": 181,
+          "sha256": "04e0e102d3055c7d75e16b43e27772c7096f6235074288f48b5898d2959c8410"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_07.png",
+          "byte_length": 148,
+          "sha256": "6a7dfbe8337784c2673da65ba5685f9b77e120f3989b280e184eea6f7dd24c59"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.07/mip_08.png",
+          "byte_length": 120,
+          "sha256": "38fda54be672614b92815e46757d9a1ad460fae805a3e936090f85fa218e1eea"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.08",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.08.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "1ab172b87e1990b7b955035ebd4bb1dbfa41d50abdffb91c021e937fd17efec9",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.08",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_00.png",
+          "byte_length": 86042,
+          "sha256": "6d593dd3076e67bdd707c6bbbafbdd835aa1ea39d32108bc29f0f7501cb0b1a1"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_01.png",
+          "byte_length": 24090,
+          "sha256": "6fbc061c57761616371fb9f7650c7b34bb1f6b26dae8b1385107ec78eac405f9"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_02.png",
+          "byte_length": 8201,
+          "sha256": "54d8455d1de5afcb2472ec1e7d0a8edd4f21b6b920705139c43706f12ecad260"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_03.png",
+          "byte_length": 2684,
+          "sha256": "e2f38dffe781ad3d181c43e617327b00dc1ba48abd903330db7280c878fd5b9d"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_04.png",
+          "byte_length": 913,
+          "sha256": "a3083c14645da3fa43e79047dfbeced017d9890b968c0dfb516a1b948cbae33f"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_05.png",
+          "byte_length": 419,
+          "sha256": "b5e7ab03601ff552c329f6ef0d6208db77a835ce2ec28a01949060109044a9d1"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_06.png",
+          "byte_length": 187,
+          "sha256": "5118643c0ce583d8a427eee6b0ab1ee1daadd9c5b5c7b76b434c9f5fe8ff9218"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_07.png",
+          "byte_length": 139,
+          "sha256": "40dc690eb34b5020b0ae8c983d4843511d1c4427931f5ff86f199bcd9f4d332e"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.08/mip_08.png",
+          "byte_length": 120,
+          "sha256": "38fa041b9e8ba5aec093613b1777c61ed63448908066225c1138689b12d0c045"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.09",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.09.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "bf448f669de9dd39643054df15ce3ccc8035601982bfea455a1fe3d219555585",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.09",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_00.png",
+          "byte_length": 101920,
+          "sha256": "c085b47dce64dc284bd6bfde259441f84f494486d4155d4b37ceaf6005c2c5f8"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_01.png",
+          "byte_length": 30391,
+          "sha256": "475fa9de6fc8747cf25a419ca51d753502012f0750b41c6b789c0973b79b2eca"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_02.png",
+          "byte_length": 9279,
+          "sha256": "478ace0261da52a0955c5ae3679512e95680d6bf33a96132aa04db7e0db414d9"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_03.png",
+          "byte_length": 2595,
+          "sha256": "839244faab28e6ec71536940381be4210a6feea79051d5d309739d425d79f885"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_04.png",
+          "byte_length": 963,
+          "sha256": "1b1267b433da3f04efc7f3dd6b2a6300613e53eea7549c2d55cbec8449f54f5d"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_05.png",
+          "byte_length": 494,
+          "sha256": "56b501288b904b57e396f3b4766da04edc6202de724b15c8d6a3198db0156f03"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_06.png",
+          "byte_length": 176,
+          "sha256": "1f66daa80825f8ec2fd5084c5ae370135e984d543da8fb3036f832b612aa4a57"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_07.png",
+          "byte_length": 149,
+          "sha256": "885bae9144832d7b8c5199b7db6552931a9eff68e6e6e7ce4fc453c6e93180e3"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.09/mip_08.png",
+          "byte_length": 120,
+          "sha256": "4e6a841d732b8b406142878639bb08303f63e63ad7935d986fb83cdcd98d184f"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.10",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.10.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "80c0522aeba44f45e11cfde3e09a78ebf4747ef31ca1e1085f0410fcaa7e52cc",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.10",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_00.png",
+          "byte_length": 108599,
+          "sha256": "40ce31a9aa664a412d8c32bf72a87cbf78894a900a154cc07aacc437dfe9a9dd"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_01.png",
+          "byte_length": 30966,
+          "sha256": "0811763f85480b76a5d4a3fe5c48a2256b7c4ab098a4b012d58e187dc8bfd5a9"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_02.png",
+          "byte_length": 9353,
+          "sha256": "cd84cb67eb4fbd702023832ea668b554c77fae159a346ceb1ddb8ec0832dbeca"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_03.png",
+          "byte_length": 2983,
+          "sha256": "15845a895a38cfca142bc04666e376d40f040f8049dda20e015b69a16e81f1d2"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_04.png",
+          "byte_length": 997,
+          "sha256": "f003203f30ad08cc336d59fccedd18943eb46b90cf63ecfe3f049a19a7d8c442"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_05.png",
+          "byte_length": 471,
+          "sha256": "370ca6f0caee78a737d78b077e767c844011d8f63a08025eff38335438d4f8e2"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_06.png",
+          "byte_length": 180,
+          "sha256": "f16a6fc168e32f2e9abaa6c1c15d310a3834af8d41e04afc1df78f5ab7e675ff"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_07.png",
+          "byte_length": 140,
+          "sha256": "d03f574fef02af47c88207dca9318d2ab936b143535c36ec8d1c9f470c2de18b"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.10/mip_08.png",
+          "byte_length": 120,
+          "sha256": "2bafa9f6bd13361e9c2d0302947b8b9e72c9a9744b6ebb0baafdd09806c60321"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.11",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.11.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "ff95b41731b36aebc85d952362ba638aba1785035c3902d14a29a48a355ec461",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.11",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_00.png",
+          "byte_length": 106630,
+          "sha256": "429105b0277938bf416a5b7e283d7981c4728097ee699201c712df254e747e07"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_01.png",
+          "byte_length": 31642,
+          "sha256": "f2e284e130c88aa572ede063ae80dcc7d0eaf8e0819062e3a8c3bd3ced09d6c3"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_02.png",
+          "byte_length": 9506,
+          "sha256": "f95998780d02a819050317bdcb4f61d462b4a0933d51b4c6f7aa739a5585c047"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_03.png",
+          "byte_length": 2964,
+          "sha256": "88a5ea1d904b8def1a1d53ddf47ab8d8b5f708eaf96523db08909119a3842a6b"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_04.png",
+          "byte_length": 955,
+          "sha256": "7cc9af3416a1a9a073a33b620fcabec194f5c9b893d974506602e306547802e2"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_05.png",
+          "byte_length": 466,
+          "sha256": "8210eafa1a408234fdee790425e829e98a90945a1f4f43b3e65da8327d67fd8a"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_06.png",
+          "byte_length": 177,
+          "sha256": "f4bcf699685bce5f5bc51050ffa96fa38306ebeb498362795b716fa51e86f43a"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_07.png",
+          "byte_length": 139,
+          "sha256": "30c97199979cdef79976d868e1e00adbc944e67942ebb6b61e39094f8db826fe"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.11/mip_08.png",
+          "byte_length": 120,
+          "sha256": "15aa6999b874a0141e710fc86775044cb62a9e714dfd8e5cb19000e89ba2209a"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.12",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.12.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "736e01a204bb49fe72c0ecd54892974ef5db11166f29f2d38a4d9b520f7571c6",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.12",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_00.png",
+          "byte_length": 120047,
+          "sha256": "920a5bec9507c7739c83a1b51702cf302268a1e454b0693be58c6283856253cd"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_01.png",
+          "byte_length": 33727,
+          "sha256": "9718647109fb5538c010632c62498d9198d5a1b753786f68f59052bf8a4220c6"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_02.png",
+          "byte_length": 9106,
+          "sha256": "adcdf4639a6f6ed5e5767263b3ffeda24913865343bf6e4ea96547adb4671622"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_03.png",
+          "byte_length": 3160,
+          "sha256": "fc24b1663b353dd150da85e4adb2323ecb0c8e843dfa9905a70ea718d4ec5620"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_04.png",
+          "byte_length": 1181,
+          "sha256": "fb00970ec17fad440bd3fe726e4fb348baaf28ec2b3fe71066d1e23d457c4f6a"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_05.png",
+          "byte_length": 436,
+          "sha256": "f046a3baef47f05b836dcf441619cff87c64c3fff0b86d0d65ce5a1540fa795d"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_06.png",
+          "byte_length": 177,
+          "sha256": "5e22a5601e3ec2b63eac4761b61e3df7d748c2b968802adbab64d73efba141ca"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_07.png",
+          "byte_length": 151,
+          "sha256": "4481c3821fb1aa7ea3792611275cac08eef2ad63e50e8d49edb1e205111c15c7"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.12/mip_08.png",
+          "byte_length": 120,
+          "sha256": "551f57ce72256dae0e6c70c5002ff0389c39381f98f5fdbb3c29795a63822199"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.13",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.13.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "c2434cfed5bf7813902bc3ebdf5a13ec7333412b380ba59f7b386d0d24cc29a3",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.13",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_00.png",
+          "byte_length": 89859,
+          "sha256": "f34e3f7c652a7d2e23369860cd24a9fa920e9d6e9d749efd781a73b2a4ed38ee"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_01.png",
+          "byte_length": 26373,
+          "sha256": "5ec5adb38fd65234b5065ff59b0fc498edc9159f5a78b596bad0f0378a847aa6"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_02.png",
+          "byte_length": 8070,
+          "sha256": "b8013a777e055d71a98954ed36abe1e54e70e46e8604554c82f81985808c3c85"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_03.png",
+          "byte_length": 2595,
+          "sha256": "438da0ec8780dbc58c127f621195a6b5f45f280f93528915f29b04bcfafb5ac5"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_04.png",
+          "byte_length": 1037,
+          "sha256": "0e97b44ad92614599f6af014e2f6e388c07860bafa6767332f391abeb7cfd05a"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_05.png",
+          "byte_length": 475,
+          "sha256": "41c1f2f1e15620fb33e7d0d3ea31db1f2503300927d82a8f5e72c374417e0310"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_06.png",
+          "byte_length": 190,
+          "sha256": "8ffb8083a264a6bd2434205d0f89a65c68e0c78323d2949a15831771be62e291"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_07.png",
+          "byte_length": 137,
+          "sha256": "74f6924fea2f33d25d428549dc6ae0ed7d33976dd761fae5d31b5ec61e69a35b"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.13/mip_08.png",
+          "byte_length": 120,
+          "sha256": "5a97758e47085a72f013b21017906a8451d2dbc40743e605143e208ac1eb23e4"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.14",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.14.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "06c903b5495adb70715323a4bfccbf8b05d33f878d0a88fe2b92ed7b5382dbf1",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.14",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_00.png",
+          "byte_length": 100500,
+          "sha256": "1b6f44caafb2a0d3a4b2be63e7627c29432b7e589149bb085397329ff81c8892"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_01.png",
+          "byte_length": 28363,
+          "sha256": "a1789fb3150979077f407ae5b0b8e3b82b13190ca9dc72c83e6ab555c0a54a81"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_02.png",
+          "byte_length": 8913,
+          "sha256": "bb265e97d8de763f426962f7f2f4675a3b2819c7730035c5d9d6c3ccd0d24440"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_03.png",
+          "byte_length": 2773,
+          "sha256": "f9feef25de11eb5446eebec36e960c78d12b97e0b8f65f3a05039a88d4979fa2"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_04.png",
+          "byte_length": 1225,
+          "sha256": "19b4a3bc2b89d72e08a4f1894ac579151cc55ae361ef9f1d7ea4853dd2db007c"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_05.png",
+          "byte_length": 469,
+          "sha256": "ff2c34adedbdbd8c845430ff073c674dd6743fb12d6217f9bf1b63344861e73a"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_06.png",
+          "byte_length": 176,
+          "sha256": "54a9d61e0b6f2342d65784b4d349432ea2fddc5f443199c927df255c2f65eddc"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_07.png",
+          "byte_length": 137,
+          "sha256": "9a5b3e41db53ad150a902ac249fb98b896d310f2520a1593e22c50f109af41a6"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.14/mip_08.png",
+          "byte_length": 120,
+          "sha256": "3ee2d93c18f5b075f346a46526bf9e6cf0bc2e50c4da31e800b66fa6042e5593"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.15",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.15.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "c6d54342d952d98c73860e344e8fd7efbe9d4863aadb031db72a9a3820733d5a",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.15",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_00.png",
+          "byte_length": 88743,
+          "sha256": "81f904f2cad6f5a285a12226ceaeab69ab8c7a84f42f78720cd978220cec1ebc"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_01.png",
+          "byte_length": 25786,
+          "sha256": "fe0ffa4d622ba1d7dbc8b40d4ef1c860ff0fd4de3e214cbe7ef4c5f04186a66b"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_02.png",
+          "byte_length": 8275,
+          "sha256": "a1b143737c3b74183a07f5b9dc1afb52c2e4cccb6643939e1a228dae901d81ea"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_03.png",
+          "byte_length": 2724,
+          "sha256": "ed2858cc233746b8bba5475a7d3fa99134ca0cb6de2695a2c5b46eefc332a97b"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_04.png",
+          "byte_length": 955,
+          "sha256": "027304580b3dfbe894daf1c2fd4bde5d3e48cd04cd32b03d3643a5a94bcf058d"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_05.png",
+          "byte_length": 426,
+          "sha256": "cbc69e099062e9647b3ea9e0b42ee0cb669fd4be458b12b5d65f6fcaba60d4d8"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_06.png",
+          "byte_length": 195,
+          "sha256": "3a7f14f3282317def7fcada1bf5998c51b403fcbb7bf614ecef938c3b069f1e5"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_07.png",
+          "byte_length": 146,
+          "sha256": "76da9fd918781265d138edb1ea0b64d05f8389b7d0eee989b5550ff2ebf4060d"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.15/mip_08.png",
+          "byte_length": 120,
+          "sha256": "6484b5c3670f42b38da54fdb0ed7eed6fb1aae661309359fb49c1a148d1db81f"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Alb.16",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Alb.16.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "cb6fc6efe2981b47c84bcbb84269394412b876d2781ed6f99ff4db8b1b8b8c36",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Alb.16",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_00.png",
+          "byte_length": 93401,
+          "sha256": "65bb0386b29654b3da4030b00ba192f94e27a899d7e4a63ca413bc05de56b5c2"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_01.png",
+          "byte_length": 27764,
+          "sha256": "2c44a657acefa6042f5781af7873fb2e207a450b4f7d628c9b675413a6604725"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_02.png",
+          "byte_length": 8502,
+          "sha256": "787b6d064dc86d378710672cb91189508cc6745776042273fe5c88e23a43e2b8"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_03.png",
+          "byte_length": 2707,
+          "sha256": "7d940c4531ddaf3e716b631df86b49438485690fc45eacdf6ebcaf97196117f8"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_04.png",
+          "byte_length": 1050,
+          "sha256": "c70dda3b9c40583fe72a0cd7d24af5128d9c563e5e822cead9f374990d0fe249"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_05.png",
+          "byte_length": 329,
+          "sha256": "5b0fa47c363565de1fab81617f9ded8619e3f3a857d918c3c4c76b6ec2137140"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_06.png",
+          "byte_length": 202,
+          "sha256": "9ab829f441b3aab01220b0927807fca17755b03105de849d884d86b1b542d4ee"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_07.png",
+          "byte_length": 139,
+          "sha256": "d01dd53e9324ea3f3eda58a164e1af177c86970265d9a6023c4def09b10cf30a"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Alb.16/mip_08.png",
+          "byte_length": 120,
+          "sha256": "4b1fa5d652afeb5df1e4f8019030ad0f43df50a1d5bf07ca545b06ca72f53d62"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Nrm",
+      "semantic_role": "tangent_normal_xy",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Nrm.bntx",
+      "source_byte_length": 258160,
+      "source_sha256": "7b156962752d44cbda999b3765dd4048b7d442def7466a4aac90986c20e7d2e0",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "BC5_SNORM",
+      "native_channels": "R,G,0,1",
+      "sampler": {
+        "material_sampler": "_n0",
+        "shader_sampler": "_n0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Nrm",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Nrm",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_00.png",
+          "byte_length": 42807,
+          "sha256": "7dd1ecd8c212ba59186d95be57382bf69d99b545e292dae642a924a1a0014faa"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_01.png",
+          "byte_length": 12989,
+          "sha256": "fc0f8a17b269c9f3ec7055414966637c851c32fe689178b0bc86adc0a188648c"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_02.png",
+          "byte_length": 4009,
+          "sha256": "a1b901b5fc8daa34b50178b023292ccf2c63237330c5991021dfbf9cab7a3e96"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_03.png",
+          "byte_length": 1318,
+          "sha256": "c519ef340260fc4ddbd62eb4a8fb369c70dba0acfa5c83b4d5440711430bff50"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_04.png",
+          "byte_length": 624,
+          "sha256": "dd9870ba2ca86a90867aca09843677a59092c7ef826721f4bde8d648949de07c"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_05.png",
+          "byte_length": 317,
+          "sha256": "9a039c799e7e4c2a0eba520c599bb30512f38e0b15488ab826b691438c304885"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_06.png",
+          "byte_length": 202,
+          "sha256": "d2ec87fef70c26610aa3472359e65a094d91ae120dc311a9a7f02db2eb477880"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_07.png",
+          "byte_length": 145,
+          "sha256": "b4b78f652639312ba7c0663b37514e673fb116be9cbbe08d11576110cb25c7bc"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Nrm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "34892f2f9e46733cfdac152185b51449ee69123355325fb1031684e3b9122b33"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Msk",
+      "semantic_role": "alpha_mask",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Msk.bntx",
+      "source_byte_length": 135280,
+      "source_sha256": "a992ab113d2283f58d9ab175b30f1fbb3e5e08ca39b47f8de430f1689d8b5402",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,R,R,R",
+      "sampler": {
+        "material_sampler": "_alp0",
+        "shader_sampler": "_alp0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Msk",
+        "runtime_texture_substitution": null,
+        "selected_program_sampler_status": "inactive_compiled_sampler_assignment"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_00.png",
+          "byte_length": 3072,
+          "sha256": "0312a2b9c769f90d3c034954b936703efa8d4a4d0a2c8921cb9abd72ba6062ef"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_01.png",
+          "byte_length": 1340,
+          "sha256": "b744d4b2a9e39900720346de3b8a3f99743c5f7caac073351fd4970268bc1119"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_02.png",
+          "byte_length": 649,
+          "sha256": "ff72c5efffc22753b89356198013b956bee494cb9e250a5919ad302a9d9baa09"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_03.png",
+          "byte_length": 344,
+          "sha256": "79f7ca2ccb8ce20469267f6265fc96b1da20f8e4e34e7c1cf6db334eb97f44c1"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_04.png",
+          "byte_length": 203,
+          "sha256": "eac4481f0ec253d31600195fd8b09a81ee09a93ce685cb5eeabfe6b2166675e5"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_05.png",
+          "byte_length": 164,
+          "sha256": "7a8e630c326849b86835980d73ac008952b562bc507ddc9f8f8291ae8953fe16"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_06.png",
+          "byte_length": 142,
+          "sha256": "57e67f7fd83c882a3061e0ce34af1a6f14d7d6fd60e2a6957c8561230c728c86"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_07.png",
+          "byte_length": 132,
+          "sha256": "502c1d586c0c145e0f800cc0acf952070ce36fbe40d8ad354672b80cce44972d"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Msk/mip_08.png",
+          "byte_length": 120,
+          "sha256": "de842fbea12baf1ac8568db26705c881604bc6aa1cc39c82d785997b8a98a951"
+        }
+      ]
+    },
+    {
+      "name": "ClothTopsTshirtLongTexDefault_Body_Mic",
+      "semantic_role": "material_information",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothTopsTshirtLongTexDefault_Body_Mic.bntx",
+      "source_byte_length": 118896,
+      "source_sha256": "5668bf5123a1a416593b30bd1c3dac3bad84745cb736b4e8c8b71ce1663d32fd",
+      "width": 384,
+      "height": 480,
+      "mip_count": 9,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,0,B,1",
+      "sampler": {
+        "material_sampler": "_r0",
+        "shader_sampler": "_r0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothTopsTshirtLong",
+        "model": "ClothTopsTshirtLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Rgh",
+        "runtime_texture_substitution": "ClothTopsTshirtLongTexDefault_Body_Mic",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 480,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_00.png",
+          "byte_length": 4191,
+          "sha256": "ad881a19c735e4f62f37adba542377b149890a6eae544b09ad4ddfe546c7367e"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 240,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_01.png",
+          "byte_length": 1218,
+          "sha256": "adfcce56047a5bf779038e91c87ee5d59283db4f56976157d4eba8be7b1f682d"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 120,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_02.png",
+          "byte_length": 469,
+          "sha256": "34d2f08413d19c822e7f697253300e1400362fda7625743b95b01cecc6b7ea25"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 60,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_03.png",
+          "byte_length": 257,
+          "sha256": "7c83ba1dfbbbd78e59c853b5a439d4e2e0e4e8aaa83cf46b15f78eff22610a68"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 30,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_04.png",
+          "byte_length": 179,
+          "sha256": "36633cd623200850f48d657f6c7a9b98f6e1bb79e1c5650ada196e707b0f0ec5"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 15,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_05.png",
+          "byte_length": 144,
+          "sha256": "b9949176590af8eb39556551edcff7db1f79421374a005cbd391e69975d7069d"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 7,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_06.png",
+          "byte_length": 140,
+          "sha256": "418b31b7442ddd0b8942472666439f76b27421bd2a44a73e48340e66c1d0984c"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 3,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_07.png",
+          "byte_length": 128,
+          "sha256": "a78823a5b5f77b5c7ec9ddaa72b9819a81fb0efa72eafda1e38fee05343a4a04"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothTopsTshirtLongTexDefault_Body_Mic/mip_08.png",
+          "byte_length": 120,
+          "sha256": "8b9cc43519509eece4aa613fbd111dac17290969537096eb752763b4ea93cce7"
+        }
+      ]
+    },
+    {
+      "name": "ClothBottomsPantsLongTexDefault_Body_Alb.00",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothBottomsPantsLongTexDefault_Body_Alb.00.bntx",
+      "source_byte_length": 73840,
+      "source_sha256": "2a318579c387382dfcaf97a58ba3e78084887e6856537dffbdbeb76a0991ea79",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothBottomsPantsLong",
+        "model": "ClothBottomsPantsLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothBottomsPantsLongTexDefault_Body_Alb.00",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_00.png",
+          "byte_length": 6260,
+          "sha256": "cd45a1192184749c807d08a70bb5773c67ec7d5eafdebb05299b9255e6b6df5c"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_01.png",
+          "byte_length": 2229,
+          "sha256": "38419eec3ea92312681eceec6b7069bdb0d5056c92d997d6a6c883082eb1b308"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_02.png",
+          "byte_length": 1116,
+          "sha256": "bd89aad3476e46d7506d0ca2b9ff6f26cdda814dad91d99e9ccaca6534dc6282"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_03.png",
+          "byte_length": 706,
+          "sha256": "e03cef0613290b48dbf8ba17426752e36e50132f8e7f69291a5979feaf026aa0"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_04.png",
+          "byte_length": 463,
+          "sha256": "3e97e05152eb9bdeaefd5ffb5e7b67cab3e1fffd7cc45e0eb7357d3146486c10"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_05.png",
+          "byte_length": 266,
+          "sha256": "3a23999342f11f5b04e6f6413c5f2992f40f1ba81193a81e4716db0ea8071fb6"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_06.png",
+          "byte_length": 157,
+          "sha256": "73708cfb61c436dcd97678e4f00dbd33fde29c39cdbd4fed6ec7c443245eb074"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_07.png",
+          "byte_length": 140,
+          "sha256": "224d052f090b0beed809c8858c468cacb2de1595d56b56fe2191c9449de88941"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.00/mip_08.png",
+          "byte_length": 120,
+          "sha256": "19ccee0431bd014b4d181bde729c7d5a7ed7b769473c4562820cfe030c4f308b"
+        }
+      ]
+    },
+    {
+      "name": "ClothBottomsPantsLongTexDefault_Body_Alb.10",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothBottomsPantsLongTexDefault_Body_Alb.10.bntx",
+      "source_byte_length": 73840,
+      "source_sha256": "b900e33874af47360bbf0d0e40c67bec005b16bbb489188b3de83a8e0fd94378",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothBottomsPantsLong",
+        "model": "ClothBottomsPantsLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothBottomsPantsLongTexDefault_Body_Alb.10",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_00.png",
+          "byte_length": 6757,
+          "sha256": "9d7ef8c473c4b9790cdb30a3e3aef2eb1bc3025dfea4d09e2e78d11250d02b95"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_01.png",
+          "byte_length": 2475,
+          "sha256": "c6bcd985cf35162e54009ce4aefe7005446a4a82b4068c4c522f4e1190c7d140"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_02.png",
+          "byte_length": 1169,
+          "sha256": "83260ef2da406d9d716b4932ef7d1a1d6b05430f8c668b28441c689e21dc2819"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_03.png",
+          "byte_length": 850,
+          "sha256": "47ecbadb5cc8b59b917858ce86db1ccf8ac003fa78442f293fe476cdef64d8bf"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_04.png",
+          "byte_length": 470,
+          "sha256": "58a0dd654676fb19cdc84ece8d00f1a7d43d118e073d4f5fe067e09921d33628"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_05.png",
+          "byte_length": 257,
+          "sha256": "125ecc19159cd91ae829cd71c2ecd031f6e487f62ef467f037522ca44a9adebd"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_06.png",
+          "byte_length": 159,
+          "sha256": "edd3756f760a3faa4decd01aef8db273a78d266e4b6ccd0e8012a24fc000da6a"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_07.png",
+          "byte_length": 138,
+          "sha256": "37fcd46474e5e171fe6539e4e72dc35febbe33b079320d02caf2070b61ad5a16"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Alb.10/mip_08.png",
+          "byte_length": 120,
+          "sha256": "c5a4d6311749f5cbb4455943e7c70a6b79d76989d19b73bc309e40dc88fe9c7d"
+        }
+      ]
+    },
+    {
+      "name": "ClothBottomsPantsLongTexDefault_Body_Nrm",
+      "semantic_role": "tangent_normal_xy",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothBottomsPantsLongTexDefault_Body_Nrm.bntx",
+      "source_byte_length": 163952,
+      "source_sha256": "060b3787120142e717989ff2b9881fc27f6ce85f7d580facbc6c9e5647a0d727",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "BC5_SNORM",
+      "native_channels": "R,G,0,1",
+      "sampler": {
+        "material_sampler": "_n0",
+        "shader_sampler": "_n0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothBottomsPantsLong",
+        "model": "ClothBottomsPantsLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Nrm",
+        "runtime_texture_substitution": "ClothBottomsPantsLongTexDefault_Body_Nrm",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_00.png",
+          "byte_length": 21239,
+          "sha256": "94db93692b4ec2677ca606037db80d906bf8ed14dd936161843f7c08aa79c61b"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_01.png",
+          "byte_length": 7297,
+          "sha256": "ac2ec71e647c2e3213768a93f527fb9920d2664e9f6dd8c7980e27a17f978f80"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_02.png",
+          "byte_length": 2415,
+          "sha256": "5b4b61fb495eb16dd420e4517d1a615a79b89d2f4ddcac4e226bcac912b469a6"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_03.png",
+          "byte_length": 911,
+          "sha256": "1e26dcc9b3c9337390448f98fc969e2a542f623727fa6b2e4e04d95ed3140b5e"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_04.png",
+          "byte_length": 461,
+          "sha256": "a4ffe30195cef33d61f656ee5e3e313c832eb0855562e45a9d83722f0df2a76e"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_05.png",
+          "byte_length": 268,
+          "sha256": "4cc8be456e7c6feb6a5d20dd5078e1625a44f2f22142895cfb8d95e14a655e95"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_06.png",
+          "byte_length": 170,
+          "sha256": "ea663cd61c87fd223fab0901bb44134acafc89bb3c9690015a58f557c3b31ad8"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_07.png",
+          "byte_length": 139,
+          "sha256": "3b4f43def6cf050a962b0736844ab617cc1fd861dc70d7b75ee140f372c3caa5"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Nrm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "5d11f83d3e80a19cfc39f37d481158161a0523285159a07e21d7bef8b705a737"
+        }
+      ]
+    },
+    {
+      "name": "ClothBottomsPantsLongTexDefault_Body_Msk",
+      "semantic_role": "alpha_mask",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothBottomsPantsLongTexDefault_Body_Msk.bntx",
+      "source_byte_length": 86128,
+      "source_sha256": "6734d72a2a77fcf25e4e08d344c792ba37bcf50d7cf6f210b1ca4a16eaf850c4",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,R,R,R",
+      "sampler": {
+        "material_sampler": "_alp0",
+        "shader_sampler": "_alp0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothBottomsPantsLong",
+        "model": "ClothBottomsPantsLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Msk",
+        "runtime_texture_substitution": null,
+        "selected_program_sampler_status": "inactive_compiled_sampler_assignment"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_00.png",
+          "byte_length": 1140,
+          "sha256": "c9f319023c003fcdf851f80f80ea7f341d187c68d661d40a637ff40075ad92ab"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_01.png",
+          "byte_length": 509,
+          "sha256": "60b4c55b8ea844ca13d659e064721710df94a8b5fe5237ce914c466bb30c17cd"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_02.png",
+          "byte_length": 287,
+          "sha256": "ee96073104f661046747c2e39da1e8a3d1ed45dfa53520252427d345f4894c16"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_03.png",
+          "byte_length": 173,
+          "sha256": "1b4578b537eb97a6365b109c71271958cb87cac0bdd4d6003e2e7cb824cca108"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_04.png",
+          "byte_length": 146,
+          "sha256": "8c36eb778ac752ae4ce14bc5ddc3d31778df0b28b3f3fa719e9d0918e439d4fe"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_05.png",
+          "byte_length": 130,
+          "sha256": "15c695f7f3c9fb7d3d461333415b3e541f883fc567b49f348117a5a166cdc55b"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_06.png",
+          "byte_length": 125,
+          "sha256": "1689ab7a6d08148347abc3999953734c8fb716ec6197496d5fc2032165c651ae"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_07.png",
+          "byte_length": 121,
+          "sha256": "62494e1ac0399273341a93d3ed00f5898094a79333e94bcf91a5bc29669cc37b"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Msk/mip_08.png",
+          "byte_length": 120,
+          "sha256": "8d6a5297038c59e6e1243a7f7614a6bee5ef2d3525775761dacbfde3f39bd4db"
+        }
+      ]
+    },
+    {
+      "name": "ClothBottomsPantsLongTexDefault_Body_Mic",
+      "semantic_role": "material_information",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothBottomsPantsLongTexDefault_Body_Mic.bntx",
+      "source_byte_length": 8304,
+      "source_sha256": "1eca54cd03937d955cc649dfab004173bda5ef9b926d1bf23cc5ece68ba4a465",
+      "width": 8,
+      "height": 8,
+      "mip_count": 4,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,0,1,1",
+      "sampler": {
+        "material_sampler": "_r0",
+        "shader_sampler": "_r0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothBottomsPantsLong",
+        "model": "ClothBottomsPantsLong",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Rgh",
+        "runtime_texture_substitution": "ClothBottomsPantsLongTexDefault_Body_Mic",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Mic/mip_00.png",
+          "byte_length": 126,
+          "sha256": "ef36b6025c3548a5d035b22d93a15d7ff5ea4e04352ef5f89bd717c7c7862e91"
+        },
+        {
+          "level": 1,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Mic/mip_01.png",
+          "byte_length": 122,
+          "sha256": "710e50334b6604cbbb9c00953b4ab2610b506a419e65429fa3c0946ceac8d9f2"
+        },
+        {
+          "level": 2,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Mic/mip_02.png",
+          "byte_length": 121,
+          "sha256": "05c218270c2b2011372507266fa5d4f8d234a911165be8d33396073242b7c2a6"
+        },
+        {
+          "level": 3,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothBottomsPantsLongTexDefault_Body_Mic/mip_03.png",
+          "byte_length": 120,
+          "sha256": "8d6a5297038c59e6e1243a7f7614a6bee5ef2d3525775761dacbfde3f39bd4db"
+        }
+      ]
+    },
+    {
+      "name": "ClothShoesStandardTexDefault_Body_Alb.00",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothShoesStandardTexDefault_Body_Alb.00.bntx",
+      "source_byte_length": 57456,
+      "source_sha256": "cd29a1b841c1b6c36feaa1d076ffd804832b663e5e327bc4d285caec475e2237",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothShoesStandard",
+        "model": "ClothShoesStandard",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothShoesStandardTexDefault_Body_Alb.00",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_00.png",
+          "byte_length": 9203,
+          "sha256": "836a3655ea2d681bd559b3b364ba23e06e19f68c4ee612821acb6a079a361fdb"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_01.png",
+          "byte_length": 3808,
+          "sha256": "87854f740378cb8cbf45b8a7094a05497745fa1cf4a57a00a4943d00f762a8b2"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_02.png",
+          "byte_length": 1542,
+          "sha256": "7157e7dd85483623407f6a6ad7692850b346feb7bce0aefeb68d4eed3575ad5e"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_03.png",
+          "byte_length": 823,
+          "sha256": "f37762a957442d5fbbf8ade5e93fc16bb88e00dcb1fea533bad8af1ff644ca22"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_04.png",
+          "byte_length": 387,
+          "sha256": "7ee0ae38b85efbf65b3dd71aae03aa29b0cf572e53e3dea7f9d52e0b8664916f"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_05.png",
+          "byte_length": 232,
+          "sha256": "0b1c2c39a9421b887e78bc74c82d0f8c22af0f7062d4237725a4caa0a8815354"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_06.png",
+          "byte_length": 154,
+          "sha256": "25102d61fe9075acf2a0cf2b52c32a6ffd4b9823d1d61c2f43c06f8de3a3642c"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_07.png",
+          "byte_length": 136,
+          "sha256": "32cf3c68f4411895f79af4b7607af0ed43408c1d6a9260499fc5eaa72c869170"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.00/mip_08.png",
+          "byte_length": 120,
+          "sha256": "a0c40218d90a1df56f7eef0d6e516a21f73dee1f8807e6d80a4758a2bca0307b"
+        }
+      ]
+    },
+    {
+      "name": "ClothShoesStandardTexDefault_Body_Alb.10",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothShoesStandardTexDefault_Body_Alb.10.bntx",
+      "source_byte_length": 57456,
+      "source_sha256": "bb15f8604f3c2e0d103f91a13f78d159d3448272429cfb935a622667a640e0c8",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothShoesStandard",
+        "model": "ClothShoesStandard",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Alb",
+        "runtime_texture_substitution": "ClothShoesStandardTexDefault_Body_Alb.10",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_00.png",
+          "byte_length": 11168,
+          "sha256": "d30d30870f9e93a1a36752af5a0b4295f4c78c276f34f6349310630e1ada10c7"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_01.png",
+          "byte_length": 4497,
+          "sha256": "48f58fdd0be06ec8fce2c510e87ebab187026e78bf2a4ef7eac510dc2904fe55"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_02.png",
+          "byte_length": 1822,
+          "sha256": "33e2004d86603b758f0f8e32ac9f601b08510bc459c34f8e78a488623dc9b799"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_03.png",
+          "byte_length": 779,
+          "sha256": "39fecf2f5507f37a4bbf80cb0377ac84530529a9f9b3cf6d71f35166e6f904ba"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_04.png",
+          "byte_length": 424,
+          "sha256": "899c56e39f20a387d1a14027a4291beb56fae88894e186b4495eb88582a91d28"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_05.png",
+          "byte_length": 210,
+          "sha256": "47ebcda0bbad58649efd802461c47b1364adf8eeb42ab01e516f39d09b31a4b0"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_06.png",
+          "byte_length": 150,
+          "sha256": "12afb1cd320c564d2f6ceba2eee76969d91464726ef0f553c6c3edd4195df531"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_07.png",
+          "byte_length": 136,
+          "sha256": "4b6f47d68ddb29cd3e840199bb8c036788a3e663c4fbd3c9f94b4d549cad7a08"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Alb.10/mip_08.png",
+          "byte_length": 120,
+          "sha256": "23a1019c34a13a76b4f5848fee76469b01e2fb577a72057596e3f32cdb68f02e"
+        }
+      ]
+    },
+    {
+      "name": "ClothShoesStandardTexDefault_Body_Nrm",
+      "semantic_role": "tangent_normal_xy",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothShoesStandardTexDefault_Body_Nrm.bntx",
+      "source_byte_length": 94320,
+      "source_sha256": "9503d8d7e86f2ca3dae26770688b022084eb58f69ceac3f84d749e6fd7deb553",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "BC5_SNORM",
+      "native_channels": "R,G,0,1",
+      "sampler": {
+        "material_sampler": "_n0",
+        "shader_sampler": "_n0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothShoesStandard",
+        "model": "ClothShoesStandard",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Nrm",
+        "runtime_texture_substitution": "ClothShoesStandardTexDefault_Body_Nrm",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_00.png",
+          "byte_length": 16782,
+          "sha256": "ede2676421978a2c05b0d1d118fac23089b48e570ac8e13ca1a7dc812a9a7fd2"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_01.png",
+          "byte_length": 5874,
+          "sha256": "372c7ab356f2ebacadf479dc704dae9d1d3d1872a2e87e5f1cdd5864dc895787"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_02.png",
+          "byte_length": 2016,
+          "sha256": "776e1dfbea14774b740d408806359c1b299e6f70d76f80e1741887269d85e89d"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_03.png",
+          "byte_length": 865,
+          "sha256": "c9df3ce06fc76964de7e388d796f6fc4d7d8600a82312485ce8cb80bc6513bd0"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_04.png",
+          "byte_length": 368,
+          "sha256": "35cfee72becc538427139cbc9ce8b53725cf1d42c33c7e9e0375044cf1d13b38"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_05.png",
+          "byte_length": 206,
+          "sha256": "5d1ca77d329efc6030d5815c0610cabafd5aa3a0076eb5b5cf34d6b80c2851e0"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_06.png",
+          "byte_length": 155,
+          "sha256": "d8703ff03322fbe92dd38614d063db64496b06304fa2cf6b3d043773a79a40e0"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_07.png",
+          "byte_length": 127,
+          "sha256": "ecefc14893213870652a29bc19d79382ec4203907716cf02222278a933a56dd6"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Nrm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "961f8f15d1f5fa871427602c4df297c9a4cc1157c73c24285797dfe434da83c5"
+        }
+      ]
+    },
+    {
+      "name": "ClothShoesStandardTexDefault_Body_Mic",
+      "semantic_role": "material_information",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothShoesStandardTexDefault_Body_Mic.bntx",
+      "source_byte_length": 57456,
+      "source_sha256": "35362c487b0d7b3ffe08a5fde0b1236ffdd786fad8357146273b62ae3f20ebdc",
+      "width": 256,
+      "height": 256,
+      "mip_count": 9,
+      "format": "ASTC_6x6_UNORM",
+      "native_channels": "R,0,B,1",
+      "sampler": {
+        "material_sampler": "_r0",
+        "shader_sampler": "_r0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/reference_outfit_material_state.json",
+        "resource": "ClothShoesStandard",
+        "model": "ClothShoesStandard",
+        "material": "mt_Body",
+        "serialized_texture_ref": "Dummy_Rgh",
+        "runtime_texture_substitution": "ClothShoesStandardTexDefault_Body_Mic",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 256,
+          "height": 256,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_00.png",
+          "byte_length": 2371,
+          "sha256": "81b567686cff92d5469c5b69037b0c9f75899e3cb3c06a55fd6a4fb3e53f64fe"
+        },
+        {
+          "level": 1,
+          "width": 128,
+          "height": 128,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_01.png",
+          "byte_length": 829,
+          "sha256": "ca92b19d63228b068f4c3cc040abb2696042791770ae2b583fb9727c88a5a2c0"
+        },
+        {
+          "level": 2,
+          "width": 64,
+          "height": 64,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_02.png",
+          "byte_length": 385,
+          "sha256": "c82f769f77526b3869e2657a775d51282a485083703aa05b8240a8f7c01e17fb"
+        },
+        {
+          "level": 3,
+          "width": 32,
+          "height": 32,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_03.png",
+          "byte_length": 192,
+          "sha256": "e69b91609c93f04546a2a0fd0719494943ff3148dd3366276ac51227253cc361"
+        },
+        {
+          "level": 4,
+          "width": 16,
+          "height": 16,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_04.png",
+          "byte_length": 167,
+          "sha256": "8c3cc6957491d054d32f71760f70aa3651c88573096485c9ebed1268649eaaf4"
+        },
+        {
+          "level": 5,
+          "width": 8,
+          "height": 8,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_05.png",
+          "byte_length": 140,
+          "sha256": "bacfb721bf106d967b9e5b620f94ed93748eb7fadb44334a1b478856b52449e7"
+        },
+        {
+          "level": 6,
+          "width": 4,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_06.png",
+          "byte_length": 129,
+          "sha256": "a25426ef46afaaa3642a79bca3f5cb045492be04329f1b0f35e1cfec5b468e8e"
+        },
+        {
+          "level": 7,
+          "width": 2,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_07.png",
+          "byte_length": 126,
+          "sha256": "dae75ccbc52e33aacfa1a70953ae91f77e06f89b4dd5c11b739186331b89a791"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothShoesStandardTexDefault_Body_Mic/mip_08.png",
+          "byte_length": 120,
+          "sha256": "db61799f2598507b1333eb29337e2c91e8000f643a0914e695885c277722bef3"
+        }
+      ]
+    },
+    {
+      "name": "ClothSocksBodyBaseTexDefault_Socks_Alb.00",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothSocksBodyBaseTexDefault_Socks_Alb.00.bntx",
+      "source_byte_length": 73840,
+      "source_sha256": "8b44ebced35fbafa05a255d04a15c63ce385df273c033cfb460ed7779879c251",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/body_material_state.json",
+        "resource": "BodyBaseDefault",
+        "model": "BodyBaseDefault",
+        "material": "mt_Socks",
+        "serialized_texture_ref": "BodyBaseDefault_Socks_Alb",
+        "runtime_texture_substitution": "ClothSocksBodyBaseTexDefault_Socks_Alb.00",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_00.png",
+          "byte_length": 8692,
+          "sha256": "41e9698d0c85dbb714ff83b4fb439c6e926afd73fa39b68a41669c36a35d1af8"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_01.png",
+          "byte_length": 4092,
+          "sha256": "31d1e93ce19f1793f2f04208570aa2ae4dc4dd494d744cbbe4d21a8ae53e2f5e"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_02.png",
+          "byte_length": 1631,
+          "sha256": "935b5468fc871dd9637b49f0089d5a58ec2ae485bfea35024eb47c3b2fbfe93f"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_03.png",
+          "byte_length": 552,
+          "sha256": "9a5ae496977cd7db034d5740220a56e2df13ec8b97120af2fce29ecdf2e94699"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_04.png",
+          "byte_length": 335,
+          "sha256": "7e29af5a84b38f8e8a906610fb664e459fb3272a42225fc39c79860705773848"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_05.png",
+          "byte_length": 178,
+          "sha256": "896eef7b109ae7bb451b8ef10955fed31e46ff47d41f3f53818b2eab2e4a3e9d"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_06.png",
+          "byte_length": 148,
+          "sha256": "84f870ba56d91957e6b316eb1821301efa2398df9e1f3129310780699c1f760c"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_07.png",
+          "byte_length": 132,
+          "sha256": "97fbbf797326fc60c5d881b245c555a9120bc447d72a7b38bf57f4b700d44c5a"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.00/mip_08.png",
+          "byte_length": 120,
+          "sha256": "4980f53c19b623f83e83117375f6b993e0c31b9dcc0a3121d4f8e1f01f3ff24d"
+        }
+      ]
+    },
+    {
+      "name": "ClothSocksBodyBaseTexDefault_Socks_Alb.10",
+      "semantic_role": "albedo",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothSocksBodyBaseTexDefault_Socks_Alb.10.bntx",
+      "source_byte_length": 73840,
+      "source_sha256": "70122ed5ff5079515b385155b2f7f2cc6ba97ae97a23951a25d63fec0b32d226",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "ASTC_6x6_SRGB",
+      "native_channels": "R,G,B,1",
+      "sampler": {
+        "material_sampler": "_a0",
+        "shader_sampler": "_a0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/body_material_state.json",
+        "resource": "BodyBaseDefault",
+        "model": "BodyBaseDefault",
+        "material": "mt_Socks",
+        "serialized_texture_ref": "BodyBaseDefault_Socks_Alb",
+        "runtime_texture_substitution": "ClothSocksBodyBaseTexDefault_Socks_Alb.10",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_00.png",
+          "byte_length": 10486,
+          "sha256": "de84019fbcc5bb1b2cd37559e3a3a42d70f7a97e389f1fb12deaca352b81ae19"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_01.png",
+          "byte_length": 6090,
+          "sha256": "dcdcfc7fe23c86f61fb1616d6844ae2e98044e591bac521e13a3169fdecd3095"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_02.png",
+          "byte_length": 2396,
+          "sha256": "9ef62ca33720376b90df90b8fce7b8ba95a22301cf060c02e8d80aef7c63e134"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_03.png",
+          "byte_length": 749,
+          "sha256": "197f8a2b4b535bc36422cbb6fb17e3dae20870d7a39359c920c608ee969282e0"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_04.png",
+          "byte_length": 322,
+          "sha256": "23a2eb9b7867e5359344ac56d565639a385d48904cb56039010ea3690b10dd43"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_05.png",
+          "byte_length": 237,
+          "sha256": "36b19665fbb2eb8423ac7aef3f2650d990fb0f696d24603defdaaaebd1bb9fb7"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_06.png",
+          "byte_length": 143,
+          "sha256": "dc26a6f1efd3fc1d2c6fd6ceace67041bc140f88a6f5c9d13156172a31ed60ae"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_07.png",
+          "byte_length": 128,
+          "sha256": "4c9b32c09bf3c0efd66c0a8eed02d95e2872fcba69259d2cabd642bf3868f18b"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Alb.10/mip_08.png",
+          "byte_length": 120,
+          "sha256": "0762345d2060d2d1cfb9a65f985a2d0770a16ac9818d12b18f1563811b3af930"
+        }
+      ]
+    },
+    {
+      "name": "ClothSocksBodyBaseTexDefault_Socks_Nrm",
+      "semantic_role": "tangent_normal_xy",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothSocksBodyBaseTexDefault_Socks_Nrm.bntx",
+      "source_byte_length": 163952,
+      "source_sha256": "f711ad95bc71227c70b7dfb87b6a7e4f2021f69474d9bbfec116003623b6ec60",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "BC5_SNORM",
+      "native_channels": "R,G,0,1",
+      "sampler": {
+        "material_sampler": "_n0",
+        "shader_sampler": "_n0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "point",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 1,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/body_material_state.json",
+        "resource": "BodyBaseDefault",
+        "model": "BodyBaseDefault",
+        "material": "mt_Socks",
+        "serialized_texture_ref": "BodyBaseDefault_Socks_Nrm",
+        "runtime_texture_substitution": "ClothSocksBodyBaseTexDefault_Socks_Nrm",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_00.png",
+          "byte_length": 16620,
+          "sha256": "d1b700ee3d78a98915af5028b1c8080abeff450fd2e58348116397087be3df15"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_01.png",
+          "byte_length": 5570,
+          "sha256": "2330717cb74a85fbc390d6e823aae8555447d9e82aeae98a99e6564bfaee13fd"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_02.png",
+          "byte_length": 1995,
+          "sha256": "d177c85bcdc41766560569413e090447f6ed921b44493aea66d0ee6408db1086"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_03.png",
+          "byte_length": 710,
+          "sha256": "69515da7d3a16f0bb07963ca764a39d20f55a604760b01a6e4d3dd3adce127f2"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_04.png",
+          "byte_length": 344,
+          "sha256": "393d7cf0f9e9a8b7eb63331d355486c3a540fbc802f4eea27c152f278b5a820b"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_05.png",
+          "byte_length": 200,
+          "sha256": "ed03ad610f1aa9b97391437da7fb20e8dba3ea3fa9987632960ed6836875108f"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_06.png",
+          "byte_length": 144,
+          "sha256": "596a171f91dcf57ad90a5bed0994299c1839ac722e105b0c5af383e731a2ef52"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_07.png",
+          "byte_length": 132,
+          "sha256": "afe3d75a0af2d04dfaddd983bb76a353ef6350067e9c75743bb5e84a0e9f5221"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Nrm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "0cb9a66f5e4a6b91abe1a4302bb5f6dbef7bb028e213dff48f413a7acc942163"
+        }
+      ]
+    },
+    {
+      "name": "ClothSocksBodyBaseTexDefault_Socks_Skm",
+      "semantic_role": "skin_mask",
+      "source": "../ltdDemo_converted_assets/decompressed/1/Tex/ClothSocksBodyBaseTexDefault_Socks_Skm.bntx",
+      "source_byte_length": 86128,
+      "source_sha256": "59fdd5c92511680e0a1f03d50430fd6355fc1715d991ef946805c7757e3c5cb6",
+      "width": 384,
+      "height": 288,
+      "mip_count": 9,
+      "format": "BC4_UNORM",
+      "native_channels": "R,R,R,R",
+      "sampler": {
+        "material_sampler": "user0",
+        "shader_sampler": "_user0",
+        "min_filter": "linear",
+        "mag_filter": "linear",
+        "mipmap_filter": "linear",
+        "wrap_u": "clamp",
+        "wrap_v": "clamp",
+        "wrap_w": "clamp",
+        "max_anisotropic": 2,
+        "compare_function": "never",
+        "min_lod": 0.0,
+        "max_lod": 13.0,
+        "lod_bias": 0.0
+      },
+      "binding_evidence": {
+        "state": "renderer/body_material_state.json",
+        "resource": "BodyBaseDefault",
+        "model": "BodyBaseDefault",
+        "material": "mt_Socks",
+        "serialized_texture_ref": "BodyBaseDefault_Socks_Skm",
+        "runtime_texture_substitution": "ClothSocksBodyBaseTexDefault_Socks_Skm",
+        "selected_program_sampler_status": "active_compiled_material_sampler"
+      },
+      "levels": [
+        {
+          "level": 0,
+          "width": 384,
+          "height": 288,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_00.png",
+          "byte_length": 1247,
+          "sha256": "815b833f9811e928375ea653b0517b7fde800b5f4dd4d3eaa3bf21b360d2952b"
+        },
+        {
+          "level": 1,
+          "width": 192,
+          "height": 144,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_01.png",
+          "byte_length": 554,
+          "sha256": "d8e5ae492f495c28c0e2417b21fc83c7a97bc2475475ec5d96a734167e05d22e"
+        },
+        {
+          "level": 2,
+          "width": 96,
+          "height": 72,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_02.png",
+          "byte_length": 316,
+          "sha256": "8e64045a524e44e725a12b3a647c65d553aa14887b0de196b43f20397eb1962a"
+        },
+        {
+          "level": 3,
+          "width": 48,
+          "height": 36,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_03.png",
+          "byte_length": 195,
+          "sha256": "418c0f31b4a64e54636045191b9ea4818832155b90745285b0079e0c6a27bbce"
+        },
+        {
+          "level": 4,
+          "width": 24,
+          "height": 18,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_04.png",
+          "byte_length": 162,
+          "sha256": "328d397b13076cbc4cf3bb4d2a4225c98cfdf247ba857d07166716de7c324c7a"
+        },
+        {
+          "level": 5,
+          "width": 12,
+          "height": 9,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_05.png",
+          "byte_length": 142,
+          "sha256": "a49075cdccda114e39d4130b64372ee49104e014f78aa0eb98a261186870e563"
+        },
+        {
+          "level": 6,
+          "width": 6,
+          "height": 4,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_06.png",
+          "byte_length": 133,
+          "sha256": "e9cb981bea89bde7f8ee4c25c760e37f3b383609b4fe77cd2afcc6147c1f75d9"
+        },
+        {
+          "level": 7,
+          "width": 3,
+          "height": 2,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_07.png",
+          "byte_length": 125,
+          "sha256": "c495b8661f86f978fcf03fe319d74652416c19d5847cdc498c3c3f9a90e3d389"
+        },
+        {
+          "level": 8,
+          "width": 1,
+          "height": 1,
+          "mode": "RGBA",
+          "path": "renderer/assets/reference_outfit_texture_mips/ClothSocksBodyBaseTexDefault_Socks_Skm/mip_08.png",
+          "byte_length": 120,
+          "sha256": "92ed666f0d2e2b19f0004c63e019739a8cd1dd809cc18ccd34cef867d4443bf2"
+        }
+      ]
+    }
+  ]
+}
